@@ -1,8 +1,94 @@
 # LazyVim 完整使用指南
 
+## 📦 安装 Neovim
+
+### ⚠️ 版本要求
+
+**LazyVim 需要 Neovim 0.9.0 或更高版本！**
+
+如果遇到 `module 'vim.uri' not found` 错误，说明 Neovim 版本太旧，需要升级。
+
+检查当前版本：
+```bash
+nvim --version
+```
+
+### 方法 1: 使用安装脚本（推荐）
+
+```bash
+install:nvim
+```
+
+或者：
+
+```bash
+bash ~/.dotfiles/scripts/install/install_nvim.sh
+```
+
+**选项：**
+- `--force` 或 `-f`: 强制重新安装
+- `--version VERSION` 或 `-v VERSION`: 安装指定版本
+
+**示例：**
+```bash
+install:nvim                    # 安装最新版本
+install:nvim --force            # 强制重新安装
+install:nvim --version 0.9.5   # 安装指定版本（最低 0.9.0）
+```
+
+### 方法 2: 使用包管理器
+
+**macOS (Homebrew):**
+```bash
+brew install neovim
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get install neovim
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install neovim
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S neovim
+```
+
 ## ✅ 安装完成
 
 您的 Neovim 已经成功配置为 LazyVim Starter！这是正确的配置方式。
+
+## ⚠️ 故障排除
+
+### 错误：`module 'vim.uri' not found` 或 `module 'vim.termcap' not found`
+
+如果遇到这些错误，可能是以下原因：
+
+1. **Neovim 版本问题**：
+   - Neovim 0.11.x 是开发版本，可能存在一些兼容性问题
+   - 建议使用稳定版本 0.9.x 或 0.10.x
+   ```bash
+   install:nvim --version 0.10.2  # 安装稳定版本
+   ```
+
+2. **PATH 问题**：
+   - 确保使用的是新安装的版本
+   ```bash
+   which nvim  # 应该显示 ~/.local/bin/nvim
+   nvim --version  # 检查版本
+   ```
+
+3. **LazyVim 配置问题**：
+   - 尝试更新 LazyVim 到最新版本
+   - 或者清理并重新安装 LazyVim
+   ```bash
+   rm -rf ~/.local/share/nvim
+   nvim  # 重新启动，会自动重新安装
+   ```
 
 ## 🚀 首次启动
 

@@ -27,8 +27,10 @@ spf() {
     # 创建本地 bin 目录（如果不存在）
     mkdir -p ~/.local/bin
     
-    # 确保 PATH 包含 ~/.local/bin
-    export PATH="$HOME/.local/bin:$PATH"
+    # 确保 PATH 包含 ~/.local/bin（只在不存在时添加）
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
     
     # 下载并安装 superfile
     if curl -fsSL https://superfile.netlify.app/install.sh | bash; then

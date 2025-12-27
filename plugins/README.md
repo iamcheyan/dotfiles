@@ -364,7 +364,7 @@ install:font          # 字体安装
 
 ### 字体安装失败
 - 检查网络连接
-- 手动运行：`bash ~/.dotfiles/scripts/system/install_font.sh --force`
+- 手动运行：`bash ~/.dotfiles/scripts/install/install_font.sh --force`
 
 ---
 

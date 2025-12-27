@@ -21,3 +21,6 @@ Thumbs.db
 # 子仓库配置
 rime/   
 private/
+
+
+.config/nvim/tmp/

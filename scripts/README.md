@@ -6,6 +6,7 @@
 scripts/
 ├── utils/     # 通用工具脚本
 ├── dev/       # 开发相关脚本
+├── install/  # 安装脚本
 └── system/    # 系统管理脚本
 ```
 
@@ -30,6 +31,16 @@ scripts/
 **当前脚本：**
 - `git_clean.sh` - Git 清理未跟踪文件
 - `push_dotfiles.sh` - Dotfiles 推送工具（自动包含 IP、设备名、时间戳）
+
+### `scripts/install/` - 安装脚本
+**特点：**
+- 用于安装和配置各种工具和软件
+- 从 GitHub Releases 或其他源下载并安装
+
+**当前脚本：**
+- `install_font.sh` - 安装字体（Meslo、Noto Serif）
+- `install_nvim.sh` - 安装 Neovim（从 GitHub Releases）
+- `install_rime.sh` - 安装 Rime 输入法配置（从 GitHub 克隆）
 
 ### `scripts/system/` - 系统管理脚本
 **特点：**

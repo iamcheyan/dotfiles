@@ -94,10 +94,10 @@ restore() {
     
     # 安装字体（使用统一的字体安装脚本）
     echo "正在安装字体..."
-    if [ -f "$DOTFILES_DIR/scripts/system/install_font.sh" ]; then
-        bash "$DOTFILES_DIR/scripts/system/install_font.sh" --noto --force
+    if [ -f "$DOTFILES_DIR/scripts/install/install_font.sh" ]; then
+        bash "$DOTFILES_DIR/scripts/install/install_font.sh" --noto --force
     else
-        echo "警告: 未找到字体安装脚本: $DOTFILES_DIR/scripts/system/install_font.sh" >&2
+        echo "警告: 未找到字体安装脚本: $DOTFILES_DIR/scripts/install/install_font.sh" >&2
     fi
 
     #bash $DOTFILES_DIR/Scripts/sync_data.sh restore         # 恢复数据
