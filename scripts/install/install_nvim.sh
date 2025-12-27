@@ -179,9 +179,10 @@ install_nvim_linux() {
     chmod +x "$install_dir/bin/nvim"
     print_success "Neovim 已安装到 $install_dir"
     
-    # Step 4: 验证安装
+    # Step 4: 验证安装（静默模式，抑制所有终端控制序列）
     print_info "验证安装..."
-    local vimruntime=$("$install_dir/bin/nvim" --clean +'lua print(vim.env.VIMRUNTIME)' +q 2>/dev/null | grep -v "^$" | tail -1)
+    # 使用 TERM=dumb 和 --headless 抑制终端控制序列
+    local vimruntime=$(TERM=dumb "$install_dir/bin/nvim" --clean --headless +'lua print(vim.env.VIMRUNTIME)' +q 2>&1 | grep -v "^$" | grep -vE '^\[' | tail -1)
     if [[ "$vimruntime" == "$install_dir/share/nvim/runtime" ]]; then
         print_success "安装验证通过: VIMRUNTIME=$vimruntime"
     else
@@ -318,7 +319,8 @@ check_installed() {
     local version="$1"
     
     if command -v nvim >/dev/null 2>&1; then
-        local installed_version=$(nvim --version | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//')
+        # 使用 TERM=dumb 和过滤控制序列
+        local installed_version=$(TERM=dumb nvim --version 2>&1 | grep -vE '^\[' | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//')
         
         # 检查版本是否符合最低要求（0.9.0）
         if [[ -n "$installed_version" ]]; then
@@ -461,7 +463,8 @@ main() {
             local nvim_path=$(command -v nvim 2>/dev/null || echo "")
             if [[ -n "$nvim_path" ]] && [[ "$nvim_path" == "$nvim_bin/nvim" ]]; then
                 print_success "PATH 已配置，可直接使用 nvim 命令"
-                local installed_version=$("$nvim_path" --version 2>/dev/null | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//' || echo "")
+                # 使用 TERM=dumb 和过滤控制序列
+                local installed_version=$(TERM=dumb "$nvim_path" --version 2>&1 | grep -vE '^\[' | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//' || echo "")
                 if [[ -n "$installed_version" ]]; then
                     local major=$(echo "$installed_version" | cut -d. -f1)
                     local minor=$(echo "$installed_version" | cut -d. -f2)
