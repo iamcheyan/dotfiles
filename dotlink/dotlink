@@ -1,0 +1,405 @@
+#!/bin/bash
+
+# 程序启动的时候先判断有没有$HOME/Dotfiles （快捷方式
+if [ ! -e "$HOME/Dotfiles" ]; then
+    ln -s "$HOME/.dotfiles" "$HOME/Dotfiles"
+    echo "已创建软连接: $HOME/Dotfiles -> $HOME/.dotfiles"
+fi
+
+# 定义 .dotfiles 目录的路径
+DOTFILES_DIR="$HOME/.dotfiles"
+
+process_section_line() {
+    local section_start="$1"
+    local line="$2"
+    local section_content="$3"
+    
+    # 打印当前处理的规则
+    echo "处理规则 [$section_start]: $line"
+    
+    # 保存原始IFS
+    OLD_IFS="$IFS"
+    IFS=':' read -r src dest <<< "$line"
+    # 恢复原始IFS
+    IFS="$OLD_IFS"
+    
+    src="${src/\$HOME/$HOME}"
+    dest="${dest/\$HOME/$HOME}"
+    src=$(echo "$src" | sed 's/^[[:space:]]*;//' | sed 's/[[:space:]]*#.*$//' | sed 's/\\[[:space:]]/ /g')
+    dest=$(echo "$dest" | sed 's/^[[:space:]]*;//' | sed 's/[[:space:]]*#.*$//' | sed 's/\\[[:space:]]/ /g')
+    # 新增：去除首尾空白字符
+    src=$(echo "$src" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    dest=$(echo "$dest" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    
+    # 检查是否包含通配符
+    if [[ "$src" == *"*"* ]]; then
+        echo "  检测到通配符模式: $src"
+        process_wildcard_pattern "$section_start" "$src" "$dest" "$section_content"
+        return
+    fi
+    
+    if [ "$section_start" = "link" ]; then
+        if [ -L "$dest" ]; then
+            current_target=$(readlink -f "$dest")
+            if [ "$current_target" = "$src" ]; then
+                return
+            else
+                echo "  发现不一致的符号链接:"
+                echo "    当前链接: $dest -> $current_target"
+                echo "    预期链接: $dest -> $src"
+                echo "  删除并重新创建符号链接: $dest -> $src"
+                rm -rf "$dest"
+                section_content+="删除并重新创建符号链接: $dest -> $src"$'\n'
+            fi
+        elif [ -e "$dest" ]; then
+            if [ -d "$dest" ]; then
+                echo "  目标已存在且为文件夹，删除现有文件夹: $dest"
+                rm -rf "$dest"
+                section_content+="目标已存在且为文件夹，删除现有文件夹: $dest"$'\n'
+            else
+                echo "  目标已存在且为文件，删除现有文件: $dest"
+                rm -f "$dest"
+                section_content+="目标已存在且为文件，删除现有文件: $dest"$'\n'
+            fi
+        fi
+        if [ -d "$src" ]; then
+            section_content+="$src -> $dest"$'\n'
+            dest_dir=$(dirname "$dest")
+            if [ ! -d "$dest_dir" ]; then
+                mkdir -p "$dest_dir"
+                echo "创建目录: $dest_dir"
+            fi
+            ln -s "$src" "$dest"
+            echo "创建符号链接: $src -> $dest"
+        elif [ -f "$src" ]; then
+            section_content+="$src -> $dest"$'\n'
+            dest_dir=$(dirname "$dest")
+            if [ ! -d "$dest_dir" ]; then
+                mkdir -p "$dest_dir"
+                echo "创建目录: $dest_dir"
+            fi
+            ln -s "$src" "$dest"
+            echo "创建符号链接: $src -> $dest"
+        else
+            echo "跳过: $src -> $dest (源文件不存在)"
+        fi
+    elif [ "$section_start" = "backups" ]; then
+        backup_dir="$DOTFILES_DIR/backups"
+        if [ ! -d "$backup_dir" ]; then
+            mkdir -p "$backup_dir"
+        fi
+        
+        # 检查是否包含通配符
+        if [[ "$src" == *"*"* ]]; then
+            echo "  检测到通配符模式: $src"
+            process_wildcard_pattern "$section_start" "$src" "$dest" "$section_content"
+        else
+            # 检查是否指定了目标路径
+            if [ -n "$dest" ]; then
+                # 使用指定的目标路径
+                echo "  使用指定目标路径: $dest"
+            else
+                # 使用默认备份目录
+                dest="$backup_dir/$(basename "$src")"
+            fi
+            
+            # 确保目标目录存在
+            dest_dir=$(dirname "$dest")
+            if [ ! -d "$dest_dir" ]; then
+                mkdir -p "$dest_dir"
+                echo "  创建目标目录: $dest_dir"
+            fi
+            
+            if [ -f "$src" ]; then
+                if [ -e "$dest" ]; then
+                    rm -f "$dest"
+                fi
+                cp "$src" "$dest"
+                echo "备份文件: $src -> $dest"
+            elif [ -d "$src" ]; then
+                if [ -e "$dest" ]; then
+                    rm -rf "$dest"
+                fi
+                cp -r "$src" "$dest"
+                echo "备份目录: $src -> $dest"
+            else
+                echo "跳过: $src -> $dest (源文件或目录不存在)"   
+            fi
+        fi
+    elif [ "$section_start" = "backups_by_path" ]; then
+        backup_dir="$DOTFILES_DIR/backups"
+        dest="$backup_dir/$src"
+        dest_dir=$(dirname "$dest")
+        if [ ! -d "$dest_dir" ]; then
+            mkdir -p "$dest_dir"
+        fi
+        if [ -e "$dest" ]; then
+            rm -f "$dest"
+        fi
+        if [ -f "$src" ]; then
+            cp "$src" "$dest"
+            echo "备份文件: $src -> $dest"
+        elif [ -d "$src" ]; then
+            cp -r "$src" "$dest"
+            echo "备份目录: $src -> $dest"
+        else
+            echo "警告：源文件或目录不存在：$src"
+        fi
+    fi
+}
+
+# 处理通配符模式的函数
+process_wildcard_pattern() {
+    local section_start="$1"
+    local src_pattern="$2"
+    local dest_pattern="$3"
+    local section_content="$4"
+    
+    # 获取源目录和通配符部分
+    local src_dir=$(dirname "$src_pattern")
+    local src_wildcard=$(basename "$src_pattern")
+    local dest_dir=$(dirname "$dest_pattern")
+    local dest_wildcard=$(basename "$dest_pattern")
+    
+    # 确保源目录存在
+    if [ ! -d "$src_dir" ]; then
+        echo "  跳过: 源目录不存在: $src_dir"
+        return
+    fi
+    
+    # 查找匹配的文件和目录
+    local matches=()
+    while IFS= read -r -d '' file; do
+        matches+=("$file")
+    done < <(find "$src_dir" -maxdepth 1 -name "$src_wildcard" \( -type f -o -type d \) -print0 2>/dev/null)
+    
+    if [ ${#matches[@]} -eq 0 ]; then
+        echo "  跳过: 没有找到匹配的文件: $src_pattern"
+        return
+    fi
+    
+    echo "  找到 ${#matches[@]} 个匹配的文件:"
+    for match in "${matches[@]}"; do
+        echo "    $match"
+    done
+    
+    # 处理每个匹配的文件
+    for src_file in "${matches[@]}"; do
+        local filename=$(basename "$src_file")
+        local dest_file
+        
+        # 检查是否指定了目标路径
+        if [ -n "$dest_pattern" ]; then
+            # 使用指定的目标路径
+            dest_file="$dest_pattern/$filename"
+        else
+            # 使用默认目标路径
+            dest_file="$dest_dir/$filename"
+        fi
+        
+        echo "  处理文件: $src_file -> $dest_file"
+        
+        if [ "$section_start" = "link" ]; then
+            # 处理符号链接
+            if [ -L "$dest_file" ]; then
+                current_target=$(readlink -f "$dest_file")
+                if [ "$current_target" = "$src_file" ]; then
+                    echo "    符号链接已存在且正确: $dest_file"
+                    continue
+                else
+                    echo "    发现不一致的符号链接，删除并重新创建: $dest_file"
+                    rm -rf "$dest_file"
+                fi
+            elif [ -e "$dest_file" ]; then
+                if [ -d "$dest_file" ]; then
+                    echo "    目标已存在且为文件夹，删除现有文件夹: $dest_file"
+                    rm -rf "$dest_file"
+                else
+                    echo "    目标已存在且为文件，删除现有文件: $dest_file"
+                    rm -f "$dest_file"
+                fi
+            fi
+            
+            # 创建目标目录
+            if [ ! -d "$dest_dir" ]; then
+                mkdir -p "$dest_dir"
+                echo "    创建目录: $dest_dir"
+            fi
+            
+            # 创建符号链接
+            ln -s "$src_file" "$dest_file"
+            echo "    创建符号链接: $src_file -> $dest_file"
+            section_content+="$src_file -> $dest_file"$'\n'
+            
+        elif [ "$section_start" = "backups" ]; then
+            # 处理备份
+            # 确保目标目录存在
+            local backup_file_dir=$(dirname "$dest_file")
+            if [ ! -d "$backup_file_dir" ]; then
+                mkdir -p "$backup_file_dir"
+                echo "    创建目标目录: $backup_file_dir"
+            fi
+            
+            if [ -e "$dest_file" ]; then
+                rm -rf "$dest_file"
+            fi
+            if [ -f "$src_file" ]; then
+                cp "$src_file" "$dest_file"
+                echo "    备份文件: $src_file -> $dest_file"
+            elif [ -d "$src_file" ]; then
+                cp -r "$src_file" "$dest_file"
+                echo "    备份目录: $src_file -> $dest_file"
+            fi
+            
+        elif [ "$section_start" = "backups_by_path" ]; then
+            # 处理按路径备份
+            backup_dir="$DOTFILES_DIR/backups"
+            local backup_file="$backup_dir/$src_file"
+            local backup_file_dir=$(dirname "$backup_file")
+            if [ ! -d "$backup_file_dir" ]; then
+                mkdir -p "$backup_file_dir"
+            fi
+            if [ -e "$backup_file" ]; then
+                rm -rf "$backup_file"
+            fi
+            if [ -f "$src_file" ]; then
+                cp "$src_file" "$backup_file"
+                echo "    备份文件: $src_file -> $backup_file"
+            elif [ -d "$src_file" ]; then
+                cp -r "$src_file" "$backup_file"
+                echo "    备份目录: $src_file -> $backup_file"
+            fi
+        fi
+    done
+}
+
+extract_sections() {
+    local file="$1"
+    local section_start=""
+    local in_section=false
+    local section_content=""
+    
+    echo "开始处理配置文件: $file"
+    echo "=================================="
+    
+    while IFS= read -r line; do
+        if [[ $line =~ ^\[(.*)\]$ ]]; then
+            if $in_section; then
+                if [[ -n $section_content ]]; then
+                    echo "[$section_start]"
+                    echo -n "$section_content"
+                    echo "[$section_start]"
+                    echo
+                fi
+                section_content=""
+            fi
+            section_start="${BASH_REMATCH[1]}"
+            in_section=true
+            echo
+            echo "进入配置段: [$section_start]"
+            echo "----------------------------------"
+        elif $in_section && [[ ! $line =~ ^[[:space:]]*# ]] && [[ -n $line ]]; then
+            process_section_line "$section_start" "$line" "$section_content"
+        fi
+    done < "$file"
+    if $in_section && [[ -n $section_content ]]; then
+        echo "[$section_start]"
+        echo -n "$section_content"
+        echo "[$section_start]"
+        echo
+    fi
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database ~/.local/share/applications/
+    fi
+}
+
+extract_sections_with_filter() {
+    local file="$1"
+    local filter="$2"
+    local section_start=""
+    local in_section=false
+    local section_content=""
+    
+    echo "开始处理配置文件: $file (仅处理 [$filter] 部分)"
+    echo "=================================="
+    
+    while IFS= read -r line; do
+        if [[ $line =~ ^\[(.*)\]$ ]]; then
+            section_start="${BASH_REMATCH[1]}"
+            if [ -n "$filter" ]; then
+                in_section=false
+                if [ "$section_start" = "$filter" ]; then
+                    in_section=true
+                    echo
+                    echo "进入配置段: [$section_start]"
+                    echo "----------------------------------"
+                fi
+            else
+                in_section=true
+                echo
+                echo "进入配置段: [$section_start]"
+                echo "----------------------------------"
+            fi
+            continue
+        fi
+        if $in_section && [[ ! $line =~ ^[[:space:]]*# ]] && [[ -n $line ]]; then
+            process_section_line "$section_start" "$line" "$section_content"
+        fi
+    done < "$file"
+    if $in_section && [[ -n $section_content ]]; then
+        echo "[$section_start]"
+        echo -n "$section_content"
+        echo "[$section_start]"
+        echo
+    fi
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database ~/.local/share/applications/
+    fi
+}
+
+#  MAIN
+# Check if running on macOS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    config_file="$DOTFILES_DIR/dotlinkrc@macos"
+    echo "当前运行在 macOS 上"
+    echo "使用配置文件: $config_file"
+else
+    config_file="$DOTFILES_DIR/dotlinkrc"
+    # Check if running as root
+    if [ "$(id -u)" -eq 0 ]; then
+        echo "警告：您正在以root用户身份运行此脚本。请小心操作，并确保您理解所有操作的含义。"
+        read -p "是否继续？(y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "操作已取消。"
+            exit 1
+        fi
+    fi
+fi
+
+# 新增：参数判断
+section_filter=""
+if [ $# -ge 1 ]; then
+    case "$1" in
+        link|backups|backups_by_path)
+            section_filter="$1"
+            ;;
+        *)
+            echo "未知参数: $1，仅支持 link、backups、backups_by_path 或无参数。"
+            exit 1
+            ;;
+    esac
+fi
+
+# 如果有参数则用过滤版，否则用原版
+if [ -n "$section_filter" ]; then
+    extract_sections_with_filter "$config_file" "$section_filter"
+else
+    extract_sections "$config_file"
+fi
+
+########################### 一些额外的初始化动作 ###########################
+# 执行附加操作（可选）
+if [ -f "$DOTFILES_DIR/Scripts/additional_operations.sh" ]; then
+    bash "$DOTFILES_DIR/Scripts/additional_operations.sh"
+fi
