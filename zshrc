@@ -10,19 +10,19 @@ fi
 # Instant prompt (p10k)
 [[ -r ~/.cache/p10k-instant-prompt.zsh ]] && source ~/.cache/p10k-instant-prompt.zsh
 
-source ~/.dotfiles/config/zsh/plugins/zinit.zsh
-source ~/.dotfiles/config/zsh/plugins/prompt.zsh
-source ~/.dotfiles/config/zsh/plugins/plugins.zsh
-source ~/.dotfiles/config/zsh/plugins/tools.zsh
-source ~/.dotfiles/config/zsh/plugins/completion.zsh
+source ~/.dotfiles/plugins/zinit.zsh
+source ~/.dotfiles/plugins/prompt.zsh
+source ~/.dotfiles/plugins/plugins.zsh
+source ~/.dotfiles/plugins/tools.zsh
+source ~/.dotfiles/plugins/completion.zsh
 
 # fzf 配置（需要在 tools.zsh 之后加载，因为 fzf 二进制需要先安装）
-[[ -f ~/.dotfiles/config/zsh/plugins/fzf.zsh ]] && source ~/.dotfiles/config/zsh/plugins/fzf.zsh
+[[ -f ~/.dotfiles/plugins/fzf.zsh ]] && source ~/.dotfiles/plugins/fzf.zsh
 
 # superfile 配置（自动安装功能）
-[[ -f ~/.dotfiles/config/zsh/plugins/superfile.zsh ]] && source ~/.dotfiles/config/zsh/plugins/superfile.zsh
+[[ -f ~/.dotfiles/plugins/superfile.zsh ]] && source ~/.dotfiles/plugins/superfile.zsh
 
-[[ -f ~/.dotfiles/config/zsh/plugins/local.zsh ]] && source ~/.dotfiles/config/zsh/plugins/local.zsh
+[[ -f ~/.dotfiles/plugins/local.zsh ]] && source ~/.dotfiles/plugins/local.zsh
 
 # 加载别名配置
 [[ -f ~/.dotfiles/aliases.conf ]] && source ~/.dotfiles/aliases.conf

@@ -8,7 +8,7 @@
 .dotfiles/
 ├── config/              # 配置文件目录
 │   └── zsh/            # Zsh 配置
-│       └── plugins/    # Zsh 插件配置
+├── plugins/             # Zsh 插件配置
 ├── scripts/            # 脚本目录
 │   ├── utils/          # 通用工具脚本
 │   ├── dev/            # 开发相关脚本
@@ -218,7 +218,7 @@ win:open
 ### Zsh 配置结构
 
 ```
-config/zsh/plugins/
+plugins/
 ├── zinit.zsh          # Zinit 初始化
 ├── prompt.zsh         # Powerlevel10k 主题
 ├── plugins.zsh        # Zsh 插件
