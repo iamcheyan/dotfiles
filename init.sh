@@ -148,7 +148,7 @@ install_zinit() {
 # 创建 Dotfiles 软链接
 create_dotfiles_link() {
     local dotfiles_link="$HOME/Dotfiles"
-    local dotfiles_dir="$HOME/.dotfiles"
+    local dotfiles_dir="${DOTFILES_DIR:-$HOME/.dotfiles}"
 
     if [[ -L "$dotfiles_link" ]]; then
         local current_target=$(readlink -f "$dotfiles_link")
@@ -186,7 +186,7 @@ create_dotfiles_link() {
 
 # 使用 dotlink 创建配置文件的软链接
 run_dotlink() {
-    local dotlink_script="$HOME/.dotfiles/dotlink/dotlink"
+    local dotlink_script="${DOTFILES_DIR:-$HOME/.dotfiles}/dotlink/dotlink"
 
     if [[ ! -f "$dotlink_script" ]]; then
         print_error "未找到 dotlink 脚本: $dotlink_script"
@@ -210,7 +210,7 @@ run_dotlink() {
 # 创建 zshrc 软链接（如果不存在）
 create_zshrc_link() {
     local zshrc_target="$HOME/.zshrc"
-    local zshrc_source="$HOME/.dotfiles/zshrc"
+    local zshrc_source="${DOTFILES_DIR:-$HOME/.dotfiles}/zshrc"
 
     if [[ -L "$zshrc_target" ]]; then
         local current_target=$(readlink -f "$zshrc_target")
@@ -244,6 +244,72 @@ create_zshrc_link() {
     fi
 }
 
+# 检测并设置 dotfiles 目录
+detect_dotfiles_dir() {
+    local current_dir="$(pwd)"
+    local dotfiles_dir=""
+    
+    # 检查当前目录是否是 dotfiles 仓库
+    if [[ -f "$current_dir/zshrc" ]] && [[ -f "$current_dir/init.sh" ]]; then
+        dotfiles_dir="$current_dir"
+        print_info "检测到 dotfiles 仓库在: $dotfiles_dir"
+        
+        # 如果当前目录是 ~/Dotfiles，需要创建 ~/.dotfiles 软链接
+        if [[ "$dotfiles_dir" == "$HOME/Dotfiles" ]]; then
+            if [[ ! -e "$HOME/.dotfiles" ]]; then
+                print_info "正在创建 ~/.dotfiles 软链接..."
+                if ln -s "$HOME/Dotfiles" "$HOME/.dotfiles" 2>/dev/null; then
+                    print_success "已创建软链接: ~/.dotfiles -> ~/Dotfiles"
+                else
+                    print_error "创建软链接失败"
+                    return 1
+                fi
+            elif [[ -L "$HOME/.dotfiles" ]]; then
+                local target=$(readlink -f "$HOME/.dotfiles")
+                if [[ "$target" == "$HOME/Dotfiles" ]]; then
+                    print_success "软链接已存在: ~/.dotfiles -> ~/Dotfiles"
+                else
+                    print_warning "~/.dotfiles 软链接指向不同目标: $target"
+                fi
+            fi
+        fi
+    fi
+    
+    # 检查 ~/.dotfiles 是否存在
+    if [[ -e "$HOME/.dotfiles" ]]; then
+        if [[ -L "$HOME/.dotfiles" ]]; then
+            dotfiles_dir=$(readlink -f "$HOME/.dotfiles")
+        else
+            dotfiles_dir="$HOME/.dotfiles"
+        fi
+    fi
+    
+    # 如果还是没找到，尝试从当前目录创建软链接
+    if [[ -z "$dotfiles_dir" ]] && [[ -f "$current_dir/zshrc" ]] && [[ -f "$current_dir/init.sh" ]]; then
+        print_info "正在创建 ~/.dotfiles 软链接指向当前目录..."
+        if ln -s "$current_dir" "$HOME/.dotfiles" 2>/dev/null; then
+            dotfiles_dir="$HOME/.dotfiles"
+            print_success "已创建软链接: ~/.dotfiles -> $current_dir"
+        else
+            print_error "创建软链接失败"
+            return 1
+        fi
+    fi
+    
+    # 最终检查
+    if [[ -z "$dotfiles_dir" ]] || [[ ! -f "$HOME/.dotfiles/zshrc" ]]; then
+        print_error "未找到 dotfiles 仓库"
+        print_info "请确保："
+        print_info "  1. 在 dotfiles 仓库目录中运行此脚本，或"
+        print_info "  2. 已克隆仓库到 ~/.dotfiles 或 ~/Dotfiles"
+        return 1
+    fi
+    
+    export DOTFILES_DIR="$HOME/.dotfiles"
+    print_success "Dotfiles 目录: $DOTFILES_DIR"
+    return 0
+}
+
 # 主函数
 main() {
     echo ""
@@ -252,35 +318,35 @@ main() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
 
-    # 检查是否在正确的目录
-    if [[ ! -f "$HOME/.dotfiles/zshrc" ]]; then
-        print_error "未找到 ~/.dotfiles/zshrc，请确保在正确的目录运行此脚本"
-        print_info "请先执行: git clone https://github.com/iamcheyan/Dotfiles.git ~/.dotfiles"
+    # 检测并设置 dotfiles 目录
+    print_info "步骤 0/5: 检测 dotfiles 仓库位置"
+    if ! detect_dotfiles_dir; then
         exit 1
     fi
+    echo ""
 
     # 1. 安装 zsh
-    print_info "步骤 1/5: 检查并安装 zsh"
+    print_info "步骤 1/6: 检查并安装 zsh"
     install_zsh
     echo ""
 
     # 2. 安装 zinit
-    print_info "步骤 2/5: 检查并安装 zinit"
+    print_info "步骤 2/6: 检查并安装 zinit"
     install_zinit
     echo ""
 
-    # 3. 创建 Dotfiles 软链接
-    print_info "步骤 3/5: 创建 Dotfiles 软链接"
+    # 3. 创建 Dotfiles 软链接（如果不存在）
+    print_info "步骤 3/6: 创建 Dotfiles 软链接"
     create_dotfiles_link
     echo ""
 
     # 4. 使用 dotlink 创建配置文件软链接
-    print_info "步骤 4/5: 使用 dotlink 创建配置文件软链接"
+    print_info "步骤 4/6: 使用 dotlink 创建配置文件软链接"
     run_dotlink
     echo ""
 
     # 5. 创建 .zshrc 软链接
-    print_info "步骤 5/5: 创建 .zshrc 软链接"
+    print_info "步骤 5/6: 创建 .zshrc 软链接"
     create_zshrc_link
     echo ""
 
