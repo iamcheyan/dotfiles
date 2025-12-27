@@ -13,6 +13,20 @@ if [[ -d "$HOME/.local/nvim/bin" ]] && [[ ":$PATH:" != *":$HOME/.local/nvim/bin:
     export PATH="$HOME/.local/nvim/bin:$PATH"
 fi
 
+# 添加 Rust cargo bin 目录到 PATH（如果已安装 Rust）
+# 用于安装 tree-sitter-cli 等工具（解决 GLIBC 版本问题）
+# 注意：放在 npm-global 之前，确保 cargo 编译的版本优先
+if [[ -d "$HOME/.cargo/bin" ]] && [[ ":$PATH:" != *":$HOME/.cargo/bin:"* ]]; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
+# 添加 npm 全局包路径到 PATH（如果已配置）
+# 避免 npm 全局安装时的权限问题
+# 注意：放在 cargo 之后，避免与 cargo 编译的工具冲突
+if [[ -d "$HOME/.npm-global/bin" ]] && [[ ":$PATH:" != *":$HOME/.npm-global/bin:"* ]]; then
+    export PATH="$HOME/.npm-global/bin:$PATH"
+fi
+
 # 添加 zinit 管理的工具目录到 PATH
 # 注意：zinit 使用 sbin 时会将工具安装到 $ZPFX/bin
 # 对于使用 as"command" 的工具，它们会被安装到插件目录

@@ -20,7 +20,8 @@ configs.setup({
     sync_install = false,
     -- Automatically install missing parsers when entering buffer
     -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-    auto_install = true,
+    -- 如果遇到 GLIBC 版本问题，可以设置为 false，然后手动安装解析器
+    auto_install = false, -- 暂时禁用自动安装，避免 GLIBC 版本问题
     -- List of parsers to ignore installing (for "all")
     ignore_install = { "javascript" },
     ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
