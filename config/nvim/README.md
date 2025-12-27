@@ -18,8 +18,12 @@ sudo apt install -y \
   build-essential \
   pkg-config \
   cmake \
-  unzip
+  unzip \
+  clang \
+  libclang-dev
 ```
+
+**注意**：`clang` 和 `libclang-dev` 是使用 cargo 安装 tree-sitter-cli 时需要的依赖（解决 GLIBC 版本问题）。
 
 #### 其他系统：
 
@@ -199,6 +203,102 @@ nvim
 ```
 
 如果看到 "C compiler" 显示为 ❌，说明需要安装 C 编译器（见上方步骤 0）。
+
+### 1.6. 解决 tree-sitter GLIBC 版本问题
+
+如果遇到类似 `GLIBC_2.39 not found` 的错误，说明系统的 GLIBC 版本过低。解决方案：
+
+**方案 1：使用系统包管理器安装 tree-sitter（推荐）**
+```bash
+# Ubuntu/Debian
+sudo apt-get install tree-sitter
+
+# 然后重新启动 Neovim
+```
+
+**方案 2：使用 cargo 安装 tree-sitter-cli（推荐，解决 GLIBC 问题）**
+
+如果 npm 安装的版本也有 GLIBC 问题，使用 Rust 的 cargo 安装（会针对当前系统编译）：
+
+```bash
+# 1. 安装 Rust（如果未安装）
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+
+# 2. 安装 clang（cargo 编译需要）
+# Ubuntu/Debian
+sudo apt-get install -y clang libclang-dev
+
+# 3. 安装 tree-sitter-cli
+cargo install tree-sitter-cli
+
+# 4. 重新加载 shell 配置（PATH 已自动配置）
+source ~/.zshrc
+
+# 5. 删除 npm 版本的 tree-sitter（如果存在，避免冲突）
+rm -f ~/.npm-global/bin/tree-sitter
+
+# 6. 重新加载 shell 配置（确保 PATH 顺序正确）
+source ~/.zshrc
+
+# 7. 验证安装
+which tree-sitter  # 应该显示 ~/.cargo/bin/tree-sitter
+tree-sitter --version
+```
+
+**注意**：如果编译失败提示缺少 libclang，请先安装 clang：
+```bash
+sudo apt-get install -y clang libclang-dev
+```
+
+**方案 3：使用 npm 安装 tree-sitter-cli（如果系统 GLIBC 版本足够）**
+```bash
+# 1. 确保已安装 nvm 和 Node.js
+# 如果未安装，运行: install:nvm
+# 然后: nvm install --lts && nvm use --lts
+
+# 2. 配置 npm 全局安装路径（避免权限问题，如果还未配置）
+mkdir -p ~/.npm-global
+npm config set prefix '~/.npm-global'
+source ~/.zshrc  # 重新加载 PATH
+
+# 3. 安装 tree-sitter-cli
+npm install -g tree-sitter-cli
+
+# 4. 验证安装
+which tree-sitter  # 应该显示 ~/.npm-global/bin/tree-sitter
+tree-sitter --version
+```
+
+**注意**：如果 npm 安装的版本也显示 GLIBC 错误，请使用方案 2（cargo 安装）。
+
+**方案 3：使用 cargo 安装 tree-sitter-cli（需要 Rust）**
+```bash
+# 如果已安装 Rust 和 Cargo
+cargo install tree-sitter-cli
+
+# 验证安装
+tree-sitter --version
+```
+
+**方案 4：从源码编译（如果上述方法不可行）**
+```bash
+# 需要 Rust 工具链
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+cargo install tree-sitter-cli
+```
+
+**方案 5：暂时禁用自动安装（如果上述方案都不可行）**
+- 编辑 `~/.config/nvim/lua/config/nvim-treesitter.lua`
+- 将 `auto_install = false` 保持为 false（已默认禁用）
+- 解析器会在需要时手动安装，或使用 `:TSInstall <language>` 手动安装
+- 注意：即使禁用了自动安装，`ensure_installed` 列表中的解析器仍会在启动时尝试安装
+
+**重要提示：**
+- 如果下载的 tree-sitter 二进制文件显示 "Not found" 错误，说明下载的文件无效
+- 建议使用 npm 或 cargo 安装，这些方法更可靠
+- 安装完成后，删除无效的 `~/.local/bin/tree-sitter` 文件，然后重新安装
 
 ### 2. 安装 LSP 服务器
 

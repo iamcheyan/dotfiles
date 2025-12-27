@@ -64,7 +64,78 @@ install:nvim --version 0.9.5   # 安装指定版本
 
 ---
 
-### 3. `install_rime.sh` - Rime 输入法配置安装脚本
+### 3. `install_nvm.sh` - nvm (Node Version Manager) 安装脚本
+
+**功能：**
+- 安装 nvm (Node Version Manager)，用于管理 Node.js 版本
+- 自动配置 shell 环境（zsh/bash）
+- 支持检测已安装的 nvm
+
+**用法：**
+```bash
+install:nvm           # 安装 nvm (默认版本 v0.39.7)
+install:nvm --force    # 强制重新安装
+```
+
+**别名：**
+- `install:nvm` - 通过 `aliases.conf` 定义
+
+**特点：**
+- 自动检测 shell 类型（zsh/bash）
+- 自动配置 shell 配置文件（~/.zshrc 或 ~/.bashrc）
+- 支持 --force 参数强制重新安装
+- 检查已安装状态，避免重复安装
+
+**安装位置：**
+- `~/.nvm`
+
+**后续步骤：**
+安装后需要：
+1. 重新加载 shell: `source ~/.zshrc` 或 `source ~/.bashrc`
+2. 验证安装: `command -v nvm`
+3. 安装 Node.js: `nvm install --lts`
+4. 使用 Node.js: `nvm use --lts`
+
+---
+
+### 4. `install_treesitter.sh` - tree-sitter-cli 安装脚本
+
+**功能：**
+- 使用 Rust cargo 安装 tree-sitter-cli
+- 解决 GLIBC 版本问题（针对当前系统编译）
+- 自动安装 Rust 和 clang（如果未安装）
+- 自动删除 npm 版本的 tree-sitter（避免冲突）
+
+**用法：**
+```bash
+install:treesitter           # 安装 tree-sitter-cli
+install:treesitter --force   # 强制重新安装
+```
+
+**别名：**
+- `install:treesitter` - 通过 `aliases.conf` 定义
+
+**特点：**
+- 仅支持 Linux 系统
+- 自动检测架构（x86_64、aarch64）
+- 自动安装依赖（Rust、clang）
+- 自动删除冲突的 npm 版本
+- 彩色输出和进度提示
+
+**安装位置：**
+- `~/.cargo/bin/tree-sitter`
+
+**依赖：**
+- `curl` - 用于下载 Rust 安装脚本
+- `apt-get` - 用于安装 clang（Ubuntu/Debian）
+- 网络连接 - 用于下载 Rust 和编译依赖
+
+**后续步骤：**
+安装后在 Neovim 中运行 `:checkhealth nvim-treesitter` 验证。
+
+---
+
+### 5. `install_rime.sh` - Rime 输入法配置安装脚本
 
 **功能：**
 - 从 GitHub 克隆 Rime 输入法配置仓库
@@ -103,9 +174,11 @@ install:rime --force   # 强制重新克隆
 所有安装脚本都通过 `aliases.conf` 定义了别名：
 
 ```bash
-install:font    # 安装字体
-install:nvim    # 安装 Neovim
-install:rime    # 安装 Rime 配置
+install:font        # 安装字体
+install:nvim        # 安装 Neovim
+install:nvm         # 安装 nvm
+install:treesitter  # 安装 tree-sitter-cli
+install:rime        # 安装 Rime 配置
 ```
 
 ### 直接运行脚本
@@ -113,6 +186,8 @@ install:rime    # 安装 Rime 配置
 ```bash
 bash ~/.dotfiles/scripts/install/install_font.sh
 bash ~/.dotfiles/scripts/install/install_nvim.sh
+bash ~/.dotfiles/scripts/install/install_nvm.sh
+bash ~/.dotfiles/scripts/install/install_treesitter.sh
 bash ~/.dotfiles/scripts/install/install_rime.sh
 ```
 
