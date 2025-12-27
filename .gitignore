@@ -1,0 +1,17 @@
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.swp
+*.swo
+*~
+
+# zsh 缓存
+.zinit/
+.zcompdump*
+.zsh_history
+
+# Powerlevel10k 缓存
+.p10k.zsh.backup
+
