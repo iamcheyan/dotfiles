@@ -1,0 +1,226 @@
+" Basic settings
+set nocompatible          " Use Vim instead of legacy vi
+set wildmenu              " Enable TAB completion menu in the command-line
+set ignorecase smartcase  " Case-insensitive search unless the pattern has uppercase
+set number relativenumber " Show absolute plus relative line numbers
+set visualbell t_vb=      " Disable audible and screen bell
+set ruler                 " Display the current cursor position
+set autoread              " Automatically reload files changed outside Vim
+set autowrite             " Automatically save buffers when running commands
+set autochdir             " Keep cwd aligned with the current file
+set mouse=a               " Enable mouse support
+set shiftwidth=4 tabstop=4 expandtab " Indent with four spaces
+set smartindent           " Enable smart indentation
+set autoindent            " Copy indent from the previous line
+set smarttab              " Make TAB honor shiftwidth at line start
+set hlsearch incsearch    " Highlight matches and show incremental search
+set noswapfile nobackup nowritebackup " Disable swap and backup files
+
+" gvim
+set guioptions-=T
+
+" Configure backspace behavior
+set backspace=eol,start,indent
+" Tabs are four spaces
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+set smarttab
+" Keep indentation on new lines
+set autoindent
+
+" Performance tweaks
+set lazyredraw            " Faster macro playback
+set ttyfast               " Speed up terminal output
+
+" Encoding settings
+set encoding=utf-8
+set fileencoding=utf-8
+set fileencodings=utf-8,cp932,euc-jp,latin1
+set termencoding=utf-8
+
+" Display options
+set number                " Show absolute line numbers
+set cursorline            " Highlight current line
+
+set wrap                  " wrap long lines
+set linebreak
+set breakindent
+
+set scrolloff=8           " Keep context when scrolling near window edges
+
+" Show invisible characters
+set list listchars=tab:»·,trail:·,extends:>,precedes:<
+" Display current command in the status area
+set showcmd
+" Allow switching buffers without saving
+set hidden
+" Open new splits below and to the right
+set splitbelow splitright
+
+" Colors and syntax
+syntax enable              " Enable syntax highlighting
+filetype on                " Enable filetype detection
+filetype plugin on         " Enable filetype plugins
+filetype indent on         " Enable filetype-specific indent
+if has('termguicolors')
+    set termguicolors
+endif
+" Choose the colorscheme
+colorscheme koehler
+
+" ==========================================
+" IDE-like enhancements
+" ==========================================
+
+" Richer statusline (IDE-style footer)
+set laststatus=2           " Always show the statusline
+set statusline=
+set statusline+=%<\         " Left align and truncate at the start
+set statusline+=%f\         " File name
+set statusline+=%m          " Modified flag [+]
+set statusline+=%r          " Readonly flag [RO]
+set statusline+=%w          " Preview flag [Preview]
+set statusline+=%h          " Help flag [Help]
+set statusline+=%y          " Filetype
+set statusline+=%=          " Align the rest to the right
+set statusline+=%c,         " Column number
+set statusline+=%l/%L       " Current line / total lines
+set statusline+=\ %P        " Percentage through file
+
+" Code folding
+set foldmethod=syntax       " Syntax-based folding
+set foldlevelstart=99       " Start unfolded
+set foldcolumn=1            " Show fold column
+
+" Highlight matching brackets
+set showmatch               " Highlight matching pairs
+set matchtime=1             " Blink for 0.1 seconds
+
+" Tabs
+
+" File search convenience
+set path+=**                " Search files recursively with :find
+
+" Netrw configuration
+let g:netrw_banner = 0      " Hide the banner
+let g:netrw_liststyle = 3   " Tree view
+let g:netrw_browse_split = 4 " Open in a new tab
+let g:netrw_altv = 1        " Vertical splits open on the right
+let g:netrw_winsize = 25    " File browser width
+
+" Toggle comments with filetype awareness
+function! CommentToggle()
+    let l:comment_map = {
+    \   'python': '#',
+    \   'javascript': '//',
+    \   'javascriptreact': '//',
+    \   'typescript': '//',
+    \   'typescriptreact': '//',
+    \   'java': '//',
+    \   'c': '//',
+    \   'cpp': '//',
+    \   'csharp': '//',
+    \   'go': '//',
+    \   'rust': '//',
+    \   'php': '//',
+    \   'ruby': '#',
+    \   'shell': '#',
+    \   'sh': '#',
+    \   'zsh': '#',
+    \   'bash': '#',
+    \   'vim': '"',
+    \   'lua': '--',
+    \   'sql': '--',
+    \   'html': '<!--',
+    \   'xml': '<!--',
+    \   'css': '/*',
+    \   'scss': '//',
+    \   'yaml': '#',
+    \   'yml': '#',
+    \   'toml': '#',
+    \   'ini': '#',
+    \   'conf': '#'
+    \ }
+    let l:filetype = &filetype
+    if empty(l:filetype)
+        let l:comment = '#'
+    else
+        let l:comment = get(l:comment_map, l:filetype, '#')
+    endif
+    return l:comment
+endfunction
+
+function! s:ToggleComment() range
+    let l:comment = CommentToggle()
+    let l:comment_escaped = escape(l:comment, '/*.^$~[]')
+    let l:pattern = '^\s*' . l:comment_escaped
+
+    let l:has_comment = 1
+    let l:line = a:firstline
+    while l:line <= a:lastline
+        if match(getline(l:line), l:pattern) == -1
+            let l:has_comment = 0
+            break
+        endif
+        let l:line += 1
+    endwhile
+
+    if l:has_comment
+        " Uncomment: remove comment tokens and trailing space
+        execute a:firstline . ',' . a:lastline . 's/^\s*' . l:comment_escaped . '\s*//'
+    else
+        " Comment out the selection
+        execute a:firstline . ',' . a:lastline . 's/^/' . l:comment_escaped . ' /'
+    endif
+endfunction
+
+" Search settings
+set wrapscan                " Wrap search around the file end
+
+" Pseudo multi-cursor tips
+" Use * or # plus cgn to simulate multi-cursor editing
+
+" Tag navigation
+set tags=./tags,tags        " Look for tags file locally then globally
+
+" Formatting helpers
+
+" Quick location helpers
+
+" Window movement helpers
+
+" Completion tweaks
+set completeopt=menuone,noinsert,noselect " Nicer completion popup
+set complete+=k             " Include dictionary source
+set dictionary+=/usr/share/dict/words " Path to system dictionary
+
+" Indentation visualization
+set cinoptions+=l1          " Better C-style layout
+
+" Tabline improvements
+set showtabline=2           " Always show the tabline
+
+" Autocommands
+augroup IDEBehavior
+    autocmd!
+    " Restore last cursor position on file open
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+    " Strip trailing whitespace on write
+    autocmd BufWritePre * %s/\s\+$//e
+    " Create missing parent directories on write
+    autocmd BufWritePre * call mkdir(expand('<afile>:p:h'), 'p')
+augroup END
+
+function! ShowRegistersBottom()
+    split
+    setlocal buftype=nofile bufhidden=hide noswapfile
+    setlocal nowrap
+    autocmd! TextYankPost * execute "normal! ggVGd" | execute "reg"
+    execute "reg"
+endfunction
+
+command! RegBottom call ShowRegistersBottom()
+set termguicolors
+syntax on

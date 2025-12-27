@@ -50,3 +50,4 @@ spf() {
 # 添加别名（向后兼容和拼写容错）
 alias superfile=spf
 alias superfiles=spf
+

@@ -10,3 +10,4 @@ zinit snippet OMZP::sudo
 # git 插件（只拿 git，不引 OMZ）
 zinit snippet OMZP::git
 
+

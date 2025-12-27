@@ -11,43 +11,14 @@
 """
 
 [link]
-$HOME/.dotfiles:$HOME/Dotfiles	# Dotfiles 主目录
+$HOME/.dotfiles:$HOME/.dotfiles	# Dotfiles 主目录
 
-$HOME/.dotfiles/config/zsh/zshrc:$HOME/.zshrc	# zsh 配置文件#
-$HOME/.dotfiles/config/terminal/p10k.zsh:$HOME/.p10k.zsh	# Powerlevel10k 配置文件
-$HOME/.dotfiles/config/editor/nano/nanorc:$HOME/.nanorc	# GNU nano 配置文件
-
-$HOME/.dotfiles/themes:$HOME/.themes   # 主题
-$HOME/.dotfiles/config/system/user-dirs.dirs:$HOME/.config/user-dirs.dirs   # 桌面目录配置
-
-$HOME/.dotfiles/config/ranger:$HOME/.config/ranger	# Ranger 配置文件
-$HOME/.dotfiles/config/editor/vim/vimrc:$HOME/.vimrc	# Vim 配置文件
-$HOME/.dotfiles/config/fish:$HOME/.config/fish	# Fish shell 配置目录
-
-$HOME/.dotfiles/config/mimeapps.list:$HOME/.config/mimeapps.list	# 桌面目录配置
-
-$HOME/.dotfiles/config/nixos:/etc/nixos 
-
-$HOME/.dotfiles/config/cinnamon/applets:$HOME/.local/share/cinnamon/applets	# Cinnamon 小程序
-$HOME/.dotfiles/config/nemo:$HOME/.local/share/nemo	# Nemo 脚本目录
-$HOME/.dotfiles/config/cinnamon/spices:$HOME/.config/cinnamon/spices
-
-$HOME/.dotfiles/config/gnome-shell/extensions:$HOME/.local/share/gnome-shell/extensions
-
-$HOME/.dotfiles/config/org.fcitx.Fcitx5:$HOME/.var/app/org.fcitx.Fcitx5		            # org.fcitx.Fcitx5	
-$HOME/.dotfiles/config/org.fcitx.Fcitx5/data/fcitx5/rime:$HOME/.dotfiles/config/rime   # RIME主配置
-
-$HOME/.dotfiles/config/org.fcitx.Fcitx5/data/fcitx5/rime:$HOME/.local/share/fcitx5/rime			# Fcitx5 的 Rime 配置
-$HOME/.dotfiles/config/org.fcitx.Fcitx5/data/fcitx5/rime:$HOME/.config/ibus/rime				# IBus 的 Rime 配置
-$HOME/.dotfiles/config/fcitx5/themes:$HOME/.local/share/fcitx5/themes		# Fcitx5 主题
-$HOME/.dotfiles/config/fcitx5/conf:$HOME/.config/fcitx5/conf			# Fcitx5 配置
-$HOME/.dotfiles/config/fcitx5/profile:$HOME/.config/fcitx5/profile			# Fcitx5 配置
-
-$HOME/.dotfiles/config/copyq.conf:$HOME/.config/copyq/copyq.conf	# CopyQ 剪贴板管理器配置 
-$HOME/.dotfiles/config/flameshot.ini:$HOME/.config/flameshot/flameshot.ini	# Flameshot 截图工具配置
-$HOME/.dotfiles/config/fsearch.conf:$HOME/.config/fsearch/fsearch.conf	# FSearch 文件搜索工具配置
-$HOME/.dotfiles/config/uTools/Preferences:$HOME/.config/uTools/Preferences	# uTools 效率工具偏好设置
-$HOME/.dotfiles/config/uTools/settings:$HOME/.config/uTools/settings	# uTools 效率工具设置
+$HOME/.dotfiles/zshrc:$HOME/.zshrc	# zsh 配置文件
+$HOME/.dotfiles/.p10k.zsh:$HOME/.p10k.zsh	# Powerlevel10k 配置文件（如果存在）
+$HOME/.dotfiles/config/nano/nanorc:$HOME/.nanorc	# GNU nano 配置文件
+$HOME/.dotfiles/config/vim/vimrc:$HOME/.vimrc	# Vim 配置文件
+$HOME/.dotfiles/config/nixos:/etc/nixos	# NixOS 配置
+$HOME/.dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件
+$HOME/.dotfiles/config/yazi:$HOME/.config/yazi	# Yazi 文件管理器配置
+$HOME/.dotfiles/config/karabiner:$HOME/.config/karabiner	# Karabiner 配置文件（macOS）
 $HOME/.dotfiles/config/wps/Office.conf:$HOME/.config/Kingsoft/Office.conf	# WPS Office 配置
-
-$HOME/.dotfiles/config/ulauncher:$HOME/.config/ulauncher	# Ulauncher 启动器配置

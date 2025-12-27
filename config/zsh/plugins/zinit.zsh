@@ -6,3 +6,4 @@ fi
 source ~/.zinit/bin/zinit.zsh
 
 alias zz='zoxide query -i'
+
