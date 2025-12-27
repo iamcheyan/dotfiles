@@ -10,7 +10,7 @@ unalias install:font 2>/dev/null || true
 
 # 字体安装函数（可通过命令调用）
 install:font() {
-    bash "$HOME/.dotfiles/scripts/system/install_font.sh" "$@"
+    bash "$HOME/.dotfiles/scripts/install/install_font.sh" "$@"
 }
 
 # zsh 初始化时询问是否安装字体（仅在交互式 shell 中）
