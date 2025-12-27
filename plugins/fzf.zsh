@@ -141,5 +141,26 @@ zc() {
     [[ -n "$cmd" ]] && print -z -- "$cmd"
 }
 
-# 注: y() 函数已移动到 yazi.zsh 插件中
+# y: 启动 yazi 文件管理器，退出后切换到选择的目录
+# - 使用临时文件保存 yazi 退出时的当前目录
+# - 退出后自动切换到该目录
+# - 解决 Terminal Response Timeout 问题（通过禁用 shell hook）
+y() {
+  local tmp cwd
+  tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+  
+  # 禁用 shell hook 以避免 TRT 错误（使用 --cwd-file 时不需要）
+  # 如果指定了目录参数，先切换到该目录
+  if [[ $# -gt 0 ]]; then
+    cd "$1" && YA_SHELL_INTEGRATION=0 yazi --cwd-file="$tmp"
+  else
+    YA_SHELL_INTEGRATION=0 yazi --cwd-file="$tmp"
+  fi
+
+  if [ -f "$tmp" ]; then
+    cwd="$(cat "$tmp")"
+    [ -n "$cwd" ] && [ -d "$cwd" ] && cd "$cwd"
+    rm -f "$tmp"
+  fi
+}
 
