@@ -7,7 +7,7 @@
 
 # 字体安装函数（可通过命令调用）
 install:font() {
-    bash "$HOME/.dotfiles/resources/install_font.sh" "$@"
+    bash "$HOME/.dotfiles/scripts/system/install_font.sh" "$@"
 }
 
 # zsh 初始化时询问是否安装字体（仅在交互式 shell 中）
@@ -46,3 +46,4 @@ if [[ -o interactive ]] && [ -t 0 ]; then
         fi
     fi
 fi
+

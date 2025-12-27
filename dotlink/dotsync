@@ -92,87 +92,13 @@ restore() {
         echo "恢复 GNOME 终端配置时出错"
     fi
     
-    echo "正在从 GitHub 拉取字体仓库..."
-    
-    # 定义目标目录
-    fonts_dir="$HOME/.cache/fonts"
-    
-    # 检查目录是否存在，如果不存在则创建
-    if [ ! -d "$fonts_dir" ]; then
-        mkdir -p "$fonts_dir"
-    fi
-    
-    # 拉取或更新仓库
-    if [ -d "$fonts_dir/.git" ]; then
-        echo "字体仓库已存在，正在更新..."
-        git -C "$fonts_dir" pull
-    else
-        echo "正在克隆字体仓库..."
-        git clone https://github.com/iamcheyan/fonts.git "$fonts_dir"
-    fi
-    
-    # 检查操作是否成功
-    if [ $? -eq 0 ]; then
-        echo "字体仓库已成功拉取到 $fonts_dir"
-    else
-        echo "拉取字体仓库时出错"
-    fi
-
-    # 下载 Noto Serif CJK 和 Noto Serif 字体
-    echo "正在下载 Noto Serif 字体..."
-    
-    # 定义下载链接数组
-    download_links=(
-        "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/07_NotoSerifCJKjp.zip"
-        "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/12_NotoSerifJP.zip"
-        "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip"
-        "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/14_NotoSerifSC.zip"
-    )
-    
-    # 遍历下载链接并下载文件
-    for link in "${download_links[@]}"; do
-        filename=$(basename "$link")
-        if [ -f "$fonts_dir/$filename" ]; then
-            echo "文件已存在，跳过下载: $filename"
-        else
-            if wget -q --show-progress -P "$fonts_dir" "$link"; then
-                echo "成功下载: $filename"
-            else
-                echo "下载失败: $filename"
-            fi
-        fi
-    done
-    
-    echo "Noto Serif 字体下载完成"
-
-    # 安装字体
+    # 安装字体（使用统一的字体安装脚本）
     echo "正在安装字体..."
-    
-    # 解压所有 zip 文件
-    echo "正在解压字体文件..."
-    find "$fonts_dir" -name "*.zip" -exec unzip -q -o {} -d "$fonts_dir" \;
-    if [ $? -eq 0 ]; then
-        echo "所有字体文件已成功解压"
+    if [ -f "$DOTFILES_DIR/scripts/system/install_font.sh" ]; then
+        bash "$DOTFILES_DIR/scripts/system/install_font.sh" --noto --force
     else
-        echo "解压字体文件时出错"
+        echo "警告: 未找到字体安装脚本: $DOTFILES_DIR/scripts/system/install_font.sh" >&2
     fi
-
-    # 复制字体文件到 $HOME/.fonts 目录
-    echo "正在复制字体文件..."
-    mkdir -p "$HOME/.fonts"
-    find "$fonts_dir" -type f \( -name "*.ttc" -o -name "*.ttf" -o -name "*.otf" \) -exec cp -f {} "$HOME/.fonts" \;
-
-    # 整理 $HOME/.fonts 目录
-    echo "正在整理字体文件..."
-    find "$HOME/.fonts" -type f \( -name "*.ttc" -o -name "*.ttf" -o -name "*.otf" \) -exec mv -f {} "$HOME/.fonts" \;
-    find "$HOME/.fonts" -type d -empty -delete
-    echo "字体文件整理完成"
-
-    # 清除字体缓存
-    echo "正在清除字体缓存..."
-    fc-cache -f -v
-
-    echo "字体安装完成"
 
     #bash $DOTFILES_DIR/Scripts/sync_data.sh restore         # 恢复数据
     

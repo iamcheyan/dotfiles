@@ -15,3 +15,8 @@ Thumbs.db
 # Powerlevel10k 缓存
 .p10k.zsh.backup
 
+# 字体缓存（从 GitHub 下载）
+.cache/fonts/
+
+# Rime 配置
+*/rime

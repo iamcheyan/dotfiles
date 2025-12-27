@@ -1,0 +1,41 @@
+## === 基本的な編集設定 ===
+set linenumbers         # 行番号を表示する
+set constantshow        # 下部のステータスバーに行・列番号を常に表示する
+set softwrap            # 長い行を自動的に折り返して表示（改行文字は挿入しない）
+set breaklonglines      # 入力中に行が長くなった場合、自動的に改行する
+set tabsize 2           # Tabキーの幅を2スペースに設定
+set tabstospaces        # Tabキーでスペースを挿入する（タブ文字ではない）
+set autoindent          # 自動インデントを有効にする
+set backup              # 保存時に「ファイル名~」というバックアップを作成
+set tempfile            # 保存時に元ファイルを直接置き換えない（安全モード）
+set nohelp              # 画面下部のショートカット一覧（ヘルプバー）を非表示にする
+
+## === 検索機能の強化 ===
+set casesensitive       # 検索を大文字小文字で区別する（不要ならコメントアウト）
+set historylog          # 検索や開いたファイルの履歴を保存する
+set regexp              # 検索に正規表現を使用できるようにする
+
+## === ファイル表示の設定 ===
+set titlecolor brightwhite,blue      # タイトルバー（上部）の色設定
+set statuscolor brightwhite,magenta  # ステータスバー（下部）の色設定
+set selectedcolor black,cyan         # 選択中のテキストの背景色
+set numbercolor brightyellow         # 行番号の色
+
+## === ファイル操作の設定 ===
+set nowrap          # 行を自動的に折り返さない
+set suspendable     # Ctrl+Z で nano を一時停止できるようにする
+set showcursor      # 常にカーソル位置を表示する
+
+## === 安全編集のための設定 ===
+set locking          # ファイルロックを有効にして、他のユーザーとの競合を防ぐ
+# set mouse           # マウス操作を有効化（クリックでカーソル移動など）
+                      # ただし有効にするとシステムのコピー操作ができなくなる
+
+## === シンタックスハイライト（構文色付け）を有効化 ===
+include /usr/share/nano/*.nanorc
+
+## === セッション管理 ===
+set historylog             # 履歴ファイル (~/.nano_history) を使用する
+set stateflags             # ステータスバーに [Modified] などの状態を表示する
+set smarthome              # Homeキーを押したとき、行頭とインデントの先頭を切り替える
+set wordbounds             # Ctrl + → / ← で単語単位に移動する
