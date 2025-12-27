@@ -1,10 +1,8 @@
-# `plugins/` - Zsh 插件和工具配置
+# plugins/ - Zsh 插件和工具配置
 
 此目录包含所有 Zsh 插件和工具的配置文件，通过 `~/.zshrc` 按顺序加载。所有文件都通过 [Zinit](https://github.com/zdharma-continuum/zinit) 插件管理器来管理插件和 CLI 工具。
 
----
-
-## 📋 文件列表和加载顺序
+## 文件列表和加载顺序
 
 配置文件按以下顺序在 `~/.zshrc` 中加载：
 
@@ -19,11 +17,9 @@
 8. local.zsh      → 机器特定配置
 ```
 
----
+## 文件详细说明
 
-## 📁 文件详细说明
-
-### 1. `zinit.zsh` - Zinit 插件管理器引导
+### 1. zinit.zsh - Zinit 插件管理器引导
 
 **作用：**
 - 自动安装 Zinit（如果不存在）
@@ -38,9 +34,7 @@
 - `zinit` 命令可用
 - `zz` 别名（交互式 zoxide 目录查询）
 
----
-
-### 2. `prompt.zsh` - Powerlevel10k 主题配置
+### 2. prompt.zsh - Powerlevel10k 主题配置
 
 **作用：**
 - 通过 Zinit 安装 Powerlevel10k 主题
@@ -55,9 +49,7 @@
 - 快速启动（instant prompt）
 - 可自定义的配置（通过 `p10k configure`）
 
----
-
-### 3. `plugins.zsh` - Zsh 功能插件
+### 3. plugins.zsh - Zsh 功能插件
 
 **作用：**
 - 管理 Zsh 功能增强插件
@@ -69,18 +61,18 @@
 **安装的插件：**
 - `zsh-users/zsh-autosuggestions` - 命令自动建议
 - `zsh-users/zsh-syntax-highlighting` - 语法高亮（必须最后加载）
+- `jeffreytse/zsh-vi-mode` - Vim 模式支持
 - `OMZP::sudo` - 双击 ESC 键添加 `sudo` 前缀
 - `OMZP::git` - Git 命令别名和函数（不加载整个 OMZ）
 
 **提供的功能：**
 - 输入命令时显示历史建议
 - 命令语法高亮显示
+- Vim 键绑定支持
 - `sudo` 快捷键（双击 ESC）
 - Git 常用命令别名
 
----
-
-### 4. `tools.zsh` - CLI 工具管理
+### 4. tools.zsh - CLI 工具管理
 
 **作用：**
 - 通过 Zinit 从 GitHub Releases 自动安装 CLI 工具
@@ -137,9 +129,7 @@
 - `fzf` 需要额外配置（见 `fzf.zsh`）
 - `atuin` 会自动初始化并加载历史搜索功能
 
----
-
-### 5. `completion.zsh` - 补全和 PATH 设置
+### 5. completion.zsh - 补全和 PATH 设置
 
 **作用：**
 - 初始化 Zsh 补全系统
@@ -161,9 +151,7 @@
 - `zoxide` 目录跳转（`z` 命令）
 - 所有工具自动在 PATH 中可用
 
----
-
-### 6. `fzf.zsh` - fzf 模糊查找器配置
+### 6. fzf.zsh - fzf 模糊查找器配置
 
 **作用：**
 - 配置 fzf 的默认行为和预览
@@ -217,9 +205,7 @@ rf "中文内容"         # 搜索包含中文的行
 - `Alt+C` - 切换目录
 - `Ctrl+R` - 搜索命令历史
 
----
-
-### 7. `superfile.zsh` - superfile 自动安装
+### 7. superfile.zsh - superfile 自动安装
 
 **作用：**
 - 提供 `spf` 函数，自动安装 superfile（如果不存在）
@@ -246,9 +232,7 @@ superfiles        # 同上（拼写容错）
 3. 如果都不存在，自动下载并安装到 `~/.local/bin/`
 4. 执行 superfile
 
----
-
-### 8. `local.zsh` - 机器特定配置
+### 8. local.zsh - 机器特定配置
 
 **作用：**
 - 存放机器特定的配置
@@ -278,9 +262,7 @@ install:font --force       # 强制重新安装
 - 只在交互式 shell 中询问
 - 创建标记文件避免重复询问
 
----
-
-## 🔄 调用流程
+## 调用流程
 
 ```
 用户启动 zsh
@@ -310,9 +292,7 @@ install:font --force       # 强制重新安装
 完成，提示符显示
 ```
 
----
-
-## 🛠️ 工具调用方式总结
+## 工具调用方式总结
 
 ### 直接命令调用
 所有通过 `tools.zsh` 安装的工具都可以直接使用：
@@ -339,9 +319,7 @@ spf                   # superfile（自动安装）
 install:font          # 字体安装
 ```
 
----
-
-## 📝 注意事项
+## 注意事项
 
 1. **首次使用**：工具会在首次使用时自动下载，可能需要等待几秒钟
 2. **PATH 设置**：所有工具都通过 `completion.zsh` 自动添加到 PATH
@@ -349,9 +327,7 @@ install:font          # 字体安装
 4. **机器特定配置**：`local.zsh` 是唯一应该手动编辑的文件（如果需要）
 5. **字体安装**：首次启动时会询问，也可以随时使用 `install:font` 命令
 
----
-
-## 🔧 故障排除
+## 故障排除
 
 ### 工具找不到
 - 检查 `completion.zsh` 是否正确加载
@@ -369,4 +345,3 @@ install:font          # 字体安装
 ---
 
 **最后更新**: 2025-01-XX
-

@@ -1,14 +1,14 @@
 # LazyVim 完整使用指南
 
-## 📦 安装 Neovim
+## 安装 Neovim
 
-### ⚠️ 版本要求
+### 版本要求
 
 **LazyVim 需要 Neovim 0.9.0 或更高版本！**
 
 如果遇到 `module 'vim.uri' not found` 错误，说明 Neovim 版本太旧，需要升级。
 
-### ⚠️ 系统依赖要求
+### 系统依赖要求
 
 **LazyVim 需要以下系统依赖才能正常工作：**
 
@@ -113,11 +113,11 @@ sudo dnf install neovim
 sudo pacman -S neovim
 ```
 
-## ✅ 安装完成
+## 安装完成
 
 您的 Neovim 已经成功配置为 LazyVim Starter！这是正确的配置方式。
 
-## ⚠️ 故障排除
+## 故障排除
 
 ### 错误：`module 'vim.uri' not found` 或 `module 'vim.termcap' not found`
 
@@ -161,7 +161,7 @@ sudo pacman -S neovim
    nvim  # 重新启动，会自动重新安装
    ```
 
-## 🚀 首次启动
+## 首次启动
 
 ### 0. 安装系统依赖（重要！）
 
@@ -202,7 +202,7 @@ nvim
 :checkhealth nvim-treesitter
 ```
 
-如果看到 "C compiler" 显示为 ❌，说明需要安装 C 编译器（见上方步骤 0）。
+如果看到 "C compiler" 显示为失败，说明需要安装 C 编译器（见上方步骤 0）。
 
 ### 1.6. 解决 tree-sitter GLIBC 版本问题
 
@@ -321,7 +321,7 @@ LazyVim 使用 Mason 来管理语言服务器。启动 Neovim 后：
 - `gopls` - Go 语言支持
 - `rust_analyzer` - Rust 语言支持
 
-## ⌨️ 核心快捷键
+## 核心快捷键
 
 ### Leader 键
 
@@ -436,7 +436,7 @@ LazyVim 的 `<leader>` 键默认是 **空格键 (Space)**
 | `<Esc>` | 退出插入模式或关闭浮动窗口 |
 | `<C-c>` | 退出插入模式 |
 
-## 🎨 主题和外观
+## 主题和外观
 
 ### 切换主题
 
@@ -456,7 +456,7 @@ LazyVim 的 `<leader>` 键默认是 **空格键 (Space)**
 
 LazyVim 默认使用 `tokyonight` 主题。您可以在 `lua/config/` 目录中自定义主题。
 
-## 🔧 自定义配置
+## 自定义配置
 
 ### 配置文件结构
 
@@ -521,7 +521,7 @@ return {
 }
 ```
 
-## 📦 插件管理
+## 插件管理
 
 ### 打开插件管理器
 
@@ -556,7 +556,7 @@ return {
 :Lazy health
 ```
 
-## 🛠️ 语言支持
+## 语言支持
 
 ### 启用语言支持
 
@@ -611,14 +611,14 @@ rm -rf ~/.cache/nvim
 
 然后重新启动 Neovim。
 
-## 📚 更多资源
+## 更多资源
 
 - **官方文档**: https://lazyvim.github.io
 - **GitHub Starter**: https://github.com/LazyVim/starter
 - **GitHub LazyVim**: https://github.com/LazyVim/LazyVim
 - **快捷键帮助**: 在 Neovim 中按 `<leader>?` 或运行 `:help lazyvim`
 
-## 💡 提示
+## 提示
 
 1. **使用 `<leader>?`** 查看所有可用快捷键
 2. **使用 `:LazyExtras`** 浏览和安装额外功能
@@ -626,7 +626,7 @@ rm -rf ~/.cache/nvim
 4. **使用 `:Telescope`** 快速查找任何内容
 5. **使用 `<leader>l`** 打开 LazyVim 菜单
 
-## 🎉 开始使用
+## 开始使用
 
 现在您可以：
 
