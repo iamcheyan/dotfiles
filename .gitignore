@@ -18,5 +18,6 @@ Thumbs.db
 # 字体缓存（从 GitHub 下载）
 .cache/fonts/
 
-# Rime 配置
-rime/
+# 子仓库配置
+rime/   
+private/
