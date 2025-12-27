@@ -10,3 +10,7 @@ end, { desc = "Terminal Right" })
 vim.keymap.set("n", "<leader>tb", function()
   vim.cmd("split | terminal")
 end, { desc = "Terminal Bottom" })
+
+-- Muren (Multiple Replacements) keybindings
+vim.keymap.set("n", "<leader>rr", "<cmd>MurenToggle<cr>", { desc = "Muren: Toggle UI" })
+vim.keymap.set("n", "<leader>rR", "<cmd>MurenUnique<cr>", { desc = "Muren: Open with unique matches" })
