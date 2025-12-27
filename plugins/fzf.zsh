@@ -11,14 +11,14 @@ if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
     [[ ! -e ~/.local/bin/fd ]] && ln -sf "$(command -v fdfind)" ~/.local/bin/fd
     # 确保 PATH 包含 ~/.local/bin（只在不存在时添加）
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-        export PATH="$HOME/.local/bin:$PATH"
+    export PATH="$HOME/.local/bin:$PATH"
     fi
 fi
 
 # fzf PATH 设置（后备：如果 zinit 未安装，使用系统安装的 fzf）
 if ! command -v fzf >/dev/null 2>&1 && [[ -d "$HOME/.fzf/bin" ]]; then
     if [[ ":$PATH:" != *":$HOME/.fzf/bin:"* ]]; then
-        export PATH="$HOME/.fzf/bin:$PATH"
+    export PATH="$HOME/.fzf/bin:$PATH"
     fi
 fi
 

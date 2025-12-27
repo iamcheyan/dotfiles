@@ -76,14 +76,14 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     src"init.zsh"
 else
   # Linux
-  zinit ice \
-    as"command" \
-    from"gh-r" \
-    bpick"*.tar.gz" \
-    mv"atuin-*-unknown-linux-gnu/atuin -> atuin" \
-    atclone"./atuin init zsh > init.zsh" \
-    atpull"%atclone" \
-    src"init.zsh"
+zinit ice \
+  as"command" \
+  from"gh-r" \
+  bpick"*.tar.gz" \
+  mv"atuin-*-unknown-linux-gnu/atuin -> atuin" \
+  atclone"./atuin init zsh > init.zsh" \
+  atpull"%atclone" \
+  src"init.zsh"
 fi
 
 zinit light atuinsh/atuin

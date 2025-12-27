@@ -20,7 +20,7 @@ source ~/.dotfiles/plugins/completion.zsh
 [[ -f ~/.dotfiles/plugins/fzf.zsh ]] && source ~/.dotfiles/plugins/fzf.zsh
 
 # superfile 配置（自动安装功能）
-[[ -f ~/.dotfiles/plugins/superfile.zsh ]] && source ~/.dotfiles/plugins/superfile.zsh
+[[ -f ~/.dotfiles/plugins/spf/superfile.zsh ]] && source ~/.dotfiles/plugins/spf/superfile.zsh
 
 [[ -f ~/.dotfiles/plugins/local.zsh ]] && source ~/.dotfiles/plugins/local.zsh
 

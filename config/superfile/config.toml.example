@@ -1,0 +1,8 @@
+# Superfile 配置文件示例
+# 位置：~/.config/superfile/config.toml 或 ~/.local/share/superfile/config.toml
+
+# 启用退出后切换目录功能
+cd_on_quit = true
+
+# 其他配置选项...
+
