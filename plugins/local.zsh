@@ -50,3 +50,16 @@ if [[ -o interactive ]] && [ -t 0 ]; then
     fi
 fi
 
+# ============================================
+# nvm (Node Version Manager) 配置
+# ============================================
+
+# 自动加载 nvm（如果已安装）
+if [[ -s "$HOME/.nvm/nvm.sh" ]]; then
+    export NVM_DIR="$HOME/.nvm"
+    # 使用 source 加载 nvm（兼容 zsh 和 bash）
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    # 加载 bash completion（如果存在）
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+fi
+

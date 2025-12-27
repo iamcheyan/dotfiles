@@ -22,5 +22,4 @@ Thumbs.db
 rime/   
 private/
 
-
-.config/nvim/tmp/
+config/nvim/tmp/
