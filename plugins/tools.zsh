@@ -23,6 +23,7 @@ zi_cmd jqlang/jq jq
 zi_cmd mikefarah/yq yq
 zi_cmd chmln/sd sd
 zi_cmd theryangeary/choose choose
+zi_cmd charmbracelet/glow glow
 # tealdeer: GitHub releases 不可用，使用系统包管理器安装: sudo apt install tealdeer
 # zi_cmd dbrgn/tealdeer tldr
 

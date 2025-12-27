@@ -21,6 +21,7 @@ $HOME/.dotfiles/config/nixos:/etc/nixos	# NixOS 配置
 $HOME/.dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件
 $HOME/.dotfiles/config/yazi:$HOME/.config/yazi	# Yazi 文件管理器配置
 $HOME/.dotfiles/config/wps/Office.conf:$HOME/.config/Kingsoft/Office.conf	# WPS Office 配置
+$HOME/.dotfiles/config/superfile:$HOME/.config/superfile                  #superfile
 
 # Rime 配置文件
 $HOME/.dotfiles/rime:$HOME/.config/ibus/rime	                           # ibus 
