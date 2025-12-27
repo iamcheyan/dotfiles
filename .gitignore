@@ -19,4 +19,4 @@ Thumbs.db
 .cache/fonts/
 
 # Rime 配置
-*/rime
+rime/

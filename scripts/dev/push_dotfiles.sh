@@ -18,7 +18,7 @@ if ! git rev-parse --git-dir > /dev/null 2>&1; then
 fi
 
 # 检查远程仓库
-REMOTE_URL="https://github.com/iamcheyan/dotfiles.git"
+REMOTE_URL="https://github.com/iamcheyan/Dotfiles.git"
 if ! git remote get-url origin > /dev/null 2>&1; then
     echo "添加远程仓库: $REMOTE_URL"
     git remote add origin "$REMOTE_URL"

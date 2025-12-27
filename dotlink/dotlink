@@ -360,11 +360,11 @@ extract_sections_with_filter() {
 #  MAIN
 # Check if running on macOS
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    config_file="$DOTFILES_DIR/dotlinkrc@macos"
+    config_file="$DOTFILES_DIR/dotlink/dotlinkrc@macos"
     echo "当前运行在 macOS 上"
     echo "使用配置文件: $config_file"
 else
-    config_file="$DOTFILES_DIR/dotlinkrc"
+    config_file="$DOTFILES_DIR/dotlink/dotlinkrc"
     # Check if running as root
     if [ "$(id -u)" -eq 0 ]; then
         echo "警告：您正在以root用户身份运行此脚本。请小心操作，并确保您理解所有操作的含义。"

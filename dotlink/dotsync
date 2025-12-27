@@ -175,7 +175,7 @@ push() {
         last_output=$(git push 2>&1)
         if echo "$last_output" | grep -q "fatal: No configured push destination"; then
             echo "未检测到远程仓库，正在添加 remote origin..."
-            git remote add origin git@gitlab.com:tetsuya.ueno/dotfiles.git
+            git remote add origin https://github.com/iamcheyan/Dotfiles.git
             echo "已添加 remote origin，正在重新 push 并设置 upstream..."
             git push --set-upstream origin main
             if [ $? -eq 0 ]; then
