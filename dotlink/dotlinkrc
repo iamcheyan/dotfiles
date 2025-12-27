@@ -14,11 +14,15 @@
 $HOME/Dotfiles:$HOME/.dotfiles	# Dotfiles 主目录
 
 $HOME/.dotfiles/zshrc:$HOME/.zshrc	# zsh 配置文件
-$HOME/.dotfiles/.p10k.zsh:$HOME/.p10k.zsh	# Powerlevel10k 配置文件（如果存在）
+$HOME/.dotfiles/config/p10k/p10k.zsh:$HOME/.p10k.zsh	# Powerlevel10k 配置文件
 $HOME/.dotfiles/config/nano/nanorc:$HOME/.nanorc	# GNU nano 配置文件
 $HOME/.dotfiles/config/vim/vimrc:$HOME/.vimrc	# Vim 配置文件
 $HOME/.dotfiles/config/nixos:/etc/nixos	# NixOS 配置
 $HOME/.dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件
 $HOME/.dotfiles/config/yazi:$HOME/.config/yazi	# Yazi 文件管理器配置
-$HOME/.dotfiles/config/karabiner:$HOME/.config/karabiner	# Karabiner 配置文件（macOS）
 $HOME/.dotfiles/config/wps/Office.conf:$HOME/.config/Kingsoft/Office.conf	# WPS Office 配置
+
+# Rime 配置文件
+$HOME/.dotfiles/rime:$HOME/.config/ibus/rime	                           # ibus 
+$HOME/.dotfiles/rime:$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime   # flatpak fcitx5 
+$HOME/.dotfiles/rime:$HOME/.local/share/fcitx5/rime                     # fcitx5 

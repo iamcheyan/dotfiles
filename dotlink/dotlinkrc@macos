@@ -8,7 +8,7 @@
 $HOME/Dotfiles:$HOME/.dotfiles	# Dotfiles 主目录
 
 $HOME/.dotfiles/zshrc:$HOME/.zshrc	# zsh 配置文件
-$HOME/.dotfiles/.p10k.zsh:$HOME/.p10k.zsh	# Powerlevel10k 配置文件（如果存在）
+$HOME/.dotfiles/config/p10k/p10k.zsh:$HOME/.p10k.zsh	# Powerlevel10k 配置文件
 $HOME/.dotfiles/config/nano/nanorc:$HOME/.nanorc	# GNU nano 配置文件
 $HOME/.dotfiles/config/vim/vimrc:$HOME/.vimrc	# Vim 配置文件
 $HOME/.dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件

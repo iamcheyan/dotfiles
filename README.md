@@ -27,7 +27,7 @@
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/iamcheyan/dotfiles.git ~/.dotfiles
+git clone https://github.com/iamcheyan/Dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ```
 
@@ -297,7 +297,7 @@ alias command:name="bash ${HOME}/.dotfiles/path/to/script.sh"
 
 - [Zinit 文档](https://github.com/zdharma-continuum/zinit)
 - [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
-- [GitHub 仓库](https://github.com/iamcheyan/dotfiles)
+- [GitHub 仓库](https://github.com/iamcheyan/Dotfiles)
 
 ---
 
