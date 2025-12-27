@@ -161,11 +161,27 @@ install_nvim_linux() {
     # 安装
     print_info "正在安装到 $install_dir..."
     if [[ -d "$extract_dir/bin" ]]; then
+        # 复制 nvim 二进制文件
         cp -f "$extract_dir/bin/nvim" "$install_dir/nvim" || {
             print_error "安装失败"
             return 1
         }
         chmod +x "$install_dir/nvim"
+        
+        # 安装运行时文件到 ~/.local/share/nvim（Neovim 会在这里查找）
+        local runtime_dir="$HOME/.local/share/nvim"
+        if [[ -d "$extract_dir/share/nvim" ]]; then
+            print_info "正在安装运行时文件到 $runtime_dir..."
+            mkdir -p "$runtime_dir"
+            # 复制所有运行时文件
+            cp -rf "$extract_dir/share/nvim"/* "$runtime_dir/" 2>/dev/null || {
+                print_warning "部分运行时文件复制失败，但二进制文件已安装"
+            }
+        fi
+        
+        # 设置 NVIM_APPNAME 环境变量（如果需要）
+        # 注意：Neovim 默认会在 ~/.local/share/nvim 查找运行时文件
+        
         print_success "Neovim 已安装到 $install_dir/nvim"
     else
         print_error "解压后的目录结构不正确"
@@ -251,11 +267,26 @@ install_nvim_macos() {
     # 安装
     print_info "正在安装到 $install_dir..."
     if [[ -d "$extract_dir/bin" ]]; then
+        # 复制 nvim 二进制文件
         cp -f "$extract_dir/bin/nvim" "$install_dir/nvim" || {
             print_error "安装失败"
             return 1
         }
         chmod +x "$install_dir/nvim"
+        
+        # 检查并安装运行时文件（runtime files）
+        local runtime_dir="$HOME/.local/share/nvim"
+        if [[ -d "$extract_dir/share/nvim" ]]; then
+            print_info "正在安装运行时文件..."
+            mkdir -p "$runtime_dir"
+            # 复制运行时文件（如果存在）
+            if [[ -d "$extract_dir/share/nvim/runtime" ]]; then
+                cp -rf "$extract_dir/share/nvim/runtime" "$runtime_dir/" || {
+                    print_warning "复制运行时文件失败，但二进制文件已安装"
+                }
+            fi
+        fi
+        
         print_success "Neovim 已安装到 $install_dir/nvim"
     else
         print_error "解压后的目录结构不正确"
