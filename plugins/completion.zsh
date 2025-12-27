@@ -1,10 +1,16 @@
 autoload -Uz compinit
 compinit -C
 
-# 添加本地 bin 目录到 PATH（用于手动安装的工具，如 superfile、nvim）
+# 添加本地 bin 目录到 PATH（用于手动安装的工具，如 superfile）
 # 只在 PATH 中不存在时添加，避免重复
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
     export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# 添加 Neovim 到 PATH（如果已安装）
+# 按照新的安装方法，Neovim 安装在 ~/.local/nvim/bin
+if [[ -d "$HOME/.local/nvim/bin" ]] && [[ ":$PATH:" != *":$HOME/.local/nvim/bin:"* ]]; then
+    export PATH="$HOME/.local/nvim/bin:$PATH"
 fi
 
 # 添加 zinit 管理的工具目录到 PATH

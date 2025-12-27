@@ -75,18 +75,34 @@ sudo pacman -S neovim
    install:nvim --version 0.10.2  # 安装稳定版本
    ```
 
-2. **PATH 问题**：
+2. **运行时文件未正确安装（Linux 特有）**：
+   - 从 GitHub Releases 下载的 Neovim 需要同时安装运行时文件
+   - 检查运行时文件是否存在：
+   ```bash
+   ls -la ~/.local/share/nvim/runtime/
+   ```
+   - 如果不存在，重新安装（安装脚本会自动处理）：
+   ```bash
+   install:nvim --force
+   ```
+
+3. **PATH 问题**：
    - 确保使用的是新安装的版本
    ```bash
    which nvim  # 应该显示 ~/.local/bin/nvim
    nvim --version  # 检查版本
    ```
 
-3. **LazyVim 配置问题**：
+4. **macOS vs Linux 差异**：
+   - **macOS**: 使用 Homebrew 安装的 Neovim 会自动处理运行时文件，通常不会有此问题
+   - **Linux**: 从 GitHub Releases 下载的 Neovim 需要手动安装运行时文件到 `~/.local/share/nvim/`
+   - 安装脚本会自动处理这个差异，但如果您手动安装，请确保同时复制 `share/nvim/runtime/` 目录
+
+5. **LazyVim 配置问题**：
    - 尝试更新 LazyVim 到最新版本
    - 或者清理并重新安装 LazyVim
    ```bash
-   rm -rf ~/.local/share/nvim
+   rm -rf ~/.local/share/nvim/lazy ~/.cache/nvim
    nvim  # 重新启动，会自动重新安装
    ```
 
