@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# 使用图形界面弹窗请求管理员权限
+if command -v pkexec >/dev/null 2>&1; then
+    pkexec env DISPLAY=$DISPLAY XAUTHORITY=$XAUTHORITY $HOME/Applications/balenaEtcher/balenaEtcher-1.5.109-x64.AppImage
+elif command -v gksudo >/dev/null 2>&1; then
+    gksudo -- $HOME/Applications/balenaEtcher/balenaEtcher-1.5.109-x64.AppImage
+else
+    # 如果没有图形界面的sudo工具，则使用普通的sudo
+    sudo $HOME/Applications/balenaEtcher/balenaEtcher-1.5.109-x64.AppImage
+fi
