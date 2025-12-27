@@ -11,7 +11,7 @@
 """
 
 [link]
-$HOME/.dotfiles:$HOME/.dotfiles	# Dotfiles 主目录
+$HOME/Dotfiles:$HOME/.dotfiles	# Dotfiles 主目录
 
 $HOME/.dotfiles/zshrc:$HOME/.zshrc	# zsh 配置文件
 $HOME/.dotfiles/.p10k.zsh:$HOME/.p10k.zsh	# Powerlevel10k 配置文件（如果存在）
