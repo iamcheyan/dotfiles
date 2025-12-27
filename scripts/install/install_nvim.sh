@@ -92,15 +92,13 @@ get_latest_version() {
 install_nvim_linux() {
     local version="$1"
     local arch="$2"
-    local install_dir="$HOME/.local/bin"
-    local cache_dir="$HOME/.cache/nvim"
+    local install_dir="$HOME/.local/nvim"
     local download_url=""
     local filename=""
     
-    # 构建下载 URL（使用官方推荐的格式）
+    # 构建下载 URL 和文件名
     if [[ "$arch" == "x86_64" ]]; then
         filename="nvim-linux-x86_64.tar.gz"
-        # 如果版本为空，使用 /latest/download/，否则使用指定版本
         if [[ -z "$version" ]]; then
             download_url="https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz"
         else
@@ -108,7 +106,6 @@ install_nvim_linux() {
         fi
     elif [[ "$arch" == "aarch64" ]]; then
         filename="nvim-linux-arm64.tar.gz"
-        # 如果版本为空，使用 /latest/download/，否则使用指定版本
         if [[ -z "$version" ]]; then
             download_url="https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz"
         else
@@ -119,83 +116,86 @@ install_nvim_linux() {
         return 1
     fi
     
-    local cache_file="$cache_dir/$filename"
-    mkdir -p "$cache_dir" "$install_dir"
+    local tmp_file="/tmp/$filename"
     
-    # 下载
+    # Step 1: 下载
     if [[ -n "$version" ]]; then
         print_info "正在下载 Neovim ${version}..."
     else
         print_info "正在下载 Neovim 最新版本..."
     fi
-    if [[ -f "$cache_file" ]]; then
-        print_info "缓存文件已存在，跳过下载"
+    
+    if [[ -f "$tmp_file" ]] && [[ "$force" != "true" ]]; then
+        print_info "临时文件已存在: $tmp_file"
     else
-        if command -v wget >/dev/null 2>&1; then
-            wget -q --show-progress -O "$cache_file" "$download_url" || {
+        if command -v curl >/dev/null 2>&1; then
+            curl -L -o "$tmp_file" "$download_url" || {
                 print_error "下载失败"
                 return 1
             }
-        elif command -v curl >/dev/null 2>&1; then
-            curl -L -o "$cache_file" "$download_url" || {
+        elif command -v wget >/dev/null 2>&1; then
+            wget -q --show-progress -O "$tmp_file" "$download_url" || {
                 print_error "下载失败"
                 return 1
             }
         else
-            print_error "需要 wget 或 curl 来下载"
+            print_error "需要 curl 或 wget 来下载"
             return 1
         fi
-        print_success "下载完成"
+        print_success "下载完成: $tmp_file"
     fi
     
-    # 解压
-    print_info "正在解压..."
-    local extract_dir="$cache_dir/nvim-${version:-latest}"
-    rm -rf "$extract_dir"
-    mkdir -p "$extract_dir"
-    tar -xzf "$cache_file" -C "$extract_dir" --strip-components=1 || {
+    # Step 2: 验证文件类型
+    print_info "验证文件类型..."
+    local file_type=$(file "$tmp_file" 2>/dev/null | grep -o "gzip compressed data" || echo "")
+    if [[ -z "$file_type" ]]; then
+        print_error "文件类型不正确，不是 gzip 压缩文件"
+        print_info "文件信息: $(file "$tmp_file" 2>/dev/null || echo '无法读取')"
+        return 1
+    fi
+    print_success "文件类型验证通过"
+    
+    # Step 3: 安装到 ~/.local/nvim
+    print_info "正在安装到 $install_dir..."
+    rm -rf "$install_dir"
+    mkdir -p "$install_dir"
+    
+    tar xf "$tmp_file" -C "$install_dir" --strip-components=1 || {
         print_error "解压失败"
         return 1
     }
     
-    # 安装
-    print_info "正在安装到 $install_dir..."
-    if [[ -d "$extract_dir/bin" ]]; then
-        # 复制 nvim 二进制文件
-        cp -f "$extract_dir/bin/nvim" "$install_dir/nvim" || {
-            print_error "安装失败"
-            return 1
-        }
-        chmod +x "$install_dir/nvim"
-        
-        # 安装运行时文件到 ~/.local/share/nvim（Neovim 会在这里查找）
-        local runtime_dir="$HOME/.local/share/nvim"
-        if [[ -d "$extract_dir/share/nvim" ]]; then
-            print_info "正在安装运行时文件到 $runtime_dir..."
-            mkdir -p "$runtime_dir"
-            # 复制所有运行时文件
-            cp -rf "$extract_dir/share/nvim"/* "$runtime_dir/" 2>/dev/null || {
-                print_warning "部分运行时文件复制失败，但二进制文件已安装"
-            }
-        fi
-        
-        # 设置 NVIM_APPNAME 环境变量（如果需要）
-        # 注意：Neovim 默认会在 ~/.local/share/nvim 查找运行时文件
-        
-        print_success "Neovim 已安装到 $install_dir/nvim"
-    else
-        print_error "解压后的目录结构不正确"
+    # 验证安装
+    if [[ ! -f "$install_dir/bin/nvim" ]]; then
+        print_error "二进制文件不存在: $install_dir/bin/nvim"
         return 1
     fi
     
-    # 清理
-    rm -rf "$extract_dir"
+    if [[ ! -d "$install_dir/share/nvim/runtime" ]]; then
+        print_error "运行时文件目录不存在: $install_dir/share/nvim/runtime"
+        return 1
+    fi
     
-    # 添加到 PATH（如果还没有）
-    if [[ ":$PATH:" != *":$install_dir:"* ]]; then
-        print_warning "请确保 $install_dir 在 PATH 中"
+    chmod +x "$install_dir/bin/nvim"
+    print_success "Neovim 已安装到 $install_dir"
+    
+    # Step 4: 验证安装
+    print_info "验证安装..."
+    local vimruntime=$("$install_dir/bin/nvim" --clean +'lua print(vim.env.VIMRUNTIME)' +q 2>/dev/null | grep -v "^$" | tail -1)
+    if [[ "$vimruntime" == "$install_dir/share/nvim/runtime" ]]; then
+        print_success "安装验证通过: VIMRUNTIME=$vimruntime"
+    else
+        print_warning "VIMRUNTIME 验证异常: $vimruntime (期望: $install_dir/share/nvim/runtime)"
+    fi
+    
+    # 添加到 PATH（提示）
+    local nvim_bin="$install_dir/bin"
+    if [[ ":$PATH:" != *":$nvim_bin:"* ]]; then
+        print_warning "请将 $nvim_bin 添加到 PATH"
         print_info "可以添加到 ~/.zshrc 或 ~/.bashrc:"
-        print_info "  export PATH=\"\$HOME/.local/bin:\$PATH\""
+        print_info "  export PATH=\"\$HOME/.local/nvim/bin:\$PATH\""
+    else
+        print_success "PATH 已包含 $nvim_bin"
     fi
 }
 
@@ -274,16 +274,25 @@ install_nvim_macos() {
         }
         chmod +x "$install_dir/nvim"
         
-        # 检查并安装运行时文件（runtime files）
+        # 安装运行时文件到 ~/.local/share/nvim（Neovim 会在这里查找）
         local runtime_dir="$HOME/.local/share/nvim"
         if [[ -d "$extract_dir/share/nvim" ]]; then
-            print_info "正在安装运行时文件..."
+            print_info "正在安装运行时文件到 $runtime_dir..."
             mkdir -p "$runtime_dir"
-            # 复制运行时文件（如果存在）
+            # 复制所有运行时文件（包括 runtime 目录）
             if [[ -d "$extract_dir/share/nvim/runtime" ]]; then
                 cp -rf "$extract_dir/share/nvim/runtime" "$runtime_dir/" || {
                     print_warning "复制运行时文件失败，但二进制文件已安装"
                 }
+            fi
+            # 也复制其他可能的运行时文件（如 lua 模块）
+            if [[ -d "$extract_dir/share/nvim" ]]; then
+                # 复制所有非 runtime 的运行时文件
+                for item in "$extract_dir/share/nvim"/*; do
+                    if [[ -e "$item" ]] && [[ "$(basename "$item")" != "runtime" ]]; then
+                        cp -rf "$item" "$runtime_dir/" 2>/dev/null || true
+                    fi
+                done
             fi
         fi
         
@@ -437,48 +446,46 @@ main() {
             print_success "Neovim ${target_version} 安装完成！"
         fi
         echo ""
+        print_info "安装位置: ~/.local/nvim/"
+        print_info "二进制文件: ~/.local/nvim/bin/nvim"
+        print_info "运行时文件: ~/.local/nvim/share/nvim/runtime"
+        echo ""
         print_info "验证安装:"
-        echo "  nvim --version"
+        print_info "  ~/.local/nvim/bin/nvim --version"
+        print_info "  ~/.local/nvim/bin/nvim --clean +'lua print(vim.env.VIMRUNTIME)' +q"
         echo ""
         
         # 检查 PATH 和版本
-        local nvim_path=$(command -v nvim 2>/dev/null || echo "")
-        if [[ -n "$nvim_path" ]]; then
-            print_info "当前 nvim 路径: $nvim_path"
-            local installed_version=$("$nvim_path" --version 2>/dev/null | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//' || echo "")
-            if [[ -n "$installed_version" ]]; then
-                local major=$(echo "$installed_version" | cut -d. -f1)
-                local minor=$(echo "$installed_version" | cut -d. -f2)
-                if [[ $major -lt 0 ]] || [[ $major -eq 0 && $minor -lt 9 ]]; then
-                    print_warning "检测到旧版本: ${installed_version}"
-                    print_error "LazyVim 需要 Neovim 0.9.0 或更高版本！"
-                    echo ""
-                    print_info "解决方案："
-                    echo "  1. 确保 ~/.local/bin 在 PATH 的最前面"
-                    echo "  2. 重新加载 shell: source ~/.zshrc"
-                    echo "  3. 或者使用完整路径: ~/.local/bin/nvim"
-                else
-                    print_success "版本 ${installed_version} 符合要求（≥ 0.9.0）"
+        local nvim_bin="$HOME/.local/nvim/bin"
+        if [[ ":$PATH:" == *":$nvim_bin:"* ]]; then
+            local nvim_path=$(command -v nvim 2>/dev/null || echo "")
+            if [[ -n "$nvim_path" ]] && [[ "$nvim_path" == "$nvim_bin/nvim" ]]; then
+                print_success "PATH 已配置，可直接使用 nvim 命令"
+                local installed_version=$("$nvim_path" --version 2>/dev/null | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//' || echo "")
+                if [[ -n "$installed_version" ]]; then
+                    local major=$(echo "$installed_version" | cut -d. -f1)
+                    local minor=$(echo "$installed_version" | cut -d. -f2)
+                    if [[ $major -lt 0 ]] || [[ $major -eq 0 && $minor -lt 9 ]]; then
+                        print_warning "检测到旧版本: ${installed_version}"
+                        print_error "LazyVim 需要 Neovim 0.9.0 或更高版本！"
+                    else
+                        print_success "版本检查通过: ${installed_version}"
+                    fi
                 fi
             fi
-            
-            # 检查是否使用了正确的 nvim
-            if [[ "$nvim_path" != "$HOME/.local/bin/nvim" ]] && [[ -f "$HOME/.local/bin/nvim" ]]; then
-                print_warning "检测到 PATH 中有其他版本的 nvim"
-                print_info "当前使用: $nvim_path"
-                print_info "新安装的版本在: $HOME/.local/bin/nvim"
-                echo ""
-                print_info "请确保 ~/.local/bin 在 PATH 的最前面："
-                echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
-                echo ""
-                print_info "或者重新加载 shell:"
-                echo "  source ~/.zshrc"
-            fi
+        else
+            print_warning "请将 $nvim_bin 添加到 PATH"
+            print_info "添加到 ~/.zshrc:"
+            print_info "  export PATH=\"\$HOME/.local/nvim/bin:\$PATH\""
+            print_info "然后重新加载: source ~/.zshrc"
         fi
-        
         echo ""
         print_info "启动 Neovim:"
-        echo "  nvim"
+        if [[ ":$PATH:" == *":$nvim_bin:"* ]]; then
+            print_info "  nvim  # PATH 已配置，可直接使用"
+        else
+            print_info "  ~/.local/nvim/bin/nvim  # 或添加到 PATH 后使用 nvim"
+        fi
         echo ""
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     else
