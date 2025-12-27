@@ -63,14 +63,28 @@ zi_cmd zellij-org/zellij zellij
 # aws: 使用官方安装脚本: curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
 
 # atuin（单独处理，必须）
-zinit ice \
-  as"command" \
-  from"gh-r" \
-  bpick"*.tar.gz" \
-  mv"atuin-*-unknown-linux-gnu/atuin -> atuin" \
-  atclone"./atuin init zsh > init.zsh" \
-  atpull"%atclone" \
-  src"init.zsh"
+# 根据操作系统选择不同的 mv 模式
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # macOS
+  zinit ice \
+    as"command" \
+    from"gh-r" \
+    bpick"*apple-darwin.tar.gz" \
+    mv"atuin-*-apple-darwin/atuin -> atuin" \
+    atclone"./atuin init zsh > init.zsh" \
+    atpull"%atclone" \
+    src"init.zsh"
+else
+  # Linux
+  zinit ice \
+    as"command" \
+    from"gh-r" \
+    bpick"*.tar.gz" \
+    mv"atuin-*-unknown-linux-gnu/atuin -> atuin" \
+    atclone"./atuin init zsh > init.zsh" \
+    atpull"%atclone" \
+    src"init.zsh"
+fi
 
 zinit light atuinsh/atuin
 
