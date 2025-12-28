@@ -5,27 +5,14 @@
   //"width": 1920, // Comment for dynamic width
   "modules-left": [
     "sway/workspaces",
-    "custom/separator",
-    "temperature",
-    "custom/separator",
-    "idle_inhibitor",
-    "mpd",
-    "custom/cava-internal"
   ],
   "modules-center": [
     "clock",
   ],
   "modules-right": [
     "network",
-    "custom/separator",
     "pulseaudio",
-    "custom/separator",
     "backlight",
-    "custom/separator",
-    "cpu",
-    "custom/separator",
-    "memory",
-    "custom/separator",
     "battery",
     "tray"
   ],
@@ -49,9 +36,6 @@
     }
   },
   "clock": {
-    "on-click": "~/.config/waybar/switch_style2.sh &",
-    "on-click-right": "~/.config/waybar/wallpaper_random.sh &",
-    "on-click-middle": "~/.config/waybar/live_wallpaper.sh &",
     "format": "<span foreground='#7dcfff'>󰥔</span> {:%d %B %Y - %I:%M %p}",
     "interval": 60,
     "tooltip": true,
