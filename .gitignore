@@ -21,6 +21,8 @@ Thumbs.db
 # 子仓库配置
 rime/   
 private/
+rime_sbzrjp/
+sbsrf/
 
 config/nvim/tmp/*
 config/yazi/flavors/*

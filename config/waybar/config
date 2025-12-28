@@ -1,0 +1,87 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+    
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["clock"],
+    "modules-right": ["network", "pulseaudio", "battery", "tray"],
+    
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{name}: {icon}",
+        "format-icons": {
+            "1": "一",
+            "2": "二",
+            "3": "三",
+            "4": "四",
+            "5": "五",
+            "6": "六",
+            "7": "七",
+            "8": "八",
+            "9": "九",
+            "10": "十",
+            "urgent": "⚠",
+            "focused": "●",
+            "default": "○"
+        }
+    },
+    
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+    
+    "clock": {
+        "format": "{:%Y年%m月%d日 %H:%M:%S}",
+        "format-alt": "{:%A, %B %d, %Y (%R)}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>"
+    },
+    
+    "network": {
+        "format-wifi": "📶 {signalStrength}%",
+        "format-ethernet": "🔌 有线",
+        "format-linked": "🔗 {ifname} (无IP)",
+        "format-disconnected": "⚠ 未连接",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}",
+        "tooltip-format": "{ifname}\nIP: {ipaddr}\n信号: {signalStrength}%\n频率: {frequency}MHz"
+    },
+    
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "🔵 {volume}%",
+        "format-muted": "🔇 静音",
+        "format-source": "🎤 {volume}%",
+        "format-source-muted": "🎤 静音",
+        "format-icons": {
+            "headphone": "🎧",
+            "hands-free": "📞",
+            "headset": "🎧",
+            "phone": "📱",
+            "portable": "📱",
+            "car": "🚗",
+            "default": ["🔈", "🔉", "🔊"]
+        },
+        "on-click": "pavucontrol",
+        "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+    },
+    
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "⚡ {capacity}%",
+        "format-plugged": "🔌 {capacity}%",
+        "format-alt": "{icon} {time}",
+        "format-full": "🔋 100%",
+        "format-icons": ["🔋", "🔋", "🔋", "🔋", "🔋"]
+    },
+    
+    "tray": {
+        "icon-size": 21,
+        "spacing": 10
+    }
+}
