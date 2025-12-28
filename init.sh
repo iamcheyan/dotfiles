@@ -223,15 +223,17 @@ run_dotlink() {
 create_zshrc_link() {
     local zshrc_target="$HOME/.zshrc"
     local zshrc_source="${DOTFILES_DIR:-$HOME/.dotfiles}/zshrc"
+    local zshrc_source_abs=$(readlink -f "$zshrc_source" 2>/dev/null || echo "$zshrc_source")
 
     if [[ -L "$zshrc_target" ]]; then
         local current_target=$(readlink -f "$zshrc_target")
-        if [[ "$current_target" == "$zshrc_source" ]]; then
-            print_success ".zshrc 软链接已存在: $zshrc_target -> $zshrc_source"
+        # 比较实际文件路径（解析所有软链接后）
+        if [[ "$current_target" == "$zshrc_source_abs" ]]; then
+            print_success ".zshrc 软链接已存在: $zshrc_target -> $current_target"
             return 0
         else
             print_warning ".zshrc 软链接指向不同目标: $current_target"
-        fi
+            print_info "预期目标: $zshrc_source_abs"
     elif [[ -f "$zshrc_target" ]]; then
         print_warning ".zshrc 已存在，是否要备份并创建软链接?"
         read -p "备份现有 .zshrc 并创建软链接? (y/N): " -n 1 -r
@@ -247,8 +249,19 @@ create_zshrc_link() {
     fi
 
     if [[ ! -L "$zshrc_target" ]]; then
-        if ln -s "$zshrc_source" "$zshrc_target" 2>/dev/null; then
-            print_success "已创建 .zshrc 软链接: $zshrc_target -> $zshrc_source"
+        # 使用相对路径或绝对路径创建软链接
+        # 如果 DOTFILES_DIR 是软链接，使用相对路径可能更稳定
+        local link_target
+        if [[ -L "${DOTFILES_DIR:-$HOME/.dotfiles}" ]]; then
+            # DOTFILES_DIR 本身是软链接，使用绝对路径
+            link_target="$zshrc_source_abs"
+        else
+            # 使用相对路径（从 HOME 目录的相对路径）
+            link_target="${DOTFILES_DIR:-$HOME/.dotfiles}/zshrc"
+        fi
+        
+        if ln -s "$link_target" "$zshrc_target" 2>/dev/null; then
+            print_success "已创建 .zshrc 软链接: $zshrc_target -> $link_target"
         else
             print_error "创建 .zshrc 软链接失败"
             return 1
@@ -429,19 +442,19 @@ main() {
     print_success "初始化完成！"
     echo ""
     print_info "下一步操作："
-    echo "  1. 切换到 zsh:"
-    echo "     ${GREEN}zsh${NC}"
+    echo -e "  1. 切换到 zsh:"
+    echo -e "     ${GREEN}zsh${NC}"
     echo ""
     echo "  2. 首次启动 zsh 时会自动："
     echo "     - 安装 Powerlevel10k 主题"
     echo "     - 安装所有配置的插件和工具"
     echo "     - 询问是否安装 Meslo 字体"
     echo ""
-    echo "  3. 如果需要安装字体，可以运行："
-    echo "     ${GREEN}install:font${NC}"
+    echo -e "  3. 如果需要安装字体，可以运行："
+    echo -e "     ${GREEN}install:font${NC}"
     echo ""
-    echo "  4. 如果需要安装 Rime 配置，可以运行："
-    echo "     ${GREEN}install:rime${NC}"
+    echo -e "  4. 如果需要安装 Rime 配置，可以运行："
+    echo -e "     ${GREEN}install:rime${NC}"
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""

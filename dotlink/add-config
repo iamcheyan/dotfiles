@@ -1,0 +1,261 @@
+#!/bin/bash
+
+# add-config: 添加配置文件到 dotlink 管理
+# 用法: add-config <配置文件路径>
+# 示例: add-config ~/.config/sway/config
+
+set -e
+
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# 检查参数
+if [ $# -eq 0 ]; then
+    echo -e "${RED}错误: 请提供配置文件路径${NC}"
+    echo "用法: $0 <配置文件路径>"
+    echo "示例: $0 ~/.config/sway/config"
+    exit 1
+fi
+
+INPUT_PATH="$1"
+DOTFILES_DIR="$HOME/.dotfiles"
+DOTLINK_DIR="$HOME/Dotfiles/dotlink"
+
+# 转换为绝对路径
+if [[ "$INPUT_PATH" == ~* ]]; then
+    INPUT_PATH="${INPUT_PATH/#\~/$HOME}"
+fi
+# 尝试获取绝对路径（如果路径不存在，readlink 会失败，但我们会在后面检查）
+if [ -e "$INPUT_PATH" ]; then
+    # 优先使用 readlink -f (Linux) 或 realpath (macOS/Linux)
+    if command -v realpath >/dev/null 2>&1; then
+        INPUT_PATH=$(realpath "$INPUT_PATH" 2>/dev/null || echo "$INPUT_PATH")
+    elif command -v readlink >/dev/null 2>&1 && readlink -f / >/dev/null 2>&1; then
+        INPUT_PATH=$(readlink -f "$INPUT_PATH" 2>/dev/null || echo "$INPUT_PATH")
+    else
+        # Fallback: 使用 cd 和 pwd
+        INPUT_PATH=$(cd "$(dirname "$INPUT_PATH")" 2>/dev/null && echo "$(pwd)/$(basename "$INPUT_PATH")" || echo "$INPUT_PATH")
+    fi
+fi
+
+# 检查文件是否存在
+if [ ! -e "$INPUT_PATH" ]; then
+    echo -e "${RED}错误: 文件或目录不存在: $INPUT_PATH${NC}"
+    exit 1
+fi
+
+# 检测系统类型
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    CONFIG_FILE="$DOTLINK_DIR/dotlinkrc@macos"
+    SYSTEM_NAME="macOS"
+else
+    CONFIG_FILE="$DOTLINK_DIR/dotlinkrc"
+    SYSTEM_NAME="Linux"
+fi
+
+echo -e "${BLUE}检测到系统: $SYSTEM_NAME${NC}"
+echo -e "${BLUE}使用配置文件: $CONFIG_FILE${NC}"
+
+# 检查配置文件是否存在
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo -e "${RED}错误: 配置文件不存在: $CONFIG_FILE${NC}"
+    exit 1
+fi
+
+# 将绝对路径转换为相对于 $HOME 的路径
+if [[ "$INPUT_PATH" == "$HOME"/* ]]; then
+    RELATIVE_PATH="${INPUT_PATH#$HOME/}"
+else
+    echo -e "${RED}错误: 文件路径必须在 $HOME 目录下${NC}"
+    exit 1
+fi
+
+# 生成 dotfiles 中的路径（去掉前导的点号）
+# 例如：.config/sway/config -> config/sway/config
+if [[ "$RELATIVE_PATH" == ./* ]]; then
+    DOTFILES_RELATIVE_PATH="${RELATIVE_PATH#./}"
+elif [[ "$RELATIVE_PATH" == .* ]]; then
+    # 处理以 . 开头的路径（如 .config）
+    DOTFILES_RELATIVE_PATH="${RELATIVE_PATH#.}"
+    # 如果去掉 . 后以 / 开头，去掉这个 /
+    DOTFILES_RELATIVE_PATH="${DOTFILES_RELATIVE_PATH#/}"
+else
+    DOTFILES_RELATIVE_PATH="$RELATIVE_PATH"
+fi
+
+# 生成完整的路径变量
+DOTFILES_SRC_PATH="\$HOME/.dotfiles/$DOTFILES_RELATIVE_PATH"
+DOTFILES_DEST_PATH="\$HOME/$RELATIVE_PATH"
+DOTFILES_ABS_SRC_PATH="$HOME/.dotfiles/$DOTFILES_RELATIVE_PATH"
+
+echo -e "${GREEN}输入路径: $INPUT_PATH${NC}"
+echo -e "${GREEN}Dotfiles 源路径: $DOTFILES_ABS_SRC_PATH${NC}"
+echo -e "${GREEN}目标路径: $HOME/$RELATIVE_PATH${NC}"
+
+# 检查配置文件中是否已存在该规则（需要转义特殊字符）
+ESCAPED_SRC_PATH=$(echo "$DOTFILES_RELATIVE_PATH" | sed 's/[.[\*^$()+?{|]/\\&/g')
+ESCAPED_DEST_PATH=$(echo "$RELATIVE_PATH" | sed 's/[.[\*^$()+?{|]/\\&/g')
+EXISTING_RULE=$(grep -E "^\\\$HOME/\\.dotfiles/$ESCAPED_SRC_PATH:\\\$HOME/$ESCAPED_DEST_PATH" "$CONFIG_FILE" 2>/dev/null | head -1 || true)
+
+# 判断是添加还是删除
+if [ -n "$EXISTING_RULE" ]; then
+    ACTION="remove"
+    echo -e "${YELLOW}规则已存在，将删除该规则${NC}"
+else
+    ACTION="add"
+    echo -e "${YELLOW}规则不存在，将添加该规则${NC}"
+fi
+
+# 复制文件/目录到 dotfiles
+# 如果是添加操作，或者规则存在但 dotfiles 中没有文件，都需要复制
+NEED_COPY=false
+if [ "$ACTION" = "add" ]; then
+    NEED_COPY=true
+elif [ "$ACTION" = "remove" ]; then
+    # 检查 dotfiles 中是否存在文件
+    if [ ! -e "$DOTFILES_ABS_SRC_PATH" ]; then
+        echo -e "${YELLOW}警告: 规则存在但 dotfiles 中没有对应文件，将先复制文件${NC}"
+        NEED_COPY=true
+        # 如果 dotfiles 中没有文件，我们不删除规则，而是更新它（添加文件）
+        ACTION="update"
+    else
+        echo -e "${BLUE}删除操作：dotfiles 中已有文件，跳过复制${NC}"
+    fi
+fi
+
+if [ "$NEED_COPY" = true ]; then
+    echo -e "${BLUE}正在复制文件/目录到 dotfiles...${NC}"
+    DOTFILES_ABS_SRC_DIR=$(dirname "$DOTFILES_ABS_SRC_PATH")
+    mkdir -p "$DOTFILES_ABS_SRC_DIR"
+
+    if [ -d "$INPUT_PATH" ]; then
+        echo -e "${BLUE}复制目录: $INPUT_PATH -> $DOTFILES_ABS_SRC_PATH${NC}"
+        # 如果目标目录已存在，先删除
+        if [ -e "$DOTFILES_ABS_SRC_PATH" ]; then
+            rm -rf "$DOTFILES_ABS_SRC_PATH"
+        fi
+        cp -r "$INPUT_PATH" "$DOTFILES_ABS_SRC_PATH"
+    else
+        echo -e "${BLUE}复制文件: $INPUT_PATH -> $DOTFILES_ABS_SRC_PATH${NC}"
+        # 如果目标文件已存在，先删除
+        if [ -e "$DOTFILES_ABS_SRC_PATH" ]; then
+            rm -f "$DOTFILES_ABS_SRC_PATH"
+        fi
+        cp "$INPUT_PATH" "$DOTFILES_ABS_SRC_PATH"
+    fi
+    echo -e "${GREEN}文件/目录已复制到 dotfiles${NC}"
+fi
+
+# 生成规则行（带注释）
+RULE_LINE="$DOTFILES_SRC_PATH:$DOTFILES_DEST_PATH"
+# 获取文件名作为注释
+BASENAME=$(basename "$RELATIVE_PATH")
+COMMENT="# ${BASENAME} 配置"
+
+# 显示将要执行的操作
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${YELLOW}将要执行的操作:${NC}"
+echo -e "${GREEN}配置文件: $CONFIG_FILE${NC}"
+if [ "$ACTION" = "add" ]; then
+    echo -e "${GREEN}操作: 添加规则${NC}"
+    echo -e "${GREEN}规则: $RULE_LINE $COMMENT${NC}"
+elif [ "$ACTION" = "update" ]; then
+    echo -e "${GREEN}操作: 更新规则（规则已存在，添加文件到 dotfiles）${NC}"
+    echo -e "${GREEN}规则: $RULE_LINE $COMMENT${NC}"
+else
+    echo -e "${GREEN}操作: 删除规则${NC}"
+    echo -e "${GREEN}规则: $EXISTING_RULE${NC}"
+fi
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# 询问用户确认
+read -p "是否继续? (y/N): " CONFIRM
+if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+    echo -e "${YELLOW}操作已取消${NC}"
+    exit 0
+fi
+
+# 创建临时文件
+TEMP_FILE=$(mktemp)
+trap "rm -f $TEMP_FILE" EXIT
+
+# 处理配置文件
+IN_SECTION=false
+RULE_FOUND=false
+
+while IFS= read -r line || [ -n "$line" ]; do
+    # 检查是否在 [link] 部分
+    if [[ "$line" =~ ^\[link\] ]]; then
+        IN_SECTION=true
+        echo "$line" >> "$TEMP_FILE"
+        continue
+    elif [[ "$line" =~ ^\[.*\] ]]; then
+        # 如果遇到了新的 section，需要先处理规则
+        if [ "$IN_SECTION" = true ] && [ "$ACTION" = "add" ] && [ "$RULE_FOUND" = false ]; then
+            echo "$RULE_LINE	$COMMENT" >> "$TEMP_FILE"
+            RULE_FOUND=true
+        fi
+        IN_SECTION=false
+        echo "$line" >> "$TEMP_FILE"
+        continue
+    fi
+    
+    # 在 [link] 部分
+    if [ "$IN_SECTION" = true ]; then
+        # 检查是否是目标规则（使用转义后的路径进行匹配）
+        if echo "$line" | grep -qE "^\\\$HOME/\\.dotfiles/$ESCAPED_SRC_PATH:\\\$HOME/$ESCAPED_DEST_PATH"; then
+            # 如果是删除操作，跳过这一行
+            if [ "$ACTION" = "remove" ]; then
+                RULE_FOUND=true
+                continue
+            fi
+            # 如果是 update 操作，保留这一行（不删除规则）
+            if [ "$ACTION" = "update" ]; then
+                RULE_FOUND=true
+                echo "$line" >> "$TEMP_FILE"
+                continue
+            fi
+            # 如果是添加操作但规则已存在，跳过（不应该发生，但保险起见）
+            if [ "$ACTION" = "add" ]; then
+                RULE_FOUND=true
+                continue
+            fi
+        fi
+        
+        echo "$line" >> "$TEMP_FILE"
+    else
+        echo "$line" >> "$TEMP_FILE"
+    fi
+done < "$CONFIG_FILE"
+
+# 如果在 [link] 部分的末尾且是添加或更新操作，添加规则
+if [ "$IN_SECTION" = true ] && [ "$RULE_FOUND" = false ]; then
+    if [ "$ACTION" = "add" ] || [ "$ACTION" = "update" ]; then
+        echo "$RULE_LINE	$COMMENT" >> "$TEMP_FILE"
+    fi
+fi
+
+# 备份原文件
+BACKUP_FILE="${CONFIG_FILE}.bak.$(date +%Y%m%d_%H%M%S)"
+cp "$CONFIG_FILE" "$BACKUP_FILE"
+echo -e "${BLUE}已备份原配置文件到: $BACKUP_FILE${NC}"
+
+# 替换原文件
+mv "$TEMP_FILE" "$CONFIG_FILE"
+echo -e "${GREEN}配置文件已更新${NC}"
+
+# 执行 dotlink link
+echo ""
+echo -e "${BLUE}正在执行 dotlink link...${NC}"
+cd "$DOTLINK_DIR"
+bash "$DOTLINK_DIR/dotlink" link
+
+echo ""
+echo -e "${GREEN}完成!${NC}"
+
