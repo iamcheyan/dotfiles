@@ -52,7 +52,7 @@
     "on-click": "~/.config/waybar/switch_style2.sh &",
     "on-click-right": "~/.config/waybar/wallpaper_random.sh &",
     "on-click-middle": "~/.config/waybar/live_wallpaper.sh &",
-    "format": "<span foreground='#7dcfff'></span> {:%d %B %Y - %I:%M %p}",
+    "format": "<span foreground='#7dcfff'>󰥔</span> {:%d %B %Y - %I:%M %p}",
     "interval": 60,
     "tooltip": true,
     /* "tooltip-format": "{:%A, %d %B %Y}\n<tt>{calendar}</tt>" */
@@ -60,9 +60,9 @@
   },
   "mpd": {
     "max-length": 30,
-    "format": "<span foreground='#bb9af7'></span> {title}",
-    "format-paused": "<span style='italic'> {title}</span>",
-    "format-stopped":"<span foreground='#bb9af7'></span>",
+    "format": "<span foreground='#bb9af7'>󰎈</span> {title}",
+    "format-paused": "<span style='italic'>󰎈 {title}</span>",
+    "format-stopped":"<span foreground='#bb9af7'>󰎈</span>",
     "format-disconnected": "",
     "on-click": "mpc --quiet toggle",
     "on-click-right": "mpc ls | mpc add",
@@ -79,11 +79,11 @@
   },
   "cpu": {
     "interval": 1,
-    "format": "<span foreground='#e0af68'></span> {usage}%"
+    "format": "<span foreground='#e0af68'>󰍛</span> {usage}%"
   },
   "memory": {
     "interval": 300,
-    "format": "<span foreground='#7aa2f7'>﬙</span> {percentage}%",
+    "format": "<span foreground='#7aa2f7'>󰍛</span> {percentage}%",
     "tooltip-format": "{used:0.2f}GiB used out of {total:0.2f}GiB"
   },
   "battery": {
@@ -96,7 +96,7 @@
     "format": "<span foreground='#f7768e'>{icon}</span> {capacity}%",
     "format-charging": "<span foreground='#f7768e'>{icon}</span> {capacity}%",
     "format-time": "{H}h {M}m",
-    "format-icons": ["", "", "", "", "", ""]
+    "format-icons": ["󰁹", "󰂆", "󰂈", "󰂉", "󰂊", "󰁹"]
   },
   "tray": {
     "icon-size": 15,
@@ -104,10 +104,10 @@
   },
   "network": {
     "interval": 1,
-    "format-wifi": "<span foreground='#61AF1F'>說</span> {essid} ({signalStrength}%)",
-    "format-ethernet": "<span foreground='#61AF1F'></span> {ifname} ({ipaddr})",
-    "format-linked": "<span foreground='#61AF1F'>說</span> {essid} (No IP)",
-    "format-disconnected": "<span foreground='#61AF1F'>說</span> Disconnected",
+    "format-wifi": "<span foreground='#61AF1F'>󰤨</span> {essid} ({signalStrength}%)",
+    "format-ethernet": "<span foreground='#61AF1F'>󰤨</span> {ifname} ({ipaddr})",
+    "format-linked": "<span foreground='#61AF1F'>󰤨</span> {essid} (No IP)",
+    "format-disconnected": "<span foreground='#61AF1F'>󰤯</span> Disconnected",
     "tooltip": false
   },
   "backlight": {
@@ -115,14 +115,14 @@
     "on-scroll-up": "light -A 5",
     "on-scroll-down": "light -U 5",
     "format": "<span foreground='#b48ead'>{icon}</span> {percent}%",
-    "format-icons": ["","","",""]
+    "format-icons": ["󰃟", "󰃠", "󰃡", "󰃟"]
   },
   "pulseaudio": {
     "scroll-step": 1,
     "format": "<span foreground='#d08770'>{icon}</span> {volume}%", 
-    "format-muted": "婢 Muted",
+    "format-muted": "󰝟 Muted",
     "format-icons": {
-      "default": ["", "", ""]
+      "default": ["󰕾", "󰕿", "󰖀"]
     },
     "states": {
       "warning": 85,
@@ -138,7 +138,7 @@
   },
   "temperature": {
     "hwmon-path": "/sys/class/hwmon/hwmon6/temp2_input",
-    "format": " {temperatureC}°C",
+    "format": "󰔏 {temperatureC}°C",
     "tooltip": false
   },
   "idle_inhibitor": {
