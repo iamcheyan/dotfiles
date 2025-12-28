@@ -26,3 +26,4 @@ sbsrf/
 
 config/nvim/tmp/*
 config/yazi/flavors/*
+config/sway/*
