@@ -10,7 +10,8 @@
     "custom/separator",
     "idle_inhibitor",
     "mpd",
-    "custom/cava-internal"
+    "custom/cava-internal",
+    "custom/todo",
   ],
   "modules-center": [
     "clock",
