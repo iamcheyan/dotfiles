@@ -1,7 +1,7 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 30,
+  "height": 22,
   //"width": 1920, // Comment for dynamic width
   "modules-left": [
     "sway/workspaces",
