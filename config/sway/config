@@ -1,104 +1,168 @@
 # Sway 配置文件
-# Sway 是一个 Wayland 合成器（类似 i3 窗口管理器）
-# 更多信息请查看: man 5 sway
+# 基于 https://github.com/Ruixi-rebirth/sway-dotfiles
+# 保留原有键绑定设置
 
-### 变量设置
-# 修饰键（Logo 键，通常是 Win/Super 键，也可以用 Alt）
-set $mod Mod4
+#---------p
+# mod key #
+#---------#
+    set $mod Mod4
 
-# 方向键（使用 vim 风格的 h/j/k/l）
-set $left h
-set $down j
-set $up k
-set $right l
+#-----------------------------#
+#           Misc              #
+#-----------------------------#
+# 设置显示器分辨率为 1920x1080
+output * mode 1920x1080
+# 设置两倍缩放（200%）
+output * scale 1.5
+output * adaptive_sync on
+  
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec hash dbus-update-activation-environment 2>/dev/null && dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 
-# 终端模拟器
-set $term foot
+default_border pixel 3
+default_floating_border pixel 3
+gaps inner  5
+gaps outer  0
 
-# 应用程序启动器（按 Mod+d 打开）
-set $menu dmenu_path | dmenu | xargs swaymsg exec --
+# Activate smart borders (always)
+smart_borders on
 
-# 包含系统级变量配置
-include /etc/sway/config-vars.d/*
+#------------------------------#
+# Always float certain windows #
+#------------------------------#
+    for_window [app_id="pop-up"]                     floating enable
+    for_window [app_id="bubble"]                     floating enable 
+    for_window [app_id="task_dialog"]                floating enable
+    for_window [app_id="Preferences"]                floating enable
+    for_window [app_id="dialog"]                     floating enable 
+    for_window [app_id="menu"]                       floating enable
+    for_window [app_id="Organizer"]                  floating enable
+    for_window [app_id="About"]                      floating enable
+    for_window [app_id="toolbox"]                    floating enable
+    for_window [app_id="page-info"]                  floating enable	
+    for_window [app_id="webconsole"]                 floating enable
+    for_window [app_id="Authy"]                      floating enable
 
-### 显示器配置
-# 设置壁纸（更多分辨率壁纸在 /usr/share/backgrounds/sway/）
-output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+#---------------------#
+# Focus follows mouse #
+#---------------------#
+    focus_follows_mouse no
 
-# 多显示器配置示例（取消注释并修改）:
-#   output HDMI-A-1 resolution 1920x1080 position 1920,0
-# 查看显示器名称: swaymsg -t get_outputs
+#-----------#
+# Autostart #
+#-----------#
+    exec_always --no-startup-id ~/.config/waybar/launch_waybar.sh &
 
-### 状态栏（waybar）
-# 启动 waybar 状态栏（顶部显示工作区、时间、WiFi、音量等）
-# 注意：使用 exec 而不是 exec_always，只在 Sway 启动时运行一次，避免重复启动
-exec waybar
+#-------------------------------#
+# Make capslock work as escape #
+#-------------------------------#
+    input "type:keyboard" {           
+        xkb_layout us
+        xkb_options caps:escape
+    }
 
-### 空闲配置（屏幕锁定和休眠）
-# 自动锁定和休眠配置示例（取消注释以启用）:
-#
-# exec swayidle -w \
-#          timeout 300 'swaylock -f -c 000000' \              # 300秒无操作后锁定屏幕
-#          timeout 600 'swaymsg "output * dpms off"' \        # 再600秒后关闭显示器
-#          resume 'swaymsg "output * dpms on"' \              # 恢复时打开显示器
-#          before-sleep 'swaylock -f -c 000000'               # 休眠前锁定屏幕
+#----------------#
+# set gtk+ theme #
+#----------------#
+    set $gnome-schema org.gnome.desktop.interface
+    exec_always {
+        gsettings set $gnome-schema gtk-theme 'Adwaita-dark' || gsettings set $gnome-schema gtk-theme 'Catppuccin' || true
+        gsettings set $gnome-schema icon-theme 'Adwaita' || gsettings set $gnome-schema icon-theme 'Papirus-Dark' || true
+        gsettings set $gnome-schema cursor-theme 'Adwaita' || true
+    }
 
-### 输入设备配置（鼠标、触摸板等）
-# 输入设备配置示例（取消注释并修改）:
-#
-#   input "2:14:SynPS/2_Synaptics_TouchPad" {
-#       dwt enabled              # 禁用鼠标按键时打字
-#       tap enabled              # 启用点击触摸
-#       natural_scroll enabled   # 启用自然滚动
-#       middle_emulation enabled # 启用中键模拟（双指点击）
-#   }
-#
-# 查看输入设备名称: swaymsg -t get_inputs
-# 更多信息: man 5 sway-input
+#----------------------------------------#
+# window colours: border background text #
+#----------------------------------------#
+    client.focused          #ffc0cb #ffc0cb #ffffff
+    client.unfocused        #2e3440 #1f222d #888888
+    client.focused_inactive #2e3440 #1f222d #888888 
+    client.placeholder      #2e3440 #1f222d #888888
+    client.urgent           #D08770 #D08770 #ffffff
+    client.background       #242424
 
-### 键位绑定
+#-----------------------------------#
+# Home row direction keys, like vim #
+#-----------------------------------#
+    set $left  h
+    set $down  j
+    set $up    k
+    set $right l
 
-# 基础操作
-    # Mod+Enter: 打开终端
+#----------------------------------#
+# Your preferred terminal emulator #
+#----------------------------------#
+    set $term foot
+    
+#-------------------------------------#
+# Your preferred application launcher #
+#-------------------------------------#
+    set $menu dmenu_path | dmenu | xargs swaymsg exec --
+
+#-----------#
+# WallPaper #
+#-----------#
+    output * bg /usr/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
+
+#-------------------------------------------------#
+# Control volume,monitor brightness,media players #
+#-------------------------------------------------#
+    bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+    bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+    bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+    bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+    bindsym XF86MonBrightnessUp exec light -A 5
+    bindsym XF86MonBrightnessDown exec light -U 5
+    bindsym XF86AudioPlay exec playerctl play-pause
+    bindsym XF86AudioNext exec playerctl next
+    bindsym XF86AudioPrev exec playerctl previous
+
+#----------------#
+# Key bindings --#
+#----------------#
+    # Start a terminal
     bindsym $mod+Return exec $term
 
-    # Mod+Shift+Q: 关闭当前窗口
+    # Kill focused window
     bindsym $mod+Shift+e kill
 
-    # Mod+D: 打开应用程序启动器（使用 dmenu）
-    bindsym $mod+d exec sh -c "dmenu_path | dmenu | xargs -r swaymsg exec --"
+    # Start your launcher
+    bindsym $mod+d exec sh -c "$menu"
 
-    # 浮动窗口操作：按住 Mod+左键拖动，Mod+右键调整大小
-    floating_modifier $mod normal
-
-    # Mod+Shift+C: 重新加载配置文件
+    # Reload the configuration file
     bindsym $mod+Shift+c reload
 
- 
-# 窗口导航（移动焦点）
-    # Mod+H/J/K/L: 使用 vim 风格的方向键切换焦点
+    # Drag floating windows by holding down $mod and left mouse button.
+    floating_modifier $mod normal
+
+#----------------#
+# Moving around: #
+#----------------#
+    # Move your focus around
     bindsym $mod+$left focus left
     bindsym $mod+$down focus down
     bindsym $mod+$up focus up
     bindsym $mod+$right focus right
-    # Mod+方向键: 使用方向键切换焦点
+    # Or use $mod+[up|down|left|right]
     bindsym $mod+Left focus left
     bindsym $mod+Down focus down
     bindsym $mod+Up focus up
     bindsym $mod+Right focus right
 
-    # Mod+Shift+H/J/K/L: 移动当前窗口
+    # Move the focused window with the same, but add Shift
     bindsym $mod+Shift+$left move left
     bindsym $mod+Shift+$down move down
     bindsym $mod+Shift+$up move up
     bindsym $mod+Shift+$right move right
-    # Mod+Shift+方向键: 移动当前窗口
+    # Ditto, with arrow keys
     bindsym $mod+Shift+Left move left
     bindsym $mod+Shift+Down move down
     bindsym $mod+Shift+Up move up
     bindsym $mod+Shift+Right move right
-# 工作区（虚拟桌面）
-    # Mod+1-0: 切换到工作区 1-10
+#-------------#
+# Workspaces: #
+#-------------#
+    # Switch to workspace
     bindsym $mod+1 workspace number 1
     bindsym $mod+2 workspace number 2
     bindsym $mod+3 workspace number 3
@@ -109,8 +173,7 @@ exec waybar
     bindsym $mod+8 workspace number 8
     bindsym $mod+9 workspace number 9
     bindsym $mod+0 workspace number 10
-    
-    # Mod+Shift+1-0: 将当前窗口移动到工作区 1-10
+    # Move focused container to workspace
     bindsym $mod+Shift+1 move container to workspace number 1
     bindsym $mod+Shift+2 move container to workspace number 2
     bindsym $mod+Shift+3 move container to workspace number 3
@@ -121,57 +184,59 @@ exec waybar
     bindsym $mod+Shift+8 move container to workspace number 8
     bindsym $mod+Shift+9 move container to workspace number 9
     bindsym $mod+Shift+0 move container to workspace number 10
-    # 注意: 工作区可以使用任何名称，不限于数字
-# 布局管理
-    # Mod+B: 水平分割窗口（左右布局）
+#---------------#
+# Layout stuff: #
+#---------------#
+    # You can "split" the current object of your focus
     bindsym $mod+b splith
-    # Mod+V: 垂直分割窗口（上下布局）
     bindsym $mod+v splitv
 
-    # Mod+S: 堆叠布局
+    # Switch the current container between different layout styles
     bindsym $mod+s layout stacking
-    # Mod+W: 标签页布局
     bindsym $mod+w layout tabbed
-    # Mod+E: 切换分割方向
     bindsym $mod+e layout toggle split
 
-    # Mod+F: 全屏切换
+    # Make the current focus fullscreen
     bindsym $mod+f fullscreen
 
-    # Mod+Shift+Space: 切换窗口为浮动模式
+    # Toggle the current focus between tiling and floating mode
     bindsym $mod+Shift+space floating toggle
 
-    # Mod+Space: 在平铺区域和浮动区域之间切换焦点
+    # Swap focus between the tiling area and the floating area
     bindsym $mod+space focus mode_toggle
 
-    # Mod+A: 将焦点移到父容器
+    # Move focus to the parent container
     bindsym $mod+a focus parent
-# 临时工作区（Scratchpad，可以临时隐藏窗口）
-    # Mod+Shift+减号: 将当前窗口移到临时工作区（隐藏）
-    bindsym $mod+Shift+minus move scratchpad
+#-------------#
+# Scratchpad: #
+#-------------#
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
 
-    # Mod+减号: 显示/隐藏临时工作区的窗口（如果有多个会循环显示）
-    bindsym $mod+minus scratchpad show
-# 调整窗口大小模式
-# Mod+R: 进入调整大小模式，然后用方向键调整窗口大小
+#----------------------#
+# Resizing containers: #
+#----------------------#
+bindsym $mod+r mode "resize"
 mode "resize" {
-    # H: 缩小宽度  J: 增加高度  K: 缩小高度  L: 增加宽度
+    # left will shrink the containers width
+    # right will grow the containers width
+    # up will shrink the containers height
+    # down will grow the containers height
     bindsym $left resize shrink width 10px
-    bindsym $down resize grow height 10px
     bindsym $up resize shrink height 10px
+    bindsym $down resize grow height 10px
     bindsym $right resize grow width 10px
 
-    # 方向键也可以调整大小
+    # Ditto, with arrow keys
     bindsym Left resize shrink width 10px
-    bindsym Down resize grow height 10px
     bindsym Up resize shrink height 10px
+    bindsym Down resize grow height 10px
     bindsym Right resize grow width 10px
 
-    # Enter 或 Escape: 退出调整大小模式
+    # Return to default mode
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
-bindsym $mod+r mode "resize"
 
 # 包含系统级配置文件
 include /etc/sway/config.d/*

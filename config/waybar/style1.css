@@ -1,5 +1,10 @@
 * {
-  font-family: "Hack Nerd Font", "MesloLGS Nerd Font Mono", monospace;
+  font-family: "Hack Nerd Font";
+  font-size: 12pt;
+  border: none;
+  border-radius: 0;
+  transition-property: background-color;
+  transition-duration: 0.5s;
 }
 window#waybar {
   color: #c0caf5;
@@ -93,4 +98,7 @@ window#waybar {
 }
 #idle_inhibitor {
   color:#B5E8E0;
+}
+#custom-cava-internal{
+  font-family: "Hack Nerd Font" ;
 }
