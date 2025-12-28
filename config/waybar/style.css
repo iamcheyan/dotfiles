@@ -1,15 +1,15 @@
 * {
-  font-family: "Hack Nerd Font", "MesloLGS Nerd Font Mono", monospace;
+  font-family:  monospace;
+  font-size: 11px;
 }
 window#waybar {
   color: #c0caf5;
-  background-color: #24283b;
+  background-color: rgba(0, 0, 0, 0.8);
   border-bottom: 1px solid #414868;
   transition-duration: 0.5s;
   transition-property: background-color;
 }
 #workspaces button {
-  background: #24283b;
   color: #c0caf5;
   border-bottom: 1px solid #414868;
   padding-top: 0px;
@@ -47,9 +47,7 @@ window#waybar {
 #battery,
 #mode {
   margin: 0px 2px;   /* gaps between modules */
-  padding: 0.2rem 0.6rem;
   color: #c0caf5;
-  background: #24283b;
   border-bottom: 1px solid #414868;
 }
 #mode,
@@ -73,22 +71,21 @@ window#waybar {
   animation-iteration-count: infinite;
   animation-direction: alternate;
   color: #f7768e;
-  background-color: #24283b;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 #battery.charging {
   color: #9ece6a;
-  background-color: #24283b;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 #mpd.paused {
   color: #414868;
-  background-color: #24283b;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 #mpd.stopped {
   background: transparent;
 }
 #custom-separator {
   color: #414868;
-  background: #24283b;
   border-bottom: 1px solid #414868;
 }
 #idle_inhibitor {
