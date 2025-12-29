@@ -253,13 +253,60 @@ shell_type=$(detect_shell)
 # 尝试配置 npm（如果可能）
 configure_npm || true
 
+# 自动配置 Node.js 和常用工具
+auto_setup_node() {
+    print_info "正在自动配置 Node.js 环境..."
+
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+    if command -v nvm >/dev/null 2>&1; then
+        # 1. 安装 Node.js v20 (LTS)
+        print_info "检查并安装 Node.js 20 (LTS)..."
+        nvm install 20
+        nvm alias default 20
+        nvm use default
+
+        # 2. 配置 npm 全局路径
+        configure_npm
+
+        # 3. 安装全局工具
+        print_info "安装全局工具..."
+        
+        # 修复 gemini 冲突
+        if [[ -f "$HOME/.npm-global/bin/gemini" ]]; then
+            # 检查是否是旧的冲突文件 (简单的检查方式，或者直接强制删除)
+            print_warning "清理可能冲突的 gemini 二进制文件..."
+            rm -f "$HOME/.npm-global/bin/gemini"
+        fi
+
+        local tools=(
+            "@google/gemini-cli"
+            "neovim"
+            "tree-sitter-cli"
+        )
+        
+        for tool in "${tools[@]}"; do
+            print_info "正在安装 $tool..."
+            npm install -g "$tool"
+        done
+
+        print_success "Node.js 环境及工具配置完成！"
+    else
+        print_error "无法加载 nvm，跳过自动配置"
+    fi
+}
+
+# 运行自动配置
+auto_setup_node
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-print_success "nvm 安装完成！"
+print_success "nvm 及 Node.js 环境安装完成！"
 echo ""
 print_info "安装位置: $NVM_DIR"
-print_info "Shell 类型: $shell_type"
-print_info "配置文件: $shell_rc"
+print_info "Node 版本: $(node -v 2>/dev/null || echo '未加载')"
+print_info "npm 路径: $(npm config get prefix 2>/dev/null || echo '未加载')"
 echo ""
 
 # 检查配置是否已添加到 shell 配置文件
@@ -267,42 +314,12 @@ if [ -f "$shell_rc" ] && grep -q "NVM_DIR" "$shell_rc" 2>/dev/null; then
     print_success "nvm 配置已添加到 $shell_rc"
 else
     print_warning "nvm 配置可能未正确添加到 $shell_rc"
-    print_info "请检查 $shell_rc 文件，确保包含以下内容："
-    echo ""
-    echo "export NVM_DIR=\"\$HOME/.nvm\""
-    echo "[ -s \"\$NVM_DIR/nvm.sh\" ] && \\. \"\$NVM_DIR/nvm.sh\""
-    echo "[ -s \"\$NVM_DIR/bash_completion\" ] && \\. \"\$NVM_DIR/bash_completion\""
-    echo ""
+    print_info "请确保 $shell_rc 包含 NVM 配置"
 fi
 
 echo ""
-print_info "下一步操作："
-echo ""
-print_info "1. 重新加载 shell 配置:"
-print_info "   source $shell_rc"
-echo ""
-print_info "2. 或者重新打开终端"
-echo ""
-print_info "3. 验证安装:"
-print_info "   command -v nvm"
-echo ""
-print_info "4. 安装 Node.js (LTS 版本):"
-print_info "   nvm install --lts"
-echo ""
-print_info "5. 使用 Node.js:"
-print_info "   nvm use --lts"
-echo ""
-print_info "6. 配置 npm 全局安装路径（已自动配置，如未安装 Node.js 请手动配置）:"
-print_info "   mkdir -p ~/.npm-global"
-print_info "   npm config set prefix '~/.npm-global'"
-print_info "   注意: PATH 已自动配置在 ~/.dotfiles/plugins/completion/completion.zsh 中"
-echo ""
-print_info "7. 查看已安装的版本:"
-print_info "   nvm list"
-echo ""
-print_info "8. 安装 tree-sitter-cli（解决 Neovim Treesitter GLIBC 问题）:"
-print_info "   npm install -g tree-sitter-cli"
-print_info "   验证: tree-sitter --version"
+print_info "现在请重新加载 Shell 或重启终端："
+print_info "   exec zsh"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
