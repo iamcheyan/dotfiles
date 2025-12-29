@@ -58,15 +58,15 @@ echo "设备名: $HOSTNAME"
 echo "时间戳: $TIMESTAMP"
 echo ""
 
-# 检查是否有更改
-if git diff --quiet && git diff --cached --quiet; then
+# 检查是否有更改（包括已跟踪文件的修改、暂存区的更改、以及未跟踪的新文件）
+if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
     echo "没有需要提交的更改"
     exit 0
 fi
 
-# 添加所有更改
+# 添加所有更改（包括新文件、修改和删除）
 echo "正在添加文件..."
-git add .
+git add -A
 
 # 提交
 echo "正在提交..."
