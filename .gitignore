@@ -27,3 +27,7 @@ sbsrf/
 config/nvim/tmp/*
 config/yazi/flavors/*
 config/sway/*
+
+# 环境变量文件
+plugins/avante/.env
+config/nvim/.nvimlog
