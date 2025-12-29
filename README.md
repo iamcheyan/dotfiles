@@ -1,316 +1,135 @@
-# Dotfiles 配置仓库
+# My Dotfiles
 
-个人 dotfiles 配置仓库，包含 zsh 配置、工具脚本、别名等。
+我的个人配置文件仓库，旨在提供一个高效、美观且现代化的开发环境。核心基于 **Zsh** 和 **Neovim**，并集成了大量现代化的 CLI 工具。
 
-## 目录结构
+## 🚀 快速开始
 
-```
-.dotfiles/
-├── config/              # 配置文件目录
-│   └── zsh/            # Zsh 配置
-├── plugins/             # Zsh 插件配置
-├── scripts/            # 脚本目录
-│   ├── utils/          # 通用工具脚本
-│   ├── dev/            # 开发相关脚本
-│   └── system/         # 系统管理脚本
-├── tools/              # 专业工具和工作流脚本
-├── resources/          # 资源文件（字体等）
-├── dotlink/            # 符号链接管理工具
-├── aliases.conf        # 别名配置
-└── zshrc               # Zsh 主配置文件
-```
+### 安装
 
-## 快速开始
-
-### 1. 克隆仓库
+只需一行命令即可完成从环境检查、依赖安装到配置链接的全过程。
 
 ```bash
-git clone https://github.com/iamcheyan/Dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-```
+# 克隆仓库
+git clone https://github.com/yourusername/Dotfiles.git ~/Dotfiles
 
-### 2. 运行初始化脚本
-
-```bash
+# 运行初始化脚本
+cd ~/Dotfiles
 bash init.sh
 ```
 
-初始化脚本会自动完成：
-- 检查并安装 zsh（如果未安装）
-- 安装 zinit 插件管理器
-- 创建 `~/Dotfiles` 软链接
-- 使用 dotlink 创建所有配置文件的软链接
-- 创建 `~/.zshrc` 软链接
+**`init.sh` 会自动执行以下操作：**
+1.  **检测系统**：支持 Debian/Ubuntu, RHEL/CentOS, Arch Linux, macOS。
+2.  **安装基础依赖**：`git`, `curl`, `build-essential`, `ripgrep`, `fd`, `bat`, `lsd`, `zoxide` 等。
+3.  **安装 Zsh & Zinit**：如果未安装会自动安装。
+4.  **安装 fzf**：确保模糊搜索工具可用。
+5.  **链接配置**：自动备份现有配置并创建软链接。
 
-### 3. 启动 Zsh
+---
 
-```bash
-zsh
+## ✨ 核心特性
+
+### 🐚 Shell 环境 (Zsh)
+
+- **插件管理器**: [Zinit](https://github.com/zdharma-continuum/zinit) - 极速加载，延迟加载机制。
+- **提示符**: [Powerlevel10k](https://github.com/romkatv/powerlevel10k) - 瞬时启动，信息丰富，高度可定制。
+- **自动补全**: 
+    - `zsh-autosuggestions`: 基于历史记录的灰色自动建议。
+    - `fzf-tab`: 使用 fzf 替换默认的 Tab 选择菜单，支持实时预览（如 `cd` 预览目录，`kill` 预览进程）。
+    - `commands`: 针对 `git`, `docker`, `systemd` 等的丰富补全源。
+- **语法高亮**: `zsh-syntax-highlighting` - 实时检查命令语法正确性。
+- **Vi 模式**: `zsh-vi-mode` - 更好的 Vim 键位支持。
+- **智能跳转**: `zoxide` - 比 `cd` 更智能的目录跳转（`z dir`）。
+
+### 🛠️ 现代命令行工具集
+
+本配置集成了大量 Rust 编写的现代替代工具：
+
+| 传统工具 | 现代替代 | 描述 |
+| :--- | :--- | :--- |
+| `ls` | **[lsd](https://github.com/lsd-rs/lsd)** / **[eza](https://github.com/eza-community/eza)** | 带图标和颜色的文件列表 |
+| `cat` | **[bat](https://github.com/sharkdp/bat)** | 带语法高亮和 Git 集成的文件查看器 |
+| `grep` | **[ripgrep (rg)](https://github.com/BurntSushi/ripgrep)** | 极速全文本搜索 |
+| `find` | **[fd](https://github.com/sharkdp/fd)** | 简单快速的文件查找 |
+| `cd` | **[zoxide](https://github.com/ajeetdsouza/zoxide)** | 智能目录跳转 |
+| `top` | **[btop](https://github.com/aristocratos/btop)** | 炫酷的系统资源监控 |
+| `diff` | **[delta](https://github.com/dandavison/delta)** | 更好的 Git diff 查看器 |
+| `git` | **[lazygit](https://github.com/jesseduffield/lazygit)** | 终端 Git UI 神器 |
+| - | **[yazi](https://github.com/sxyazi/yazi)** | 极速终端文件管理器，支持图片预览 |
+| - | **[zellij](https://github.com/zellij-org/zellij)** | 现代化的终端复用器 (Tmux 替代) |
+| - | **[atuin](https://github.com/atuinsh/atuin)** | 魔法般的 Shell 历史记录同步与搜索 |
+| - | **[superfile](https://github.com/MHNightCat/superfile)** | 另一款强大的终端文件管理器 |
+
+### ⌨️ 输入法 (Rime)
+
+- **配置**: `rime/sbxlm.yaml`
+- **方案**: 声笔系列 (sbzr)
+- **管理**: 提供了 `sbzr`, `install:rime` 等别名工具用于管理词库和同步。
+
+---
+
+## 📂 目录结构
+
+```text
+~/Dotfiles
+├── init.sh             # 一键安装脚本
+├── zshrc               # Zsh 入口配置
+├── aliases.conf        # 别名统一定义
+├── config/             # 各种工具的配置文件 (nvim, yazi, wezterm 等)
+├── plugins/            # Zsh 插件配置与加载逻辑
+│   ├── zinit/          # Zinit 初始化
+│   ├── prompt/         # P10k 主题配置
+│   ├── tools/          # 核心工具安装 (btop, yazi 等)
+│   ├── completion/     # 补全配置 (fzf-tab)
+│   └── ...
+├── scripts/            # 实用脚本库
+│   ├── install/        # 安装脚本 (rime, nvim 等)
+│   ├── system/         # 系统维护 (backup, disk usage)
+│   └── utils/          # 通用工具 (extract, url_encode)
+├── dotlink/            # 自研的软链接管理工具
+└── tools/              # 随处可用的便携脚本
 ```
 
-首次启动时会自动：
-- 安装 zinit（如果初始化脚本未完成）
-- 安装 Powerlevel10k 主题
-- 安装所有配置的插件和工具
-- 询问是否安装 Meslo 字体
+---
 
-### 手动初始化（可选）
+## 🔧 常用别名 (Aliases)
 
-如果不想使用 `init.sh`，也可以手动执行：
+详细列表请查看 `aliases.conf`，以下是常用精选：
 
-```bash
-# 1. 安装 zsh（如果未安装）
-# Ubuntu/Debian:
-sudo apt-get install zsh
+- **文件管理**
+    - `extract`: 通用解压（自动识别 tar, zip, 7z 等）。
+    - `open`: 在文件管理器中打开当前目录。
+    - `packtar`: 打包当前目录。
+    - `unzip:here`: 批量解压。
 
-# 2. 安装 zinit
-mkdir -p ~/.zinit
-git clone https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
+- **Git**
+    - `lazy`: 启动 Lazygit。
+    - `git:clean`: 清理未跟踪文件。
+    - `dotfiles:push`: 自动提交并推送 Dotfiles 更新。
 
-# 3. 创建软链接
-ln -s ~/.dotfiles ~/Dotfiles
-ln -s ~/.dotfiles/zshrc ~/.zshrc
+- **开发**
+    - `vim` / `vi`: 智能映射到 Neovim。
+    - `rjz` / `rzj`: 中日互译 (Translate Shell)。
+    - `url:encode` / `url:decode`: URL 编解码。
 
-# 4. 使用 dotlink 创建配置文件软链接
-bash ~/.dotfiles/dotlink/dotlink link
-```
+- **系统**
+    - `update`: 系统更新 (apt/dnf/pacman/brew 智能识别)。
+    - `disk:usage`: 查看目录占用。
+    - `port:check`: 检查端口占用。
 
-## 文档索引
+---
 
-### 核心配置
+## 🔗 配置同步 (Dotlink)
 
-- **[zshrc](zshrc)** - Zsh 主配置文件
-- **[aliases.conf](aliases.conf)** - 所有别名定义
+本仓库包含一套自研的配置同步工具 `dotlink`，位于 `dotlink/` 目录下。
 
-### 脚本文档
+- `dotlink`: 自动扫描并创建软链接。
+- `dotsync`: 更加高级的配置同步管理，支持备份、恢复和多机同步提交。
+    - `dotsync push`: 提交更改。
+    - `dotsync pull`: 拉取更新。
+    - `dotsync backup`: 备份本地重要配置。
 
-- **[Scripts Utils](scripts/utils/README.md)** - 通用工具脚本文档
-  - `extract.sh` - 通用解压工具
-  - `url_encode.sh` / `url_decode.sh` - URL 编码/解码
-  - `random_string.sh` - 随机字符串生成
+---
 
-- **[Scripts Dev](scripts/dev/)** - 开发相关脚本
-  - `git_clean.sh` - Git 清理工具
-  - `push_dotfiles.sh` - Dotfiles 推送工具
+## 📝 许可证
 
-- **[Scripts System](scripts/system/)** - 系统管理脚本
-  - `backup_config.sh` - 配置文件备份
-  - `disk_usage.sh` - 磁盘使用查看
-  - `find_large_files.sh` - 查找大文件
-  - `port_check.sh` - 端口检查
-
-- **[Tools](tools/README.md)** - 专业工具文档
-  - `easygit.sh` - Git 仓库管理工具
-  - `repo_size.sh` - 仓库大小分析
-  - `packtar.sh` - 目录打包工具
-  - `unzip_here.sh` - 批量解压工具
-  - `jp_convert.sh` - 日语转换工具
-  - `sbzr.sh` - Rime 输入法配置工具
-  - `VirtualBox.sh` - 虚拟机管理工具
-  - `remove_zone_identifier.sh` - Zone.Identifier 清理
-  - `open_windows_folder.sh` - WSL Windows 文件夹打开
-  - `run_wine.sh` - Wine 运行工具
-  - `winetricks.sh` - Winetricks 工具
-
-### 详细说明
-
-- **[Scripts 目录说明](scripts/README.md)** - Scripts 目录结构和组织原则
-
-## 主要功能
-
-### Zsh 配置
-
-- **Zinit** - 插件管理器
-- **Powerlevel10k** - 主题
-- **自动补全** - zsh-autosuggestions, zsh-syntax-highlighting
-- **工具管理** - 通过 zinit 自动安装和管理 CLI 工具
-
-### 工具管理
-
-所有工具通过 zinit 自动安装和管理，包括：
-- `btop`, `bottom`, `duf` - 系统监控
-- `lazygit`, `delta`, `gh` - Git 工具
-- `bat`, `rg`, `fd` - 文件搜索
-- `zoxide`, `yazi`, `eza` - 目录导航
-- `fzf` - 模糊搜索
-- 等等...
-
-### 脚本工具
-
-- **通用工具** (`scripts/utils/`) - 轻量级、跨平台工具
-- **开发工具** (`scripts/dev/`) - Git 操作、项目管理
-- **系统工具** (`scripts/system/`) - 备份、磁盘、端口检查
-- **专业工具** (`tools/`) - 复杂工作流和特定用途工具
-
-## 常用命令
-
-### Dotfiles 管理
-
-```bash
-# 推送 dotfiles 到 GitHub（自动包含设备名、时间戳）
-dotfiles:push
-
-# 自定义提交信息
-dotfiles:push "Update config"
-```
-
-### Git 工具
-
-```bash
-# Git 清理未跟踪文件
-git:clean
-git:clean --dry-run    # 预览模式
-git:clean --force      # 强制删除
-
-# Git 仓库管理
-easygit init           # 初始化仓库
-easygit push           # 推送
-easygit pull           # 拉取
-```
-
-### 系统工具
-
-```bash
-# 备份配置文件
-backup:config ~/.zshrc
-
-# 查看磁盘使用
-disk:usage
-disk:usage /path 2     # 指定目录和深度
-
-# 查找大文件
-find:large
-find:large . 500M      # 查找大于 500M 的文件
-
-# 检查端口
-port:check 8080
-```
-
-### 通用工具
-
-```bash
-# 解压文件
-extract archive.tar.gz
-
-# URL 编码/解码
-url:encode "hello world"
-url:decode "hello%20world"
-
-# 生成随机字符串
-random:string
-random:string 64
-```
-
-### 文件操作
-
-```bash
-# 打包目录
-packtar myarchive
-
-# 批量解压
-unzip:here
-
-# 删除 Zone.Identifier
-zone:remove
-```
-
-### 其他工具
-
-```bash
-# 日语转换
-jp "日本語"
-
-# Rime 配置
-sbzr
-
-# 虚拟机管理
-vbox start
-
-# WSL 工具
-win:open
-```
-
-## 配置说明
-
-### Zsh 配置结构
-
-```
-plugins/
-├── zinit.zsh          # Zinit 初始化
-├── prompt.zsh         # Powerlevel10k 主题
-├── plugins.zsh        # Zsh 插件
-├── tools.zsh          # CLI 工具管理
-├── completion.zsh     # 补全配置
-├── fzf.zsh            # Fzf 配置
-├── superfile.zsh      # Superfile 配置
-└── local.zsh          # 机器特定配置
-```
-
-### 别名配置
-
-所有别名定义在 `aliases.conf` 中，按类别组织：
-- 应用程序启动别名
-- 脚本工具别名
-- 命令别名
-- 翻译别名
-- 等等...
-
-## 目录区分原则
-
-### `scripts/utils/` vs `tools/`
-
-| 特性 | `scripts/utils/` | `tools/` |
-|------|-----------------|----------|
-| **复杂度** | 简单（< 100 行） | 复杂（> 100 行） |
-| **功能** | 单功能 | 多功能/工作流 |
-| **依赖** | 最小依赖 | 可能有特定环境依赖 |
-| **平台** | 跨平台 | 可能平台特定 |
-| **交互** | 命令行参数 | 可能有交互式菜单 |
-
-### `scripts/dev/` vs `scripts/system/`
-
-- **dev/** - 开发相关（Git 操作、项目管理）
-- **system/** - 系统管理（备份、磁盘、端口检查）
-
-## 更新和维护
-
-### 推送更改
-
-```bash
-# 自动推送（包含设备名、时间戳）
-dotfiles:push
-
-# 自定义提交信息
-dotfiles:push "Add new feature"
-```
-
-### 添加新工具
-
-1. **通用工具** → `scripts/utils/`
-2. **开发工具** → `scripts/dev/`
-3. **系统工具** → `scripts/system/`
-4. **专业工具** → `tools/`
-
-### 添加别名
-
-在 `aliases.conf` 中添加别名，格式：
-```bash
-alias command:name="bash ${HOME}/.dotfiles/path/to/script.sh"
-```
-
-## 许可证
-
-个人使用，自由修改。
-
-## 相关链接
-
-- [Zinit 文档](https://github.com/zdharma-continuum/zinit)
-- [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
-- [GitHub 仓库](https://github.com/iamcheyan/Dotfiles)
-
-## 提示
-
-- 首次使用前确保已安装 Git
-- 某些工具需要特定依赖（如 Python、特定命令）
-- 字体安装脚本会在首次启动时询问
-- 所有工具都支持 `--help` 或查看脚本注释获取帮助
+MIT License

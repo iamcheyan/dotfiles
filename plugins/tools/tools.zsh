@@ -46,9 +46,9 @@ zi_cmd ajeetdsouza/zoxide zoxide
 zinit ice as"command" from"gh-r" bpick"*linux-musl.zip" mv"yazi-*/yazi -> yazi"
 zinit light sxyazi/yazi
 
-# fzf（需要特殊处理：二进制 + 补全 + 键绑定）
-zinit ice from"gh-r" as"command" bpick"*linux_arm64.tar.gz"
-zinit light junegunn/fzf
+# fzf（使用系统安装的 fzf，这里只加载补全和键绑定）
+# zinit ice from"gh-r" as"command" bpick"*linux_arm64.tar.gz"
+# zinit light junegunn/fzf
 zinit ice as"completion"
 zinit snippet https://github.com/junegunn/fzf/raw/master/shell/completion.zsh
 zinit ice as"completion"
