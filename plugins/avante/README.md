@@ -35,7 +35,7 @@ source ~/.zshrc
 
 **方法2: 直接在配置文件中设置（不推荐）**
 
-编辑 `~/.config/nvim/lua/plugins/avante.lua`，修改：
+编辑 `~/.dotfiles/plugins/avante/.env`，修改：
 
 ```lua
 # Gemini API Key
