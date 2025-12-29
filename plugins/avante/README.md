@@ -38,7 +38,11 @@ source ~/.zshrc
 编辑 `~/.config/nvim/lua/plugins/avante.lua`，修改：
 
 ```lua
-api_key = "your-api-key-here",  -- 直接设置 API Key
+# Gemini API Key
+GEMINI_API_KEY="your-api-key-here"
+
+# Gemini Model Selection
+GEMINI_MODEL=gemini-flash-latest
 ```
 
 ### 4. 安装插件
