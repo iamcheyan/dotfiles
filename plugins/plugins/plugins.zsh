@@ -16,6 +16,9 @@ zinit snippet OMZP::sudo
 # git 插件（只拿 git，不引 OMZ）
 zinit snippet OMZP::git
 
+# zshcp 插件：Zsh 剪贴板管理 (必须在 copypath/copyfile 之前加载)
+zinit light 1mykull/zshcp
+
 # copypath 插件：复制文件或目录路径到剪贴板
 zinit snippet OMZP::copypath
 
@@ -30,8 +33,5 @@ zinit light le0me55i/zsh-extract
 
 # git-open 插件：在浏览器中打开 Git 仓库页面
 zinit light paulirish/git-open
-
-# zshcp 插件：Zsh 剪贴板管理
-zinit light 0mykull/zshcp
 
 

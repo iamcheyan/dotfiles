@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Get the current directory name and sanitize it for Zellij
+# Replace dots and other special characters with underscores
+session_name=$(basename "$PWD" | tr ' .-' '_')
+
+# Attach to the session, creating it if it doesn't exist
+zellij attach -c "$session_name"

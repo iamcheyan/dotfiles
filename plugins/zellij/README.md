@@ -85,6 +85,24 @@ zellij attach <name>      # 连接到指定会话
 zellij list-sessions      # 列出所有会话
 ```
 
+### 别名
+
+为了方便快速使用 Zellij，我们配置了以下别名：
+
+| 命令 | 别名 | 说明 |
+|---|---|---|
+| `zellij` | `ze` | 启动 Zellij 或进行一般操作 |
+| `zellij` (按目录) | `zee` | 使用当前目录名作为会话名启动或连接 |
+| `zellij attach` | `ze:a` | 连接到最近或指定的 Zellij 会话 |
+| `zellij list-sessions` | `ze:list` | 列出所有运行中的 Zellij 会话 |
+| `zellij new-session` | `ze:new` | 创建一个新的 Zellij 会话 |
+| `zellij kill-session` | `ze:kill` | 关闭指定的 Zellij 会话 |
+| `zellij kill-all-sessions` | `ze:kill-all` | 关闭所有运行中的 Zellij 会话 |
+| `zellij run` | `ze:run` | 在 Zellij 会话中运行一个命令 |
+| `zellij edit` | `ze:edit` / `zeedit` | 编辑 Zellij 配置文件或布局文件 |
+| `zellij setup` | `ze:setup` | 执行 Zellij 设置，例如生成配置文件或自动启动脚本 |
+| `zellij -s` | `ze:save` | 保存当前会话 |
+
 ### 会话管理
 
 - `Ctrl+o` - 进入 session 模式

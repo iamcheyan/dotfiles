@@ -5,7 +5,7 @@
 -- Define common options
 local opts = {
   noremap = true, -- non-recursive
-  silent = true,  -- do not show message
+  silent = true, -- do not show message
 }
 
 -- Options for keymaps that don't need noremap
@@ -49,15 +49,6 @@ end, { desc = "Terminal Bottom" })
 -- Save file
 vim.keymap.set("n", "<C-s>", ":w<CR>", silent_opts)
 
--- Open file
-vim.keymap.set("n", "<C-o>", ":e<CR>", silent_opts)
-
--- New file
-vim.keymap.set("n", "<C-n>", ":enew<CR>", silent_opts)
-
--- Close current window
-vim.keymap.set("n", "<C-w>", ":q<CR>", silent_opts)
-
 -- Quit without saving
 vim.keymap.set("n", "<C-q>", ":q!<CR>", silent_opts)
 
@@ -84,8 +75,7 @@ vim.keymap.set("n", "<C-y>", "<C-r>", silent_opts)
 vim.keymap.set("n", "<C-v>", '"+p', silent_opts)
 
 -- Comment Toggle
--- Toggle comment on current line or selected lines
-vim.keymap.set("n", "<C-/>", ":CommentToggle<CR>", silent_opts)
+-- Use Comment.nvim defaults: `gcc` for current line, `gc` for operator/visual
 
 -- ============================================
 -- Visual Mode Keymaps
