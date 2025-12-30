@@ -27,7 +27,7 @@ bash init.sh
 - Neovim 配置已就绪（LazyVim），会自动安装配进行配置。
 - 相关的开源字体已就绪，无需额外安装。
 
-## 安装后续步骤与依赖
+## 依赖
 
 系统依赖（用于 Treesitter 等插件编译）：
 - Debian/Ubuntu: `build-essential pkg-config cmake unzip clang libclang-dev`
