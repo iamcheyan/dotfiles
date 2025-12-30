@@ -159,8 +159,21 @@ install_essentials() {
     if [[ "$OS" == "debian" ]]; then
         if command_exists sudo; then
             sudo apt-get update
-            # 合并安装通用包和特定包
-            sudo apt-get install -y $common_packages $debian_packages
+            # Safe install function for apt
+            local install_list=""
+            for pkg in $common_packages $debian_packages; do
+                if apt-cache policy "$pkg" | grep "Candidate:" | grep -v "(none)" >/dev/null 2>&1; then
+                    install_list="$install_list $pkg"
+                else
+                    print_warning "软件包 '$pkg' 在当前源中不可用，将跳过安装"
+                fi
+            done
+            
+            if [[ -n "$install_list" ]]; then
+                sudo apt-get install -y $install_list
+            else
+                print_warning "没有可安装的软件包"
+            fi
             # 对于 bat 和 fd，Debian 上可能需要手动创建别名，但在 aliases.conf 中已处理
         else
             print_error "需要 sudo 权限来安装基础工具"
@@ -297,17 +310,8 @@ create_dotfiles_link() {
             fi
         fi
     elif [[ -e "$dotfiles_link" ]]; then
-        print_warning "$dotfiles_link 已存在但不是软链接"
-        read -p "是否要备份并创建软链接? (y/N): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            local backup_file="${dotfiles_link}.backup.$(date +%Y%m%d_%H%M%S)"
-            mv "$dotfiles_link" "$backup_file"
-            print_info "已备份到: $backup_file"
-        else
-            print_warning "跳过软链接创建"
-            return 0
-        fi
+        print_info "移除现有的 $dotfiles_link"
+        rm -rf "$dotfiles_link"
     fi
 
     # 创建 ~/.dotfiles -> ~/Dotfiles 的软链接
@@ -318,6 +322,8 @@ create_dotfiles_link() {
         return 1
     fi
 }
+
+
 
 # 使用 dotlink 创建配置文件的软链接
 run_dotlink() {
@@ -333,7 +339,18 @@ run_dotlink() {
     fi
 
     print_info "正在使用 dotlink 创建配置文件软链接..."
+    
+    # 设置备份目录环境变量，触发 dotlink 的备份功能
+    export DOTLINK_BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
+    mkdir -p "$DOTLINK_BACKUP_DIR"
+    print_info "备份目录: $DOTLINK_BACKUP_DIR"
+
     bash "$dotlink_script" link
+    
+    # 如果备份目录为空（没有备份任何文件），则删除
+    if [[ -d "$DOTLINK_BACKUP_DIR" ]] && [[ -z "$(ls -A "$DOTLINK_BACKUP_DIR")" ]]; then
+        rmdir "$DOTLINK_BACKUP_DIR"
+    fi
 
     if [[ $? -eq 0 ]]; then
         print_success "dotlink 执行成功"
@@ -359,17 +376,8 @@ create_zshrc_link() {
             print_info "预期目标: $zshrc_source_abs"
         fi
     elif [[ -f "$zshrc_target" ]]; then
-        print_warning ".zshrc 已存在，是否要备份并创建软链接?"
-        read -p "备份现有 .zshrc 并创建软链接? (y/N): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            local backup_file="${zshrc_target}.backup.$(date +%Y%m%d_%H%M%S)"
-            mv "$zshrc_target" "$backup_file"
-            print_info "已备份到: $backup_file"
-        else
-            print_warning "跳过 .zshrc 软链接创建"
-            return 0
-        fi
+        print_info "移除现有的 .zshrc"
+        rm -f "$zshrc_target"
     fi
 
     if [[ ! -L "$zshrc_target" ]]; then
@@ -435,19 +443,13 @@ detect_dotfiles_dir() {
             fi
         elif [[ -d "$dotfiles_link" ]]; then
             print_warning "~/.dotfiles 已存在但是目录（不是软链接）"
-            print_info "如果 ~/Dotfiles 是真实目录，应该删除 ~/.dotfiles 并创建软链接"
-            read -p "是否要备份 ~/.dotfiles 并创建软链接? (y/N): " -n 1 -r
-            echo
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                local backup_file="${dotfiles_link}.backup.$(date +%Y%m%d_%H%M%S)"
-                mv "$dotfiles_link" "$backup_file"
-                print_info "已备份到: $backup_file"
-                if ln -s "$dotfiles_real" "$dotfiles_link" 2>/dev/null; then
-                    print_success "已创建软链接: ~/.dotfiles -> ~/Dotfiles"
-                else
-                    print_error "创建软链接失败"
-                    return 1
-                fi
+            print_info "删除 ~/.dotfiles 并创建软链接"
+            rm -rf "$dotfiles_link"
+            if ln -s "$dotfiles_real" "$dotfiles_link" 2>/dev/null; then
+                print_success "已创建软链接: ~/.dotfiles -> ~/Dotfiles"
+            else
+                print_error "创建软链接失败"
+                return 1
             fi
         fi
     # 如果当前目录是 dotfiles 仓库（但不是 ~/Dotfiles）
@@ -521,60 +523,119 @@ detect_dotfiles_dir() {
     return 0
 }
 
+# 安装 Neovim
+install_neovim() {
+    local install_script="${DOTFILES_DIR:-$HOME/.dotfiles}/scripts/install/install_nvim.sh"
+    if [[ -f "$install_script" ]]; then
+        print_info "正在安装 Neovim..."
+        bash "$install_script"
+    else
+        print_warning "未找到 Neovim 安装脚本: $install_script"
+    fi
+}
+
+# 安装字体
+install_fonts() {
+    local install_script="${DOTFILES_DIR:-$HOME/.dotfiles}/scripts/install/install_font.sh"
+    if [[ -f "$install_script" ]]; then
+        print_info "正在安装字体..."
+        bash "$install_script"
+    else
+        print_warning "未找到字体安装脚本: $install_script"
+    fi
+}
+
 # 主函数
 main() {
+    echo -e "${BLUE}"
+    cat << "EOF"
+   ___  ____  ________   _____  ____ __
+  / _ \/ __ \/_  __/ /  /  _/ |/ / //_/
+ / // / /_/ / / / / /___/ //    / ,<   
+/____/\____/ /_/ /____/___/_/|_/_/|_|  
+                                       
+EOF
+    echo -e "${NC}"
+
+    # 重要提示和确认
+    echo -e "${YELLOW}⚠  重要提示：${NC}"
     echo ""
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  Dotfiles 初始化脚本"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "此脚本将会："
+    echo "  1. 创建配置文件的软链接（覆盖现有文件）"
+    echo "  2. 创建 ~/.zshrc 软链接（覆盖现有文件）"
+    echo ""
+    echo -e "${RED}警告：现有的配置文件将被覆盖！${NC}"
+    echo ""
+    # 3秒倒计时
+    echo "脚本将在 3 秒后开始..."
+    for i in {3..1}; do
+        echo -ne "$i... \r"
+        sleep 1
+    done
+    echo "开始执行！      "
     echo ""
 
     # 检测并设置 dotfiles 目录
-    print_info "步骤 0/5: 检测 dotfiles 仓库位置"
+    print_info "步骤 0/10: 检测 dotfiles 仓库位置"
     if ! detect_dotfiles_dir; then
         exit 1
     fi
     echo ""
 
+
+
     # 1. 安装 zsh
-    print_info "步骤 1/6: 检查并安装 zsh"
+    print_info "步骤 1/10: 检查并安装 zsh"
     install_zsh
     echo ""
 
     # 2. 安装基础工具
-    print_info "步骤 2/8: 安装基础工具 (git, curl, build-essential, etc.)"
+    print_info "步骤 2/10: 安装基础工具 (git, curl, build-essential, etc.)"
     install_essentials
     echo ""
 
     # 3. 安装 zinit
-    print_info "步骤 3/8: 检查并安装 zinit"
+    print_info "步骤 3/10: 检查并安装 zinit"
     install_zinit
     echo ""
 
     # 4. 安装 fzf
-    print_info "步骤 4/8: 检查并安装 fzf"
+    print_info "步骤 4/10: 检查并安装 fzf"
     install_fzf
     echo ""
 
     # 5. 创建 Dotfiles 软链接（如果不存在）
-    print_info "步骤 5/8: 创建 Dotfiles 软链接"
+    print_info "步骤 5/10: 创建 Dotfiles 软链接"
     create_dotfiles_link
     echo ""
 
     # 6. 使用 dotlink 创建配置文件软链接
-    print_info "步骤 6/8: 使用 dotlink 创建配置文件软链接"
+    print_info "步骤 6/10: 使用 dotlink 创建配置文件软链接"
     run_dotlink
     echo ""
 
     # 7. 创建 .zshrc 软链接
-    print_info "步骤 7/8: 创建 .zshrc 软链接"
+    print_info "步骤 7/10: 创建 .zshrc 软链接"
     create_zshrc_link
+    echo ""
+
+    # 8. 安装 Neovim
+    print_info "步骤 8/10: 安装 Neovim"
+    install_neovim
+    echo ""
+
+    # 9. 安装字体
+    print_info "步骤 9/10: 安装字体"
+    install_fonts
     echo ""
 
     # 完成提示
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     print_success "初始化完成！"
     echo ""
+    
+
+    
     print_info "下一步操作："
     echo -e "  1. 切换到 zsh:"
     echo -e "     ${GREEN}zsh${NC}"
@@ -584,14 +645,18 @@ main() {
     echo "     - 安装所有配置的插件和工具"
     echo "     - 询问是否安装 Meslo 字体"
     echo ""
-    echo -e "  3. 如果需要安装字体，可以运行："
-    echo -e "     ${GREEN}install:font${NC}"
-    echo ""
-    echo -e "  4. 如果需要安装 Rime 配置，可以运行："
-    echo -e "     ${GREEN}install:rime${NC}"
+    echo -e "  3. 如果需要其他配置，请参考文档"
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
+
+    # 显示备份信息
+    if [[ -d "$DOTLINK_BACKUP_DIR" ]]; then
+        echo -e "${YELLOW}📦 备份信息：${NC}"
+        echo "  备份位置: $DOTLINK_BACKUP_DIR"
+        echo "  如需恢复，可以从备份目录复制文件回原位置"
+        echo ""
+    fi
 
     # 询问是否立即切换到 zsh 并设置为默认 shell
     if command_exists zsh && [[ "$SHELL" != "$(command -v zsh)" ]]; then

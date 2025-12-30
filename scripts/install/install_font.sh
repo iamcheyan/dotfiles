@@ -266,29 +266,30 @@ main() {
     
     # 安装 Meslo 字体
     if [ "$install_meslo" = true ]; then
-        if [ "$force" = false ] && [ -t 0 ]; then
-            # 交互模式
-            if check_meslo_installed; then
-                echo "Meslo 字体似乎已安装。"
-                read -p "是否要重新安装？(y/N): " -n 1 -r
-                echo
-                if [[ $REPLY =~ ^[Yy]$ ]]; then
-                    install_meslo_font
-                else
-                    echo "已跳过 Meslo 字体安装"
-                fi
-            else
-                read -p "是否要安装 Meslo 字体？(y/N): " -n 1 -r
-                echo
-                if [[ $REPLY =~ ^[Yy]$ ]]; then
-                    install_meslo_font
-                else
-                    echo "已跳过 Meslo 字体安装"
-                fi
-            fi
+        if check_meslo_installed; then
+             if [ "$force" = true ]; then
+                  echo "Meslo 字体已安装，但在强制模式下，将重新安装..."
+                  install_meslo_font
+             else
+                  echo "✓ Meslo 字体已安装，跳过安装"
+             fi
         else
-            # 非交互模式或强制模式
-            install_meslo_font
+             # 未安装的情况
+             if [ "$force" = false ] && [ -t 0 ]; then
+                  # 交互模式：询问是否安装
+                  # 为了配合 init.sh 的自动化体验，这里也可以改进
+                  # 但目前保持询问逻辑，或默认为 Yes
+                  read -p "是否要安装 Meslo 字体？(Y/n): " -n 1 -r
+                  echo
+                  if [[ $REPLY =~ ^[Nn]$ ]]; then
+                       echo "已跳过 Meslo 字体安装"
+                  else
+                       install_meslo_font
+                  fi
+             else
+                  # 非交互模式或强制模式：直接安装
+                  install_meslo_font
+             fi
         fi
     fi
     

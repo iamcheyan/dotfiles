@@ -6,13 +6,14 @@
 ## 安装
 
 ```bash
-git clone https://github.com/iamcheyan/Dotfiles.git ~/Dotfiles
+git clone git@github.com:iamcheyan/Dotfiles.git ~/Dotfiles
 cd ~/Dotfiles
 bash init.sh
 ```
 
 安装完成后：
-- 首次进入 `zsh` 会自动拉取 Powerlevel10k 与所有 Zsh 插件
+- **备份功能**：如果 `init.sh` 检测到现有的用户配置（非软链接），会自动备份到 `~/.dotfiles_backup_<时间戳>` 目录。
+- **首次初始化**：切换到 `zsh` 时会自动拉取 Powerlevel10k 与所有 Zsh 插件，请耐心等待。
 - Neovim 配置已就绪（LazyVim），如需安装 Neovim 可运行 `install:nvim`
 - 如需字体可运行 `install:font`
 
@@ -72,7 +73,7 @@ install:font --force
 ## Zsh 插件清单
 
 已安装的 Zsh 插件如下（均由 Zinit 管理）：
-- zsh-vi-mode
+- zsh-vi-mode (使用 `ESC` 进入普通模式，`i`/`a` 等进入插入模式)
 - zsh-autosuggestions
 - zsh-syntax-highlighting
 - fzf-tab
