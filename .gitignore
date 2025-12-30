@@ -5,6 +5,7 @@ Thumbs.db
 # 临时文件
 *.swp
 *.swo
+.env
 *~
 
 # zsh 缓存
@@ -20,8 +21,7 @@ Thumbs.db
 
 # 子仓库配置
 rime/*
-!rime/scripts/   
-private/
+private/*
 rime_sbzrjp/
 sbsrf/
 
@@ -32,4 +32,5 @@ config/sway/*
 # 环境变量文件
 plugins/avante/.env
 config/nvim/.nvimlog
+config/nvim/tmp/
 config/nvim/sbzr.nvim.im.db/
