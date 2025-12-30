@@ -2,6 +2,9 @@
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 # Set instant prompt to quiet to suppress warnings during zinit tool installation
+
+export PATH="$HOME/.fzf/bin:$PATH"
+
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -56,3 +59,8 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# zscaler
+export NODE_EXTRA_CA_CERTS="$HOME/.certs/zscaler.crt"
+. "$HOME/.atuin/bin/env"
+eval "$(atuin init zsh)"

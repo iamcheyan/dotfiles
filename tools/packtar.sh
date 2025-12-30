@@ -24,6 +24,29 @@ OUTPUT_FILE="${PARENT_DIR}/${FILENAME}.tar.gz"
 
 # .tar-excludeファイルのパス（現在のディレクトリ内）
 EXCLUDE_FILE="${CURRENT_DIR}/.tar-exclude"
+GITIGNORE_FILE="${CURRENT_DIR}/.gitignore"
+GITIGNORE_EXCLUDE_FILE=""
+GIT_INCLUDE_FILE=""
+USE_GIT_FILELIST=0
+TAR_SUPPORTS_NULL=0
+CLEANUP_FILES=()
+
+cleanup_tmp() {
+    if [ ${#CLEANUP_FILES[@]} -gt 0 ]; then
+        rm -f "${CLEANUP_FILES[@]}"
+    fi
+}
+trap cleanup_tmp EXIT
+
+if command -v rg >/dev/null 2>&1; then
+    TAR_HELP_MATCHER=(rg -q --)
+else
+    TAR_HELP_MATCHER=(grep -q --)
+fi
+
+if tar --help 2>/dev/null | "${TAR_HELP_MATCHER[@]}" "--null"; then
+    TAR_SUPPORTS_NULL=1
+fi
 
 # tarコマンドを実行
 echo "パッケージ化中: ${CURRENT_DIR} -> ${OUTPUT_FILE}"
@@ -42,10 +65,61 @@ if [ -f "$EXCLUDE_FILE" ]; then
     TAR_ARGS+=(--exclude-from="${EXCLUDE_FILE}")
 fi
 
+# .gitignore が存在する場合はそのルールも適用
+if [ -f "$GITIGNORE_FILE" ]; then
+    echo "検出: ${GITIGNORE_FILE}（gitignore ルールで除外します）"
+    if command -v git >/dev/null 2>&1 && [ -d "${CURRENT_DIR}/.git" ]; then
+        GITIGNORE_MATCHES="$(git -C "${CURRENT_DIR}" ls-files -i -o --exclude-standard --directory)"
+        if [ -n "${GITIGNORE_MATCHES}" ]; then
+            echo "除外対象（gitignore 由来）:"
+            echo "${GITIGNORE_MATCHES}"
+        else
+            echo "除外対象（gitignore 由来）: なし"
+        fi
+        USE_GIT_FILELIST=1
+        GIT_INCLUDE_FILE="$(mktemp)"
+        CLEANUP_FILES+=("${GIT_INCLUDE_FILE}")
+        if [ "${TAR_SUPPORTS_NULL}" -eq 1 ]; then
+            git -C "${CURRENT_DIR}" ls-files -z --cached --others --exclude-standard | \
+                while IFS= read -r -d '' path; do
+                    if [ -e "${CURRENT_DIR}/${path}" ]; then
+                        printf '%s\0' "${path}"
+                    fi
+                done > "${GIT_INCLUDE_FILE}"
+        else
+            echo "注意: tar に --null が無いため、空白を含むパスは正しく扱えません" >&2
+            git -C "${CURRENT_DIR}" ls-files --cached --others --exclude-standard | \
+                while IFS= read -r path; do
+                    if [ -e "${CURRENT_DIR}/${path}" ]; then
+                        printf '%s\n' "${path}"
+                    fi
+                done > "${GIT_INCLUDE_FILE}"
+        fi
+        echo "除外ルール: git ls-files でファイル一覧を生成"
+    else
+        echo "注意: git が使えないため、除外対象の一覧は表示できません" >&2
+        if tar --help 2>/dev/null | "${TAR_HELP_MATCHER[@]}" "--exclude-vcs-ignores"; then
+            echo "除外ルール: tar --exclude-vcs-ignores を使用"
+            TAR_ARGS+=(--exclude-vcs-ignores)
+        else
+            echo "注意: .gitignore を検出しましたが、tar/git のサポート不足のため適用できません" >&2
+        fi
+    fi
+fi
+
 # ディレクトリ変更とアーカイブパスを最後に追加
-TAR_ARGS+=(
-    -C "${CURRENT_DIR}" .
-)
+if [ "${USE_GIT_FILELIST}" -eq 1 ]; then
+    TAR_ARGS+=(-C "${CURRENT_DIR}")
+    if [ "${TAR_SUPPORTS_NULL}" -eq 1 ]; then
+        TAR_ARGS+=(--null -T "${GIT_INCLUDE_FILE}")
+    else
+        TAR_ARGS+=(-T "${GIT_INCLUDE_FILE}")
+    fi
+else
+    TAR_ARGS+=(
+        -C "${CURRENT_DIR}" .
+    )
+fi
 
 tar "${TAR_ARGS[@]}"
 
@@ -101,4 +175,3 @@ else
     echo "エラー: ファイルが作成されませんでした" >&2
     exit 1
 fi
-

@@ -1,135 +1,166 @@
-# My Dotfiles
+# Dotfiles
 
-我的个人配置文件仓库，旨在提供一个高效、美观且现代化的开发环境。核心基于 **Zsh** 和 **Neovim**，并集成了大量现代化的 CLI 工具。
+一个注重开箱即用的个人开发环境：一键安装、细节打磨、长期维护。
+核心配置为 Zsh + Powerlevel10k、Neovim (LazyVim)，并配套 Rust 生态的现代命令行工具与常用开源字体。
 
-## 🚀 快速开始
-
-### 安装
-
-只需一行命令即可完成从环境检查、依赖安装到配置链接的全过程。
+## 安装
 
 ```bash
-# 克隆仓库
-git clone https://github.com/yourusername/Dotfiles.git ~/Dotfiles
-
-# 运行初始化脚本
+git clone https://github.com/iamcheyan/Dotfiles.git ~/Dotfiles
 cd ~/Dotfiles
 bash init.sh
 ```
 
-**`init.sh` 会自动执行以下操作：**
-1.  **检测系统**：支持 Debian/Ubuntu, RHEL/CentOS, Arch Linux, macOS。
-2.  **安装基础依赖**：`git`, `curl`, `build-essential`, `ripgrep`, `fd`, `bat`, `lsd`, `zoxide` 等。
-3.  **安装 Zsh & Zinit**：如果未安装会自动安装。
-4.  **安装 fzf**：确保模糊搜索工具可用。
-5.  **链接配置**：自动备份现有配置并创建软链接。
+安装完成后：
+- 首次进入 `zsh` 会自动拉取 Powerlevel10k 与所有 Zsh 插件
+- Neovim 配置已就绪（LazyVim），如需安装 Neovim 可运行 `install:nvim`
+- 如需字体可运行 `install:font`
 
----
+## 安装后续步骤与依赖
 
-## ✨ 核心特性
+### Neovim
+安装命令：
+```bash
+install:nvim
+install:nvim --force
+install:nvim --version 0.9.5
+```
 
-### 🐚 Shell 环境 (Zsh)
+系统依赖（用于 Treesitter 等插件编译）：
+- Debian/Ubuntu: `build-essential pkg-config cmake unzip clang libclang-dev`
+- Fedora/RHEL: `gcc gcc-c++ make pkg-config cmake unzip`
+- Arch: `base-devel pkg-config cmake unzip`
+- macOS: `xcode-select --install` + `brew install pkg-config cmake`
 
-- **插件管理器**: [Zinit](https://github.com/zdharma-continuum/zinit) - 极速加载，延迟加载机制。
-- **提示符**: [Powerlevel10k](https://github.com/romkatv/powerlevel10k) - 瞬时启动，信息丰富，高度可定制。
-- **自动补全**: 
-    - `zsh-autosuggestions`: 基于历史记录的灰色自动建议。
-    - `fzf-tab`: 使用 fzf 替换默认的 Tab 选择菜单，支持实时预览（如 `cd` 预览目录，`kill` 预览进程）。
-    - `commands`: 针对 `git`, `docker`, `systemd` 等的丰富补全源。
-- **语法高亮**: `zsh-syntax-highlighting` - 实时检查命令语法正确性。
-- **Vi 模式**: `zsh-vi-mode` - 更好的 Vim 键位支持。
-- **智能跳转**: `zoxide` - 比 `cd` 更智能的目录跳转（`z dir`）。
+### 字体
+安装命令：
+```bash
+install:font
+install:font --meslo
+install:font --noto
+install:font --all
+install:font --force
+```
 
-### 🛠️ 现代命令行工具集
+说明：
+- Meslo Nerd Font：用于终端与 P10k 图标
+- Noto Serif CJK：中日文字体
+- Linux 会自动刷新字体缓存（需要 `fc-cache`）
 
-本配置集成了大量 Rust 编写的现代替代工具：
+## 特性
 
-| 传统工具 | 现代替代 | 描述 |
-| :--- | :--- | :--- |
-| `ls` | **[lsd](https://github.com/lsd-rs/lsd)** / **[eza](https://github.com/eza-community/eza)** | 带图标和颜色的文件列表 |
-| `cat` | **[bat](https://github.com/sharkdp/bat)** | 带语法高亮和 Git 集成的文件查看器 |
-| `grep` | **[ripgrep (rg)](https://github.com/BurntSushi/ripgrep)** | 极速全文本搜索 |
-| `find` | **[fd](https://github.com/sharkdp/fd)** | 简单快速的文件查找 |
-| `cd` | **[zoxide](https://github.com/ajeetdsouza/zoxide)** | 智能目录跳转 |
-| `top` | **[btop](https://github.com/aristocratos/btop)** | 炫酷的系统资源监控 |
-| `diff` | **[delta](https://github.com/dandavison/delta)** | 更好的 Git diff 查看器 |
-| `git` | **[lazygit](https://github.com/jesseduffield/lazygit)** | 终端 Git UI 神器 |
-| - | **[yazi](https://github.com/sxyazi/yazi)** | 极速终端文件管理器，支持图片预览 |
-| - | **[zellij](https://github.com/zellij-org/zellij)** | 现代化的终端复用器 (Tmux 替代) |
-| - | **[atuin](https://github.com/atuinsh/atuin)** | 魔法般的 Shell 历史记录同步与搜索 |
-| - | **[superfile](https://github.com/MHNightCat/superfile)** | 另一款强大的终端文件管理器 |
+### Zsh + Powerlevel10k
+- 使用 Zinit 管理插件与工具
+- P10k 采用 Nerd Font 模式，启动快、信息密度高
 
-### ⌨️ 输入法 (Rime)
+### Neovim (LazyVim)
+- 基于 LazyVim 的现代化配置
+- 插件列表见下方「Neovim 插件清单」
 
-- **配置**: `rime/sbxlm.yaml`
-- **方案**: 声笔系列 (sbzr)
-- **管理**: 提供了 `sbzr`, `install:rime` 等别名工具用于管理词库和同步。
+### Rust 开发的现代工具
+已集成并自动安装的 Rust CLI：
+- bat, fd, ripgrep (rg)
+- eza, zoxide, zellij, yazi
+- delta, dust, procs, bottom (btm)
+- sd, choose, xh, atuin
 
----
+### 常用开源字体
+通过 `install:font` 一键安装：
+- Meslo Nerd Font（P10k 推荐）
+- Noto Serif CJK（中日文字体）
 
-## 📂 目录结构
+## Zsh 插件清单
+
+已安装的 Zsh 插件如下（均由 Zinit 管理）：
+- zsh-vi-mode
+- zsh-autosuggestions
+- zsh-syntax-highlighting
+- fzf-tab
+- zsh-you-should-use
+- zsh-extract
+- git-open
+- zshcp
+- OMZP::sudo
+- OMZP::git
+- OMZP::copypath
+- OMZP::copyfile
+
+## Neovim 插件清单
+
+此列表基于 `config/nvim/PLUGINS.md`（由 `lazy-lock.json` 生成）。
+
+核心框架与管理：
+- LazyVim
+- lazy.nvim
+- snacks.nvim
+- persistence.nvim
+
+AI 辅助：
+- avante.nvim
+- dressing.nvim
+
+代码智能与语言支持：
+- nvim-lspconfig
+- mason.nvim
+- mason-lspconfig.nvim
+- conform.nvim
+- nvim-lint
+- lazydev.nvim
+- ts-comments.nvim
+
+语法高亮与解析：
+- nvim-treesitter
+- nvim-treesitter-textobjects
+- nvim-ts-autotag
+- mini.ai
+- mini.pairs
+
+界面美化：
+- catppuccin
+- tokyonight.nvim
+- lualine.nvim
+- bufferline.nvim
+- nui.nvim
+- nvim-web-devicons
+- mini.icons
+- gitsigns.nvim
+- which-key.nvim
+- noice.nvim
+
+导航与搜索：
+- telescope.nvim
+- plenary.nvim
+- flash.nvim
+- trouble.nvim
+- todo-comments.nvim
+- grug-far.nvim
+
+自动补全：
+- blink.cmp
+- friendly-snippets
+
+输入法：
+- sbzr.nvim.im
+
+## 使用说明与维护
+
+- 每个插件的配置均附使用说明，集中整理在 `plugins/README.md` 与 `config/nvim/PLUGINS.md`
+- 本仓库长期维护，欢迎 Issue/PR
+
+## 目录结构概览
 
 ```text
 ~/Dotfiles
-├── init.sh             # 一键安装脚本
-├── zshrc               # Zsh 入口配置
-├── aliases.conf        # 别名统一定义
-├── config/             # 各种工具的配置文件 (nvim, yazi, wezterm 等)
-├── plugins/            # Zsh 插件配置与加载逻辑
-│   ├── zinit/          # Zinit 初始化
-│   ├── prompt/         # P10k 主题配置
-│   ├── tools/          # 核心工具安装 (btop, yazi 等)
-│   ├── completion/     # 补全配置 (fzf-tab)
-│   └── ...
-├── scripts/            # 实用脚本库
-│   ├── install/        # 安装脚本 (rime, nvim 等)
-│   ├── system/         # 系统维护 (backup, disk usage)
-│   └── utils/          # 通用工具 (extract, url_encode)
-├── dotlink/            # 自研的软链接管理工具
-└── tools/              # 随处可用的便携脚本
+├── init.sh
+├── zshrc
+├── aliases.conf
+├── config/
+├── plugins/
+├── scripts/
+├── dotlink/
+└── tools/
 ```
 
----
+## License
 
-## 🔧 常用别名 (Aliases)
-
-详细列表请查看 `aliases.conf`，以下是常用精选：
-
-- **文件管理**
-    - `extract`: 通用解压（自动识别 tar, zip, 7z 等）。
-    - `open`: 在文件管理器中打开当前目录。
-    - `packtar`: 打包当前目录。
-    - `unzip:here`: 批量解压。
-
-- **Git**
-    - `lazy`: 启动 Lazygit。
-    - `git:clean`: 清理未跟踪文件。
-    - `dotfiles:push`: 自动提交并推送 Dotfiles 更新。
-
-- **开发**
-    - `vim` / `vi`: 智能映射到 Neovim。
-    - `rjz` / `rzj`: 中日互译 (Translate Shell)。
-    - `url:encode` / `url:decode`: URL 编解码。
-
-- **系统**
-    - `update`: 系统更新 (apt/dnf/pacman/brew 智能识别)。
-    - `disk:usage`: 查看目录占用。
-    - `port:check`: 检查端口占用。
-
----
-
-## 🔗 配置同步 (Dotlink)
-
-本仓库包含一套自研的配置同步工具 `dotlink`，位于 `dotlink/` 目录下。
-
-- `dotlink`: 自动扫描并创建软链接。
-- `dotsync`: 更加高级的配置同步管理，支持备份、恢复和多机同步提交。
-    - `dotsync push`: 提交更改。
-    - `dotsync pull`: 拉取更新。
-    - `dotsync backup`: 备份本地重要配置。
-
----
-
-## 📝 许可证
-
-MIT License
+MIT
