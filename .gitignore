@@ -19,7 +19,8 @@ Thumbs.db
 .cache/fonts/
 
 # 子仓库配置
-rime/   
+rime/
+!rime/scripts/   
 private/
 rime_sbzrjp/
 sbsrf/
@@ -31,3 +32,4 @@ config/sway/*
 # 环境变量文件
 plugins/avante/.env
 config/nvim/.nvimlog
+config/nvim/sbzr.nvim.im.db/

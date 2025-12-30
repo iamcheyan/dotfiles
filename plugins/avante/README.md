@@ -12,7 +12,7 @@
 
 ### 2. 获取 Gemini API Key
 
-1. 访问 [Google AI Studio](https://makersuite.google.com/app/apikey)
+1. 访问 [Google AI Studio](https://aistudio.google.com/?pli=1)
 2. 登录你的 Google 账户
 3. 点击 "Create API Key" 创建新的 API 密钥
 4. 复制生成的 API Key
