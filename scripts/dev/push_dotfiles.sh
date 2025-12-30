@@ -44,7 +44,7 @@ get_timestamp() {
 # 获取信息
 HOSTNAME=$(get_hostname)
 TIMESTAMP=$(get_timestamp)
-COMMIT_PREFIX="${1:-Update}"
+COMMIT_PREFIX="${*:-Update}"
 
 # 构建提交信息：Update: Tetsuya-Apple-M1-Max.local - 2025-12-27 20:05:37
 COMMIT_MSG="${COMMIT_PREFIX}: ${HOSTNAME} - ${TIMESTAMP}"
