@@ -9,6 +9,36 @@ fi
 # 定义 .dotfiles 目录的路径
 DOTFILES_DIR="$HOME/.dotfiles"
 
+# 颜色定义
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# 备份目标文件
+backup_target() {
+    local target="$1"
+    if [ -n "$DOTLINK_BACKUP_DIR" ] && [ -e "$target" ] && [ ! -L "$target" ]; then
+        # 计算相对路径
+        local rel_path="${target#$HOME/}"
+        local backup_path
+        
+        if [[ "$rel_path" == "$target" ]]; then
+            # 如果不在 HOME 下，使用完整路径
+            backup_path="$DOTLINK_BACKUP_DIR$target"
+        else
+            # 在 HOME 下，保持结构
+            backup_path="$DOTLINK_BACKUP_DIR/$rel_path"
+        fi
+        
+        local parent_dir=$(dirname "$backup_path")
+        if [ ! -d "$parent_dir" ]; then
+            mkdir -p "$parent_dir"
+        fi
+        
+        cp -r "$target" "$backup_path"
+        echo -e "  ${RED}[备份] $target -> $backup_path${NC}"
+    fi
+}
+
 process_section_line() {
     local section_start="$1"
     local line="$2"
@@ -47,17 +77,26 @@ process_section_line() {
                 echo "  发现不一致的符号链接:"
                 echo "    当前链接: $dest -> $current_target"
                 echo "    预期链接: $dest -> $src"
+
                 echo "  删除并重新创建符号链接: $dest -> $src"
+                # backup_target "$dest" # Symlinks usually don't need backup, but user request implies existing files. 
+                # Logic says: "matches dotlinkrc", usually existing config files.
+                # If it's a symlink pointing elsewhere, maybe backup? 
+                # But typically we only backup real files/dirs.
+                # The user said "备份现有配置文件", usually implies content.
+                # My function `backup_target` checks `[ ! -L "$target" ]`.
                 rm -rf "$dest"
                 section_content+="删除并重新创建符号链接: $dest -> $src"$'\n'
             fi
         elif [ -e "$dest" ]; then
             if [ -d "$dest" ]; then
                 echo "  目标已存在且为文件夹，删除现有文件夹: $dest"
+                backup_target "$dest"
                 rm -rf "$dest"
                 section_content+="目标已存在且为文件夹，删除现有文件夹: $dest"$'\n'
             else
                 echo "  目标已存在且为文件，删除现有文件: $dest"
+                backup_target "$dest"
                 rm -f "$dest"
                 section_content+="目标已存在且为文件，删除现有文件: $dest"$'\n'
             fi
@@ -208,14 +247,17 @@ process_wildcard_pattern() {
                     continue
                 else
                     echo "    发现不一致的符号链接，删除并重新创建: $dest_file"
+                    backup_target "$dest_file"
                     rm -rf "$dest_file"
                 fi
             elif [ -e "$dest_file" ]; then
                 if [ -d "$dest_file" ]; then
                     echo "    目标已存在且为文件夹，删除现有文件夹: $dest_file"
+                    backup_target "$dest_file"
                     rm -rf "$dest_file"
                 else
                     echo "    目标已存在且为文件，删除现有文件: $dest_file"
+                    backup_target "$dest_file"
                     rm -f "$dest_file"
                 fi
             fi
@@ -357,14 +399,13 @@ extract_sections_with_filter() {
     fi
 }
 
-#  MAIN
 # Check if running on macOS
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    config_file="$DOTFILES_DIR/dotlink/dotlinkrc@macos"
+    CURRENT_OS="macos"
     echo "当前运行在 macOS 上"
-    echo "使用配置文件: $config_file"
 else
-    config_file="$DOTFILES_DIR/dotlink/dotlinkrc"
+    # Simple Linux detection
+    CURRENT_OS="linux"
     # Check if running as root
     if [ "$(id -u)" -eq 0 ]; then
         echo "警告：您正在以root用户身份运行此脚本。请小心操作，并确保您理解所有操作的含义。"
@@ -376,6 +417,131 @@ else
         fi
     fi
 fi
+
+config_file="$DOTFILES_DIR/dotlink/dotlinkrc"
+
+# Determine if a section should be processed based on the current OS
+should_process_section() {
+    local full_section_name="$1"
+    local section_type
+    local section_os
+
+    if [[ "$full_section_name" == *:* ]]; then
+        section_type="${full_section_name%%:*}"
+        section_os="${full_section_name#*:}"
+    else
+        section_type="$full_section_name"
+        section_os=""
+    fi
+
+    # Return success (0) if we should process, failure (1) otherwise
+    if [[ -z "$section_os" ]]; then
+        return 0 # No OS specified, always process
+    elif [[ "$section_os" == "$CURRENT_OS" ]]; then
+        return 0 # OS matches
+    else
+        return 1 # OS mismatch
+    fi
+}
+
+extract_sections() {
+    local file="$1"
+    local section_start="" # This will hold the type (e.g. "link", "backups")
+    local in_section=false
+    local section_content=""
+    
+    echo "开始处理配置文件: $file"
+    echo "=================================="
+    
+    while IFS= read -r line; do
+        if [[ $line =~ ^\[(.*)\]$ ]]; then
+            # Finish previous section
+            if $in_section; then
+                if [[ -n $section_content ]]; then
+                    echo "[$section_start]"
+                    echo -n "$section_content"
+                    echo "[$section_start]"
+                    echo
+                fi
+                section_content=""
+            fi
+
+            local full_section_name="${BASH_REMATCH[1]}"
+            
+            if should_process_section "$full_section_name"; then
+                in_section=true
+                # Strip OS from section name for processing (e.g., "link:macos" -> "link")
+                section_start="${full_section_name%%:*}"
+                echo
+                echo "进入配置段: [$full_section_name] -> 处理为 [$section_start]"
+                echo "----------------------------------"
+            else
+                in_section=false
+                # echo "跳过配置段: [$full_section_name] (OS 不匹配)"
+            fi
+
+        elif $in_section && [[ ! $line =~ ^[[:space:]]*# ]] && [[ -n $line ]]; then
+            process_section_line "$section_start" "$line" "$section_content"
+        fi
+    done < "$file"
+    
+    # Process last section
+    if $in_section && [[ -n $section_content ]]; then
+        echo "[$section_start]"
+        echo -n "$section_content"
+        echo "[$section_start]"
+        echo
+    fi
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database ~/.local/share/applications/
+    fi
+}
+
+extract_sections_with_filter() {
+    local file="$1"
+    local filter="$2" # This is the type we want (e.g. "link")
+    local section_start=""
+    local in_section=false
+    local section_content=""
+    
+    echo "开始处理配置文件: $file (仅处理 [$filter] 部分)"
+    echo "=================================="
+    
+    while IFS= read -r line; do
+        if [[ $line =~ ^\[(.*)\]$ ]]; then
+            local full_section_name="${BASH_REMATCH[1]}"
+            
+            if should_process_section "$full_section_name"; then
+                 # Check if the type matches the filter
+                 local current_type="${full_section_name%%:*}"
+                 if [[ "$current_type" == "$filter" ]]; then
+                    in_section=true
+                    section_start="$current_type"
+                    echo
+                    echo "进入配置段: [$full_section_name] -> 处理"
+                    echo "----------------------------------"
+                 else
+                    in_section=false
+                 fi
+            else
+                in_section=false
+            fi
+            continue
+        fi
+        if $in_section && [[ ! $line =~ ^[[:space:]]*# ]] && [[ -n $line ]]; then
+            process_section_line "$section_start" "$line" "$section_content"
+        fi
+    done < "$file"
+    if $in_section && [[ -n $section_content ]]; then
+        echo "[$section_start]"
+        echo -n "$section_content"
+        echo "[$section_start]"
+        echo
+    fi
+    if command -v update-desktop-database >/dev/null 2>&1; then
+        update-desktop-database ~/.local/share/applications/
+    fi
+}
 
 # 新增：参数判断
 section_filter=""
