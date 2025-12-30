@@ -2,9 +2,10 @@
 
 **一键完备的终端开发环境：零配置，即刻上手。**
 
-这是一个注重**极致开箱体验**的个人配置方案。只需运行一行安装脚本，您将**直接获得**一套精心调校、配置完美的开发环境：
+注重**极致开箱体验**的个人配置方案。
+只需运行一行安装脚本，您将**直接获得**一套精心调校、配置完美的开发环境：
 - ⚡️ **Zsh + Powerlevel10k**：补全、高亮、自动建议一应俱全，交互体验丝般顺滑。
-- 🚀 **Neovim (LazyVim)**：功能强大的现代化终端 IDE，已预装主流语言支持。
+- 🚀 **Neovim (LazyVim)**：功能强大的现代化终端 IDE，已预装主流语言支持，和AI助手。
 - 🛠 **现代化工具链**：自动集成 Rust 生态的命令行工具（bat, rg, fzf...）与开发专用字体。
 
 告别繁琐的配置折腾，专注于Coding本身。
@@ -28,31 +29,13 @@ bash init.sh
 
 ## 安装后续步骤与依赖
 
-### Neovim 自动安装
-安装命令：
-```bash
-install:nvim
-install:nvim --force
-install:nvim --version 0.9.5
-```
-
 系统依赖（用于 Treesitter 等插件编译）：
 - Debian/Ubuntu: `build-essential pkg-config cmake unzip clang libclang-dev`
 - Fedora/RHEL: `gcc gcc-c++ make pkg-config cmake unzip`
 - Arch: `base-devel pkg-config cmake unzip`
 - macOS: `xcode-select --install` + `brew install pkg-config cmake`
 
-### 字体 自动安装
-安装命令：
-```bash
-install:font
-install:font --meslo
-install:font --noto
-install:font --all
-install:font --force
-```
-
-说明：
+字体依赖：
 - Meslo Nerd Font：用于终端与 P10k 图标
 - Noto Serif CJK：中日文字体
 - Linux 会自动刷新字体缓存（需要 `fc-cache`）
@@ -156,20 +139,6 @@ AI 辅助：
 
 - 每个插件的配置均附使用说明，集中整理在 `plugins/README.md` 与 `config/nvim/PLUGINS.md`
 - 本仓库长期维护，欢迎 Issue/PR
-
-## 目录结构概览
-
-```text
-~/Dotfiles
-├── init.sh
-├── zshrc
-├── aliases.conf
-├── config/
-├── plugins/
-├── scripts/
-├── dotlink/
-└── tools/
-```
 
 ## License
 
