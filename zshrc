@@ -60,7 +60,3 @@ fi
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# zscaler
-export NODE_EXTRA_CA_CERTS="$HOME/.certs/zscaler.crt"
-. "$HOME/.atuin/bin/env"
-eval "$(atuin init zsh)"

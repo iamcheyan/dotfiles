@@ -19,7 +19,7 @@ Thumbs.db
 .cache/fonts/
 
 # 子仓库配置
-rime/
+rime/*
 !rime/scripts/   
 private/
 rime_sbzrjp/
