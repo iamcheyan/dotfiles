@@ -701,10 +701,11 @@ EOF
             
             # 设置 zsh 为默认 shell
             if command_exists chsh; then
-                if chsh -s "$ZSH_PATH" 2>/dev/null; then
+                print_info "请输入你的用户密码来设置默认 shell："
+                if chsh -s "$ZSH_PATH"; then
                     print_success "已将 zsh 设置为默认 shell"
                 else
-                    print_warning "设置默认 shell 失败，可能需要输入密码"
+                    print_warning "设置默认 shell 失败"
                     print_info "请手动运行: chsh -s $ZSH_PATH"
                 fi
             else
