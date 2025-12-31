@@ -22,7 +22,12 @@
 ## 安装
 
 ```bash
+# 克隆仓库
+git clone https://github.com/iamcheyan/Dotfiles.git ~/Dotfiles
+
+# 或使用 SSH（需要已配置 SSH 密钥）
 git clone git@github.com:iamcheyan/Dotfiles.git ~/Dotfiles
+
 cd ~/Dotfiles
 bash init.sh
 ```
