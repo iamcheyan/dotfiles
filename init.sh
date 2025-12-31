@@ -40,7 +40,17 @@ detect_os() {
         if command_exists apt-get; then
             OS="debian"
         elif command_exists yum || command_exists dnf; then
-            OS="rhel"
+            # 区分 Fedora 和 RHEL/CentOS
+            if [[ -f /etc/os-release ]]; then
+                source /etc/os-release
+                if [[ "$ID" == "fedora" ]]; then
+                    OS="fedora"
+                else
+                    OS="rhel"
+                fi
+            else
+                OS="rhel"
+            fi
         elif command_exists pacman; then
             OS="arch"
         else
@@ -74,7 +84,7 @@ install_zsh() {
                 return 1
             fi
             ;;
-        rhel)
+        rhel|fedora)
             if command_exists sudo; then
                 if command_exists dnf; then
                     sudo dnf install -y zsh
@@ -193,6 +203,16 @@ install_essentials() {
             print_error "需要 sudo 权限来安装基础工具"
             return 1
         fi
+    elif [[ "$OS" == "fedora" ]]; then
+        if command_exists sudo; then
+            # Fedora 不需要 epel-release
+            sudo dnf groupinstall -y "Development Tools"
+            # 使用 --skip-unavailable 跳过不可用的包
+            sudo dnf install -y --skip-unavailable $common_packages $rhel_packages || true
+        else
+            print_error "需要 sudo 权限来安装基础工具"
+            return 1
+        fi
     elif [[ "$OS" == "arch" ]]; then
         if command_exists sudo; then
              sudo pacman -S --noconfirm $common_packages $arch_packages
@@ -235,7 +255,7 @@ install_fzf() {
                 return 1
             fi
             ;;
-        rhel)
+        rhel|fedora)
             if command_exists sudo; then
                 if command_exists dnf; then
                     sudo dnf install -y fzf
