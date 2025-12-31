@@ -206,7 +206,8 @@ install_essentials() {
     elif [[ "$OS" == "fedora" ]]; then
         if command_exists sudo; then
             # Fedora 不需要 epel-release
-            sudo dnf groupinstall -y "Development Tools"
+            # dnf5 使用 "group install" 而不是 "groupinstall"
+            sudo dnf group install -y "Development Tools" || sudo dnf groupinstall -y "Development Tools" || true
             # 使用 --skip-unavailable 跳过不可用的包
             sudo dnf install -y --skip-unavailable $common_packages $rhel_packages || true
         else
