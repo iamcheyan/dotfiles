@@ -3,7 +3,7 @@
 # confirmations, etc.) must go above this block; everything else may go below.
 # Set instant prompt to quiet to suppress warnings during zinit tool installation
 
-export PATH="$HOME/.fzf/bin:$PATH"
+export PATH="$HOME/.opencode/bin:$HOME/.fzf/bin:$PATH"
 
 export NVM_DIR="$HOME/.nvm"
 [[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
