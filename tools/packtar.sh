@@ -1,13 +1,37 @@
 #!/usr/bin/env bash
 # 現在のディレクトリをtar.gzでパッケージ化し、親ディレクトリに配置する
-# 使用方法: pack_tar.sh <filename>
+# 使用方法: pack_tar.sh [--day <n>] <filename>
 
 set -euo pipefail
 
 # 引数チェック
+DAY_RANGE=1
+POSITIONAL_ARGS=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --day)
+            shift
+            if [ $# -eq 0 ] || ! [[ "$1" =~ ^[0-9]+$ ]]; then
+                echo "Error: --day には正の整数を指定してください" >&2
+                exit 1
+            fi
+            DAY_RANGE="$1"
+            shift
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+if [ ${#POSITIONAL_ARGS[@]} -gt 0 ]; then
+    set -- "${POSITIONAL_ARGS[@]}"
+fi
+
 if [ $# -eq 0 ]; then
     echo "Error: ファイル名を指定してください" >&2
-    echo "使用方法: $0 <filename>" >&2
+    echo "使用方法: $0 [--today|-t] <filename>" >&2
     exit 1
 fi
 
@@ -29,6 +53,8 @@ GITIGNORE_EXCLUDE_FILE=""
 GIT_INCLUDE_FILE=""
 USE_GIT_FILELIST=0
 TAR_SUPPORTS_NULL=0
+TODAY_INCLUDE_FILE=""
+TODAY_MARKER_FILE=""
 CLEANUP_FILES=()
 
 cleanup_tmp() {
@@ -108,7 +134,58 @@ if [ -f "$GITIGNORE_FILE" ]; then
 fi
 
 # ディレクトリ変更とアーカイブパスを最後に追加
-if [ "${USE_GIT_FILELIST}" -eq 1 ]; then
+if [ "${DAY_RANGE}" -gt 0 ]; then
+    TODAY_MARKER_FILE="$(mktemp)"
+    CLEANUP_FILES+=("${TODAY_MARKER_FILE}")
+    if date -d "now - ${DAY_RANGE} days" >/dev/null 2>&1; then
+        touch -d "now - ${DAY_RANGE} days" "${TODAY_MARKER_FILE}"
+    elif date -v0H -v0M -v0S >/dev/null 2>&1; then
+        touch -t "$(date -v-"${DAY_RANGE}"d '+%Y%m%d%H%M.%S')" "${TODAY_MARKER_FILE}"
+    else
+        touch "${TODAY_MARKER_FILE}"
+    fi
+
+    TODAY_INCLUDE_FILE="$(mktemp)"
+    CLEANUP_FILES+=("${TODAY_INCLUDE_FILE}")
+    if command -v git >/dev/null 2>&1 && [ -d "${CURRENT_DIR}/.git" ]; then
+        if [ "${TAR_SUPPORTS_NULL}" -eq 1 ]; then
+            git -C "${CURRENT_DIR}" ls-files -z --cached --others --exclude-standard | \
+                while IFS= read -r -d '' path; do
+                    if [ -e "${CURRENT_DIR}/${path}" ] && [ "${CURRENT_DIR}/${path}" -nt "${TODAY_MARKER_FILE}" ]; then
+                        printf '%s\0' "${path}"
+                    fi
+                done > "${TODAY_INCLUDE_FILE}"
+        else
+            echo "注意: tar に --null が無いため、空白を含むパスは正しく扱えません" >&2
+            git -C "${CURRENT_DIR}" ls-files --cached --others --exclude-standard | \
+                while IFS= read -r path; do
+                    if [ -e "${CURRENT_DIR}/${path}" ] && [ "${CURRENT_DIR}/${path}" -nt "${TODAY_MARKER_FILE}" ]; then
+                        printf '%s\n' "${path}"
+                    fi
+                done > "${TODAY_INCLUDE_FILE}"
+        fi
+        echo "除外ルール: git ls-files でファイル一覧を生成（直近 ${DAY_RANGE} 日）"
+    else
+        if [ "${TAR_SUPPORTS_NULL}" -eq 1 ]; then
+            find . -path "./.git" -prune -o -type f -newer "${TODAY_MARKER_FILE}" -print0 > "${TODAY_INCLUDE_FILE}"
+        else
+            echo "注意: tar に --null が無いため、空白を含むパスは正しく扱えません" >&2
+            find . -path "./.git" -prune -o -type f -newer "${TODAY_MARKER_FILE}" -print > "${TODAY_INCLUDE_FILE}"
+        fi
+    fi
+
+    if [ ! -s "${TODAY_INCLUDE_FILE}" ]; then
+        echo "エラー: 直近 ${DAY_RANGE} 日に更新されたファイルがありません" >&2
+        exit 1
+    fi
+
+    TAR_ARGS+=(-C "${CURRENT_DIR}")
+    if [ "${TAR_SUPPORTS_NULL}" -eq 1 ]; then
+        TAR_ARGS+=(--null -T "${TODAY_INCLUDE_FILE}")
+    else
+        TAR_ARGS+=(-T "${TODAY_INCLUDE_FILE}")
+    fi
+elif [ "${USE_GIT_FILELIST}" -eq 1 ]; then
     TAR_ARGS+=(-C "${CURRENT_DIR}")
     if [ "${TAR_SUPPORTS_NULL}" -eq 1 ]; then
         TAR_ARGS+=(--null -T "${GIT_INCLUDE_FILE}")
