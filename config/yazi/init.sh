@@ -5,7 +5,7 @@
 
 # Set base paths
 # Correcting the path from .dotfiles to Dotfiles as per the project structure
-YAZI_CONFIG_DIR="/home/hkaku/Dotfiles/config/yazi"
+YAZI_CONFIG_DIR="$HOME/Dotfiles/config/yazi"
 FLAVORS_DIR="${YAZI_CONFIG_DIR}/flavors"
 
 # --- Theme to Git Repo Mapping ---
