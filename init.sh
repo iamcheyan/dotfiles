@@ -566,6 +566,19 @@ install_fonts() {
     fi
 }
 
+# 初始化 Yazi 配置
+install_yazi_config() {
+    local install_script="${DOTFILES_DIR:-$HOME/.dotfiles}/config/yazi/init.sh"
+    if [[ -f "$install_script" ]]; then
+        print_info "正在初始化 Yazi 配置..."
+        # 确保脚本有执行权限
+        chmod +x "$install_script"
+        bash "$install_script"
+    else
+        print_warning "未找到 Yazi 初始化脚本: $install_script"
+    fi
+}
+
 # 主函数
 main() {
     echo -e "${BLUE}"
@@ -648,6 +661,11 @@ EOF
     # 9. 安装字体
     print_info "步骤 9/10: 安装字体"
     install_fonts
+    echo ""
+
+    # 10. 初始化 Yazi 配置
+    print_info "步骤 10/10: 初始化 Yazi 配置"
+    install_yazi_config
     echo ""
 
     # 完成提示
