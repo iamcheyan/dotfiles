@@ -21,6 +21,8 @@ $HOME/.dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件
 $HOME/.dotfiles/config/zellij:$HOME/.config/zellij	# Zellij 配置
 $HOME/.dotfiles/config/yazi:$HOME/.config/yazi	# Yazi 文件管理器配置
 $HOME/.dotfiles/config/superfile:$HOME/.config/superfile                  #superfile
+$HOME/.dotfiles/config/atuin:$HOME/.config/atuin                          #atuin历史查询工具配置
+
 
 #[link:macos]
 #MacOS 配置可以单独写在这里
