@@ -90,4 +90,8 @@ zinit ice \
 fi
 
 zinit light atuinsh/atuin
+# 启动 atuin 守护进程以提高性能并解决连接超时问题
+if command -v atuin >/dev/null 2>&1; then
+  atuin daemon >/dev/null 2>&1 &!
+fi
 

@@ -34,3 +34,4 @@ plugins/avante/.env
 config/nvim/.nvimlog
 config/nvim/tmp/
 config/nvim/sbzr.nvim.im.db/
+config/nvim/lua/plugins/translator-panel.lua
