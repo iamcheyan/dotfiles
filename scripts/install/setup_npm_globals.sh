@@ -5,7 +5,15 @@ set -e
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
 NC='\033[0m'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="$SCRIPT_DIR/lib"
+if [ -f "$LIB_DIR/npmrc_cleanup.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$LIB_DIR/npmrc_cleanup.sh"
+fi
 
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -25,6 +33,11 @@ fi
 
 # Ensure we are using the default node version and environment
 echo -e "${BLUE}Activating nvm environment...${NC}"
+
+# Clean up ~/.npmrc if it conflicts with nvm globals
+if command -v cleanup_npmrc_conflicts >/dev/null 2>&1; then
+    cleanup_npmrc_conflicts
+fi
 
 # Helper function to ensure setup_node.sh is run if needed
 ensure_node_setup() {
