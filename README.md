@@ -7,7 +7,6 @@
 /____/\____/ /_/ /____/___/_/|_/_/|_|  
 ```
   
-![Dotfiles Showcase](https://pbs.twimg.com/media/G9beZPVacAAasNL?format=jpg&name=4096x4096)
 
 **一键完备的终端开发环境：零配置，即刻上手。**
 注重**极致开箱体验**的个人配置方案。
