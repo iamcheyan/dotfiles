@@ -14,3 +14,15 @@ end, { desc = "Terminal Bottom" })
 -- Muren (Multiple Replacements) keybindings
 vim.keymap.set("n", "<leader>rr", "<cmd>MurenToggle<cr>", { desc = "Muren: Toggle UI" })
 vim.keymap.set("n", "<leader>rR", "<cmd>MurenUnique<cr>", { desc = "Muren: Open with unique matches" })
+
+vim.keymap.set("n", "<leader>cf", function()
+  vim.fn.setreg("+", vim.fn.expand("%"))
+end, { desc = "Copy file (relative path)" })
+
+vim.keymap.set("n", "<leader>cF", function()
+  vim.fn.setreg("+", vim.fn.expand("%:p"))
+end, { desc = "Copy file (absolute path)" })
+
+vim.keymap.set("n", "<leader>cd", function()
+  vim.fn.setreg("+", vim.fn.expand("%:p:h"))
+end, { desc = "Copy directory" })
