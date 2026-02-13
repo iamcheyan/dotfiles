@@ -6,6 +6,6 @@ return {
   {
     "iamcheyan/sbzr.nvim.im",
     lazy = false,
+    dir = vim.fn.stdpath("config") .. "/local/sbzr.nvim.im",
   },
 }
-

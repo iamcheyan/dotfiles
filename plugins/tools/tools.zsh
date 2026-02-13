@@ -45,6 +45,11 @@ zi_cmd ajeetdsouza/zoxide zoxide
 # yazi 使用 musl 版本（静态链接，不依赖系统 GLIBC）
 zinit ice as"command" from"gh-r" bpick"*linux-musl.zip" mv"yazi-*/yazi -> yazi"
 zinit light sxyazi/yazi
+# 初始化 yazi（仅首次）
+yazi_init_flag="${XDG_STATE_HOME:-$HOME/.local/state}/yazi/init.done"
+if [ ! -f "$yazi_init_flag" ] && [ -f ~/.dotfiles/config/yazi/init.sh ]; then
+  mkdir -p "${yazi_init_flag%/*}" && bash ~/.dotfiles/config/yazi/init.sh && touch "$yazi_init_flag"
+fi
 
 # fzf（使用系统安装的 fzf，这里只加载补全和键绑定）
 # zinit ice from"gh-r" as"command" bpick"*linux_arm64.tar.gz"
@@ -90,4 +95,3 @@ zinit ice \
 fi
 
 zinit light atuinsh/atuin
-
