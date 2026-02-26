@@ -5,7 +5,29 @@
 return {
   {
     "iamcheyan/sbzr.nvim.im",
+    name = "ZFVimIM",
     lazy = false,
     dir = vim.fn.stdpath("config") .. "/local/sbzr.nvim.im",
+    init = function()
+      vim.g.ZFVimIM_plugin_dir = vim.fn.stdpath("config") .. "/local/sbzr.nvim.im"
+      vim.g.ZFVimIM_keymap = 1
+    end,
+    config = function()
+      local function ensure_toggle_map(mode, fn_name)
+        if vim.fn.maparg(";;", mode) ~= "" then
+          return
+        end
+        vim.keymap.set(mode, ";;", function()
+          if vim.fn.exists("*" .. fn_name) == 1 then
+            vim.fn[fn_name]()
+          end
+          return ""
+        end, { expr = true, silent = true })
+      end
+
+      ensure_toggle_map("n", "ZFVimIME_keymap_toggle_n")
+      ensure_toggle_map("i", "ZFVimIME_keymap_toggle_i")
+      ensure_toggle_map("v", "ZFVimIME_keymap_toggle_v")
+    end,
   },
 }
