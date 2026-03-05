@@ -331,7 +331,9 @@ layout_dir "$HOME/.dotfiles/config/zellij/layouts"
 //   - true (default, enabled)
 //   - false
 // 
-// pane_frames false
+
+// 恢复窗格时保留边框等外观
+pane_frames true
  
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)
@@ -414,7 +416,9 @@ layout_dir "$HOME/.dotfiles/config/zellij/layouts"
 //   - true (default)
 //   - false
 // 
-// session_serialization false
+
+// 允许会话序列化到硬盘
+session_serialization true
  
 // Whether pane viewports are serialized along with the session, default is false
 // Options:
