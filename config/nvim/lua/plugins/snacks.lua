@@ -1,6 +1,31 @@
 return {
   {
     "folke/snacks.nvim",
+    config = function(_, opts)
+      require("snacks").setup(opts)
+
+      -- Work around an upstream grep transform crash when rg outputs a non-NUL line.
+      local proc = require("snacks.picker.source.proc")
+      local raw_proc = proc.proc
+      proc.proc = function(picker_opts, ctx)
+        if picker_opts and picker_opts.cmd == "rg" and type(picker_opts.transform) == "function" then
+          local original_transform = picker_opts.transform
+          picker_opts = vim.tbl_extend("force", {}, picker_opts)
+          picker_opts.transform = function(item, transform_ctx)
+            local ok, ret = pcall(original_transform, item, transform_ctx)
+            if ok then
+              return ret
+            end
+            local err = tostring(ret)
+            if err:find("file_sep", 1, true) then
+              return false
+            end
+            return false
+          end
+        end
+        return raw_proc(picker_opts, ctx)
+      end
+    end,
     opts = {
       -- 1. 全局基础窗口配置
       win = { border = "single" },
@@ -22,6 +47,12 @@ return {
           explorer = {
             layout = { preset = "sidebar", preview = false },
             focus = "input", 
+          },
+          grep = {
+            args = { "--no-messages" },
+          },
+          git_grep = {
+            args = { "--no-messages" },
           },
         },
       },
