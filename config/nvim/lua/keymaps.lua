@@ -63,6 +63,10 @@ vim.keymap.set("n", "<C-f>", ":bnext<CR>", silent_opts)
 -- Previous buffer
 vim.keymap.set("n", "<C-b>", ":bprevious<CR>", silent_opts)
 
+-- Tab / Shift-Tab for buffer switching
+vim.keymap.set("n", "<Tab>", ":bnext<CR>", silent_opts)
+vim.keymap.set("n", "<S-Tab>", ":bprevious<CR>", silent_opts)
+
 -- Undo/Redo
 -- Undo
 vim.keymap.set("n", "<C-z>", "u", silent_opts)
