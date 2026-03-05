@@ -2,11 +2,19 @@ return {
   "coffebar/neovim-project",
   opts = {
     projects = {
-      "~/projects/*",
-      "~/.config/*",
+      "~/Dotfiles",
+      "~/.dotfiles",
+      "~/Development/*",
+      "~/Dotfiles/*",
     },
     picker = {
       type = "telescope",
+    },
+    -- ... 其他配置
+    session_manager_opts = {
+      autosave_last_session = true, -- 退出时自动保存
+      autosave_ignore_not_normal = true, -- 忽略特殊的 buffer（如插件窗口）
+      last_session = true, -- 启动时自动加载最后一次使用的 session
     },
   },
   init = function()

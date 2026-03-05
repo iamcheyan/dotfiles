@@ -74,6 +74,12 @@ vim.keymap.set("n", "<C-z>", "u", silent_opts)
 -- Redo
 vim.keymap.set("n", "<C-y>", "<C-r>", silent_opts)
 
+-- Codepage
+vim.keymap.set("n", "<leader>ceU", ":CodepageSet utf8<CR>", { desc = "Set UTF-8" })
+vim.keymap.set("n", "<leader>ces", ":CodepageSet sjis<CR>", { desc = "Set Shift-JIS" })
+vim.keymap.set("n", "<leader>cee", ":CodepageSet eucjp<CR>", { desc = "Set EUC-JP" })
+vim.keymap.set("n", "<leader>cec", ":CodepageGet<CR>", { desc = "Show current encoding" })
+
 -- Copy/Paste
 -- Paste from system clipboard
 vim.keymap.set("n", "<C-v>", '"+p', silent_opts)
