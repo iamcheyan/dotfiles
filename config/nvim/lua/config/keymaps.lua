@@ -12,8 +12,8 @@ vim.keymap.set("n", "<leader>tb", function()
 end, { desc = "Terminal Bottom" })
 
 -- Muren (Multiple Replacements) keybindings
-vim.keymap.set("n", "<leader>rr", "<cmd>MurenToggle<cr>", { desc = "Muren: Toggle UI" })
-vim.keymap.set("n", "<leader>rR", "<cmd>MurenUnique<cr>", { desc = "Muren: Open with unique matches" })
+-- vim.keymap.set("n", "<leader>rr", "<cmd>MurenToggle<cr>", { desc = "Muren: Toggle UI" })
+-- vim.keymap.set("n", "<leader>rR", "<cmd>MurenUnique<cr>", { desc = "Muren: Open with unique matches" })
 
 vim.keymap.set("n", "<leader>cf", function()
   vim.fn.setreg("+", vim.fn.expand("%"))
@@ -37,3 +37,27 @@ vim.keymap.set("n", "<leader>fC", function()
     },
   })
 end, { desc = "打开常用收藏" })
+
+-- grug-far:
+-- <leader>sr => project search/replace
+-- <leader>sR => current file search/replace
+-- visual mode uses selected text as Search
+vim.keymap.set("n", "<leader>sr", function()
+  require("grug-far").open()
+end, { desc = "Search/Replace (project)" })
+
+vim.keymap.set("x", "<leader>sr", function()
+  require("grug-far").with_visual_selection()
+end, { desc = "Search/Replace selection (project)" })
+
+vim.keymap.set("n", "<leader>sR", function()
+  require("grug-far").open({ prefills = { paths = vim.fn.expand("%") } })
+end, { desc = "Search/Replace (current file)" })
+
+vim.keymap.set("x", "<leader>sR", function()
+  require("grug-far").with_visual_selection({ prefills = { paths = vim.fn.expand("%") } })
+end, { desc = "Search/Replace selection (current file)" })
+
+-- lua/config/keymaps.lua
+vim.keymap.set("n", "<leader>d", '"_d', { desc = "Delete to blackhole" })
+vim.keymap.set("v", "<leader>d", '"_d', { desc = "Visual delete to blackhole" })
