@@ -1,6 +1,12 @@
 return {
   {
     "folke/snacks.nvim",
+    keys = {
+      { "<leader>e", false },
+      { "<leader>E", false },
+      { "<leader>fe", false },
+      { "<leader>fE", false },
+    },
     config = function(_, opts)
       require("snacks").setup(opts)
 

@@ -15,6 +15,18 @@ return {
       { "<leader>e", "<cmd>Neotree toggle reveal_force_cwd<cr>", desc = "Explorer (Neo-tree)" },
     },
     opts = {
+      source_selector = {
+        winbar = false,
+        statusline = false,
+      },
+      event_handlers = {
+        {
+          event = "neo_tree_buffer_enter",
+          handler = function()
+            vim.opt_local.winbar = nil
+          end,
+        },
+      },
       filesystem = {
         follow_current_file = {
           enabled = true,

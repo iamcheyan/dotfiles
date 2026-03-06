@@ -4,6 +4,11 @@ return {
     opts = {
       options = {
         diagnostics = false,
+        offsets = {
+          {
+            filetype = "snacks_layout_box",
+          },
+        },
         indicator = { style = "none" },
         separator_style = { "", "" },
         show_buffer_close_icons = true,
