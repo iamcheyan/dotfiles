@@ -27,7 +27,7 @@ lualine.setup {
     -- +-------------------------------------------------+
     sections = {
         lualine_a = { 'mode' },
-        lualine_b = { 'branch', 'diff', 'diagnostics' },
+        lualine_b = { 'branch', 'diff' },
         lualine_c = { 'filename' },
         lualine_x = { 'encoding', 'fileformat', 'filetype' },
         lualine_y = { 'progress' },
@@ -42,7 +42,30 @@ lualine.setup {
         lualine_z = {}
     },
     tabline = {},
-    winbar = {},
-    inactive_winbar = {},
+    winbar = {
+        lualine_a = {},
+        lualine_b = {},
+        lualine_c = {
+            { "filename", path = 1 },
+            {
+                "aerial",
+                sep = " > ",
+                depth = 5,
+                dense = false,
+                colored = true,
+            },
+        },
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {},
+    },
+    inactive_winbar = {
+        lualine_a = {},
+        lualine_b = {},
+        lualine_c = { { "filename", path = 1 } },
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {},
+    },
     extensions = {}
 }

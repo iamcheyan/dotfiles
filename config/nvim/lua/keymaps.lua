@@ -31,10 +31,6 @@ vim.keymap.set("n", "<C-Down>", ":resize +2<CR>", opts)
 vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", opts)
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
--- File Tree
--- Toggle nvim-tree (default leader key: Space)
-vim.keymap.set("n", "<leader>e", ":NvimTreeToggle<CR>", opts)
-
 -- Terminal
 -- Open terminal in split windows
 vim.keymap.set("n", "<leader>tr", function()

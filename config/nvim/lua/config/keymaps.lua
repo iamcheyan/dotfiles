@@ -61,3 +61,23 @@ end, { desc = "Search/Replace selection (current file)" })
 -- lua/config/keymaps.lua
 vim.keymap.set("n", "<leader>d", '"_d', { desc = "Delete to blackhole" })
 vim.keymap.set("v", "<leader>d", '"_d', { desc = "Visual delete to blackhole" })
+
+-- Click a diagnostics sign line to open its message float.
+vim.keymap.set("n", "<LeftMouse>", function()
+  local m = vim.fn.getmousepos()
+  if m.winid and m.winid ~= 0 then
+    vim.api.nvim_set_current_win(m.winid)
+  end
+  if m.line and m.line > 0 then
+    vim.api.nvim_win_set_cursor(0, { m.line, math.max((m.column or 1) - 1, 0) })
+    local diags = vim.diagnostic.get(0, { lnum = m.line - 1 })
+    if #diags > 0 then
+      vim.diagnostic.open_float(nil, {
+        focus = false,
+        scope = "line",
+        border = "rounded",
+        source = "if_many",
+      })
+    end
+  end
+end, { desc = "Mouse click line; show diagnostics float when present" })
