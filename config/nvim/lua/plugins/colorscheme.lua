@@ -2,7 +2,8 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "DimGreens",
+      colorscheme = "af",
+      -- colorscheme = "DimGreens",
     },
   },
 
