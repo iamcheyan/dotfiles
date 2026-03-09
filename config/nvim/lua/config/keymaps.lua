@@ -38,6 +38,12 @@ vim.keymap.set("n", "<leader>fC", function()
   })
 end, { desc = "打开常用收藏" })
 
+vim.keymap.set("n", "<leader>fo", function()
+  vim.lsp.buf.format({ async = true })
+end, { desc = "format this file" })
+
+vim.keymap.set("n", "<leader>aa", "ggVG", { desc = "CLRT A" })
+
 -- grug-far:
 -- <leader>sr => project search/replace
 -- <leader>sR => current file search/replace
@@ -61,6 +67,46 @@ end, { desc = "Search/Replace selection (current file)" })
 -- lua/config/keymaps.lua
 vim.keymap.set("n", "<leader>d", '"_d', { desc = "Delete to blackhole" })
 vim.keymap.set("v", "<leader>d", '"_d', { desc = "Visual delete to blackhole" })
+vim.keymap.set("x", "<leader>ad", '"_d', { desc = "删除选中(不进寄存器)" })
+
+vim.keymap.set("n", "<2-LeftMouse>", function()
+  local m = vim.fn.getmousepos()
+  if m.winid and m.winid ~= 0 then
+    vim.api.nvim_set_current_win(m.winid)
+  end
+  if not (m.line and m.line > 0) then
+    return
+  end
+
+  local col = math.max((m.column or 1) - 1, 0)
+  vim.api.nvim_win_set_cursor(0, { m.line, col })
+
+  local line = vim.api.nvim_get_current_line()
+  local cursor_col = vim.api.nvim_win_get_cursor(0)[2] + 1
+  local color_found = false
+
+  for s in line:gmatch("()#%x%x%x%x%x%x") do
+    local e = s + 6
+    if cursor_col >= s and cursor_col <= e then
+      color_found = true
+      break
+    end
+  end
+
+  if not color_found then
+    for s in line:gmatch("()#%x%x%x") do
+      local e = s + 3
+      if cursor_col >= s and cursor_col <= e then
+        color_found = true
+        break
+      end
+    end
+  end
+
+  if color_found then
+    vim.cmd("CccPick")
+  end
+end, { desc = "双击颜色弹出 ccc 取色器" })
 
 -- Click a diagnostics sign line to open its message float.
 vim.keymap.set("n", "<LeftMouse>", function()
