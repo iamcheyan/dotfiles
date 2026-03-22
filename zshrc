@@ -13,9 +13,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Instant prompt (p10k)
-[[ -r ~/.cache/p10k-instant-prompt.zsh ]] && source ~/.cache/p10k-instant-prompt.zsh
-
 source ~/.dotfiles/plugins/zinit/zinit.zsh
 source ~/.dotfiles/plugins/prompt/prompt.zsh
 source ~/.dotfiles/plugins/tools/tools.zsh
@@ -65,3 +62,4 @@ fi
 
 
 
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

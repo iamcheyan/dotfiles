@@ -1,5 +1,7 @@
 autoload -Uz compinit
-compinit -C
+# 默认不使用 -C，确保在环境变化（如路径移动）时能自动更新缓存
+# 如果启动速度过慢，可以考虑在稳定后加回 -C
+compinit
 
 # fzf-tab: 用 fzf 替换 zsh 的默认补全选择菜单
 # 必须在 compinit 之后加载，但在 zsh-autosuggestions 之前加载
