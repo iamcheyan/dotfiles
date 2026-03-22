@@ -72,21 +72,25 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   zinit ice \
     as"command" \
     from"gh-r" \
-    bpick"*apple-darwin.tar.gz" \
+    bpick"atuin-.*-apple-darwin.tar.gz" \
     mv"atuin-*-apple-darwin/atuin -> atuin" \
-    atclone"./atuin init zsh > init.zsh" \
+    atclone"./atuin init zsh --disable-up-arrow > init.zsh" \
     atpull"%atclone" \
     src"init.zsh"
 else
-  # Linux
-zinit ice \
-  as"command" \
-  from"gh-r" \
-  bpick"*.tar.gz" \
-  mv"atuin-*-unknown-linux-gnu/atuin -> atuin" \
-  atclone"./atuin init zsh > init.zsh" \
-  atpull"%atclone" \
-  src"init.zsh"
+  # Linux (x86_64 or aarch64)
+  # 针对不同架构做更精确的匹配
+  local atuin_arch="x86_64"
+  [[ "$(uname -m)" == "aarch64" ]] && atuin_arch="aarch64"
+
+  zinit ice \
+    as"command" \
+    from"gh-r" \
+    bpick"atuin-${atuin_arch}-unknown-linux-musl.tar.gz" \
+    mv"atuin-${atuin_arch}-unknown-linux-musl/atuin -> atuin" \
+    atclone"./atuin init zsh --disable-up-arrow > init.zsh" \
+    atpull"%atclone" \
+    src"init.zsh"
 fi
 
 zinit light atuinsh/atuin
