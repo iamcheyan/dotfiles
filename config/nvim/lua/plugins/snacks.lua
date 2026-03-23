@@ -2,10 +2,10 @@ return {
   {
     "folke/snacks.nvim",
     keys = {
-      { "<leader>e", false },
-      { "<leader>E", false },
       { "<leader>fe", false },
       { "<leader>fE", false },
+      { "<leader>e", false },
+      { "<leader>E", false },
     },
     config = function(_, opts)
       require("snacks").setup(opts)
@@ -33,6 +33,7 @@ return {
       end
     end,
     opts = {
+      explorer = { enabled = false },
       -- 1. 全局基础窗口配置
       win = { border = "single" },
       -- 2. 覆盖 Snacks 内置的所有标准样式
@@ -50,10 +51,6 @@ return {
           preview = { border = "single" },
         },
         sources = {
-          explorer = {
-            layout = { preset = "sidebar", preview = false },
-            focus = "input", 
-          },
           grep = {
             args = { "--no-messages" },
           },

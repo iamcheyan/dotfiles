@@ -84,9 +84,10 @@ return {
       }
 
       local FileName = {
-        provider = function()
+        provider = function(self)
           local name = vim.api.nvim_buf_get_name(0)
           local path = name == "" and "[No Name]" or vim.fn.fnamemodify(name, ":p")
+          self.current_path = path
           local icon = "󰈔"
           if name ~= "" then
             local devicons = require("nvim-web-devicons")
@@ -114,6 +115,20 @@ return {
           local suffix = #flags > 0 and (" " .. table.concat(flags, " ")) or ""
           return string.format("%s %s%s", icon, path, suffix)
         end,
+        on_click = {
+          callback = function(self, _, nclicks, button)
+            if button ~= "l" or nclicks < 2 then
+              return
+            end
+            local path = self.current_path
+            if not path or path == "" or path == "[No Name]" then
+              return
+            end
+            vim.fn.setreg("+", path)
+            vim.notify("已复制路径: " .. path, vim.log.levels.INFO)
+          end,
+          name = "heirline_copy_filepath",
+        },
       }
 
       local LspName = {

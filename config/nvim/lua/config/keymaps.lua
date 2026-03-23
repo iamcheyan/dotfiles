@@ -43,6 +43,10 @@ vim.keymap.set("n", "<leader>fo", function()
 end, { desc = "format this file" })
 
 vim.keymap.set("n", "<leader>aa", "ggVG", { desc = "CLRT A" })
+vim.keymap.set("n", "<leader>ac", function()
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, { "" })
+  vim.api.nvim_win_set_cursor(0, { 1, 0 })
+end, { desc = "清空文档(不进寄存器)" })
 
 -- grug-far:
 -- <leader>sr => project search/replace
@@ -111,6 +115,12 @@ end, { desc = "双击颜色弹出 ccc 取色器" })
 -- Click a diagnostics sign line to open its message float.
 vim.keymap.set("n", "<LeftMouse>", function()
   local m = vim.fn.getmousepos()
+  -- Keep default single-click behavior for tabline/statusline, etc.
+  if not (m.winid and m.winid ~= 0 and m.line and m.line > 0) then
+    vim.api.nvim_feedkeys(vim.keycode("<LeftMouse>"), "n", false)
+    return
+  end
+
   if m.winid and m.winid ~= 0 then
     vim.api.nvim_set_current_win(m.winid)
   end
