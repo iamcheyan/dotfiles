@@ -113,7 +113,7 @@ return {
       indent = { char = "│" },
       scope = { enabled = true },
       exclude = {
-        filetypes = { "help", "dashboard", "neo-tree", "lazy", "mason", "Trouble" },
+        filetypes = { "help", "dashboard", "neo-tree", "NvimTree", "lazy", "mason", "Trouble" },
       },
     },
   },

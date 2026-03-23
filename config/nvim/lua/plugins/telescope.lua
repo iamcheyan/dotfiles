@@ -80,13 +80,16 @@ return {
           },
         },
         pickers = {
-          find_files = {
-            theme = "dropdown",
+          find_files = require("telescope.themes").get_dropdown({
             previewer = false,
             hidden = true,
-          },
+            no_ignore = true,
+          }),
           live_grep = {
             theme = "ivy",
+            additional_args = function()
+              return { "--hidden" }
+            end,
           },
           buffers = {
             theme = "dropdown",
