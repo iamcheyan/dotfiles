@@ -25,6 +25,8 @@ private/
 rime_sbzrjp/
 sbsrf/
 
+aws
+
 config/nvim/tmp/*
 config/yazi/flavors/*
 config/sway/*
