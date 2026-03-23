@@ -34,4 +34,19 @@ zinit light le0me55i/zsh-extract
 # git-open 插件：在浏览器中打开 Git 仓库页面
 zinit light paulirish/git-open
 
+# history-substring-search
+zinit light zsh-users/zsh-history-substring-search
+# 兼容 zsh-vi-mode
+function zvm_after_init() {
+  # 优先使用 atuin 的上键搜索（如果存在）
+  if [[ -n "$widgets[atuin-up-search-viins]" ]]; then
+    zvm_bindkey viins '^[[A' atuin-up-search-viins
+    zvm_bindkey viins '^[[B' atuin-up-search-viins # atuin 通常自动处理上下
+  else
+    # 回退到传统的 history-substring-search
+    zvm_bindkey viins '^[[A' history-substring-search-up
+    zvm_bindkey viins '^[[B' history-substring-search-down
+  fi
+}
+
 
