@@ -70,28 +70,10 @@ zi_cmd zellij-org/zellij zellij
 # mdcat: 使用 cargo 安装: cargo install mdcat
 # aws: 使用官方安装脚本: curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
 
-# atuin（单独处理，必须）
-# 根据操作系统选择不同的 mv 模式
+# atuin 只下载二进制，不再自动初始化（初始化在 plugins.zsh 中进行）
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS
-  zinit ice \
-    as"command" \
-    from"gh-r" \
-    bpick"*apple-darwin.tar.gz" \
-    mv"atuin-*-apple-darwin/atuin -> atuin" \
-    atclone"./atuin init zsh > init.zsh" \
-    atpull"%atclone" \
-    src"init.zsh"
+  zinit ice as"command" from"gh-r" bpick"*apple-darwin*" mv"atuin-*/atuin -> atuin" pick"atuin"
 else
-  # Linux
-zinit ice \
-  as"command" \
-  from"gh-r" \
-  bpick"*.tar.gz" \
-  mv"atuin-*-unknown-linux-gnu/atuin -> atuin" \
-  atclone"./atuin init zsh > init.zsh" \
-  atpull"%atclone" \
-  src"init.zsh"
+  zinit ice as"command" from"gh-r" bpick"*unknown-linux-gnu*" mv"atuin-*/atuin -> atuin" pick"atuin"
 fi
-
 zinit light atuinsh/atuin

@@ -5,16 +5,19 @@
 
 export PATH="$HOME/.fzf/bin:$PATH"
 
-export NVM_DIR="$HOME/.nvm"
-[[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
+# NVM 惰性加载（仅在需要时加载）
+load_nvm() {
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+}
+nvm() {
+    load_nvm && nvm "$@"
+}
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-
-# Instant prompt (p10k)
-[[ -r ~/.cache/p10k-instant-prompt.zsh ]] && source ~/.cache/p10k-instant-prompt.zsh
 
 source ~/.dotfiles/plugins/zinit/zinit.zsh
 source ~/.dotfiles/plugins/prompt/prompt.zsh

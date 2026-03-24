@@ -10,6 +10,9 @@ zinit light zsh-users/zsh-autosuggestions
 # syntax highlighting（必须最后）
 zinit light zsh-users/zsh-syntax-highlighting
 
+# atuin 历史搜索 - 在 zsh-vi-mode 之后加载以确保正确的按键绑定
+eval "$(atuin init zsh)"
+
 # sudo 插件（替代 OMZ sudo）
 zinit snippet OMZP::sudo
 
@@ -34,16 +37,11 @@ zinit light le0me55i/zsh-extract
 # git-open 插件：在浏览器中打开 Git 仓库页面
 zinit light paulirish/git-open
 
-# history-substring-search
+# history-substring-search（仅在 atuin 不可用时作为回退）
 zinit light zsh-users/zsh-history-substring-search
 # 兼容 zsh-vi-mode
 function zvm_after_init() {
-  # 优先使用 atuin 的上键搜索（如果存在）
-  if [[ -n "$widgets[atuin-up-search-viins]" ]]; then
-    zvm_bindkey viins '^[[A' atuin-up-search-viins
-    zvm_bindkey viins '^[[B' atuin-up-search-viins # atuin 通常自动处理上下
-  else
-    # 回退到传统的 history-substring-search
+  if [[ -z "$widgets[atuin-up-search-viins]" ]]; then
     zvm_bindkey viins '^[[A' history-substring-search-up
     zvm_bindkey viins '^[[B' history-substring-search-down
   fi
