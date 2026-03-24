@@ -236,6 +236,99 @@ install_essentials() {
     print_success "基础工具安装/检查完成"
 }
 
+# 安装 pyenv
+install_pyenv() {
+    local pyenv_dir="$HOME/.pyenv"
+    
+    if [[ -d "$pyenv_dir" ]]; then
+        print_success "pyenv 已安装: $pyenv_dir"
+        return 0
+    fi
+
+    print_info "正在安装 pyenv..."
+
+    if ! command_exists git; then
+        print_error "需要 git 来安装 pyenv"
+        return 1
+    fi
+
+    git clone https://github.com/pyenv/pyenv.git "$pyenv_dir"
+    if [[ $? -eq 0 ]]; then
+        print_success "pyenv 安装成功: $pyenv_dir"
+        
+        # 安装 pyenv-virtualenv 插件
+        if [[ ! -d "$pyenv_dir/plugins/pyenv-virtualenv" ]]; then
+            print_info "正在安装 pyenv-virtualenv..."
+            git clone https://github.com/pyenv/pyenv-virtualenv.git "$pyenv_dir/plugins/pyenv-virtualenv"
+            print_success "pyenv-virtualenv 安装成功"
+        fi
+    else
+        print_error "pyenv 安装失败"
+        return 1
+    fi
+}
+
+# 安装 nvm
+install_nvm() {
+    local nvm_dir="$HOME/.nvm"
+    
+    if [[ -d "$nvm_dir" ]]; then
+        print_success "nvm 已安装: $nvm_dir"
+        return 0
+    fi
+
+    print_info "正在安装 nvm..."
+
+    if ! command_exists git; then
+        print_error "需要 git 来安装 nvm"
+        return 1
+    fi
+
+    git clone https://github.com/nvm-sh/nvm.git "$nvm_dir"
+    if [[ $? -eq 0 ]]; then
+        print_success "nvm 安装成功: $nvm_dir"
+    else
+        print_error "nvm 安装失败"
+        return 1
+    fi
+}
+
+# 安装 direnv
+install_direnv() {
+    local direnv_bin="$HOME/.local/bin/direnv"
+    
+    if [[ -x "$direnv_bin" ]]; then
+        print_success "direnv 已安装: $($direnv_bin --version)"
+        return 0
+    fi
+
+    print_info "正在安装 direnv..."
+
+    local arch
+    if [[ "$(uname -m)" == "x86_64" ]]; then
+        arch="amd64"
+    elif [[ "$(uname -m)" == "aarch64" ]] || [[ "$(uname -m)" == "arm64" ]]; then
+        arch="arm64"
+    else
+        print_error "不支持的架构: $(uname -m)"
+        return 1
+    fi
+
+    local version=$(curl -sL https://api.github.com/repos/direnv/direnv/releases/latest 2>/dev/null | grep '"tag_name"' | sed 's/.*v\([0-9.]*\).*/\1/')
+    if [[ -z "$version" ]]; then
+        version="2.37.1"
+    fi
+
+    mkdir -p "$HOME/.local/bin"
+    if curl -sL "https://github.com/direnv/direnv/releases/download/v${version}/direnv.linux-${arch}" -o "$direnv_bin"; then
+        chmod +x "$direnv_bin"
+        print_success "direnv 安装成功: v$($direnv_bin --version)"
+    else
+        print_error "direnv 安装失败"
+        return 1
+    fi
+}
+
 # 安装 fzf
 install_fzf() {
     if command_exists fzf; then
@@ -597,7 +690,7 @@ EOF
     echo ""
 
     # 检测并设置 dotfiles 目录
-    print_info "步骤 0/10: 检测 dotfiles 仓库位置"
+    print_info "步骤 1/13: 检测 dotfiles 仓库位置"
     if ! detect_dotfiles_dir; then
         exit 1
     fi
@@ -606,47 +699,62 @@ EOF
 
 
     # 1. 安装 zsh
-    print_info "步骤 1/10: 检查并安装 zsh"
+    print_info "步骤 2/11: 检查并安装 zsh"
     install_zsh
     echo ""
 
     # 2. 安装基础工具
-    print_info "步骤 2/10: 安装基础工具 (git, curl, build-essential, etc.)"
+    print_info "步骤 3/13: 安装基础工具 (git, curl, build-essential, etc.)"
     install_essentials
     echo ""
 
     # 3. 安装 zinit
-    print_info "步骤 3/10: 检查并安装 zinit"
+    print_info "步骤 4/13: 检查并安装 zinit"
     install_zinit
     echo ""
 
-    # 4. 安装 fzf
-    print_info "步骤 4/10: 检查并安装 fzf"
+    # 4. 安装 pyenv
+    print_info "步骤 5/13: 检查并安装 pyenv"
+    install_pyenv
+    echo ""
+
+    # 5. 安装 nvm
+    print_info "步骤 6/13: 检查并安装 nvm"
+    install_nvm
+    echo ""
+
+    # 6. 安装 fzf
+    print_info "步骤 7/13: 检查并安装 fzf"
     install_fzf
     echo ""
 
-    # 5. 创建 Dotfiles 软链接（如果不存在）
-    print_info "步骤 5/10: 创建 Dotfiles 软链接"
+    # 7. 安装 direnv
+    print_info "步骤 8/13: 检查并安装 direnv"
+    install_direnv
+    echo ""
+
+    # 8. 创建 Dotfiles 软链接（如果不存在）
+    print_info "步骤 9/13: 创建 Dotfiles 软链接"
     create_dotfiles_link
     echo ""
 
-    # 6. 使用 dotlink 创建配置文件软链接
-    print_info "步骤 6/10: 使用 dotlink 创建配置文件软链接"
+    # 9. 使用 dotlink 创建配置文件软链接
+    print_info "步骤 10/13: 使用 dotlink 创建配置文件软链接"
     run_dotlink
     echo ""
 
-    # 7. 创建 .zshrc 软链接
-    print_info "步骤 7/10: 创建 .zshrc 软链接"
+    # 10. 创建 .zshrc 软链接
+    print_info "步骤 11/13: 创建 .zshrc 软链接"
     create_zshrc_link
     echo ""
 
-    # 8. 安装 Neovim
-    print_info "步骤 8/10: 安装 Neovim"
+    # 11. 安装 Neovim
+    print_info "步骤 12/13: 安装 Neovim"
     install_neovim
     echo ""
 
-    # 9. 安装字体
-    print_info "步骤 9/10: 安装字体"
+    # 12. 安装字体
+    print_info "步骤 13/13: 安装字体"
     install_fonts
     echo ""
 
