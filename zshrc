@@ -22,6 +22,7 @@ fi
 source ~/.dotfiles/plugins/zinit/zinit.zsh
 source ~/.dotfiles/plugins/prompt/prompt.zsh
 source ~/.dotfiles/plugins/tools/tools.zsh
+eval "$($HOME/.local/bin/direnv hook zsh)"
 # completion.zsh 必须在 plugins.zsh 之前加载，因为：
 # 1. compinit 需要在 fzf-tab 之前执行
 # 2. fzf-tab 需要在 zsh-autosuggestions 之前加载
