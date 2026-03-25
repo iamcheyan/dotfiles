@@ -6,11 +6,14 @@ zi_cmd() {
 
 # pyenv + pyenv-virtualenv
 export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-if [[ -x "$PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init" ]]; then
-  eval "$($PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init -)"
+if [ -d "$PYENV_ROOT" ]; then
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  if command -v pyenv >/dev/null 2>&1; then
+    eval "$(pyenv init -)"
+    if [[ -x "$PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init" ]]; then
+      eval "$($PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init -)"
+    fi
+  fi
 fi
 
 # 系统监控
@@ -73,7 +76,10 @@ zi_cmd eza-community/eza eza
 zi_cmd bootandy/dust dust
 zi_cmd dalance/procs procs
 zi_cmd zellij-org/zellij zellij
-zi_cmd direnv/direnv direnv
+
+# direnv (GitHub release is a single binary)
+zinit ice as"command" from"gh-r" sbin"direnv"
+zinit light direnv/direnv
 # tig: 使用系统包管理器安装: sudo apt install tig 或从源码编译
 # superfile: 使用官方安装脚本: bash -c "$(curl -sLo- https://superfile.netlify.app/install.sh)"
 # 或者使用 x-cmd: x install superfile
