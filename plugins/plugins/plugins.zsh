@@ -1,17 +1,21 @@
 # 启用 AUTO_CD：输入目录路径时自动 cd
 setopt AUTO_CD
-
 # vim 模式（必须在 autosuggestions 之前加载，因为会影响键绑定）
 zinit light jeffreytse/zsh-vi-mode
 
 # autosuggestions
 zinit light zsh-users/zsh-autosuggestions
 
-# syntax highlighting（必须最后）
-zinit light zsh-users/zsh-syntax-highlighting
+# 语法高亮（性能更好且更智能的 fast-syntax-highlighting）
+# 注意：必须放在插件列表的最后加载，以确保高亮所有命令
+zinit light zdharma-continuum/fast-syntax-highlighting
 
-# atuin 历史搜索 - 在 zsh-vi-mode 之后加载以确保正确的按键绑定
-eval "$(atuin init zsh)"
+# zsh-autopair: 自动补全括号、引号等 (IDE 般体验)
+zinit light hlissner/zsh-autopair
+
+# forgit: 用 fzf 玩转 Git (交互式 add, log, diff)
+zinit ice lucid wait="0"
+zinit load wfxr/forgit
 
 # sudo 插件（替代 OMZ sudo）
 zinit snippet OMZP::sudo

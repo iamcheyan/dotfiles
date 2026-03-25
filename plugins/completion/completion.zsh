@@ -1,3 +1,7 @@
+# zsh-completions: 额外的补全定义集
+zinit ice blockf
+zinit light zsh-users/zsh-completions
+
 autoload -Uz compinit
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"

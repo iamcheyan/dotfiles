@@ -39,9 +39,12 @@ bash init.sh
 ### Zsh 交互体验
 - **Atuin**：全屏、可筛选的交互式命令历史记录，支持跨机器同步。
 - **Fzf-tab**：使用 fzf 替换传统的补全菜单，支持预览文件与目录内容。
-- **Vi-mode**：完美集成的 Vi 模式，且在插入模式下保留了直观的方向键历史搜索。
+- **Vi-mode**: 完美集成的 Vi 模式，且在插入模式下保留了直观的方向键历史搜索。
+- **Forgit**: 利用 fzf 提供的交互式 Git 增强工具（预览、搜索、回滚）。
+- **Autopair**: 像现代 IDE 一样自动配对括号和引号。
 
 ### Neovim (LazyVim)
+
 - **AI 赋能**：集成 `avante.nvim` (类似 Cursor) 提供智能编码建议。
 - **语言支持**：预配置 Python (pyenv 兼容)、Rust、Node.js、Go 等主流开发环境。
 - **增强插件**：`aerial` (大纲)、`telescope` (模糊搜索)、`bookmarks` (书签)、`neo-tree` (文件树)、`flash` (快速跳转)。
@@ -75,6 +78,23 @@ bash init.sh
 ## 维护与自定义
 - **本地配置**: 机器特定的设置可以放在 `~/.dotfiles/plugins/local/local.zsh` 中。
 - **别名管理**: 常用 Alias 集中在 `aliases.conf`，支持 pyenv 的动态加载检查。
+
+## 使用技巧
+
+### Git 增强 (forgit)
+使用了 `forgit` 插件，你可以通过以下命令获得极佳的交互体验：
+- `ga`: 交互式 `git add`，使用 fzf 选择文件，支持实时 diff 预览。
+- `glo`: 交互式 `git log`，支持搜索 commit 并预览详细改动。
+- `gd`: 交互式 `git diff`，快速查看当前工作区的修改。
+- `grh`: 交互式 `git reset HEAD`，选择性撤销暂存。
+
+### 历史搜索 (Atuin)
+- **插入模式下按 `↑`**: 唤起 Atuin 搜索界面。
+- **Ctrl + R**: 也可以唤起 Atuin 搜索。
+- 支持按时间、退出码、目录等多种维度筛选历史。
+
+### 自动补全 (fzf-tab)
+- 在输入命令参数时按 `Tab`，可以使用 fzf 菜单选择补全项，支持预览文件内容、目录结构甚至是环境变量。
 
 ## License
 MIT
