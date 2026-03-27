@@ -1,3 +1,4 @@
+-- nvim/lua/lazy.lua
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -14,6 +15,20 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local function ensure_lockfile(path)
+  local dir = vim.fn.fnamemodify(path, ":p:h")
+  vim.fn.mkdir(dir, "p")
+  if vim.fn.filereadable(path) == 0 then
+    pcall(vim.fn.writefile, { "{}" }, path)
+  end
+  return path
+end
+
+local lockfile = ensure_lockfile(vim.fn.stdpath("config") .. "/lazy-lock.json")
+if vim.fn.filewritable(lockfile) ~= 1 then
+  lockfile = ensure_lockfile(vim.fn.stdpath("state") .. "/lazy-lock.json")
+end
+
 require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
@@ -21,6 +36,10 @@ require("lazy").setup({
     -- import/override with your plugins
     { import = "plugins" },
   },
+  -- Force a concrete lockfile path to avoid nil/invalid values
+  lockfile = lockfile,
+  -- Don't open lockfile on startup
+  open = false,
   defaults = {
     -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
     -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.
@@ -34,6 +53,7 @@ require("lazy").setup({
   checker = {
     enabled = true, -- check for plugin updates periodically
     notify = false, -- notify on update
+    exclude = { "sbzr.nvim.im" },
   }, -- automatically check for plugin updates
   performance = {
     rtp = {

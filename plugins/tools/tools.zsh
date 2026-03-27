@@ -4,6 +4,18 @@ zi_cmd() {
   zinit light "$1"
 }
 
+# pyenv + pyenv-virtualenv
+export PYENV_ROOT="$HOME/.pyenv"
+if [ -d "$PYENV_ROOT" ]; then
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  if command -v pyenv >/dev/null 2>&1; then
+    eval "$(pyenv init -)"
+    if [[ -x "$PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init" ]]; then
+      eval "$($PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init -)"
+    fi
+  fi
+fi
+
 # 系统监控
 zi_cmd aristocratos/btop btop
 zi_cmd ClementTsang/bottom btm
@@ -43,8 +55,17 @@ zinit ice as"command" from"gh-r" mv"ripgrep-*/rg -> rg" pick"rg" sbin"rg"
 zinit light BurntSushi/ripgrep
 zi_cmd ajeetdsouza/zoxide zoxide
 # yazi 使用 musl 版本（静态链接，不依赖系统 GLIBC）
-zinit ice as"command" from"gh-r" bpick"*linux-musl.zip" mv"yazi-*/yazi -> yazi"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  zinit ice as"command" from"gh-r" bpick"*apple-darwin.zip" mv"yazi-*/yazi -> yazi"
+else
+  zinit ice as"command" from"gh-r" bpick"*linux-musl.zip" mv"yazi-*/yazi -> yazi"
+fi
 zinit light sxyazi/yazi
+# 初始化 yazi（仅首次）
+yazi_init_flag="${XDG_STATE_HOME:-$HOME/.local/state}/yazi/init.done"
+if [ ! -f "$yazi_init_flag" ] && [ -f ~/.dotfiles/config/yazi/init.sh ]; then
+  mkdir -p "${yazi_init_flag%/*}" && bash ~/.dotfiles/config/yazi/init.sh && touch "$yazi_init_flag"
+fi
 
 # fzf（使用系统安装的 fzf，这里只加载补全和键绑定）
 # zinit ice from"gh-r" as"command" bpick"*linux_arm64.tar.gz"
@@ -59,40 +80,22 @@ zi_cmd eza-community/eza eza
 zi_cmd bootandy/dust dust
 zi_cmd dalance/procs procs
 zi_cmd zellij-org/zellij zellij
+
+# direnv (GitHub release is a single binary)
+zinit ice as"command" from"gh-r" sbin"direnv"
+zinit light direnv/direnv
 # tig: 使用系统包管理器安装: sudo apt install tig 或从源码编译
 # superfile: 使用官方安装脚本: bash -c "$(curl -sLo- https://superfile.netlify.app/install.sh)"
 # 或者使用 x-cmd: x install superfile
 # mdcat: 使用 cargo 安装: cargo install mdcat
 # aws: 使用官方安装脚本: curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
 
-# atuin（单独处理，必须）
-# 根据操作系统选择不同的 mv 模式
+# atuin 只下载二进制，不再自动初始化（初始化在 plugins.zsh 中进行）
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS
-  zinit ice \
-    as"command" \
-    from"gh-r" \
-    bpick"atuin-.*-apple-darwin.tar.gz" \
-    mv"atuin-*-apple-darwin/atuin -> atuin" \
-    atclone"./atuin init zsh --disable-up-arrow > init.zsh" \
-    atpull"%atclone" \
-    src"init.zsh"
+  zinit ice as"command" from"gh-r" bpick"*apple-darwin*" mv"atuin-*/atuin -> atuin" pick"atuin"
 else
-  # Linux (x86_64 or aarch64)
-  # 针对不同架构做更精确的匹配
-  local atuin_arch="x86_64"
-  [[ "$(uname -m)" == "aarch64" ]] && atuin_arch="aarch64"
-
-  zinit ice \
-    as"command" \
-    from"gh-r" \
-    bpick"atuin-${atuin_arch}-unknown-linux-musl.tar.gz" \
-    mv"atuin-${atuin_arch}-unknown-linux-musl/atuin -> atuin" \
-    atclone"./atuin init zsh --disable-up-arrow > init.zsh" \
-    atpull"%atclone" \
-    src"init.zsh"
+  zinit ice as"command" from"gh-r" bpick"*unknown-linux-gnu*" mv"atuin-*/atuin -> atuin" pick"atuin"
 fi
-
 zinit light atuinsh/atuin
 
-
+# direnv (hook 已移至 zshrc)

@@ -3,10 +3,16 @@
 # confirmations, etc.) must go above this block; everything else may go below.
 # Set instant prompt to quiet to suppress warnings during zinit tool installation
 
-export PATH="$HOME/.opencode/bin:$HOME/.fzf/bin:$PATH"
+export PATH="$HOME/.fzf/bin:$PATH"
 
-export NVM_DIR="$HOME/.nvm"
-[[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
+# NVM 惰性加载（仅在需要时加载）
+load_nvm() {
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+}
+nvm() {
+    load_nvm && nvm "$@"
+}
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -16,6 +22,12 @@ fi
 source ~/.dotfiles/plugins/zinit/zinit.zsh
 source ~/.dotfiles/plugins/prompt/prompt.zsh
 source ~/.dotfiles/plugins/tools/tools.zsh
+
+# direnv hook
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
+
 # completion.zsh 必须在 plugins.zsh 之前加载，因为：
 # 1. compinit 需要在 fzf-tab 之前执行
 # 2. fzf-tab 需要在 zsh-autosuggestions 之前加载
@@ -60,6 +72,5 @@ fi
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-
-
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# opencode
+export PATH=$HOME/.opencode/bin:$PATH

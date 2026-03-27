@@ -1,3 +1,6 @@
+// Zellij Configuration
+
+
 keybinds clear-defaults=true {
     locked {
         bind "Ctrl g" { SwitchToMode "normal"; }
@@ -301,12 +304,12 @@ theme "dracula"
 // The name of the default layout to load on startup
 // Default: "default"
 // 
-// default_layout "compact"
+default_layout "default"
  
 // The folder in which Zellij will look for layouts
 // (Requires restart)
 // 
-// layout_dir "/tmp"
+layout_dir "~/.dotfiles/config/zellij/layouts"
  
 // The folder in which Zellij will look for themes
 // (Requires restart)
@@ -327,7 +330,9 @@ theme "dracula"
 //   - true (default, enabled)
 //   - false
 // 
-// pane_frames false
+
+// 恢复窗格时保留边框等外观
+pane_frames true
  
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)
@@ -410,7 +415,9 @@ theme "dracula"
 //   - true (default)
 //   - false
 // 
-// session_serialization false
+
+// 允许会话序列化到硬盘
+session_serialization true
  
 // Whether pane viewports are serialized along with the session, default is false
 // Options:
@@ -503,7 +510,7 @@ theme "dracula"
 // Whether to show tips on startup
 // Default: true
 // 
-// show_startup_tips false
+show_startup_tips false
  
 // Whether to show release notes on first version run
 // Default: true

@@ -1,26 +1,27 @@
 # 启用 AUTO_CD：输入目录路径时自动 cd
 setopt AUTO_CD
 
-# vim 模式（建议较早加载）
+# Atuin 历史搜索初始化
+if command -v atuin > /dev/null; then
+  eval "$(atuin init zsh)"
+fi
+
+# vim 模式（必须在 autosuggestions 之前加载，因为会影响键绑定）
 zinit light jeffreytse/zsh-vi-mode
 
-# Atuin 键绑定兼容逻辑 (在 zsh-vi-mode 初始化后重新绑定)
-function zvm_after_init() {
-  if command -v atuin > /dev/null; then
-    # 绑定上方向键触发 Atuin 历史记录搜索
-    bindkey '^[[A' atuin-up-search
-    bindkey '^[OA' atuin-up-search
-    # 在 Vi 插入模式下也启用
-    zvm_bindkey viins '^[[A' atuin-up-search
-    zvm_bindkey viins '^[OA' atuin-up-search
-  fi
-}
-
-# syntax highlighting（应在 autosuggestions 之前加载，但尽量靠后）
-zinit light zsh-users/zsh-syntax-highlighting
-
-# autosuggestions（应在 syntax highlighting 之后加载以获得最佳效果）
+# autosuggestions
 zinit light zsh-users/zsh-autosuggestions
+
+# 语法高亮（性能更好且更智能的 fast-syntax-highlighting）
+# 注意：必须放在插件列表的最后加载，以确保高亮所有命令
+zinit light zdharma-continuum/fast-syntax-highlighting
+
+# zsh-autopair: 自动补全括号、引号等 (IDE 般体验)
+zinit light hlissner/zsh-autopair
+
+# forgit: 用 fzf 玩转 Git (交互式 add, log, diff)
+zinit ice lucid wait="0"
+zinit load wfxr/forgit
 
 # sudo 插件（替代 OMZ sudo）
 zinit snippet OMZP::sudo
@@ -46,7 +47,19 @@ zinit light le0me55i/zsh-extract
 # git-open 插件：在浏览器中打开 Git 仓库页面
 zinit light paulirish/git-open
 
-# 必须在所有补全相关的插件加载后调用，以确保补全生效
-zinit cdreplay -q
+# history-substring-search（仅在 atuin 不可用时作为回退）
+zinit light zsh-users/zsh-history-substring-search
+# 兼容 zsh-vi-mode
+function zvm_after_init() {
+  if [[ -n "$widgets[atuin-up-search-viins]" ]]; then
+    # 绑定上方向键触发 Atuin 历史记录搜索
+    zvm_bindkey viins '^[[A' atuin-up-search
+    zvm_bindkey viins '^[OA' atuin-up-search
+  else
+    # history-substring-search（仅在 atuin 不可用时作为回退）
+    zvm_bindkey viins '^[[A' history-substring-search-up
+    zvm_bindkey viins '^[[B' history-substring-search-down
+  fi
+}
 
 

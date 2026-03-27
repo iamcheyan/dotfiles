@@ -111,7 +111,7 @@ ff() {
 # - 支持以单一完整参数（包含空格、中文标点等）作为精确搜索关键字
 # - 仅匹配含*整个*参数的行（整体匹配）
 rf() {
-    local initial_query sel file line
+    local initial_query out query sel file line vim_search
     if [[ $# -gt 0 ]]; then
         # 将所有参数拼接为一个完整字符串，允许混合各种空格和标点
         initial_query="$*"
@@ -119,29 +119,34 @@ rf() {
         initial_query=""
     fi
 
-    # 不对 initial_query 做任何拆分，直接整体传递给 rg
-    if [[ -n "$initial_query" ]]; then
-        sel=$(rg --line-number --no-heading --color=always -- "$initial_query" . | \
-            command fzf --ansi \
-                --bind 'tab:down' --bind 'btab:up' \
-                --delimiter ':' \
-                --prompt "RG (cwd: $(pwd))> " \
-                --preview 'bat --style=numbers --color=always {1} --highlight-line {2}' \
-                --preview-window 'right:60%') || return
-    else
-        sel=$(rg --line-number --no-heading --color=always . | \
-            command fzf --ansi \
-                --bind 'tab:down' --bind 'btab:up' \
-                --delimiter ':' \
-                --prompt "RG (cwd: $(pwd))> " \
-                --preview 'bat --style=numbers --color=always {1} --highlight-line {2}' \
-                --preview-window 'right:60%') || return
-    fi
+    out=$(rg --line-number --no-heading --color=always . | \
+        command fzf --ansi --print-query --query "$initial_query" \
+            --bind 'tab:down' --bind 'btab:up' \
+            --delimiter ':' \
+            --prompt "RG (cwd: $(pwd))> " \
+            --preview 'q={q}; f={1}; if [ -z "$f" ]; then exit 0; fi; if [ -n "$q" ]; then rg --smart-case --pretty --color=always --line-number --context=6 --colors "line:none" --colors "path:none" --colors "match:fg:white" --colors "match:bg:yellow" -- "$q" "$f" | awk '\''{ hl="\033[38;5;15m\033[48;5;236m"; line=$0; plain=$0; gsub(/\033\[[0-9;]*m/, "", plain); if (plain ~ /^[0-9]+:/) { gsub(/\033\[0m/, "\033[0m" hl, line); sub(/^(\033\[[0-9;]*m)+/, "", line); print hl line "\033[0m"; } else print line }'\''; else bat --style=numbers --color=always "$f" --highlight-line {2}; fi' \
+            --preview-window 'right:60%') || return
+
+    query=$(printf '%s\n' "$out" | sed -n '1p')
+    sel=$(printf '%s\n' "$out" | sed -n '2p')
+    [[ -z "$sel" ]] && return
 
     file="${sel%%:*}"
     line="${sel#*:}"
     line="${line%%:*}"
-    [[ -n "$file" && -n "$line" ]] && nvim +"$line" "$file"
+
+    if [[ -n "$file" && -n "$line" ]]; then
+        if [[ -n "$query" ]]; then
+            vim_search="${query//\\/\\\\}"
+            vim_search="${vim_search//\"/\\\"}"
+            nvim +"$line" \
+                +"let @/=\"\\\\V${vim_search}\" | set hlsearch" \
+                +"redraw | sleep 120m | set nohlsearch | redraw | sleep 80m | set hlsearch | redraw | sleep 80m | set nohlsearch | redraw | sleep 80m | set hlsearch" \
+                "$file"
+        else
+            nvim +"$line" "$file"
+        fi
+    fi
 }
 
 # ============================================
@@ -188,4 +193,3 @@ y() {
     rm -f "$tmp"
   fi
 }
-

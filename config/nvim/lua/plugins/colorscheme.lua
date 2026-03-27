@@ -2,8 +2,13 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "wildcharm",
+      colorscheme = "af",
+      -- colorscheme = "DimGreens",
     },
   },
-}
 
+  {
+    "flazz/vim-colorschemes",
+    lazy = false,
+  },
+}

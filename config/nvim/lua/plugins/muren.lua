@@ -1,6 +1,7 @@
 return {
   {
     "AckslD/muren.nvim",
+    enabled = false,
     config = true,
     -- 可选：自定义配置
     -- opts = {
@@ -23,4 +24,3 @@ return {
     -- },
   },
 }
-
