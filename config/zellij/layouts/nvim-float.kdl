@@ -1,0 +1,14 @@
+layout {
+    pane size=1 borderless=true {
+        plugin location="tab-bar"
+    }
+    pane
+    pane size=1 borderless=true {
+        plugin location="status-bar"
+    }
+    floating_panes {
+        pane x=0 y=0 width=100 height=100 {
+            command "nvim"
+        }
+    }
+}
