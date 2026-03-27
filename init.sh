@@ -304,6 +304,9 @@ install_direnv() {
 
     print_info "正在安装 direnv..."
 
+    local os_type="linux"
+    [[ "$OSTYPE" == "darwin"* ]] && os_type="darwin"
+
     local arch
     if [[ "$(uname -m)" == "x86_64" ]]; then
         arch="amd64"
@@ -316,11 +319,11 @@ install_direnv() {
 
     local version=$(curl -sL https://api.github.com/repos/direnv/direnv/releases/latest 2>/dev/null | grep '"tag_name"' | sed 's/.*v\([0-9.]*\).*/\1/')
     if [[ -z "$version" ]]; then
-        version="2.37.1"
+        version="2.35.0"
     fi
 
     mkdir -p "$HOME/.local/bin"
-    if curl -sL "https://github.com/direnv/direnv/releases/download/v${version}/direnv.linux-${arch}" -o "$direnv_bin"; then
+    if curl -sL "https://github.com/direnv/direnv/releases/download/v${version}/direnv.${os_type}-${arch}" -o "$direnv_bin"; then
         chmod +x "$direnv_bin"
         print_success "direnv 安装成功: v$($direnv_bin --version)"
     else

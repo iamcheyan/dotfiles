@@ -55,7 +55,11 @@ zinit ice as"command" from"gh-r" mv"ripgrep-*/rg -> rg" pick"rg" sbin"rg"
 zinit light BurntSushi/ripgrep
 zi_cmd ajeetdsouza/zoxide zoxide
 # yazi 使用 musl 版本（静态链接，不依赖系统 GLIBC）
-zinit ice as"command" from"gh-r" bpick"*linux-musl.zip" mv"yazi-*/yazi -> yazi"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  zinit ice as"command" from"gh-r" bpick"*apple-darwin.zip" mv"yazi-*/yazi -> yazi"
+else
+  zinit ice as"command" from"gh-r" bpick"*linux-musl.zip" mv"yazi-*/yazi -> yazi"
+fi
 zinit light sxyazi/yazi
 # 初始化 yazi（仅首次）
 yazi_init_flag="${XDG_STATE_HOME:-$HOME/.local/state}/yazi/init.done"
