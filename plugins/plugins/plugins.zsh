@@ -1,5 +1,11 @@
 # 启用 AUTO_CD：输入目录路径时自动 cd
 setopt AUTO_CD
+
+# Atuin 历史搜索初始化
+if command -v atuin > /dev/null; then
+  eval "$(atuin init zsh)"
+fi
+
 # vim 模式（必须在 autosuggestions 之前加载，因为会影响键绑定）
 zinit light jeffreytse/zsh-vi-mode
 
@@ -45,7 +51,12 @@ zinit light paulirish/git-open
 zinit light zsh-users/zsh-history-substring-search
 # 兼容 zsh-vi-mode
 function zvm_after_init() {
-  if [[ -z "$widgets[atuin-up-search-viins]" ]]; then
+  if [[ -n "$widgets[atuin-up-search-viins]" ]]; then
+    # 绑定上方向键触发 Atuin 历史记录搜索
+    zvm_bindkey viins '^[[A' atuin-up-search
+    zvm_bindkey viins '^[OA' atuin-up-search
+  else
+    # history-substring-search（仅在 atuin 不可用时作为回退）
     zvm_bindkey viins '^[[A' history-substring-search-up
     zvm_bindkey viins '^[[B' history-substring-search-down
   fi
