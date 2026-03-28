@@ -21,23 +21,29 @@ fi
 
 source ~/.dotfiles/plugins/zinit/zinit.zsh
 source ~/.dotfiles/plugins/prompt/prompt.zsh
+
+# 核心工具同步加载
 source ~/.dotfiles/plugins/tools/tools.zsh
 
-# direnv hook
+# 补全系统同步加载（确保按 Tab 即刻可用）
+source ~/.dotfiles/plugins/completion/completion.zsh
+
+# 其他增强插件异步加载（wait 0 表示在 prompt 出现后立即在后台加载）
+# 这可以显著提升交互响应速度
+zinit ice wait"0" lucid
+zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh
+
+# fzf 配置（异步加载）
+zinit ice wait"0" lucid
+zinit snippet ~/.dotfiles/plugins/fzf/fzf.zsh
+
+# direnv hook (异步加载以避免启动阻塞)
 if command -v direnv >/dev/null 2>&1; then
-  eval "$(direnv hook zsh)"
+  zinit ice wait"0" lucid atload'eval "$(direnv hook zsh)"'
+  zinit light zdharma-continuum/null
 fi
 
-# completion.zsh 必须在 plugins.zsh 之前加载，因为：
-# 1. compinit 需要在 fzf-tab 之前执行
-# 2. fzf-tab 需要在 zsh-autosuggestions 之前加载
-source ~/.dotfiles/plugins/completion/completion.zsh
-source ~/.dotfiles/plugins/plugins/plugins.zsh
-
-# fzf 配置（需要在 tools.zsh 之后加载，因为 fzf 二进制需要先安装）
-[[ -f ~/.dotfiles/plugins/fzf/fzf.zsh ]] && source ~/.dotfiles/plugins/fzf/fzf.zsh
-
-# superfile 配置（自动安装功能）
+# superfile 配置
 [[ -f ~/.dotfiles/plugins/spf/superfile.zsh ]] && source ~/.dotfiles/plugins/spf/superfile.zsh
 
 [[ -f ~/.dotfiles/plugins/local/local.zsh ]] && source ~/.dotfiles/plugins/local/local.zsh
