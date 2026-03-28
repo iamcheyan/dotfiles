@@ -31,6 +31,27 @@ source ~/.dotfiles/plugins/completion/completion.zsh
 # 同步加载 evalcache，供后面的 init 使用
 zinit light mroth/evalcache
 
+# 同步加载 zsh-vi-mode (确保光标状态立即生效)
+# 必须在 autosuggestions 之前加载
+zinit ice lucid
+zinit light jeffreytse/zsh-vi-mode
+
+# 同步加载历史记录子串搜索（回退方案）
+zinit ice lucid
+zinit light zsh-users/zsh-history-substring-search
+
+# 配置 zsh-vi-mode
+export ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT  # 每次新行开始默认进入插入模式
+function zvm_after_init() {
+  if [[ -n "$widgets[atuin-up-search-viins]" ]]; then
+    zvm_bindkey viins '^[[A' atuin-up-search
+    zvm_bindkey viins '^[OA' atuin-up-search
+  else
+    zvm_bindkey viins '^[[A' history-substring-search-up
+    zvm_bindkey viins '^[[B' history-substring-search-down
+  fi
+}
+
 # 其他增强插件异步加载（wait 0 表示在 prompt 出现后立即在后台加载）
 zinit ice wait"0" lucid
 zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh
