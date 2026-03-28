@@ -38,20 +38,32 @@ zi_cmd theryangeary/choose choose
 zi_cmd charmbracelet/glow glow
 # tealdeer: 高性能 tldr 客户端
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  zinit ice as"command" from"gh-r" bpick"tealdeer-macos-arm64|tealdeer-apple-darwin" mv"tealdeer* -> tldr" pick"tldr"
+  # macOS (arm64 or x86_64)
+  local tldr_arch="aarch64"
+  [[ "$(uname -m)" == "x86_64" ]] && tldr_arch="x86_64"
+  zinit ice as"command" from"gh-r" bpick"tealdeer-macos-${tldr_arch}" mv"tealdeer* -> tldr" pick"tldr"
 else
-  zinit ice as"command" from"gh-r" bpick"tealdeer-linux-x86_64-musl" mv"tealdeer* -> tldr" pick"tldr"
+  # Linux (x86_64 or aarch64)
+  local tldr_arch="x86_64"
+  [[ "$(uname -m)" == "aarch64" ]] && tldr_arch="aarch64"
+  zinit ice as"command" from"gh-r" bpick"tealdeer-linux-${tldr_arch}-musl" mv"tealdeer* -> tldr" pick"tldr"
 fi
-zinit light dbrgn/tealdeer
+zinit light tealdeer-rs/tealdeer
 
 # 网络工具
 zi_cmd ducaale/xh xh
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  zinit ice as"command" from"gh-r" bpick"*apple-darwin.tar.gz" mv"gping*/gping -> gping" pick"gping"
+  # macOS (arm64 or x86_64)
+  local gping_arch="arm64"
+  [[ "$(uname -m)" == "x86_64" ]] && gping_arch="x86_64"
+  zinit ice as"command" from"gh-r" bpick"gping-macOS-${gping_arch}.tar.gz" pick"gping"
 else
-  zinit ice as"command" from"gh-r" bpick"*unknown-linux-musl.tar.gz" mv"gping*/gping -> gping" pick"gping"
+  # Linux (x86_64 or aarch64)
+  local gping_arch="x86_64"
+  [[ "$(uname -m)" == "aarch64" ]] && gping_arch="arm64"
+  zinit ice as"command" from"gh-r" bpick"gping-Linux-musl-${gping_arch}.tar.gz" pick"gping"
 fi
-zinit light orhun/gping
+zinit light orf/gping
 # dog: 没有 arm64 版本，使用系统包管理器安装: sudo apt install dog
 # zi_cmd ogham/dog dog
 # httpie: 使用 pip 安装: pip install httpie
