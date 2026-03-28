@@ -37,11 +37,21 @@ zi_cmd chmln/sd sd
 zi_cmd theryangeary/choose choose
 zi_cmd charmbracelet/glow glow
 # tealdeer: 高性能 tldr 客户端
-zi_cmd dbrgn/tealdeer tldr
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  zinit ice as"command" from"gh-r" bpick"tealdeer-macos-arm64|tealdeer-apple-darwin" mv"tealdeer* -> tldr" pick"tldr"
+else
+  zinit ice as"command" from"gh-r" bpick"tealdeer-linux-x86_64-musl" mv"tealdeer* -> tldr" pick"tldr"
+fi
+zinit light dbrgn/tealdeer
 
 # 网络工具
 zi_cmd ducaale/xh xh
-zi_cmd orhun/gping gping
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  zinit ice as"command" from"gh-r" bpick"*apple-darwin.tar.gz" mv"gping*/gping -> gping" pick"gping"
+else
+  zinit ice as"command" from"gh-r" bpick"*unknown-linux-musl.tar.gz" mv"gping*/gping -> gping" pick"gping"
+fi
+zinit light orhun/gping
 # dog: 没有 arm64 版本，使用系统包管理器安装: sudo apt install dog
 # zi_cmd ogham/dog dog
 # httpie: 使用 pip 安装: pip install httpie
