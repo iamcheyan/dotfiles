@@ -50,9 +50,6 @@ zinit light paulirish/git-open
 # colored-man-pages: 彩色帮助手册
 zinit snippet OMZP::colored-man-pages
 
-# zsh-evalcache: 缓存 eval 命令结果以加速启动
-zinit light mroth/zsh-evalcache
-
 # zsh-bd: 快速回到上级目录 (bd 目录名)
 zinit light Tarrasch/zsh-bd
 
