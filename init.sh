@@ -159,11 +159,11 @@ install_zinit() {
 install_essentials() {
     print_info "检查基础工具..."
     
-    local common_packages="git curl wget unzip git-extras"
-    local debian_packages="build-essential ripgrep fd-find bat lsd zoxide translate-shell glow mdcat"
-    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find bat lsd zoxide translate-shell glow mdcat"
-    local arch_packages="base-devel ripgrep fd bat lsd zoxide translate-shell glow mdcat"
-    local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat viu"
+    local common_packages="git curl wget unzip git-extras ffmpeg"
+    local debian_packages="build-essential ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp"
+    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp"
+    local arch_packages="base-devel ripgrep fd bat lsd zoxide translate-shell glow mdcat yt-dlp"
+    local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat viu yt-dlp"
 
     OS=$(detect_os)
     if [[ "$OS" == "debian" ]]; then
