@@ -291,6 +291,12 @@ theme "dracula"
 // Default: normal
 // 
 // default_mode "locked"
+
+// 允许鼠标操作（方便缩放窗格）
+mouse_mode true
+
+// 使用简化 UI（更干净）
+simplified_ui true
  
 // Choose the path to the default shell that zellij will use for opening new panes
 // Default: $SHELL
