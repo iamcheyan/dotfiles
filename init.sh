@@ -163,7 +163,7 @@ install_essentials() {
     local debian_packages="build-essential ripgrep fd-find bat lsd zoxide translate-shell glow mdcat"
     local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find bat lsd zoxide translate-shell glow mdcat"
     local arch_packages="base-devel ripgrep fd bat lsd zoxide translate-shell glow mdcat"
-    local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat"
+    local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat viu"
 
     OS=$(detect_os)
     if [[ "$OS" == "debian" ]]; then
