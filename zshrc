@@ -28,8 +28,8 @@ source ~/.dotfiles/plugins/tools/tools.zsh
 # 补全系统同步加载（确保按 Tab 即刻可用）
 source ~/.dotfiles/plugins/completion/completion.zsh
 
-# 同步加载 zsh-evalcache，供后面的 init 使用
-zinit light mroth/zsh-evalcache
+# 同步加载 evalcache，供后面的 init 使用
+zinit light mroth/evalcache
 
 # 其他增强插件异步加载（wait 0 表示在 prompt 出现后立即在后台加载）
 zinit ice wait"0" lucid
