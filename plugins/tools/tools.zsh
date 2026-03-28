@@ -36,11 +36,12 @@ zi_cmd mikefarah/yq yq
 zi_cmd chmln/sd sd
 zi_cmd theryangeary/choose choose
 zi_cmd charmbracelet/glow glow
-# tealdeer: GitHub releases 不可用，使用系统包管理器安装: sudo apt install tealdeer
-# zi_cmd dbrgn/tealdeer tldr
+# tealdeer: 高性能 tldr 客户端
+zi_cmd dbrgn/tealdeer tldr
 
 # 网络工具
 zi_cmd ducaale/xh xh
+zi_cmd orhun/gping gping
 # dog: 没有 arm64 版本，使用系统包管理器安装: sudo apt install dog
 # zi_cmd ogham/dog dog
 # httpie: 使用 pip 安装: pip install httpie
