@@ -37,10 +37,19 @@ zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh
 zinit ice wait"0" lucid
 zinit snippet ~/.dotfiles/plugins/fzf/fzf.zsh
 
-# direnv hook (异步加载以避免启动阻塞)
+# Atuin 历史搜索初始化 (使用 evalcache 缓存以加速启动)
+if command -v atuin > /dev/null; then
+  _evalcache atuin init zsh
+fi
+
+# zoxide 初始化 (使用 evalcache)
+if command -v zoxide > /dev/null; then
+  _evalcache zoxide init zsh
+fi
+
+# direnv hook (使用 evalcache)
 if command -v direnv >/dev/null 2>&1; then
-  zinit ice wait"0" lucid atload'eval "$(direnv hook zsh)"'
-  zinit light zdharma-continuum/null
+  _evalcache direnv hook zsh
 fi
 
 # superfile 配置
