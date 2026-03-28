@@ -153,6 +153,11 @@ keybinds clear-defaults=true {
         bind "Alt j" { MoveFocus "down"; }
         bind "Alt k" { MoveFocus "up"; }
         bind "Alt l" { MoveFocusOrTab "right"; }
+        bind "Alt s" {
+            LaunchOrFocusPlugin "file:~/.dotfiles/config/zellij/plugins/monocle.wasm" {
+                floating true
+            }
+        }
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
@@ -250,6 +255,15 @@ keybinds clear-defaults=true {
 // Plugin aliases - can be used to change the implementation of Zellij
 // changing these requires a restart to take effect
 plugins {
+    zj-status location="file:~/.dotfiles/config/zellij/plugins/zj-status.wasm"
+    monocle location="file:~/.dotfiles/config/zellij/plugins/monocle.wasm"
+    autolock location="file:~/.dotfiles/config/zellij/plugins/zellij-autolock.wasm" {
+        // 当运行这些程序时自动锁定
+        triggers "nvim|vim|vi|git|lazygit"
+        // 锁定后使用的模式 (默认为 locked)
+        lock_to_mode "locked"
+    }
+    
     about location="zellij:about"
     compact-bar location="zellij:compact-bar"
     configuration location="zellij:configuration"
@@ -270,6 +284,7 @@ plugins {
 // eg. "file:/path/to/my-plugin.wasm"
 // eg. "https://example.com/my-plugin.wasm"
 load_plugins {
+    "file:~/.dotfiles/config/zellij/plugins/zellij-autolock.wasm"
 }
 web_client {
     font "monospace"
