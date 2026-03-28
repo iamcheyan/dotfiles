@@ -47,6 +47,18 @@ zinit light le0me55i/zsh-extract
 # git-open 插件：在浏览器中打开 Git 仓库页面
 zinit light paulirish/git-open
 
+# colored-man-pages: 彩色帮助手册
+zinit snippet OMZP::colored-man-pages
+
+# zsh-evalcache: 缓存 eval 命令结果以加速启动
+zinit light mroth/zsh-evalcache
+
+# zsh-bd: 快速回到上级目录 (bd 目录名)
+zinit light Tarrasch/zsh-bd
+
+# zsh-navigation-tools: 交互式导航工具集 (n-list, n-panelize 等)
+zinit light zdharma-continuum/zsh-navigation-tools
+
 # history-substring-search（仅在 atuin 不可用时作为回退）
 zinit light zsh-users/zsh-history-substring-search
 # 兼容 zsh-vi-mode

@@ -662,6 +662,29 @@ install_fonts() {
     fi
 }
 
+# 初始化 Yazi 配置
+install_yazi_config() {
+    local install_script="${DOTFILES_DIR:-$HOME/.dotfiles}/config/yazi/init.sh"
+    if [[ -f "$install_script" ]]; then
+        print_info "正在初始化 Yazi 配置..."
+        chmod +x "$install_script"
+        bash "$install_script"
+    else
+        print_warning "未找到 Yazi 初始化脚本: $install_script"
+    fi
+}
+
+# 优化 Rime 词库权重 (长度优先)
+reweight_rime_dicts() {
+    local reweight_script="${DOTFILES_DIR:-$HOME/.dotfiles}/rime/scripts/reweight_dicts.py"
+    if [[ -f "$reweight_script" ]]; then
+        print_info "正在优化 Rime 词库权重 (长度优先)..."
+        python3 "$reweight_script"
+    else
+        print_warning "未找到 Rime 权重优化脚本: $reweight_script"
+    fi
+}
+
 # 主函数
 main() {
     echo -e "${BLUE}"
@@ -693,72 +716,80 @@ EOF
     echo ""
 
     # 检测并设置 dotfiles 目录
-    print_info "步骤 1/13: 检测 dotfiles 仓库位置"
+    print_info "步骤 1/15: 检测 dotfiles 仓库位置"
     if ! detect_dotfiles_dir; then
         exit 1
     fi
     echo ""
 
-
-
     # 1. 安装 zsh
-    print_info "步骤 2/11: 检查并安装 zsh"
+    print_info "步骤 2/15: 检查并安装 zsh"
     install_zsh
     echo ""
 
     # 2. 安装基础工具
-    print_info "步骤 3/13: 安装基础工具 (git, curl, build-essential, etc.)"
+    print_info "步骤 3/15: 安装基础工具 (git, curl, build-essential, etc.)"
     install_essentials
     echo ""
 
     # 3. 安装 zinit
-    print_info "步骤 4/13: 检查并安装 zinit"
+    print_info "步骤 4/15: 检查并安装 zinit"
     install_zinit
     echo ""
 
     # 4. 安装 pyenv
-    print_info "步骤 5/13: 检查并安装 pyenv"
+    print_info "步骤 5/15: 检查并安装 pyenv"
     install_pyenv
     echo ""
 
     # 5. 安装 nvm
-    print_info "步骤 6/13: 检查并安装 nvm"
+    print_info "步骤 6/15: 检查并安装 nvm"
     install_nvm
     echo ""
 
     # 6. 安装 fzf
-    print_info "步骤 7/13: 检查并安装 fzf"
+    print_info "步骤 7/15: 检查并安装 fzf"
     install_fzf
     echo ""
 
     # 7. 安装 direnv
-    print_info "步骤 8/13: 检查并安装 direnv"
+    print_info "步骤 8/15: 检查并安装 direnv"
     install_direnv
     echo ""
 
     # 8. 创建 Dotfiles 软链接（如果不存在）
-    print_info "步骤 9/13: 创建 Dotfiles 软链接"
+    print_info "步骤 9/15: 创建 Dotfiles 软链接"
     create_dotfiles_link
     echo ""
 
     # 9. 使用 dotlink 创建配置文件软链接
-    print_info "步骤 10/13: 使用 dotlink 创建配置文件软链接"
+    print_info "步骤 10/15: 使用 dotlink 创建配置文件软链接"
     run_dotlink
     echo ""
 
     # 10. 创建 .zshrc 软链接
-    print_info "步骤 11/13: 创建 .zshrc 软链接"
+    print_info "步骤 11/15: 创建 .zshrc 软链接"
     create_zshrc_link
     echo ""
 
     # 11. 安装 Neovim
-    print_info "步骤 12/13: 安装 Neovim"
+    print_info "步骤 12/15: 安装 Neovim"
     install_neovim
     echo ""
 
     # 12. 安装字体
-    print_info "步骤 13/13: 安装字体"
+    print_info "步骤 13/15: 安装字体"
     install_fonts
+    echo ""
+
+    # 13. 初始化 Yazi 配置
+    print_info "步骤 14/15: 初始化 Yazi 配置"
+    install_yazi_config
+    echo ""
+
+    # 14. 优化 Rime 词库权重
+    print_info "步骤 15/15: 优化 Rime 词库权重"
+    reweight_rime_dicts
     echo ""
 
     # 完成提示

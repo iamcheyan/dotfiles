@@ -153,6 +153,5 @@ clean_path() {
     echo "PATH 已清理，从 $original_count 个路径减少到 $count 个唯一路径"
 }
 
-# zoxide
-eval "$(zoxide init zsh)"
+# zinit 插件目录管理和 PATH 清理函数已定义
 
