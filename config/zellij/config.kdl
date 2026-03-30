@@ -153,11 +153,6 @@ keybinds clear-defaults=true {
         bind "Alt j" { MoveFocus "down"; }
         bind "Alt k" { MoveFocus "up"; }
         bind "Alt l" { MoveFocusOrTab "right"; }
-        bind "Alt s" {
-            LaunchOrFocusPlugin "file:~/.dotfiles/config/zellij/plugins/monocle.wasm" {
-                floating true
-            }
-        }
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
@@ -255,15 +250,6 @@ keybinds clear-defaults=true {
 // Plugin aliases - can be used to change the implementation of Zellij
 // changing these requires a restart to take effect
 plugins {
-    zj-status location="file:~/.dotfiles/config/zellij/plugins/zj-status.wasm"
-    monocle location="file:~/.dotfiles/config/zellij/plugins/monocle.wasm"
-    autolock location="file:~/.dotfiles/config/zellij/plugins/zellij-autolock.wasm" {
-        // 当运行这些程序时自动锁定
-        triggers "nvim|vim|vi|git|lazygit"
-        // 锁定后使用的模式 (默认为 locked)
-        lock_to_mode "locked"
-    }
-    
     about location="zellij:about"
     compact-bar location="zellij:compact-bar"
     configuration location="zellij:configuration"
@@ -279,13 +265,6 @@ plugins {
         welcome_screen true
     }
 }
-
-// Plugins to load in the background when a new session starts
-// eg. "file:/path/to/my-plugin.wasm"
-// eg. "https://example.com/my-plugin.wasm"
-load_plugins {
-    "file:~/.dotfiles/config/zellij/plugins/zellij-autolock.wasm"
-}
 web_client {
     font "monospace"
 }
@@ -296,10 +275,8 @@ web_client {
 //   - false (Default)
 // 
 // simplified_ui true
- 
-// Choose the theme that is specified in the themes section.
-// Default: default
-// 
+
+// 恢复原来使用的主题
 theme "dracula"
  
 // Choose the base input mode of zellij.
@@ -307,10 +284,9 @@ theme "dracula"
 // 
 // default_mode "locked"
 
-// 允许鼠标操作（方便缩放窗格）
+// 恢复鼠标交互
 mouse_mode true
-
-// 使用简化 UI（更干净）
+// 恢复完整 UI
 simplified_ui false
  
 // Choose the path to the default shell that zellij will use for opening new panes
@@ -321,16 +297,9 @@ simplified_ui false
 // Choose the path to override cwd that zellij will use for opening new panes
 // 
 // default_cwd "/tmp"
- 
-// The name of the default layout to load on startup
-// Default: "default"
-// 
-default_layout "default"
- 
-// The folder in which Zellij will look for layouts
-// (Requires restart)
-// 
-layout_dir "~/.dotfiles/config/zellij/layouts"
+
+// 强制使用内建布局，避免拾取 ~/.config/zellij/layouts/default.kdl
+default_layout "compact"
  
 // The folder in which Zellij will look for themes
 // (Requires restart)
@@ -540,7 +509,7 @@ show_startup_tips false
  
 // Whether to enable mouse hover effects and pane grouping functionality
 // default is true
-// advanced_mouse_actions false
+advanced_mouse_actions true
  
 // The ip address the web server should listen on when it starts
 // Default: "127.0.0.1"

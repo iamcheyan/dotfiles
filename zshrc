@@ -5,6 +5,9 @@
 
 export PATH="$HOME/.fzf/bin:$PATH"
 
+# 启用 AUTO_CD：输入目录路径时自动 cd
+setopt AUTO_CD
+
 # NVM 惰性加载（仅在需要时加载）
 load_nvm() {
     export NVM_DIR="$HOME/.nvm"
@@ -19,24 +22,43 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# zinit: 插件管理器，负责下载、缓存和加载后面的 zsh 插件/命令
 source ~/.dotfiles/plugins/zinit/zinit.zsh
+
+# powerlevel10k: 提示符主题，显示目录、Git 状态和环境信息
 source ~/.dotfiles/plugins/prompt/prompt.zsh
 
-# 核心工具同步加载
+# 核心工具集合：通过 zinit 安装命令行工具，并初始化 pyenv/direnv/atuin 等 shell 集成
 source ~/.dotfiles/plugins/tools/tools.zsh
 
-# 补全系统同步加载（确保按 Tab 即刻可用）
+# 补全系统：初始化 compinit、额外补全定义和 fzf-tab 补全界面
 source ~/.dotfiles/plugins/completion/completion.zsh
 
-# 同步加载 evalcache，供后面的 init 使用
+# evalcache: 缓存 init 脚本输出，减少 atuin/zoxide/direnv 这类 hook 的重复开销
 zinit light mroth/evalcache
 
-# 同步加载 zsh-vi-mode (确保光标状态立即生效)
-# 必须在 autosuggestions 之前加载
+# 自动补全
+zinit light zsh-users/zsh-autosuggestions
+
+# zsh-autopair: 自动补全括号、引号等
+zinit light hlissner/zsh-autopair
+
+# zsh-navigation-tools: 交互式导航工具集，需要同步注册到 fpath/autoload
+# 否则 ncd / nkill / nhistory 在新 shell 里可能在异步加载完成前不可用
+zinit light zdharma-continuum/zsh-navigation-tools
+typeset -g ZNT_PLUGIN_DIR="${HOME}/.zinit/plugins/zdharma-continuum---zsh-navigation-tools"
+if [[ -d "$ZNT_PLUGIN_DIR" ]]; then
+  fpath+=("$ZNT_PLUGIN_DIR")
+  source "$ZNT_PLUGIN_DIR/zsh-navigation-tools.plugin.zsh"
+fi
+
+# zsh-vi-mode: 为命令行编辑提供 Vim 模式和模式切换
+# 必须在 autosuggestions 之前加载，避免按键绑定冲突
 zinit ice lucid
 zinit light jeffreytse/zsh-vi-mode
 
-# 同步加载历史记录子串搜索（回退方案）
+# zsh-history-substring-search: 根据当前已输入前缀，用上下键搜索历史
+# 这里作为 atuin 上下键搜索不可用时的回退方案
 zinit ice lucid
 zinit light zsh-users/zsh-history-substring-search
 
@@ -52,33 +74,39 @@ function zvm_after_init() {
   fi
 }
 
-# 其他增强插件异步加载（wait 0 表示在 prompt 出现后立即在后台加载）
+# 其他增强插件集合：autosuggestions、语法高亮、autopair、forgit 等
+# wait"0" 表示提示符出现后再异步加载，降低启动阻塞
 zinit ice wait"0" lucid
 zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh
 
-# fzf 配置（异步加载）
+# fzf 相关函数和默认选项：ff/rf/zd/zc/y 等交互工具
+# 也放到异步阶段，避免阻塞 shell 启动
 zinit ice wait"0" lucid
 zinit snippet ~/.dotfiles/plugins/fzf/fzf.zsh
 
-# Atuin 历史搜索初始化 (使用 evalcache 缓存以加速启动)
+# atuin: 增强版 shell 历史，支持更强的搜索和历史同步
+# 这里初始化 shell hook，并用 evalcache 缓存其输出
 if command -v atuin > /dev/null; then
   _evalcache atuin init zsh
 fi
 
-# zoxide 初始化 (使用 evalcache)
+# zoxide: 智能目录跳转，替代传统 cd 记忆能力较弱的问题
+# 这里初始化 shell hook，并用 evalcache 缓存其输出
 if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
 fi
 
-# direnv hook (使用 evalcache)
-if command -v direnv >/dev/null 2>&1; then
-  _evalcache direnv hook zsh
-fi
+# direnv: 进入目录时自动加载/卸载环境变量
+# 这里初始化 shell hook，并用 evalcache 缓存其输出
+# if command -v direnv >/dev/null 2>&1; then
+#   _evalcache direnv hook zsh
+# fi
 
-# superfile 配置
-[[ -f ~/.dotfiles/plugins/spf/superfile.zsh ]] && source ~/.dotfiles/plugins/spf/superfile.zsh
+# superfile: 文件管理器的 shell 集成；存在本地配置时才加载
+# [[ -f ~/.dotfiles/plugins/spf/superfile.zsh ]] && source ~/.dotfiles/plugins/spf/superfile.zsh
 
-[[ -f ~/.dotfiles/plugins/local/local.zsh ]] && source ~/.dotfiles/plugins/local/local.zsh
+# local.zsh: 机器本地专用配置，不同机器可以放不同逻辑
+# [[ -f ~/.dotfiles/plugins/local/local.zsh ]] && source ~/.dotfiles/plugins/local/local.zsh
 
 # vi 别名：优先使用 nvim，其次 vim，最后 vi
 vi() {
@@ -106,9 +134,6 @@ fi
 
 # 加载别名配置
 [[ -f ~/.dotfiles/aliases.conf ]] && source ~/.dotfiles/aliases.conf
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # opencode
 export PATH=$HOME/.opencode/bin:$PATH
