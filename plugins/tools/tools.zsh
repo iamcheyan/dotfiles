@@ -107,18 +107,17 @@ zi_cmd zellij-org/zellij zellij
 # direnv (GitHub release is a single binary)
 zinit ice as"command" from"gh-r" sbin"direnv"
 zinit light direnv/direnv
+
 # tig: 使用系统包管理器安装: sudo apt install tig 或从源码编译
 # superfile: 使用官方安装脚本: bash -c "$(curl -sLo- https://superfile.netlify.app/install.sh)"
 # 或者使用 x-cmd: x install superfile
 # mdcat: 使用 cargo 安装: cargo install mdcat
 # aws: 使用官方安装脚本: curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
 
-# atuin 只下载二进制，不再自动初始化（初始化在 plugins.zsh 中进行）
+# atuin 只下载二进制，不再自动初始化（初始化在 zshrc 中进行）
 if [[ "$OSTYPE" == "darwin"* ]]; then
   zinit ice as"command" from"gh-r" bpick"*apple-darwin*" mv"atuin-*/atuin -> atuin" pick"atuin"
 else
   zinit ice as"command" from"gh-r" bpick"*unknown-linux-gnu*" mv"atuin-*/atuin -> atuin" pick"atuin"
 fi
 zinit light atuinsh/atuin
-
-# direnv (hook 已移至 zshrc)

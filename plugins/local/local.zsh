@@ -50,17 +50,4 @@ if [[ -o interactive ]] && [ -t 0 ]; then
     fi
 fi
 
-# ============================================
-# nvm (Node Version Manager) 配置
-# ============================================
-
-# 自动加载 nvm（如果已安装）
-if [[ -s "$HOME/.nvm/nvm.sh" ]]; then
-    export NVM_DIR="$HOME/.nvm"
-    # 使用 source 加载 nvm（兼容 zsh 和 bash）
-    # 重定向警告信息到 /dev/null，避免触发 Powerlevel10k instant prompt 警告
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 2>/dev/null
-    # 加载 bash completion（如果存在）
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 2>/dev/null
-fi
-
+# nvm 使用 zshrc 中定义的惰性加载，不在这里同步 source。

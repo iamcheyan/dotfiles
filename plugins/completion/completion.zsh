@@ -11,15 +11,10 @@ zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcach
 # 必须在 compinit 之后加载，但在 zsh-autosuggestions 之前加载
 zinit light Aloxaf/fzf-tab
 
-# ============================================
-# fzf-tab 配置
-# ============================================
-
 # 禁用某些命令的排序（如 git checkout）
 zstyle ':completion:*:git-checkout:*' sort false
 
 # 设置描述格式以启用分组支持
-# 注意：不要使用转义序列（如 '%F{red}%d%f'），fzf-tab 会忽略它们
 zstyle ':completion:*:descriptions' format '[%d]'
 
 # 设置列表颜色以启用文件名着色
@@ -154,4 +149,3 @@ clean_path() {
 }
 
 # zinit 插件目录管理和 PATH 清理函数已定义
-
