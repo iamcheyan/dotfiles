@@ -51,6 +51,9 @@ return {
           preview = { border = "single" },
         },
         sources = {
+          files = {
+            hidden = true,
+          },
           grep = {
             args = { "--no-messages" },
           },
