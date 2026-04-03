@@ -51,3 +51,45 @@ if [[ -o interactive ]] && [ -t 0 ]; then
 fi
 
 # nvm 使用 zshrc 中定义的惰性加载，不在这里同步 source。
+
+# nvim 启动分流：
+#   nvim          -> 保持原始启动行为
+#   nvim .        -> 打开当前目录
+#   nvim <path>   -> 路径存在时直接打开
+#   nvim <query>  -> 路径不存在时，用 snacks files picker 预填 query
+nvim() {
+    if [[ ! -t 0 ]]; then
+        command nvim "$@"
+        return
+    fi
+
+    if [[ $# -eq 0 ]]; then
+        command nvim
+        return
+    fi
+
+    if [[ $# -ne 1 ]]; then
+        command nvim "$@"
+        return
+    fi
+
+    local target="$1"
+
+    case "$target" in
+        ".")
+            command nvim .
+            ;;
+        -|-*|+*)
+            command nvim "$target"
+            ;;
+        *)
+            if [[ -e "$target" ]]; then
+                command nvim "$target"
+            else
+                NVIM_PICKER_FILE_QUERY="$target" command nvim \
+                    --cmd 'let g:started_with_stdin = 1' \
+                    +'lua vim.schedule(function() local q = vim.env.NVIM_PICKER_FILE_QUERY; if q and q ~= "" then require("snacks").picker.files({ search = q }) end end)'
+            fi
+            ;;
+    esac
+}
