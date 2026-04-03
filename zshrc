@@ -135,7 +135,8 @@ fi
 # 加载别名配置
 [[ -f ~/.dotfiles/aliases.conf ]] && source ~/.dotfiles/aliases.conf
 
-# opencode
-export PATH=$HOME/.opencode/bin:$PATH
+# opencode: 从 PATH 中移除，只允许通过 oc 调用
+path=(${path:#$HOME/.opencode/bin})
+alias oc="$HOME/.opencode/bin/opencode"
 export PATH="$HOME/.npm-global/bin:$PATH"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
