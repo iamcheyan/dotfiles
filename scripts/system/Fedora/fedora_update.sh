@@ -37,7 +37,7 @@ if [ "$CURRENT_VER" -lt "$LATEST_VER" ]; then
         sudo dnf install -y dnf-plugin-system-upgrade
 
         echo "🌍 正在下载 Fedora $LATEST_VER 升级包 (这可能需要较长时间)..."
-        if sudo dnf system-upgrade download --releasever=$LATEST_VER -y; then
+        if sudo dnf system-upgrade download --releasever=$LATEST_VER -y --allowerasing; then
             echo "✅ 下载成功！系统即将重启并开始升级..."
             echo "💡 重启后将进入离线升级界面，请勿断电。"
             sleep 5
