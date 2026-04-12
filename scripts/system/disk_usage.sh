@@ -24,7 +24,7 @@ if command -v du >/dev/null 2>&1; then
     du -h --max-depth="$MAX_DEPTH" "$TARGET_DIR" 2>/dev/null | \
         sort -rh | \
         head -20 | \
-        awk '{printf "  %-8s %s\n", $1, substr($0, index($0,$2))}'
+        awk -F'\t' '{printf "  %-8s %s\n", $1, $2}'
     echo ""
 fi
 
