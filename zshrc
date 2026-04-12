@@ -13,9 +13,9 @@ load_nvm() {
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 }
-nvm() {
-    load_nvm && nvm "$@"
-}
+for cmd in nvm node npm npx yarn pnpm gemini gm; do
+    eval "${cmd}() { unset -f nvm node npm npx yarn pnpm gemini gm; load_nvm; ${cmd} \"\$@\"; }"
+done
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
