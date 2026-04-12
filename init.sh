@@ -739,10 +739,12 @@ install_extra_tools() {
         print_success "Tree-sitter 已安装"
     fi
 
-    # Firefox Theme
-    if command_exists firefox || command_exists firefox-developer-edition; then
-        print_info "检测并安装 Firefox 主题..."
-        [[ -f "$install_dir/firefox_theme_install.sh" ]] && bash "$install_dir/firefox_theme_install.sh"
+    # Firefox Theme (仅在 Linux 上生效)
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if command_exists firefox || command_exists firefox-developer-edition; then
+            print_info "检测到 Linux 环境，开始配置 Firefox 主题..."
+            [[ -f "$install_dir/firefox_theme_install.sh" ]] && bash "$install_dir/firefox_theme_install.sh"
+        fi
     fi
 }
 
