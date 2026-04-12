@@ -685,6 +685,67 @@ reweight_rime_dicts() {
     fi
 }
 
+# 安装其他额外工具 (Zellij, Codex, Gemini, Opencode, Sbzr, Tree-sitter 等)
+install_extra_tools() {
+    local install_dir="${DOTFILES_DIR:-$HOME/.dotfiles}/scripts/install"
+    
+    print_info "正在检查并安装额外工具..."
+
+    # Zellij
+    if ! command_exists zellij; then
+        print_info "正在安装 Zellij..."
+        [[ -f "$install_dir/install_zellij.sh" ]] && bash "$install_dir/install_zellij.sh"
+    else
+        print_success "Zellij 已安装"
+    fi
+
+    # Codex
+    if ! command_exists codex; then
+        print_info "正在安装 Codex..."
+        [[ -f "$install_dir/install_codex.sh" ]] && bash "$install_dir/install_codex.sh"
+    else
+        print_success "Codex 已安装"
+    fi
+
+    # Gemini
+    if ! command_exists gemini; then
+        print_info "正在检查/安装 Gemini..."
+        [[ -f "$install_dir/install_gemini.sh" ]] && bash "$install_dir/install_gemini.sh"
+    else
+        print_success "Gemini 已安装"
+    fi
+
+    # Opencode
+    if ! command_exists opencode; then
+        print_info "正在安装 Opencode..."
+        [[ -f "$install_dir/install_opencode.sh" ]] && bash "$install_dir/install_opencode.sh"
+    else
+        print_success "Opencode 已安装"
+    fi
+
+    # Sbzr
+    if ! command_exists sbzr; then
+        print_info "正在安装 Sbzr..."
+        [[ -f "$install_dir/install_sbzr.sh" ]] && bash "$install_dir/install_sbzr.sh"
+    else
+        print_success "Sbzr 已安装"
+    fi
+
+    # tree-sitter
+    if ! command_exists tree-sitter; then
+        print_info "正在安装 Tree-sitter..."
+        [[ -f "$install_dir/install_treesitter.sh" ]] && bash "$install_dir/install_treesitter.sh"
+    else
+        print_success "Tree-sitter 已安装"
+    fi
+
+    # Firefox Theme
+    if command_exists firefox || command_exists firefox-developer-edition; then
+        print_info "检测并安装 Firefox 主题..."
+        [[ -f "$install_dir/firefox_theme_install.sh" ]] && bash "$install_dir/firefox_theme_install.sh"
+    fi
+}
+
 # 主函数
 main() {
     echo -e "${BLUE}"
@@ -783,12 +844,17 @@ EOF
     echo ""
 
     # 13. 初始化 Yazi 配置
-    print_info "步骤 14/15: 初始化 Yazi 配置"
+    print_info "步骤 14/16: 初始化 Yazi 配置"
     install_yazi_config
     echo ""
 
-    # 14. 优化 Rime 词库权重
-    print_info "步骤 15/15: 优化 Rime 词库权重"
+    # 14. 安装其他额外工具
+    print_info "步骤 15/16: 检查并安装额外依赖工具 (Zellij, Gemini, Codex等)"
+    install_extra_tools
+    echo ""
+
+    # 15. 优化 Rime 词库权重
+    print_info "步骤 16/16: 优化 Rime 词库权重"
     reweight_rime_dicts
     echo ""
 
