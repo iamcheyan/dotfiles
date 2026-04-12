@@ -109,6 +109,7 @@ fi
 # [[ -f ~/.dotfiles/plugins/local/local.zsh ]] && source ~/.dotfiles/plugins/local/local.zsh
 
 # vi 别名：优先使用 nvim，其次 vim，最后 vi
+unalias vi 2>/dev/null
 vi() {
     if command -v nvim &> /dev/null; then
         nvim "$@"
