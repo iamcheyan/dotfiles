@@ -66,41 +66,94 @@ fi
 # 文件搜索和编辑函数
 # ============================================
 
+_fzf_copy_path() {
+    local target="$1"
+    [[ -z "$target" ]] && return 1
+
+    if command -v wl-copy >/dev/null 2>&1; then
+        printf '%s' "$target" | wl-copy
+    elif command -v pbcopy >/dev/null 2>&1; then
+        printf '%s' "$target" | pbcopy
+    elif command -v xclip >/dev/null 2>&1; then
+        printf '%s' "$target" | xclip -selection clipboard
+    elif command -v xsel >/dev/null 2>&1; then
+        printf '%s' "$target" | xsel --clipboard --input
+    else
+        return 1
+    fi
+}
+
 # ff: 使用 fzf 模糊搜索文件或目录，文件用 nvim 打开，目录用 yazi 打开
 # - 支持以参数传递模糊搜索内容（支持空格、标点、多重空格等）
 # - 结合 fd/fzf, 支持管道和交互调用
+# - 包含隐藏文件，并忽略 .gitignore / .ignore / 全局 ignore 规则
+# - 在结果列表按 Ctrl-Y 可在“打开文件”和“进入目录”模式间切换
+# - 在结果列表按 Ctrl-X 可复制当前选中路径且不退出
 ff() {
     # 交互式调用
     if [[ -t 0 ]]; then
-        local target
+        local out query key target mode header
         local search_cmd
+        mode="open"
         
         # 确定搜索命令：优先使用 fd，其次 fdfind，最后使用 find
         # 使用 which 或 command -v 检查，并验证命令是否真的可执行
         if command -v fd >/dev/null 2>&1 && fd --version >/dev/null 2>&1; then
-            search_cmd=(fd -H .)
+            search_cmd=(fd -H -I .)
         elif command -v fdfind >/dev/null 2>&1 && fdfind --version >/dev/null 2>&1; then
-            search_cmd=(fdfind -H .)
+            search_cmd=(fdfind -H -I .)
         else
             # 回退到 find 命令
             search_cmd=(find . -type f -o -type d)
         fi
         
         if [[ $# -gt 0 ]]; then
-            # 参数全部合并成字符串，直接作为查询内容传递（支持所有特殊字符）
-            local query
             query="$*"
-            target=$("${search_cmd[@]}" 2>/dev/null | command fzf --bind 'tab:down' --bind 'btab:up' --query="${query}")
         else
-            target=$("${search_cmd[@]}" 2>/dev/null | command fzf --bind 'tab:down' --bind 'btab:up')
+            query=""
         fi
-        if [[ -n "$target" ]]; then
-            if [[ -f "$target" ]]; then
-                nvim "$target"
-            elif [[ -d "$target" ]]; then
-                y "$target"
+
+        while true; do
+            if [[ "$mode" == "open" ]]; then
+                header='Mode: OPEN  Enter: open  Ctrl-Y: jump-dir  Ctrl-X: copy path'
+            else
+                header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
             fi
-        fi
+
+            out=$("${search_cmd[@]}" 2>/dev/null | command fzf --print-query --bind 'tab:down' --bind 'btab:up' --bind 'ctrl-y:print(ctrl-y)+accept' --bind "ctrl-x:execute-silent(printf %s {} | wl-copy)+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --header "$header" --query "$query") || return
+            query=$(printf '%s\n' "$out" | sed -n '1p')
+            key=$(printf '%s\n' "$out" | sed -n '2p')
+            target=$(printf '%s\n' "$out" | sed -n '3p')
+
+            if [[ -z "$target" ]]; then
+                target="$key"
+                key=""
+            fi
+
+            if [[ "$key" == "ctrl-y" ]]; then
+                if [[ "$mode" == "open" ]]; then
+                    mode="jump"
+                else
+                    mode="open"
+                fi
+                continue
+            fi
+
+            if [[ -n "$target" ]]; then
+                if [[ "$mode" == "jump" ]]; then
+                    if [[ -d "$target" ]]; then
+                        y "$target"
+                    else
+                        y "$(dirname "$target")"
+                    fi
+                elif [[ -f "$target" ]]; then
+                    nvim "$target"
+                elif [[ -d "$target" ]]; then
+                    y "$target"
+                fi
+            fi
+            return
+        done
     else
         command fzf "$@"
     fi
@@ -110,8 +163,12 @@ ff() {
 # rf: 在当前目录中精确搜索内容，并实时预览，选中后用 nvim 打开并跳转到相应行
 # - 支持以单一完整参数（包含空格、中文标点等）作为精确搜索关键字
 # - 仅匹配含*整个*参数的行（整体匹配）
+# - 包含隐藏文件，并忽略 .gitignore / .ignore / 全局 ignore 规则
+# - 在结果列表按 Ctrl-Y 可在“打开文件”和“进入目录”模式间切换
+# - 在结果列表按 Ctrl-X 可复制当前选中路径且不退出
 rf() {
-    local initial_query out query sel file line vim_search
+    local initial_query out key query sel file line vim_search mode header
+    mode="open"
     if [[ $# -gt 0 ]]; then
         # 将所有参数拼接为一个完整字符串，允许混合各种空格和标点
         initial_query="$*"
@@ -119,34 +176,62 @@ rf() {
         initial_query=""
     fi
 
-    out=$(rg --line-number --no-heading --color=always . | \
-        command fzf --ansi --print-query --query "$initial_query" \
-            --bind 'tab:down' --bind 'btab:up' \
-            --delimiter ':' \
-            --prompt "RG (cwd: $(pwd))> " \
-            --preview 'q={q}; f={1}; if [ -z "$f" ]; then exit 0; fi; if [ -n "$q" ]; then rg --smart-case --pretty --color=always --line-number --context=6 --colors "line:none" --colors "path:none" --colors "match:fg:white" --colors "match:bg:yellow" -- "$q" "$f" | awk '\''{ hl="\033[38;5;15m\033[48;5;236m"; line=$0; plain=$0; gsub(/\033\[[0-9;]*m/, "", plain); if (plain ~ /^[0-9]+:/) { gsub(/\033\[0m/, "\033[0m" hl, line); sub(/^(\033\[[0-9;]*m)+/, "", line); print hl line "\033[0m"; } else print line }'\''; else bat --style=numbers --color=always "$f" --highlight-line {2}; fi' \
-            --preview-window 'right:60%') || return
+    query="$initial_query"
 
-    query=$(printf '%s\n' "$out" | sed -n '1p')
-    sel=$(printf '%s\n' "$out" | sed -n '2p')
-    [[ -z "$sel" ]] && return
-
-    file="${sel%%:*}"
-    line="${sel#*:}"
-    line="${line%%:*}"
-
-    if [[ -n "$file" && -n "$line" ]]; then
-        if [[ -n "$query" ]]; then
-            vim_search="${query//\\/\\\\}"
-            vim_search="${vim_search//\"/\\\"}"
-            nvim +"$line" \
-                +"let @/=\"\\\\V${vim_search}\" | set hlsearch" \
-                +"redraw | sleep 120m | set nohlsearch | redraw | sleep 80m | set hlsearch | redraw | sleep 80m | set nohlsearch | redraw | sleep 80m | set hlsearch" \
-                "$file"
+    while true; do
+        if [[ "$mode" == "open" ]]; then
+            header='Mode: OPEN  Enter: open  Ctrl-Y: jump-dir  Ctrl-X: copy path'
         else
-            nvim +"$line" "$file"
+            header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
         fi
-    fi
+
+        out=$(rg --hidden --no-ignore --line-number --no-heading --color=always . | \
+            command fzf --ansi --print-query --bind 'ctrl-y:print(ctrl-y)+accept' --bind "ctrl-x:execute-silent(printf %s {1} | wl-copy)+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
+                --bind 'tab:down' --bind 'btab:up' \
+                --delimiter ':' \
+                --prompt "RG (cwd: $(pwd))> " \
+                --header "$header" \
+                --preview 'q={q}; f={1}; if [ -z "$f" ]; then exit 0; fi; if [ -n "$q" ]; then rg --hidden --no-ignore --smart-case --pretty --color=always --line-number --context=6 --colors "line:none" --colors "path:none" --colors "match:fg:white" --colors "match:bg:yellow" -- "$q" "$f" | awk '\''{ hl="\033[38;5;15m\033[48;5;236m"; line=$0; plain=$0; gsub(/\033\[[0-9;]*m/, "", plain); if (plain ~ /^[0-9]+:/) { gsub(/\033\[0m/, "\033[0m" hl, line); sub(/^(\033\[[0-9;]*m)+/, "", line); print hl line "\033[0m"; } else print line }'\''; else bat --style=numbers --color=always "$f" --highlight-line {2}; fi' \
+                --preview-window 'right:60%') || return
+
+        query=$(printf '%s\n' "$out" | sed -n '1p')
+        key=$(printf '%s\n' "$out" | sed -n '2p')
+        sel=$(printf '%s\n' "$out" | sed -n '3p')
+        if [[ -z "$sel" ]]; then
+            sel="$key"
+            key=""
+        fi
+        [[ -z "$sel" ]] && return
+
+        if [[ "$key" == "ctrl-y" ]]; then
+            if [[ "$mode" == "open" ]]; then
+                mode="jump"
+            else
+                mode="open"
+            fi
+            continue
+        fi
+
+        file="${sel%%:*}"
+        line="${sel#*:}"
+        line="${line%%:*}"
+
+        if [[ -n "$file" && -n "$line" ]]; then
+            if [[ "$mode" == "jump" ]]; then
+                y "$(dirname "$file")"
+            elif [[ -n "$query" ]]; then
+                vim_search="${query//\\/\\\\}"
+                vim_search="${vim_search//\"/\\\"}"
+                nvim +"$line" \
+                    +"let @/=\"\\\\V${vim_search}\" | set hlsearch" \
+                    +"redraw | sleep 120m | set nohlsearch | redraw | sleep 80m | set hlsearch | redraw | sleep 80m | set nohlsearch | redraw | sleep 80m | set hlsearch" \
+                    "$file"
+            else
+                nvim +"$line" "$file"
+            fi
+        fi
+        return
+    done
 }
 
 # ============================================
@@ -158,17 +243,6 @@ zd() {
     local dir
     dir=$(zoxide query -l | fzf --bind 'tab:down' --bind 'btab:up' --prompt="zoxide directory> " --no-preview)
     [[ -n "$dir" ]] && cd "$dir"
-}
-
-# 交互式选择并执行最近使用的命令（取代经典的 Ctrl+R 风格）
-zc() {
-    local cmd
-    # 从历史中去重列出最近的命令，并用 fzf 交互选择（移除右侧的预览）
-    cmd=$(
-        fc -rl 1 | awk '{$1=""; print substr($0,2)}' | awk '!a[$0]++' |
-        fzf --bind 'tab:down' --bind 'btab:up' --prompt="Recent Command> " --no-preview
-    )
-    [[ -n "$cmd" ]] && print -z -- "$cmd"
 }
 
 # y: 启动 yazi 文件管理器，退出后切换到选择的目录
