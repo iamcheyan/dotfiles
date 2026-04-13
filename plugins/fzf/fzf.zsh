@@ -99,9 +99,9 @@ ff() {
         # 确定搜索命令：优先使用 fd，其次 fdfind，最后使用 find
         # 使用 which 或 command -v 检查，并验证命令是否真的可执行
         if command -v fd >/dev/null 2>&1 && fd --version >/dev/null 2>&1; then
-            search_cmd=(fd -H -I .)
+            search_cmd=(fd -H -I --exclude .git .)
         elif command -v fdfind >/dev/null 2>&1 && fdfind --version >/dev/null 2>&1; then
-            search_cmd=(fdfind -H -I .)
+            search_cmd=(fdfind -H -I --exclude .git .)
         else
             # 回退到 find 命令
             search_cmd=(find . -type f -o -type d)
@@ -185,13 +185,13 @@ rf() {
             header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
         fi
 
-        out=$(rg --hidden --no-ignore --line-number --no-heading --color=always . | \
+        out=$(rg --hidden --no-ignore --glob '!.git' --glob '!.git/**' --line-number --no-heading --color=always . | \
             command fzf --ansi --print-query --bind 'ctrl-y:print(ctrl-y)+accept' --bind "ctrl-x:execute-silent(printf %s {1} | wl-copy)+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
                 --bind 'tab:down' --bind 'btab:up' \
                 --delimiter ':' \
                 --prompt "RG (cwd: $(pwd))> " \
                 --header "$header" \
-                --preview 'q={q}; f={1}; if [ -z "$f" ]; then exit 0; fi; if [ -n "$q" ]; then rg --hidden --no-ignore --smart-case --pretty --color=always --line-number --context=6 --colors "line:none" --colors "path:none" --colors "match:fg:white" --colors "match:bg:yellow" -- "$q" "$f" | awk '\''{ hl="\033[38;5;15m\033[48;5;236m"; line=$0; plain=$0; gsub(/\033\[[0-9;]*m/, "", plain); if (plain ~ /^[0-9]+:/) { gsub(/\033\[0m/, "\033[0m" hl, line); sub(/^(\033\[[0-9;]*m)+/, "", line); print hl line "\033[0m"; } else print line }'\''; else bat --style=numbers --color=always "$f" --highlight-line {2}; fi' \
+                --preview 'q={q}; f={1}; if [ -z "$f" ]; then exit 0; fi; if [ -n "$q" ]; then rg --hidden --no-ignore --glob "!.git" --glob "!.git/**" --smart-case --pretty --color=always --line-number --context=6 --colors "line:none" --colors "path:none" --colors "match:fg:white" --colors "match:bg:yellow" -- "$q" "$f" | awk '\''{ hl="\033[38;5;15m\033[48;5;236m"; line=$0; plain=$0; gsub(/\033\[[0-9;]*m/, "", plain); if (plain ~ /^[0-9]+:/) { gsub(/\033\[0m/, "\033[0m" hl, line); sub(/^(\033\[[0-9;]*m)+/, "", line); print hl line "\033[0m"; } else print line }'\''; else bat --style=numbers --color=always "$f" --highlight-line {2}; fi' \
                 --preview-window 'right:60%') || return
 
         query=$(printf '%s\n' "$out" | sed -n '1p')
