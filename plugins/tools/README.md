@@ -38,6 +38,7 @@ zi_cmd() {
 
 - **lazygit**: Git 的终端 UI
 - **delta**: Git diff 查看器
+- **gitui**: Git 的高速终端 UI
 - **gh**: GitHub CLI
 
 #### 文本处理
@@ -178,6 +179,7 @@ zinit delete owner/repo
 
 - **lazygit**: `lazygit` - Git 的 TUI
 - **delta**: `delta` - Git diff 查看器
+- **gitui**: `gitui` - Git 的终端 UI
 - **gh**: `gh` - GitHub CLI
 
 ### 文本处理
@@ -214,7 +216,6 @@ zinit delete owner/repo
 - **ncdu**: `sudo apt install ncdu`
 - **htop**: `sudo apt install htop`
 - **glances**: `pip install glances`
-- **gitui**: `cargo install gitui`
 - **tig**: `sudo apt install tig`
 - **tealdeer**: `sudo apt install tealdeer`
 - **dog**: `sudo apt install dog`
@@ -232,4 +233,3 @@ zinit delete owner/repo
 
 - [Zinit 文档](https://github.com/zdharma-continuum/zinit)
 - [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
-

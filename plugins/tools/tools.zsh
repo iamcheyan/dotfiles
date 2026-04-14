@@ -26,9 +26,24 @@ zi_cmd muesli/duf duf
 
 # Git / 开发
 zi_cmd jesseduffield/lazygit lazygit
-zi_cmd dandavison/delta delta
+# delta 的二进制在 release 子目录里，直接 pick 实际路径
+zinit ice as"command" from"gh-r" pick"delta-*/delta"
+zinit light dandavison/delta
 zi_cmd cli/cli gh
-# gitui: 使用 cargo 安装: cargo install gitui 或从源码编译
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  local gitui_asset="gitui-mac.tar.gz"
+  [[ "$(uname -m)" == "x86_64" ]] && gitui_asset="gitui-mac-x86.tar.gz"
+  zinit ice as"command" from"gh-r" bpick"$gitui_asset" pick"gitui"
+else
+  local gitui_arch="x86_64"
+  case "$(uname -m)" in
+    aarch64|arm64) gitui_arch="aarch64" ;;
+    armv7l) gitui_arch="armv7" ;;
+    armv6l|arm) gitui_arch="arm" ;;
+  esac
+  zinit ice as"command" from"gh-r" bpick"gitui-linux-${gitui_arch}.tar.gz" pick"gitui"
+fi
+zinit light gitui-org/gitui
 
 # 文本处理
 zi_cmd jqlang/jq jq
