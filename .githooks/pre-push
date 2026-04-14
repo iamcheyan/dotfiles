@@ -79,6 +79,7 @@ awk -F: '
     line = substr($0, index($0, $4))
 
     if (path == ".githooks/pre-push") next
+    if (path == "git.md" && line ~ /(\/home\/[^[:space:]]+\/\.dotfiles|\\\$HOME\/\.dotfiles)/) next
     if (line ~ comment_regex) next
     if (line ~ /127[.]0[.]0[.]1/) next
     if (line ~ /0[.]0[.]0[.]0/) next
