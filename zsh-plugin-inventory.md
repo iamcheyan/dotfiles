@@ -1,6 +1,6 @@
 # Zsh Plugin Inventory
 
-本文档根据当前仓库中的 [zshrc]($HOME/.dotfiles/zshrc) 以及其引用的配置文件整理，描述这套 Zsh 环境会加载哪些组件、它们的作用，以及它们的加载方式。
+本文档根据当前仓库中的 [zshrc](zshrc) 以及其引用的配置文件整理，描述这套 Zsh 环境会加载哪些组件、它们的作用，以及它们的加载方式。
 
 说明：
 
@@ -30,7 +30,7 @@
 7. `zinit light jeffreytse/zsh-vi-mode`
 8. `zinit light zsh-users/zsh-history-substring-search`
 9. `zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh` with `wait"0"`
-10. `zinit snippet ~/.dotfiles/plugins/fzf/fzf.zsh` with `wait"0"`
+10. `source ~/.dotfiles/plugins/fzf/fzf.zsh`
 11. `_evalcache atuin init zsh`
 12. `_evalcache zoxide init zsh`
 13. `_evalcache direnv hook zsh`
@@ -117,7 +117,7 @@
 | 本地配置 | 作用 | 加载方式 |
 | --- | --- | --- |
 | `plugins/completion/completion.zsh` | 初始化 `compinit`、配置 `fzf-tab`、补全缓存、PATH 整理 | `source` |
-| `plugins/fzf/fzf.zsh` | 配置 `FZF_DEFAULT_COMMAND`、`FZF_DEFAULT_OPTS`，定义 `ff`、`rf`、`zd`、`zc`、`y` 等函数 | 通过 `zinit snippet ~/.dotfiles/plugins/fzf/fzf.zsh` 异步加载 |
+| `plugins/fzf/fzf.zsh` | 配置 `FZF_DEFAULT_COMMAND`、`FZF_DEFAULT_OPTS`，定义 `ff`、`rf`、`zd`、`zc`、`y` 等函数 | `source` |
 | `plugins/local/local.zsh` | 本机专用配置，目前包含字体安装提示逻辑 | `source`，条件加载 |
 | `aliases.conf` | 命令别名 | `source` |
 | `load_nvm` / `nvm()` | `nvm` 惰性加载入口 | 在 `zshrc` 中定义函数 |
@@ -142,7 +142,6 @@
 ### 异步加载
 
 - `zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh` with `wait"0"`
-- `zinit snippet ~/.dotfiles/plugins/fzf/fzf.zsh` with `wait"0"`
 - 这两个片段内部声明的 `zinit light` / `zinit snippet` 组件也随之延后生效
 
 ### 惰性加载
@@ -160,4 +159,3 @@
 - `Aloxaf/fzf-tab`
 - `romkatv/powerlevel10k` 的 `vcs` 段和右侧环境段
 - `direnv`、`pyenv`、`atuin` 在提示符或目录切换时带来的额外开销
-

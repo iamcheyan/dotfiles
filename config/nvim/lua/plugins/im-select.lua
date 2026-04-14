@@ -4,7 +4,7 @@ return {
   config = function()
     require("im_select").setup({
       default_im_select = "1033",
-      -- default_command = "${WIN_HOME}/Applications/im-select.exe",
+      -- default_command = vim.env.IM_SELECT_EXE,
       async_switch_im = true,
     })
   end,
