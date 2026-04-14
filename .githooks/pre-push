@@ -6,7 +6,7 @@ ZERO_SHA="0000000000000000000000000000000000000000"
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
-SECRET_REGEX='(AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|aws_access_key_id|aws_secret_access_key|authorization:[[:space:]]*Bearer|token=|client_secret|passwd|password|secret)'
+SECRET_REGEX='(AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|aws_access_key_id|aws_secret_access_key|authorization:[[:space:]]*Bearer[[:space:]]+[A-Za-z0-9._=-]+|token=[A-Za-z0-9._=-]+|client_secret[[:space:]:=]+[^[:space:]]+|password[[:space:]:=]+[^[:space:]]+|passwd[[:space:]:=]+[^[:space:]]+)'
 PRIVACY_REGEX='([A-Za-z0-9._%+-]+@(outlook\.com|gmail\.com|hotmail\.com|qq\.com|icloud\.com|yahoo\.com|sbilife\.co\.jp)|([0-9]{1,3}\.){3}[0-9]{1,3}|$HOME|${WIN_HOME}|AppData/Roaming/Rime|${WIN_HOME_WIN})'
 SAFE_EMAIL_REGEX='(@users[.]noreply[.]github[.]com|@example[.]com)$'
 
@@ -16,8 +16,9 @@ trap 'rm -rf "$tmpdir"' EXIT
 commits_file="$tmpdir/commits.txt"
 metadata_hits="$tmpdir/metadata_hits.txt"
 content_hits="$tmpdir/content_hits.txt"
+path_hints="$tmpdir/path_hints.txt"
 
-touch "$commits_file" "$metadata_hits" "$content_hits"
+touch "$commits_file" "$metadata_hits" "$content_hits" "$path_hints"
 
 while read -r local_ref local_sha remote_ref remote_sha; do
   [[ -z "${local_ref:-}" ]] && continue
@@ -44,9 +45,53 @@ done < "$commits_file" | awk -F'\t' -v safe_email_regex="$SAFE_EMAIL_REGEX" '
   }
 ' > "$metadata_hits" || true
 
+raw_content_hits="$tmpdir/content_hits_raw.txt"
+
 while read -r commit; do
   git grep -n -I -E "${SECRET_REGEX}|${PRIVACY_REGEX}" "$commit" -- || true
-done < "$commits_file" > "$content_hits"
+done < "$commits_file" > "$raw_content_hits"
+
+awk -F: '
+  BEGIN {
+    comment_regex = "^[[:space:]]*(#|//|;|--|/\\*|\\*)"
+  }
+  {
+    path = $2
+    line = substr($0, index($0, $4))
+
+    if (path == ".githooks/pre-push") next
+    if (line ~ comment_regex) next
+    if (line ~ /127[.]0[.]0[.]1/) next
+    if (line ~ /0[.]0[.]0[.]0/) next
+    print
+  }
+' "$raw_content_hits" > "$content_hits"
+
+awk -F: '
+  {
+    path = $2
+    line = substr($0, index($0, $4))
+
+    if (line ~ /\/home\/hkaku\/Dotfiles/) {
+      print path ": replace $HOME/.dotfiles with $HOME/.dotfiles"
+    }
+    if (line ~ /\/home\/hkaku/) {
+      print path ": replace $HOME with $HOME"
+    }
+    if (line ~ /\/mnt\/c\/Users\/hkaku\/AppData\/Roaming\/Rime/) {
+      print path ": replace ${RIME_DIR} with ${RIME_DIR}"
+    }
+    if (line ~ /\/mnt\/c\/Users\/hkaku/) {
+      print path ": replace ${WIN_HOME} with ${WIN_HOME}"
+    }
+    if (line ~ /AppData\/Roaming\/Rime/) {
+      print path ": replace AppData/Roaming/Rime with ${RIME_DIR}"
+    }
+    if (line ~ /${WIN_HOME_WIN}/) {
+      print path ": replace \\\\Users\\\\hkaku with ${WIN_HOME_WIN}"
+    }
+  }
+' "$content_hits" | sort -u > "$path_hints"
 
 if [[ -s "$metadata_hits" || -s "$content_hits" ]]; then
   echo "pre-push: blocked due to possible privacy/secrets in commits being pushed." >&2
@@ -63,6 +108,12 @@ if [[ -s "$metadata_hits" || -s "$content_hits" ]]; then
   if [[ -s "$content_hits" ]]; then
     echo "Content matches requiring review:" >&2
     sed -n '1,80p' "$content_hits" >&2
+    echo >&2
+  fi
+
+  if [[ -s "$path_hints" ]]; then
+    echo "Suggested environment-variable replacements for hardcoded paths:" >&2
+    sed -n '1,40p' "$path_hints" >&2
     echo >&2
   fi
 
