@@ -83,6 +83,25 @@ _fzf_copy_path() {
     fi
 }
 
+_fzf_copy_path_cmd() {
+    cat <<'EOF'
+target="$1"
+if [[ -z "$target" ]]; then
+  exit 1
+elif command -v wl-copy >/dev/null 2>&1; then
+  printf '%s' "$target" | wl-copy
+elif command -v pbcopy >/dev/null 2>&1; then
+  printf '%s' "$target" | pbcopy
+elif command -v xclip >/dev/null 2>&1; then
+  printf '%s' "$target" | xclip -selection clipboard
+elif command -v xsel >/dev/null 2>&1; then
+  printf '%s' "$target" | xsel --clipboard --input
+else
+  exit 1
+fi
+EOF
+}
+
 # ff: 使用 fzf 模糊搜索文件或目录，文件用 nvim 打开，目录用 yazi 打开
 # - 支持以参数传递模糊搜索内容（支持空格、标点、多重空格等）
 # - 结合 fd/fzf, 支持管道和交互调用
@@ -92,9 +111,10 @@ _fzf_copy_path() {
 ff() {
     # 交互式调用
     if [[ -t 0 ]]; then
-        local out query key target mode header
+        local out query key target mode header copy_cmd
         local search_cmd
         mode="open"
+        copy_cmd="$(_fzf_copy_path_cmd)"
         
         # 确定搜索命令：优先使用 fd，其次 fdfind，最后使用 find
         # 使用 which 或 command -v 检查，并验证命令是否真的可执行
@@ -120,7 +140,12 @@ ff() {
                 header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
             fi
 
-            out=$("${search_cmd[@]}" 2>/dev/null | command fzf --print-query --bind 'tab:down' --bind 'btab:up' --bind 'ctrl-y:print(ctrl-y)+accept' --bind "ctrl-x:execute-silent(printf %s {} | wl-copy)+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --header "$header" --query "$query") || return
+            out=$("${search_cmd[@]}" 2>/dev/null | command fzf --print-query --expect=ctrl-y \
+                --bind 'tab:down' \
+                --bind 'btab:up' \
+                --bind "ctrl-x:execute-silent(zsh -c '$copy_cmd' -- {})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
+                --header "$header" \
+                --query "$query") || return
             query=$(printf '%s\n' "$out" | sed -n '1p')
             key=$(printf '%s\n' "$out" | sed -n '2p')
             target=$(printf '%s\n' "$out" | sed -n '3p')
@@ -167,8 +192,9 @@ ff() {
 # - 在结果列表按 Ctrl-Y 可在“打开文件”和“进入目录”模式间切换
 # - 在结果列表按 Ctrl-X 可复制当前选中路径且不退出
 rf() {
-    local initial_query out key query sel file line vim_search mode header
+    local initial_query out key query sel file line vim_search mode header copy_cmd
     mode="open"
+    copy_cmd="$(_fzf_copy_path_cmd)"
     if [[ $# -gt 0 ]]; then
         # 将所有参数拼接为一个完整字符串，允许混合各种空格和标点
         initial_query="$*"
@@ -186,7 +212,7 @@ rf() {
         fi
 
         out=$(rg --hidden --no-ignore --glob '!.git' --glob '!.git/**' --line-number --no-heading --color=always . | \
-            command fzf --ansi --print-query --bind 'ctrl-y:print(ctrl-y)+accept' --bind "ctrl-x:execute-silent(printf %s {1} | wl-copy)+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
+            command fzf --ansi --print-query --expect=ctrl-y --bind "ctrl-x:execute-silent(zsh -c '$copy_cmd' -- {1})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
                 --bind 'tab:down' --bind 'btab:up' \
                 --delimiter ':' \
                 --prompt "RG (cwd: $(pwd))> " \

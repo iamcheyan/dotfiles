@@ -1,12 +1,15 @@
 # 系统文件
 .DS_Store
 Thumbs.db
+*.orig
 
 # 临时文件
 *.swp
 *.swo
 .env
 *~
+.python-version
+.nvimlog
 
 # zsh 缓存
 .zinit/
@@ -20,6 +23,7 @@ Thumbs.db
 .cache/fonts/
 
 # 子仓库配置
+rime
 rime/
 private/
 rime_sbzrjp/

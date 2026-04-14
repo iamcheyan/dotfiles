@@ -13,6 +13,7 @@ load_nvm() {
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 }
+unalias gm 2>/dev/null
 for cmd in nvm node npm npx yarn pnpm gemini gm; do
     eval "${cmd}() { unset -f nvm node npm npx yarn pnpm gemini gm; load_nvm; ${cmd} \"\$@\"; }"
 done
@@ -80,9 +81,8 @@ zinit ice wait"0" lucid
 zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh
 
 # fzf 相关函数和默认选项：ff/rf/zd/zc/y 等交互工具
-# 也放到异步阶段，避免阻塞 shell 启动
-zinit ice wait"0" lucid
-zinit snippet ~/.dotfiles/plugins/fzf/fzf.zsh
+# 这里必须同步加载，否则 ff/rf 在新 shell 中可能不存在
+source ~/.dotfiles/plugins/fzf/fzf.zsh
 
 # atuin: 增强版 shell 历史，支持更强的搜索和历史同步
 # 这里初始化 shell hook，并用 evalcache 缓存其输出
@@ -106,7 +106,7 @@ fi
 # [[ -f ~/.dotfiles/plugins/spf/superfile.zsh ]] && source ~/.dotfiles/plugins/spf/superfile.zsh
 
 # local.zsh: 机器本地专用配置，不同机器可以放不同逻辑
-# [[ -f ~/.dotfiles/plugins/local/local.zsh ]] && source ~/.dotfiles/plugins/local/local.zsh
+[[ -f ~/.dotfiles/plugins/local/local.zsh ]] && source ~/.dotfiles/plugins/local/local.zsh
 
 # vi 别名：优先使用 nvim，其次 vim，最后 vi
 unalias vi 2>/dev/null
@@ -137,7 +137,10 @@ fi
 [[ -f ~/.dotfiles/aliases.conf ]] && source ~/.dotfiles/aliases.conf
 
 # opencode
-path=(${path:#$HOME/.opencode/bin})
+export PATH="$HOME/.opencode/bin:$PATH"
+[ -d "$HOME/.npm-global/bin" ] && export PATH="$HOME/.npm-global/bin:$PATH"
 alias oc="$HOME/.opencode/bin/opencode"
-export PATH="$HOME/.npm-global/bin:$PATH"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
