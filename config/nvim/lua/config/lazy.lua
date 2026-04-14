@@ -53,7 +53,6 @@ require("lazy").setup({
   checker = {
     enabled = true, -- check for plugin updates periodically
     notify = false, -- notify on update
-    exclude = { "sbzr.nvim.im" },
   }, -- automatically check for plugin updates
   performance = {
     rtp = {
