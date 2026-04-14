@@ -2,6 +2,11 @@
 zinit ice blockf
 zinit light zsh-users/zsh-completions
 
+vendor_completions_dir="/usr/share/zsh/vendor-completions"
+if [[ -L $vendor_completions_dir && ! -e $vendor_completions_dir ]]; then
+  fpath=("${(@)fpath:#$vendor_completions_dir}")
+fi
+
 autoload -Uz compinit
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
