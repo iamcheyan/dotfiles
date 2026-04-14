@@ -142,5 +142,4 @@ export PATH="$HOME/.opencode/bin:$PATH"
 alias oc="$HOME/.opencode/bin/opencode"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.

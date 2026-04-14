@@ -21,8 +21,8 @@
 
 相关配置文件:
 
-- [plugins/tools/tools.zsh](/home/hkaku/.dotfiles/plugins/tools/tools.zsh)
-- [aliases.conf](/home/hkaku/.dotfiles/aliases.conf)
+- [plugins/tools/tools.zsh]($HOME/.dotfiles/plugins/tools/tools.zsh)
+- [aliases.conf]($HOME/.dotfiles/aliases.conf)
 
 ## 首次启用
 
