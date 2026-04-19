@@ -159,7 +159,7 @@ if check_fzf_installed; then
     else
         print_success "fzf 已安装: $FZF_DIR"
         if check_fzf_in_path; then
-            local fzf_version=""
+            fzf_version=""
             if [ -f "$FZF_DIR/bin/fzf" ]; then
                 fzf_version=$("$FZF_DIR/bin/fzf" --version 2>/dev/null || echo "未知版本")
             fi
@@ -177,7 +177,7 @@ if check_fzf_installed; then
             print_info "  --completion   : 只安装补全文件"
         else
             print_warning "fzf 未在 PATH 中"
-            local shell_rc=$(get_shell_rc)
+            shell_rc=$(get_shell_rc)
             print_info "请确保 $shell_rc 包含以下内容："
             print_info "  [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh"
             print_info "或者运行: source $shell_rc"

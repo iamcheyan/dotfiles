@@ -207,8 +207,9 @@ install_essentials() {
         if command_exists sudo; then
             # Fedora 不需要 epel-release
             # dnf5 使用 "group install" 而不是 "groupinstall"
-            sudo dnf group install -y "Development Tools" || sudo dnf groupinstall -y "Development Tools" || true
-            # 使用 --skip-unavailable 跳过不可用的包
+            # 使用 ID (development-tools) 比使用名称更可靠
+            sudo dnf group install -y development-tools || sudo dnf group install -y "Development Tools" || sudo dnf groupinstall -y "Development Tools" || true
+            # 使用 --skip-unavailable 跳过不可用的包 (Fedora repo 中没有 mdcat 和 gping)
             sudo dnf install -y --skip-unavailable $common_packages $rhel_packages || true
         else
             print_error "需要 sudo 权限来安装基础工具"
