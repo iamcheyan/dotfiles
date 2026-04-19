@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Personal build helper for mistermorph
+# Usage: morph-build [--static]
+# Place this in ~/.local/bin/ (or anywhere in PATH)
+
+ROOT_DIR="${MORPH_ROOT:-$HOME/Development/mistermorph}"
+cd "${ROOT_DIR}"
+
+# Activate goenv if available
+if [[ -d "$HOME/.goenv" ]]; then
+  export PATH="$HOME/.goenv/shims:$HOME/.goenv/bin:$PATH"
+  eval "$(goenv init -)" 2>/dev/null || true
+fi
+
+if ! command -v go &>/dev/null; then
+  echo "Error: go not found."
+  exit 1
+fi
+
+BUILD_STATIC=0
+if [[ "${1:-}" == "--static" ]]; then
+  BUILD_STATIC=1
+fi
+
+if [[ "${BUILD_STATIC}" == "1" ]]; then
+  echo "==> Building web/console"
+  export NVM_DIR="$HOME/.nvm"
+  source "$NVM_DIR/nvm.sh"
+  nvm use 24
+  pnpm --dir web/console build
+
+  echo "==> Staging console assets"
+  ./scripts/stage-console-assets.sh
+fi
+
+echo "==> Building backend"
+go build -o ./bin/mistermorph ./cmd/mistermorph
+echo "Done: ./bin/mistermorph"
+
+# Copy and sanitize local config
+LOCAL_CONFIG="$HOME/.morph/config.yaml"
+EXAMPLE_OUT="./bin/config.example.yaml"
+if [[ -f "$LOCAL_CONFIG" ]]; then
+    echo "==> Generating sanitized config example"
+    sed -E \
+        -e 's/^(\s*api_key\s*:\s*).*/\1""/' \
+        -e 's/^(\s*api_token\s*:\s*).*/\1""/' \
+        -e 's/^(\s*bot_token\s*:\s*).*/\1""/' \
+        -e 's/^(\s*account_id\s*:\s*).*/\1""/' \
+        "$LOCAL_CONFIG" > "$EXAMPLE_OUT"
+    echo "Done: sanitized config example"
+fi
+
+# Auto-restart telegram bot service if running
+if systemctl --user is-active mister-morph-telegram &>/dev/null; then
+    echo "==> Restarting mister-morph-telegram service"
+    systemctl --user restart mister-morph-telegram
+    echo "Done: telegram bot restarted"
+fi
