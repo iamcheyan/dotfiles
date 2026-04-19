@@ -114,7 +114,7 @@ check_and_install_clang() {
         return 0
     fi
     
-    print_info "正在安装 clang 和 libclang-dev..."
+    print_info "正在安装 clang 和开发库..."
     if command -v apt-get >/dev/null 2>&1; then
         if sudo apt-get install -y clang libclang-dev; then
             print_success "clang 安装完成"
@@ -123,8 +123,16 @@ check_and_install_clang() {
             print_error "clang 安装失败"
             return 1
         fi
+    elif command -v dnf >/dev/null 2>&1; then
+        if sudo dnf install -y clang clang-devel; then
+            print_success "clang 安装完成"
+            return 0
+        else
+            print_error "clang 安装失败"
+            return 1
+        fi
     else
-        print_error "未找到 apt-get，请手动安装 clang 和 libclang-dev"
+        print_error "未找到 apt-get 或 dnf，请手动安装 clang 和开发库"
         return 1
     fi
 }
@@ -164,7 +172,7 @@ if check_treesitter_installed; then
             exit 0
         fi
     else
-        local treesitter_path=$(command -v tree-sitter)
+        treesitter_path=$(command -v tree-sitter)
         print_success "tree-sitter 已安装: $treesitter_path"
         print_info "如果要重新安装，请使用: install:treesitter --force"
         exit 0
@@ -184,7 +192,7 @@ if ! check_rust_installed; then
     fi
 else
     print_success "Rust 已安装"
-    local rust_version=$(rustc --version 2>/dev/null || echo "unknown")
+    rust_version=$(rustc --version 2>/dev/null || echo "unknown")
     print_info "Rust 版本: $rust_version"
 fi
 
@@ -218,12 +226,12 @@ fi
 echo ""
 print_info "验证安装..."
 if check_treesitter_installed; then
-    local treesitter_path=$(command -v tree-sitter)
+    treesitter_path=$(command -v tree-sitter)
     print_success "tree-sitter 已安装到: $treesitter_path"
     
     # 检查版本
     if tree-sitter --version >/dev/null 2>&1; then
-        local version=$(tree-sitter --version 2>/dev/null | head -n 1 || echo "unknown")
+        version=$(tree-sitter --version 2>/dev/null | head -n 1 || echo "unknown")
         print_success "版本: $version"
     else
         print_warning "无法获取版本信息"
