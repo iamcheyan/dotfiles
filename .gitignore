@@ -29,6 +29,8 @@ private/
 rime_sbzrjp/
 sbsrf/
 
+config/nvim/lua/plugins/im-select.lua
+
 aws
 
 config/nvim/tmp/*
