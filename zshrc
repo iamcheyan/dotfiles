@@ -149,4 +149,6 @@ alias oc="$HOME/.opencode/bin/opencode"
 export GOENV_ROOT="$HOME/.goenv"
 export PATH="$GOENV_ROOT/shims:$GOENV_ROOT/bin:$PATH"
 
-eval "$(goenv init -)"
+if command -v goenv >/dev/null 2>&1; then
+  eval "$(goenv init -)"
+fi
