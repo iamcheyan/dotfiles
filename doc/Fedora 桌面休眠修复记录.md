@@ -31,7 +31,7 @@ sudo modprobe -r zram
 ### 3. 设置物理 Swap 优先级
 编辑 `/etc/fstab`，确保物理 Swap 分区的优先级（pri）高于一切。
 ```text
-UUID=6dd61338-ca03-4ad2-a86f-cc821c6b2e17  none  swap  defaults,pri=150  0 0
+UUID=0f321df1-dd36-4116-bc55-56c51cde7cbc  none  swap  defaults,pri=150  0 0
 ```
 修改后执行 `sudo systemctl daemon-reload`。
 
@@ -47,7 +47,7 @@ UUID=6dd61338-ca03-4ad2-a86f-cc821c6b2e17  none  swap  defaults,pri=150  0 0
 # 2. 禁用 SME 内存加密（防止冷启动密钥丢失）
 # 3. 禁用 IOMMU（规避硬件映射冲突）
 # 4. 指定 resume 分区
-sudo grubby --update-kernel=ALL --args="nokaslr mem_encrypt=off iommu=off resume=UUID=6dd61338-ca03-4ad2-a86f-cc821c6b2e17"
+sudo grubby --update-kernel=ALL --args="nokaslr mem_encrypt=off iommu=off resume=UUID=0f321df1-dd36-4116-bc55-56c51cde7cbc"
 
 # 建议移除 quiet rhgb 以便观察恢复进度
 sudo grubby --update-kernel=ALL --remove-args="quiet rhgb"
@@ -105,52 +105,60 @@ sudo systemctl enable --now disable-wakeup.service
 
 ---
 
-## 五、 策略优化：休眠镜像压缩
+## 五、 策略优化：内存镜像与关机模式
 
-### 1. 为什么需要优化？
-通过 `free -h` 可以发现，本机的物理内存为 **62GiB**，而物理 Swap 分区 (`/dev/nvme0n1p3`) 仅为 **60.5GiB**。
-*注意：休眠无法使用 zram，因此物理 Swap 分区必须能容纳压缩后的内存镜像。*
+### 1. 镜像大小限制（高性能模式）
+如果 Swap 分区大于或等于物理内存（例如 64GB Swap / 62GB RAM），**强烈建议取消压缩限制**。
+*   **原因**：在高性能 AMD 平台上，强制压缩 (`image_size=0`) 会导致极高的 CPU/内存瞬时负载，可能触发内核崩溃或休眠前重启。
+*   **配置**：创建 `/etc/tmpfiles.d/hibernate-image-size.conf`：
+    ```text
+    # 将 image_size 设为 Swap 分区大小（例如 64GB），实现不压缩写入
+    w /sys/power/image_size - - - - 64000000000
+    ```
 
-由于物理分区（60.5GiB）略小于内存总量（62GiB），如果内存占用较高，休眠可能会因空间不足而失败。
-
-### 2. 强制压缩配置
-创建 `/etc/tmpfiles.d/hibernate-image-size.conf`：
-```text
-# w 代表写入，将 image_size 设为 0 (最小化策略)
-# 这会强制内核在休眠时尽可能压缩镜像，确保 62GB 的内存数据能安全塞进 60.5GB 的物理分区。
-w /sys/power/image_size - - - - 0
-```
+### 2. 强制关机模式
+确保休眠后系统彻底断电，防止热重启导致 UEFI 丢失恢复签名。
+*   **配置**：创建或修改 `/etc/systemd/sleep.conf`：
+    ```ini
+    [Sleep]
+    HibernateMode=shutdown
+    ```
 
 ---
 
-## 六、 验证与调试
+## 六、 验证、测试与调试
 
-### 1. 验证参数是否生效
-重启后检查：
+### 1. 模拟测试框架（pm_test）
+如果点击休眠后直接重启，使用内核测试模式定位故障环节（系统会模拟过程并自动返回桌面）：
 ```bash
-cat /proc/cmdline  # 应该包含 nokaslr, mem_encrypt=off
-swapon --show      # 物理分区优先级应为 150
-```
-
-### 2. 测试休眠
-```bash
+# 测试级别 1：模拟设备驱动挂起（最常用，排查驱动冲突）
+echo devices | sudo tee /sys/power/pm_test
 sudo systemctl hibernate
+
+# 测试级别 2：模拟核心系统挂起
+echo core | sudo tee /sys/power/pm_test
+sudo systemctl hibernate
+
+# 测试完成后必须恢复正常模式
+echo none | sudo tee /sys/power/pm_test
 ```
 
-### 3. 日志排查
-如果失败，重启后第一时间查看：
+### 2. 日志排查
+如果恢复失败，重启后第一时间查看：
 ```bash
+# 查看上一次尝试休眠时的日志结尾
 journalctl -b -1 | grep -iE "PM:|hibernation|resume"
+# 查看本次启动是否识别到恢复签名
+journalctl -b 0 | grep -i "PM: hibernation"
 ```
 
 ---
 
 ## 最终结果总结
-*   ✅ **nokaslr**: 解决了架构数据不匹配问题。
-*   ✅ **mem_encrypt=off**: 解决了 AMD 平台加密干扰。
-*   ✅ **nvme driver**: 确保了恢复时能读到磁盘。
-*   ✅ **disable-wakeup**: 解决了自动唤醒问题。
-*   ✅ **image_size=0**: 解决了内存压缩与空间适配。
+*   ✅ **nokaslr / mem_encrypt=off**: 解决内存映射与加密冲突。
+*   ✅ **HibernateMode=shutdown**: 解决 UEFI 恢复签名丢失问题。
+*   ✅ **High Image Size**: 解决大内存机型由于过度压缩导致的休眠前崩溃。
+*   ✅ **pm_test**: 提供了驱动级故障的快速排查手段。
 
 ---
-*最后更新日期：2026年4月19日*
+*最后更新日期：2026年4月20日*
