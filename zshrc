@@ -143,3 +143,10 @@ alias oc="$HOME/.opencode/bin/opencode"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.
+#
+#
+
+export GOENV_ROOT="$HOME/.goenv"
+export PATH="$GOENV_ROOT/shims:$GOENV_ROOT/bin:$PATH"
+
+eval "$(goenv init -)"
