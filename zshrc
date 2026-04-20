@@ -133,14 +133,12 @@ else
     export VISUAL=vi
 fi
 
-# 加载别名配置
-[[ -f ~/.dotfiles/aliases.conf ]] && source ~/.dotfiles/aliases.conf
-
-# opencode
-export PATH="$HOME/.opencode/bin:$PATH"
-[ -d "$HOME/.npm-global/bin" ] && export PATH="$HOME/.npm-global/bin:$PATH"
-alias oc="$HOME/.opencode/bin/opencode"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
+if [[ -d ~/.dotfiles/aliases ]]; then
+    for alias_file in ~/.dotfiles/aliases/*.conf(N); do
+        source "$alias_file"
+    done
+fi
 
 # Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.
 #
