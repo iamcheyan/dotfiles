@@ -134,11 +134,13 @@ else
 fi
 
 # 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
-if [[ -d ~/.dotfiles/aliases ]]; then
-    for alias_file in ~/.dotfiles/aliases/*.conf(N); do
-        source "$alias_file"
-    done
-fi
+source ~/.dotfiles/aliases.conf
+[[ -d ~/.dotfiles/aliases ]] &&
+  for f in ~/.dotfiles/aliases/*.conf(N); do
+    [[ -r $f ]] && source $f
+  done
+
+[[ -r ~/.aws/aliases.conf ]] && source ~/.aws/aliases.conf
 
 # Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.
 #

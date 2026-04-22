@@ -45,8 +45,16 @@ else
     echo "goenv already installed."
 fi
 
-# 3. Finalize Zsh
-echo "[3/3] Finalizing shell configuration..."
+# 3. OmnySSH Setup
+echo "[3/4] Setting up OmnySSH..."
+mkdir -p "$HOME/.config/omnyssh"
+ln -sf "$HOME/Dotfiles/omnyssh/config.toml" "$HOME/.config/omnyssh/config.toml"
+ln -sf "$HOME/Dotfiles/omnyssh/hosts.toml" "$HOME/.config/omnyssh/hosts.toml"
+ln -sf "$HOME/Dotfiles/omnyssh/snippets.toml" "$HOME/.config/omnyssh/snippets.toml"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# 4. Finalize Zsh
+echo "[4/4] Finalizing shell configuration..."
 # The .zshrc has already been patched to check for 'command -v goenv'
 # to avoid p10k instant prompt issues.
 

@@ -1,101 +1,82 @@
 #!/bin/bash
-# Dotfiles 推送脚本：自动提交并推送到 GitHub
-# 用法: push_dotfiles [提交信息前缀]
+# Push dotfiles and aliases as two independent repositories.
 
-set -e
+set -euo pipefail
 
 DOTFILES_DIR="$HOME/.dotfiles"
-cd "$DOTFILES_DIR" || {
-    echo "错误: 无法进入 dotfiles 目录: $DOTFILES_DIR" >&2
-    exit 1
-}
+ALIASES_DIR="$DOTFILES_DIR/aliases"
+TIMESTAMP="$(date '+%Y%m%d_%H%M%S')"
 
-# 检查是否为 Git 仓库
-if ! git rev-parse --git-dir > /dev/null 2>&1; then
-    echo "错误: 当前目录不是 Git 仓库" >&2
-    echo "正在初始化 Git 仓库..."
-    git init
-fi
-
-# 检查远程仓库
-REMOTE_URL="https://github.com/iamcheyan/Dotfiles.git"
-if ! git remote get-url origin > /dev/null 2>&1; then
-    echo "添加远程仓库: $REMOTE_URL"
-    git remote add origin "$REMOTE_URL"
-elif [ "$(git remote get-url origin)" != "$REMOTE_URL" ]; then
-    echo "更新远程仓库 URL: $REMOTE_URL"
-    git remote set-url origin "$REMOTE_URL"
-fi
-
-# 获取设备名
-get_hostname() {
-    if command -v hostname >/dev/null 2>&1; then
-        hostname 2>/dev/null || echo "unknown"
-    else
-        echo "unknown"
+ensure_git_repo() {
+    local repo_dir="$1"
+    if ! git -C "$repo_dir" rev-parse --git-dir > /dev/null 2>&1; then
+        echo "错误: 不是 Git 仓库: $repo_dir" >&2
+        exit 1
     fi
 }
 
-# 生成时间戳（格式：YYYY-MM-DD HH:MM:SS）
-get_timestamp() {
-    date '+%Y-%m-%d %H:%M:%S'
+has_changes() {
+    local repo_dir="$1"
+    shift
+    if [ "$#" -gt 0 ]; then
+        [ -n "$(git -C "$repo_dir" status --porcelain --untracked-files=all -- "$@")" ]
+    else
+        [ -n "$(git -C "$repo_dir" status --porcelain --untracked-files=all)" ]
+    fi
 }
 
-# 获取信息
-HOSTNAME=$(get_hostname)
-TIMESTAMP=$(get_timestamp)
-COMMIT_PREFIX="${*:-Update}"
+stage_changes() {
+    local repo_dir="$1"
+    local scope="${2:-.}"
 
-# 构建提交信息：Update: Tetsuya-Apple-M1-Max.local - 2025-12-27 20:05:37
-COMMIT_MSG="${COMMIT_PREFIX}: ${HOSTNAME} - ${TIMESTAMP}"
+    # Stage tracked-file updates and deletions first.
+    git -C "$repo_dir" add -u -- "$scope"
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  准备推送 dotfiles 到 GitHub"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "提交信息: $COMMIT_MSG"
-echo "设备名: $HOSTNAME"
-echo "时间戳: $TIMESTAMP"
-echo ""
-
-# 检查是否有更改（包括已跟踪文件的修改、暂存区的更改、以及未跟踪的新文件）
-if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
-    echo "没有需要提交的更改"
-    exit 0
-fi
-
-# 添加所有更改（包括新文件、修改和删除）
-echo "正在添加文件..."
-git add -A
-
-# 提交
-echo "正在提交..."
-git commit -m "$COMMIT_MSG" || {
-    echo "错误: 提交失败" >&2
-    exit 1
+    # Then stage only untracked, non-ignored files.
+    while IFS= read -r -d '' path; do
+        git -C "$repo_dir" add -- "$path"
+    done < <(git -C "$repo_dir" ls-files --others --exclude-standard -z -- "$scope")
 }
 
-# 推送
-echo "正在推送到 GitHub..."
-BRANCH=$(git branch --show-current 2>/dev/null || echo "main")
+push_repo() {
+    local repo_dir="$1"
+    local repo_name="$2"
+    local branch
 
-# 如果分支不存在，创建并推送
-if ! git rev-parse --verify "$BRANCH" >/dev/null 2>&1; then
-    git branch -M main 2>/dev/null || true
-    BRANCH="main"
-fi
+    ensure_git_repo "$repo_dir"
 
-# 尝试推送，如果失败则设置上游分支
-if ! git push -u origin "$BRANCH" 2>/dev/null; then
-    git push origin "$BRANCH" || {
-        echo "错误: 推送失败" >&2
-        echo "提示: 请检查网络连接和 GitHub 权限" >&2
+    if ! has_changes "$repo_dir"; then
+        echo "[$repo_name] 没有需要提交的更改"
+        return 0
+    fi
+
+    echo "[$repo_name] 添加文件..."
+    stage_changes "$repo_dir"
+
+    echo "[$repo_name] 提交..."
+    git -C "$repo_dir" commit -m "$TIMESTAMP"
+
+    branch="$(git -C "$repo_dir" branch --show-current 2>/dev/null || true)"
+    if [ -z "$branch" ]; then
+        branch="main"
+    fi
+
+    echo "[$repo_name] 推送..."
+    if ! git -C "$repo_dir" push -u origin "$branch"; then
+        echo "错误: 推送失败: $repo_name" >&2
         exit 1
-    }
-fi
+    fi
+}
 
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Push dotfiles + aliases"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "提交信息: $TIMESTAMP"
 echo ""
-echo "✓ 推送成功！"
-echo "  仓库: $REMOTE_URL"
-echo "  分支: $BRANCH"
 
+# 根仓库通过 .gitignore 隔离 aliases，不再把它作为路径参数传给 git add。
+push_repo "$DOTFILES_DIR" "dotfiles"
+echo ""
+push_repo "$ALIASES_DIR" "aliases"
+echo ""
+echo "✓ 完成"
