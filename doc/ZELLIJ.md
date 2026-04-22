@@ -1,56 +1,356 @@
-# 🪟 Zellij 进阶操作指南 (资深用户版)
+# Zellij Notes
 
-本指南旨在帮助你快速回顾已有的操作习惯，并掌握新集成的“资深级”增强功能。
+This file is a practical reference for the current local Zellij setup.
 
-## 1. 核心操作逻辑 (你已习惯的)
-你的配置使用了 `clear-defaults=true`，因此以下是你目前定义的核心快捷键：
+## Current Setup
 
-### 模式切换
-- **`Ctrl + g`**：进入/退出 **Locked (锁定)** 模式。
-  - *建议：在 Vim 中进行复杂操作时锁定 Zellij，防止按键拦截。*
-- **`Ctrl + p`**：进入 **Pane (窗格)** 模式。
-- **`Ctrl + t`**：进入 **Tab (标签)** 模式。
-- **`Ctrl + n`**：进入 **Resize (缩放)** 模式。
-- **`Ctrl + h`**：进入 **Move (移动)** 模式。
-- **`Ctrl + s`**：进入 **Scroll (滚动)** 模式。
-- **`Ctrl + o`**：进入 **Session (会话)** 模式。
+- Config file: `~/.dotfiles/config/zellij/config.kdl`
+- Layout directory: `~/.dotfiles/config/zellij/layouts/`
+- Current default layout: `compact`
+- Current custom layouts:
+  - `clean`
+  - `nvim-float`
 
-### 常用全局快捷键
-- **`Alt + h/j/k/l`**：快速切换窗格焦点（左/下/上/右）。
-- **`Alt + n`**：新建窗格。
-- **`Alt + f`**：切换悬浮窗显示/隐藏。
-- **`Ctrl + q`**：完全退出 Zellij。
+Your config uses `clear-defaults=true`, so the keybindings below are the ones that actually matter.
 
----
+## Core Concepts
 
-## 2. 新增增强功能 (本次升级)
-我通过 Zsh 别名和全局配置为你增加了以下能力，无需修改 Zellij 内部按键：
+- `session`: a long-lived workspace, similar to a tmux session
+- `tab`: a tab inside a session
+- `pane`: a split inside a tab
+- `mode`: Zellij uses modal keybindings, so many keys only work after entering a mode
 
-### 📸 图片显示 (Sixel 适配)
-- **命令：`img <file>`**
-  - **用法**：在 Zellij 窗格中直接输入 `img photo.png`。
-  - **原理**：它会自动强制开启 **Sixel** 传输协议。现在你可以在 Zellij 内部看到图片预览了（如果 iTerm2 已开启 Sixel 支持）。
+In your setup, the usual workflow is:
 
-### 🚀 极速运行别名
-- **命令：`ze:c`** (Zellij Compact)
-  - **用法**：启动一个使用“紧凑布局”的会话，隐藏状态栏，腾出更多代码显示空间。
-- **命令：`ze:f <cmd>`** (Zellij Float)
-  - **用法**：在**悬浮窗**中运行命令。
-  - *示例：输入 `ze:f btop` 或 `ze:f git status`，命令会在弹出的悬浮窗运行，关闭后即刻消失。*
+1. Enter a mode with `Ctrl+p`, `Ctrl+t`, `Ctrl+n`, `Ctrl+h`, `Ctrl+s`, or `Ctrl+o`
+2. Do the action
+3. Most actions return to normal mode automatically
 
-### 🖱 交互增强
-- **鼠标支持**：现在你可以直接用鼠标拖动窗格边框来调整大小，或点击上方的 Tab 标签进行切换。
+## Session Commands
 
----
+- Start or attach to `main`:
 
-## 3. 进阶技巧：Layout (布局) 自动化
-你可以通过创建 `.kdl` 文件来定义你的“工作台”。
-- **配置文件位置**：`~/.dotfiles/config/zellij/layouts/`
-- **使用方法**：运行 `zellij --layout work`（如果你创建了一个 `work.kdl`）。
+```bash
+ze
+```
 
-## 4. 故障排除
-- **按键没反应？** 检查是否处于 `Locked` 模式（左下角会显示红色）。
-- **光标不正常？** 尝试按 `Ctrl + l` 刷新当前终端。
+- Start or attach to a named session:
 
----
-*保持现状，极致效率。如需微调布局或增加新的别名，随时呼唤。*
+```bash
+zec my-session
+```
+
+- Start or attach to `tmp`:
+
+```bash
+zetmp
+```
+
+- List sessions:
+
+```bash
+zellij ls
+```
+
+- Attach to a session:
+
+```bash
+zellij attach SESSION_NAME
+```
+
+- Create a session if it does not exist:
+
+```bash
+zellij attach -c SESSION_NAME
+```
+
+- Delete exited sessions:
+
+```bash
+zeclear
+```
+
+- Kill a specific session:
+
+```bash
+zellij delete-session SESSION_NAME
+```
+
+- Kill all sessions:
+
+```bash
+zellij delete-all-sessions
+```
+
+## Layout Commands
+
+- Start with built-in `default`:
+
+```bash
+zellij -l default
+```
+
+- Start with built-in `compact`:
+
+```bash
+zellij -l compact
+```
+
+- Start with built-in `classic`:
+
+```bash
+zellij -l classic
+```
+
+- Start with custom `clean`:
+
+```bash
+zellij -l clean
+```
+
+- Start a new named session with a layout:
+
+```bash
+zellij -s work -n clean
+```
+
+Notes:
+
+- `default`: top tab bar + bottom status bar
+- `compact`: one compact bar at the bottom
+- `classic`: top tab bar + classic bottom status bar
+- `clean`: no top tab bar, no bottom status bar, only the pane area
+
+## Mode Keys
+
+- `Ctrl+g`: locked mode
+- `Ctrl+p`: pane mode
+- `Ctrl+t`: tab mode
+- `Ctrl+n`: resize mode
+- `Ctrl+h`: move mode
+- `Ctrl+s`: scroll mode
+- `Ctrl+o`: session mode
+- `Ctrl+b`: tmux-style mode
+- `Esc`: back to normal mode
+- `Enter`: back to normal mode in several input/search modes
+
+## Global Keys
+
+These work outside most special modes.
+
+- `Alt+h/j/k/l`: move focus left/down/up/right
+- `Alt+n`: create a new pane
+- `Alt+f`: toggle floating panes
+- `Alt+[` and `Alt+]`: previous/next swap layout
+- `Alt+i` and `Alt+o`: move tab left/right
+- `Alt+p`: toggle pane in group
+- `Alt+Shift+p`: toggle group marking
+- `Ctrl+q`: quit Zellij
+
+## Pane Mode
+
+Enter with:
+
+```text
+Ctrl+p
+```
+
+Then use:
+
+- `h/j/k/l` or arrow keys: move focus
+- `n`: new pane
+- `d`: split down
+- `r`: split right
+- `s`: new stacked pane
+- `p`: switch focus
+- `c`: rename pane
+- `e`: toggle embedded/floating
+- `f`: toggle fullscreen
+- `i`: toggle pinned pane
+- `w`: show/hide floating panes
+- `z`: toggle pane frames
+- `x`: close focused pane
+
+## Tab Mode
+
+Enter with:
+
+```text
+Ctrl+t
+```
+
+Then use:
+
+- `h/j/k/l` or arrow keys: previous/next tab
+- `1` to `9`: jump to tab by index
+- `n`: new tab
+- `r`: rename tab
+- `x`: close tab
+- `s`: toggle active sync tab
+- `tab`: toggle tab
+- `b`: break pane into a new tab
+- `[` and `]`: break pane left/right
+
+## Resize Mode
+
+Enter with:
+
+```text
+Ctrl+n
+```
+
+Then use:
+
+- `h/j/k/l` or arrow keys: resize
+- `H/J/K/L`: resize in the opposite direction
+- `+`, `-`, `=`: grow or shrink
+
+## Move Mode
+
+Enter with:
+
+```text
+Ctrl+h
+```
+
+Then use:
+
+- `h/j/k/l` or arrow keys: move pane
+- `n` or `tab`: cycle/move pane
+- `p`: move pane backwards
+
+## Scroll and Search
+
+Enter scroll mode:
+
+```text
+Ctrl+s
+```
+
+In scroll mode:
+
+- `j/k` or arrow keys: scroll
+- `u` / `d`: half page up/down
+- `Ctrl+b` / `PageUp`: page up
+- `Ctrl+f` / `PageDown`: page down
+- `e`: edit scrollback in `$EDITOR`
+- `s`: enter search input
+- `Ctrl+c`: jump to bottom and return to normal mode
+
+In search mode:
+
+- `n`: next match
+- `p`: previous match
+- `c`: toggle case sensitivity
+- `o`: toggle whole word
+- `w`: toggle wrap
+
+## Session Mode
+
+Enter with:
+
+```text
+Ctrl+o
+```
+
+Then use:
+
+- `a`: about plugin
+- `c`: configuration plugin
+- `p`: plugin manager
+- `s`: share plugin
+- `w`: session manager
+- `d`: detach
+
+Detaching is the safe way to leave a running session without killing it.
+
+## Tmux Mode
+
+Enter with:
+
+```text
+Ctrl+b
+```
+
+Useful keys there:
+
+- `%`: split right
+- `"`: split down
+- `c`: new tab
+- `[` : scroll mode
+- `,`: rename tab
+- `n` / `p`: next / previous tab
+- `o`: focus next pane
+- `z`: fullscreen
+
+## Mouse
+
+Your config has mouse mode enabled.
+
+- Click panes to focus them
+- Click tabs or bars when the layout shows them
+- Drag pane borders to resize
+- Mouse selection works with copy support enabled
+
+## Practical Examples
+
+- Start normal work session:
+
+```bash
+ze
+```
+
+- Start a temporary clean session:
+
+```bash
+zellij -s tmp -n clean
+```
+
+- Open a one-off clean layout:
+
+```bash
+zellij -l clean
+```
+
+- Attach to an existing session:
+
+```bash
+zellij attach main
+```
+
+- Recover an exited session:
+
+```bash
+zellij attach SESSION_NAME
+```
+
+If the session is listed as `EXITED - attach to resurrect`, attaching will resurrect it.
+
+## Troubleshooting
+
+- Keys do nothing:
+  - You are probably in the wrong mode, or in locked mode
+  - Press `Esc` or `Ctrl+g`
+
+- You cannot use a key in Neovim or the shell:
+  - Zellij may be catching it first
+  - Try locked mode with `Ctrl+g`
+
+- Session cleanup fails:
+  - Use `zeclear`
+  - This alias strips ANSI color codes before deleting exited sessions
+
+- Layout does not change for an existing session:
+  - Layout is applied when a session is created
+  - Attaching to an existing session will not rebuild it with a new layout
+
+- You forgot the built-in layouts:
+  - `default`
+  - `compact`
+  - `classic`
+
+## Files Worth Remembering
+
+- Config: `~/.dotfiles/config/zellij/config.kdl`
+- Layouts: `~/.dotfiles/config/zellij/layouts/`
+- Aliases: `~/.dotfiles/aliases/zellij.conf`
