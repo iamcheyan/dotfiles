@@ -10,7 +10,7 @@ TIMESTAMP="$(date '+%Y%m%d_%H%M%S')"
 ensure_git_repo() {
     local repo_dir="$1"
     if ! git -C "$repo_dir" rev-parse --git-dir > /dev/null 2>&1; then
-        echo "错误: 不是 Git 仓库: $repo_dir" >&2
+        echo "Error: not a Git repository: $repo_dir" >&2
         exit 1
     fi
 }
@@ -46,14 +46,14 @@ push_repo() {
     ensure_git_repo "$repo_dir"
 
     if ! has_changes "$repo_dir"; then
-        echo "[$repo_name] 没有需要提交的更改"
+        echo "[$repo_name] No changes to commit"
         return 0
     fi
 
-    echo "[$repo_name] 添加文件..."
+    echo "[$repo_name] Staging changes..."
     stage_changes "$repo_dir"
 
-    echo "[$repo_name] 提交..."
+    echo "[$repo_name] Committing..."
     git -C "$repo_dir" commit -m "$TIMESTAMP"
 
     branch="$(git -C "$repo_dir" branch --show-current 2>/dev/null || true)"
@@ -61,9 +61,9 @@ push_repo() {
         branch="main"
     fi
 
-    echo "[$repo_name] 推送..."
+    echo "[$repo_name] Pushing..."
     if ! git -C "$repo_dir" push -u origin "$branch"; then
-        echo "错误: 推送失败: $repo_name" >&2
+        echo "Error: push failed: $repo_name" >&2
         exit 1
     fi
 }
@@ -71,12 +71,12 @@ push_repo() {
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Push dotfiles + aliases"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "提交信息: $TIMESTAMP"
+echo "Commit message: $TIMESTAMP"
 echo ""
 
-# 根仓库通过 .gitignore 隔离 aliases，不再把它作为路径参数传给 git add。
+# The root repo ignores aliases via .gitignore, so do not pass it to git add.
 push_repo "$DOTFILES_DIR" "dotfiles"
 echo ""
 push_repo "$ALIASES_DIR" "aliases"
 echo ""
-echo "✓ 完成"
+echo "Done"

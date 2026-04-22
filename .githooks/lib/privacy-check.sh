@@ -168,10 +168,10 @@ privacy_report_and_exit() {
 
   if [[ "$mode" == "pre-commit" ]]; then
     echo "Fix the staged files before committing." >&2
-    echo "If this is intentional, edit .githooks/pre-commit or .githooks/lib/privacy-check.sh." >&2
+    echo "If this is intentional, edit .githooks/pre-commit or .githooks/lib/privacy-check.sh instead of bypassing it." >&2
   else
     echo "Fix the matching commits/files before pushing." >&2
-    echo "If this is intentional, edit .githooks/pre-push or .githooks/lib/privacy-check.sh." >&2
+    echo "If this is intentional, edit .githooks/pre-push or .githooks/lib/privacy-check.sh instead of bypassing it." >&2
   fi
   exit 1
 }
