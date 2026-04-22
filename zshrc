@@ -76,9 +76,9 @@ function zvm_after_init() {
 }
 
 # 其他增强插件集合：autosuggestions、语法高亮、autopair、forgit 等
-# wait"0" 表示提示符出现后再异步加载，降低启动阻塞
-zinit ice wait"0" lucid
-zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh
+# 这里直接 source 本地文件，避免 zinit 对本地 snippet 的缓存副本滞后
+# 具体插件是否异步加载，仍由 plugins.zsh 内部的各个 zinit ice 控制
+source ~/.dotfiles/plugins/plugins/plugins.zsh
 
 # fzf 相关函数和默认选项：ff/rf/zd/zc/y 等交互工具
 # 这里必须同步加载，否则 ff/rf 在新 shell 中可能不存在
