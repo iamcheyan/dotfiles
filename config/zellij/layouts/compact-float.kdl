@@ -1,0 +1,11 @@
+layout {
+    pane
+    pane size=1 borderless=true {
+        plugin location="compact-bar"
+    }
+    floating_panes {
+        pane {
+            command "nvim"
+        }
+    }
+}

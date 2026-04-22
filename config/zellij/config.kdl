@@ -298,8 +298,8 @@ simplified_ui false
 // 
 // default_cwd "/tmp"
 
-// 强制使用内建布局，避免拾取 ~/.config/zellij/layouts/default.kdl
-default_layout "compact"
+// Use a custom compact layout with a pre-created floating nvim pane.
+default_layout "compact-float"
  
 // The folder in which Zellij will look for themes
 // (Requires restart)
