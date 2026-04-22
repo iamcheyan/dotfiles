@@ -28,6 +28,7 @@ rime/
 private/
 rime_sbzrjp/
 sbsrf/
+aliases/
 
 config/nvim/lua/plugins/im-select.lua
 
