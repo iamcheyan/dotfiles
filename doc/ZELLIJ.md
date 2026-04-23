@@ -6,10 +6,23 @@ This file is a practical reference for the current local Zellij setup.
 
 - Config file: `~/.dotfiles/config/zellij/config.kdl`
 - Layout directory: `~/.dotfiles/config/zellij/layouts/`
-- Current default layout: `compact`
+- Current default layout: `compact-zjstatus`
 - Current custom layouts:
   - `clean`
+  - `compact-float`
+  - `compact-zjstatus`
+  - `zjstatus-setup`
   - `nvim-float`
+- Local plugin binaries:
+  - `notepad.wasm`
+  - `zellij-attention.wasm`
+  - `zellij-newtab-plus.wasm`
+  - `zellij-pane-picker.wasm`
+  - `zellij-switch.wasm`
+  - `zj-quit.wasm`
+  - `zjstatus.wasm`
+  - `zjstatus-hints.wasm`
+- Plugin usage guide: `~/.dotfiles/doc/ZELLIJ-PLUGINS.md`
 
 Your config uses `clear-defaults=true`, so the keybindings below are the ones that actually matter.
 
@@ -140,7 +153,9 @@ These work outside most special modes.
 
 - `Alt+h/j/k/l`: move focus left/down/up/right
 - `Alt+n`: create a new pane
-- `Alt+f`: toggle floating panes
+- `Alt+f`: toggle zellij-notepad
+- `Alt+Shift+f`: toggle floating panes
+- `Alt+Shift+s`: run zellij-sessionizer
 - `Alt+[` and `Alt+]`: previous/next swap layout
 - `Alt+i` and `Alt+o`: move tab left/right
 - `Alt+p`: toggle pane in group

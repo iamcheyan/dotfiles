@@ -4,5 +4,6 @@
 # Replace dots and other special characters with underscores
 session_name=$(basename "$PWD" | tr ' .-' '_')
 
-# Attach to the session, creating it if it doesn't exist
-zellij attach -c "$session_name"
+# Attach to the session, creating it if it doesn't exist.
+# If the session is exited, force-run serialized commands on resurrect.
+zellij attach -c -f "$session_name"

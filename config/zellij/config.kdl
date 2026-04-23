@@ -146,7 +146,12 @@ keybinds clear-defaults=true {
         bind "Alt =" { Resize "Increase"; }
         bind "Alt [" { PreviousSwapLayout; }
         bind "Alt ]" { NextSwapLayout; }
-        bind "Alt f" { ToggleFloatingPanes; }
+        bind "Alt f" {
+            MessagePlugin "notepad" {
+                name "toggle"
+            }
+        }
+        bind "Alt Shift f" { ToggleFloatingPanes; }
         bind "Ctrl g" { SwitchToMode "locked"; }
         bind "Alt h" { MoveFocusOrTab "left"; }
         bind "Alt i" { MoveTab "left"; }
@@ -156,7 +161,35 @@ keybinds clear-defaults=true {
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
-        bind "Alt Shift p" { ToggleGroupMarking; }
+        bind "Alt q" {
+            LaunchOrFocusPlugin "zj-quit" {
+                floating true
+                move_to_focused_tab true
+            }
+        }
+        bind "Alt Shift g" { ToggleGroupMarking; }
+        bind "Alt Shift s" {
+            Run "zellij-sessionizer" {
+                close_on_exit true
+                floating true
+                x "20%"
+                y "10%"
+                width "60%"
+                height "80%"
+            }
+        }
+        bind "Alt t" {
+            LaunchOrFocusPlugin "zellij-newtab-plus" {
+                floating true
+                move_to_focused_tab true
+            }
+        }
+        bind "Alt w" {
+            LaunchOrFocusPlugin "zellij-pane-picker" {
+                floating true
+                move_to_focused_tab true
+            }
+        }
         bind "Ctrl q" { Quit; }
     }
     shared_except "locked" "move" {
@@ -256,6 +289,8 @@ plugins {
     filepicker location="zellij:strider" {
         cwd "/"
     }
+    notepad location="file:~/.config/zellij/plugins/notepad.wasm"
+    zellij-attention location="file:~/.config/zellij/plugins/zellij-attention.wasm"
     plugin-manager location="zellij:plugin-manager"
     session-manager location="zellij:session-manager"
     status-bar location="zellij:status-bar"
@@ -264,6 +299,35 @@ plugins {
     welcome-screen location="zellij:session-manager" {
         welcome_screen true
     }
+    zellij-newtab-plus location="file:~/.config/zellij/plugins/zellij-newtab-plus.wasm" {
+        cwd "~"
+        use_zoxide true
+    }
+    zellij-pane-picker location="file:~/.config/zellij/plugins/zellij-pane-picker.wasm" {
+        cwd "~"
+        list_panes ""
+        navigate_back ""
+        toggle_star ""
+        next_star ""
+        previous_star ""
+    }
+    zj-quit location="file:~/.config/zellij/plugins/zj-quit.wasm" {
+        cwd "~"
+        confirm_key "q"
+        cancel_key "Esc"
+    }
+    zjstatus location="file:~/.config/zellij/plugins/zjstatus.wasm"
+    zjstatus-hints location="file:~/.config/zellij/plugins/zjstatus-hints.wasm" {
+        max_length 90
+        overflow_str "..."
+        pipe_name "zjstatus_hints"
+        hide_in_base_mode false
+    }
+}
+load_plugins {
+    notepad
+    zellij-attention
+    zjstatus-hints
 }
 web_client {
     font "monospace"
@@ -298,8 +362,8 @@ simplified_ui false
 // 
 // default_cwd "/tmp"
 
-// Use a custom compact layout with a pre-created floating nvim pane.
-default_layout "compact-float"
+// Default to the zjstatus layout inspired by D3B-0x0's configuration.
+default_layout "compact-zjstatus"
  
 // The folder in which Zellij will look for themes
 // (Requires restart)

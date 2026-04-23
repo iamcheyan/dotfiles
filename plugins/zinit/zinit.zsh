@@ -30,9 +30,10 @@ zz() {
   fi
 
   # 如果 session 已存在就 attach，否则新建
+  # 对已退出会话使用 -f，自动重跑 resurrect 记录下来的命令
   if zellij list-sessions 2>/dev/null | grep -q "^${session_name}\b"; then
-    zellij attach "$session_name"
+    zellij attach -f "$session_name"
   else
-    zellij -s "$session_name"
+    zellij attach -c -f "$session_name"
   fi
 }

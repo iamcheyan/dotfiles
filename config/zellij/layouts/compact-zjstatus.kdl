@@ -1,0 +1,61 @@
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zjstatus" {
+                format_left   "{mode} {tabs}"
+                format_center ""
+                format_right  "#[bg=#50fa7b,fg=#282a36,bold] {session}{pipe_zjstatus_hints}{datetime}"
+                format_space  ""
+
+                pipe_zjstatus_hints_format "#[bg=#50fa7b,fg=#282a36,bold]{output} "
+
+                border_enabled  "false"
+                border_char     "─"
+                border_format   "#[fg=#50fa7b]{char}"
+                border_position "top"
+
+                hide_frame_for_single_pane "false"
+
+                mode_locked      "#[bg=#000000,fg=#bdc3c7,bold]  LOCK "
+                mode_normal      "#[bg=#000000,fg=#50fa7b,bold]  NORMAL "
+                mode_resize      "#[bg=#000000,fg=#ffb86c,bold]  RESIZE "
+                mode_pane        "#[bg=#000000,fg=#8be9fd,bold]  PANE "
+                mode_move        "#[bg=#000000,fg=#69ff94,bold]  MOVE "
+                mode_tab         "#[bg=#000000,fg=#f1fa8c,bold]  TAB "
+                mode_scroll      "#[bg=#000000,fg=#7df9ff,bold]  SCROLL "
+                mode_search      "#[bg=#000000,fg=#ff79c6,bold]  SEARCH "
+                mode_entersearch "#[bg=#000000,fg=#ffd166,bold]  ENTER SEARCH "
+                mode_renametab   "#[bg=#000000,fg=#c792ea,bold]  RENAME TAB "
+                mode_renamepane  "#[bg=#000000,fg=#ff6ac1,bold]  RENAME PANE "
+                mode_session     "#[bg=#000000,fg=#ff9e64,bold]  SESSION "
+                mode_tmux        "#[bg=#000000,fg=#00d1ff,bold]  TMUX "
+
+                tab_active              "#[bg=#f8f8f2,fg=#282a36,bold] {name} "
+                tab_active_fullscreen   "#[bg=#f8f8f2,fg=#282a36,bold] {fullscreen_indicator} {name} "
+                tab_active_sync         "#[bg=#f8f8f2,fg=#282a36,bold] {sync_indicator} {name} "
+
+                tab_normal              "#[bg=#50fa7b,fg=#282a36,bold] {name} "
+                tab_normal_fullscreen   "#[bg=#50fa7b,fg=#282a36,bold] {fullscreen_indicator} {name} "
+                tab_normal_sync         "#[bg=#50fa7b,fg=#282a36,bold] {sync_indicator} {name} "
+
+                tab_separator ""
+
+                tab_sync_indicator       "󰓦"
+                tab_fullscreen_indicator "󰊓"
+                tab_floating_indicator   "⬚"
+
+                tab_rename              "#[bg=#8be9fd,fg=#282a36,bold] {index} {name} {floating_indicator} "
+
+                tab_display_count         "9"
+                tab_truncate_start_format "#[fg=#f1fa8c]  +{count}  "
+                tab_truncate_end_format   "#[fg=#f1fa8c]   +{count} "
+
+                datetime        "#[fg=#8be9a7,bold] {format} "
+                datetime_format "%d %b %H:%M"
+                datetime_timezone "Asia/Tokyo"
+            }
+        }
+    }
+    tab name="main"
+}
