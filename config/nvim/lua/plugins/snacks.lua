@@ -34,6 +34,7 @@ return {
     end,
     opts = {
       explorer = { enabled = false },
+      scroll = { enabled = false },
       -- 1. 全局基础窗口配置
       win = { border = "single" },
       -- 2. 覆盖 Snacks 内置的所有标准样式

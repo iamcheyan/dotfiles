@@ -2,8 +2,8 @@ return {
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "af",
-      -- colorscheme = "DimGreens",
+      -- Single source of truth for the active Neovim colorscheme.
+      colorscheme = "oceanblack",
     },
   },
 

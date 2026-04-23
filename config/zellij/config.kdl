@@ -318,10 +318,10 @@ plugins {
     }
     zjstatus location="file:~/.config/zellij/plugins/zjstatus.wasm"
     zjstatus-hints location="file:~/.config/zellij/plugins/zjstatus-hints.wasm" {
-        max_length 90
+        max_length 180
         overflow_str "..."
         pipe_name "zjstatus_hints"
-        hide_in_base_mode false
+        hide_in_base_mode true
     }
 }
 load_plugins {

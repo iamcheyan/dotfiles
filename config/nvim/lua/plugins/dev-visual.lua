@@ -111,7 +111,7 @@ return {
     event = "VeryLazy",
     opts = {
       indent = { char = "│" },
-      scope = { enabled = true },
+      scope = { enabled = false },
       exclude = {
         filetypes = { "help", "dashboard", "neo-tree", "NvimTree", "lazy", "mason", "Trouble" },
       },
