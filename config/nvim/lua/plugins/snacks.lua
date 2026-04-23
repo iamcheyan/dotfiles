@@ -35,6 +35,15 @@ return {
     opts = {
       explorer = { enabled = false },
       scroll = { enabled = false },
+      notifier = {
+        icons = {
+          error = "E ",
+          warn = "W ",
+          info = "i ",
+          debug = "D ",
+          trace = "T ",
+        },
+      },
       -- 1. 全局基础窗口配置
       win = { border = "single" },
       -- 2. 覆盖 Snacks 内置的所有标准样式
