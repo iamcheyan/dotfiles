@@ -25,64 +25,6 @@ return {
         right_mouse_command = "bdelete! %d", -- 右键关闭
         left_mouse_command = "buffer %d", -- 左键单击切换
       },
-
-      highlights = {
-        indicator_selected = {
-          fg = "#000000",
-          bg = "#3fb950",
-        },
-        -- 背景填充（非 tab 区域）
-        fill = {
-          bg = "#1e1e1e",
-        },
-
-        -- 非当前 tab
-        background = {
-          fg = "#9aa0a6",
-          bg = "#1e1e1e",
-        },
-        buffer_visible = {
-          fg = "#9aa0a6",
-          bg = "#1e1e1e",
-        },
-        duplicate = {
-          fg = "#9aa0a6",
-          bg = "#1e1e1e",
-          italic = false,
-        },
-        duplicate_visible = {
-          fg = "#9aa0a6",
-          bg = "#1e1e1e",
-          italic = false,
-        },
-
-        -- 当前 tab：绿色背景
-        buffer_selected = {
-          fg = "#000000",
-          bg = "#3fb950", -- 绿色（GitHub green）
-          bold = true,
-          italic = false,
-        },
-        duplicate_selected = {
-          fg = "#000000",
-          bg = "#3fb950",
-          italic = false,
-        },
-        close_button_selected = {
-          fg = "#000000",
-          bg = "#3fb950",
-        },
-
-        -- 分隔符全部“隐形”
-        separator = {
-          fg = "#1e1e1e",
-          bg = "#1e1e1e",
-        },
-        separator_selected = {
-          fg = "#3fb950",
-          bg = "#3fb950",
-        },
-      },
     },
   },
 }
