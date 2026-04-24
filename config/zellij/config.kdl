@@ -1,5 +1,57 @@
 // Zellij Configuration
 
+// 恢复原来使用的主题
+// theme "dracula"
+
+themes {
+    mytheme {
+        fg "#c0caf5"
+        bg "#1a1b26"
+        black "#1a1b26"
+        red "#f7768e"
+        green "#9ece6a"
+        yellow "#e0af68"
+        blue "#7aa2f7"
+        magenta "#bb9af7"
+        cyan "#7dcfff"
+        white "#c0caf5"
+        orange "#ff9e64"
+
+        // Pane border colors
+        frame_unselected {
+            base "#3e3e3e"
+            emphasis_0 "#3e3e3e"
+            emphasis_1 "#3e3e3e"
+            emphasis_2 "#3e3e3e"
+            emphasis_3 "#3e3e3e"
+        }
+        frame_selected {
+            base "#000000"
+            emphasis_0 "#000000"
+            emphasis_1 "#000000"
+            emphasis_2 "#000000"
+            emphasis_3 "#000000"
+        }
+        frame_highlight {
+            base "#50fa7b"
+            emphasis_0 "#50fa7b"
+            emphasis_1 "#50fa7b"
+            emphasis_2 "#50fa7b"
+            emphasis_3 "#50fa7b"
+        }
+    }
+}
+
+theme "mytheme"
+
+ui {
+    pane_frames {
+        hide_session_name true
+    }
+}
+
+// 保留边框等外观
+pane_frames true
 
 keybinds clear-defaults=true {
     locked {
@@ -340,8 +392,7 @@ web_client {
 // 
 // simplified_ui true
 
-// 恢复原来使用的主题
-theme "dracula"
+
  
 // Choose the base input mode of zellij.
 // Default: normal
@@ -350,6 +401,7 @@ theme "dracula"
 
 // 恢复鼠标交互
 mouse_mode true
+
 // 恢复完整 UI
 simplified_ui false
  
@@ -385,8 +437,7 @@ default_layout "compact-zjstatus"
 //   - false
 // 
 
-// 恢复窗格时保留边框等外观
-pane_frames true
+
  
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)
@@ -495,7 +546,7 @@ session_serialization true
  
 // How often in seconds sessions are serialized
 // 
-// serialization_interval 10000
+serialization_interval 30
  
 // Enable or disable writing of session metadata to disk (if disabled, other sessions might not know
 // metadata info on this session)
