@@ -213,7 +213,7 @@ keybinds clear-defaults=true {
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
-        bind "Alt q" {
+        bind "Ctrl q" {
             LaunchOrFocusPlugin "zj-quit" {
                 floating true
                 move_to_focused_tab true
@@ -230,19 +230,12 @@ keybinds clear-defaults=true {
                 height "80%"
             }
         }
-        bind "Alt t" {
-            LaunchOrFocusPlugin "zellij-newtab-plus" {
-                floating true
-                move_to_focused_tab true
-            }
-        }
         bind "Alt w" {
             LaunchOrFocusPlugin "zellij-pane-picker" {
                 floating true
                 move_to_focused_tab true
             }
         }
-        bind "Ctrl q" { Quit; }
     }
     shared_except "locked" "move" {
         bind "Ctrl h" { SwitchToMode "move"; }
@@ -350,10 +343,6 @@ plugins {
     tab-bar location="zellij:tab-bar"
     welcome-screen location="zellij:session-manager" {
         welcome_screen true
-    }
-    zellij-newtab-plus location="file:~/.config/zellij/plugins/zellij-newtab-plus.wasm" {
-        cwd "~"
-        use_zoxide true
     }
     zellij-pane-picker location="file:~/.config/zellij/plugins/zellij-pane-picker.wasm" {
         cwd "~"

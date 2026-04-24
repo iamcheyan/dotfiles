@@ -37,11 +37,11 @@ return {
       scroll = { enabled = false },
       notifier = {
         icons = {
-          error = "E ",
-          warn = "W ",
-          info = "i ",
-          debug = "D ",
-          trace = "T ",
+          error = "",
+          warn = "",
+          info = "",
+          debug = "",
+          trace = "",
         },
       },
       -- 1. 全局基础窗口配置
