@@ -43,6 +43,7 @@
 *   **telescope.nvim**: 强大的模糊搜索器 (搜索文件、grep、git 等)。
 *   **plenary.nvim**: Lua 实用函数库 (Telescope 等插件的依赖)。
 *   **flash.nvim**: 极速光标跳转插件 (类似 Easymotion/Sneak)。
+*   **oil.nvim**: 把目录当成可编辑 buffer 的文件管理器，适合批量新建、重命名、删除文件。
 *   **trouble.nvim**: 漂亮的诊断、引用和快速修复列表。
 *   **todo-comments.nvim**: 高亮并列出代码中的 TODO, FIXME, HACK 等注释。
 *   **grug-far.nvim**: 全局搜索和替换工具 (基于 ripgrep)。
