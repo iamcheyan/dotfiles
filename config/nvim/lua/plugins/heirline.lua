@@ -125,7 +125,7 @@ return {
               return
             end
             vim.fn.setreg("+", path)
-            vim.notify("已复制路径: " .. path, vim.log.levels.INFO)
+            vim.notify("Copied path: " .. path, vim.log.levels.INFO)
           end,
           name = "heirline_copy_filepath",
         },
