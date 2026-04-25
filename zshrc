@@ -3,6 +3,11 @@
 # confirmations, etc.) must go above this block; everything else may go below.
 # Set instant prompt to quiet to suppress warnings during zinit tool installation
 
+# SSH 会话中降级 TERM，避免远程服务器不认识 xterm-kitty
+if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
+    export TERM=xterm-256color
+fi
+
 export PATH="$HOME/.fzf/bin:$PATH"
 
 # 启用 AUTO_CD：输入目录路径时自动 cd
