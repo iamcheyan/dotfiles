@@ -48,3 +48,4 @@ config/nvim/sbzr.nvim.im.db/
 config/nvim/lazy-lock.json
 config/git-credentials
 pat.sh
+a.out
