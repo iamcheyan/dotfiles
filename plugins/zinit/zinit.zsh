@@ -15,10 +15,43 @@ source ~/.zinit/bin/zinit.zsh
 # }
 
 zz() {
-  local dir
-  dir=$( (zoxide query -l; find ~ -type d 2>/dev/null | head -2000) | sort -u | fzf \
-    --height 50% \
-    --reverse \
-    --prompt="dirs> ")
-  [ -n "$dir" ] && cd "$dir"
+  local base dir
+  local -a list_cmd
+  base="${1:-$HOME}"
+
+  if [[ "$base" == "." ]]; then
+    base="$PWD"
+  elif [[ "$base" == "~" ]]; then
+    base="$HOME"
+  elif [[ "$base" == ~/* ]]; then
+    base="${HOME}/${base#~/}"
+  fi
+
+  if [[ ! -d "$base" ]]; then
+    echo "zz: not a directory: $base" >&2
+    return 1
+  fi
+
+  if command -v fd >/dev/null 2>&1; then
+    list_cmd=(fd . "$base" --type d --hidden --follow --exclude .git)
+  elif command -v fdfind >/dev/null 2>&1; then
+    list_cmd=(fdfind . "$base" --type d --hidden --follow --exclude .git)
+  else
+    list_cmd=(find "$base" -type d)
+  fi
+
+  dir=$(
+    {
+      if [[ "$base" == "$HOME" ]]; then
+        zoxide query -l 2>/dev/null
+      fi
+      printf '%s\n' "$base"
+      "${list_cmd[@]}" 2>/dev/null
+    } | awk 'NF && !seen[$0]++' | fzf \
+      --height 50% \
+      --reverse \
+      --prompt="dirs> " \
+      --preview-window=hidden
+  )
+  [[ -n "$dir" ]] && cd "$dir"
 }

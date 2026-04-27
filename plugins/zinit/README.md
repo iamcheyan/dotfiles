@@ -32,13 +32,21 @@ fi
 source ~/.zinit/bin/zinit.zsh
 ```
 
-### Zoxide 别名
+### `zz` 目录选择函数
 
-定义了 `zz` 别名，用于交互式查询 zoxide 数据库：
+定义了 `zz` 函数，用于交互式选择目录并 `cd` 过去：
 
 ```zsh
-alias zz='zoxide query -i'
+zz           # 从 HOME 范围搜索目录
+zz .         # 从当前目录范围搜索目录
+zz ~/work    # 从指定目录范围搜索目录
 ```
+
+特点：
+
+- 不显示预览窗口
+- 默认在 `HOME` 下搜索，同时混入 zoxide 历史目录
+- 传入目录参数后，只在该目录树下搜索
 
 ## 使用说明
 
@@ -80,4 +88,3 @@ zinit delete --clean
 
 - [Zinit 官方文档](https://github.com/zdharma-continuum/zinit)
 - [Zinit Wiki](https://github.com/zdharma-continuum/zinit/wiki)
-

@@ -25,7 +25,7 @@
 **作用：**
 - 自动安装 Zinit（如果不存在）
 - 初始化 Zinit 插件管理器
-- 提供 `zz` 别名（`zoxide query -i`）
+- 提供 `zz` 函数，用于交互式选目录并切换
 
 **调用方式：**
 - 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/zinit/zinit.zsh` 加载
@@ -33,7 +33,7 @@
 
 **提供的功能：**
 - `zinit` 命令可用
-- `zz` 别名（交互式 zoxide 目录查询）
+- `zz` 函数（无预览的交互式目录选择）
 
 ### 2. prompt.zsh - Powerlevel10k 主题配置
 

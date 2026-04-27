@@ -18,7 +18,7 @@ verbs: [
 
     {
         invocation: q
-        key: "ctrl-q"
+        key: "alt-q"
         cmd: ":cd"
     }
 
