@@ -428,6 +428,7 @@ LazyVim 的 `<leader>` 键默认是 **空格键 (Space)**
 | `<leader>w` | 保存文件 |
 | `<leader>u` | 撤销树（可视化撤销历史） |
 | `<leader>l` | LazyVim 菜单 |
+| `<leader>ta` | 中央浮动终端开关 |
 | `<leader>L` | LazyVim 命令 |
 | `<leader>c` | 关闭浮动窗口 |
 | `<Esc>` | 退出插入模式或关闭浮动窗口 |
@@ -633,4 +634,3 @@ rm -rf ~/.cache/nvim
 4. 开始编码！
 
 享受 LazyVim 带来的强大功能！
-
