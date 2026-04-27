@@ -1,6 +1,7 @@
 return {
   {
     "akinsho/bufferline.nvim",
+    enabled = vim.env.WDIFF_NVIM ~= "1",
     opts = {
       highlights = {
         fill = {
