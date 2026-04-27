@@ -4,8 +4,18 @@
 # Set instant prompt to quiet to suppress warnings during zinit tool installation
 
 # SSH 会话中降级 TERM，避免远程服务器不认识 xterm-kitty
+# 同时设置 kitty tab 颜色为红色，直观区分远程会话
 if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
     export TERM=xterm-256color
+    # SSH 会话：kitty tab 设为红色背景
+    if [[ -n "$KITTY_WINDOW_ID" ]]; then
+        nohup kitty @ --to unix:/tmp/mykitty set-tab-color active_bg=rgb(b40000) inactive_bg=rgb(5c0000) > /dev/null 2>&1 &
+    fi
+else
+    # 本地会话：恢复默认 tab 颜色
+    if [[ -n "$KITTY_WINDOW_ID" ]]; then
+        nohup kitty @ --to unix:/tmp/mykitty set-tab-color active_bg=default inactive_bg=default > /dev/null 2>&1 &
+    fi
 fi
 
 export PATH="$HOME/.fzf/bin:$PATH"
@@ -152,7 +162,17 @@ source ~/.dotfiles/aliases.conf
 [[ -r ~/.aws/aliases.conf ]] && source ~/.aws/aliases.conf
 
 # Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.
-#
+
+# SSH 会话时在窗口标题前加 [SSH] 标记
+function _update_window_title() {
+    local prefix=""
+    if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
+        prefix="[SSH] "
+    fi
+    print -Pn "\e]2;${prefix}%n@%m: %~\a"
+}
+precmd_functions+=(_update_window_title)
+
 #
 
 export GOENV_ROOT="$HOME/.goenv"
