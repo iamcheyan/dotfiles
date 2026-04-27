@@ -211,6 +211,55 @@ install:rime --force   # 强制重新克隆
 
 ---
 
+### 7. `install_httpie.sh` - HTTPie 安装脚本
+
+**功能：**
+- 安装 `HTTPie` 命令行客户端（`http`）
+- 优先使用系统包管理器，失败时回退到 `pipx` / `pip --user`
+
+**用法：**
+```bash
+install:httpie
+install:httpie --force
+install:httpie --method auto
+install:httpie --method package
+install:httpie --method pipx
+install:httpie --method pip
+```
+
+**特点：**
+- 支持 Linux / macOS
+- 优先走官方推荐的包管理器方式
+- 回退方案适合无 root 的用户环境
+
+---
+
+### 8. `install_broot.sh` - broot 安装脚本
+
+**功能：**
+- 安装 `broot` 交互式目录浏览工具
+- 支持系统包管理器、GitHub Releases 二进制包、`cargo` 编译三种方式
+- 安装完成后自动生成 `br` shell function
+
+**用法：**
+```bash
+install:broot
+install:broot --force
+install:broot --method auto
+install:broot --method package
+install:broot --method binary
+install:broot --method cargo
+```
+
+**特点：**
+- 支持 Linux / macOS
+- `auto` 默认按 `package -> binary -> cargo` 依次尝试
+- 二进制安装会按当前平台选择 release 包内对应目录，例如 `x86_64-unknown-linux-gnu-glibc2.28/broot`
+- 安装后自动执行 `config/broot/init.sh`
+- `br` 可用于退出 broot 后自动 `cd` 到目标目录
+
+---
+
 ## 使用方式
 
 ### 通过别名（推荐）
@@ -224,6 +273,8 @@ install:nvm         # 安装 nvm
 install:treesitter  # 安装 tree-sitter-cli
 install:fzf         # 安装 fzf
 install:rime        # 安装 Rime 配置
+install:httpie      # 安装 HTTPie
+install:broot       # 安装 broot
 ```
 
 ### 直接运行脚本
@@ -235,6 +286,8 @@ bash ~/.dotfiles/scripts/install/install_nvm.sh
 bash ~/.dotfiles/scripts/install/install_treesitter.sh
 bash ~/.dotfiles/scripts/install/install_fzf.sh
 bash ~/.dotfiles/scripts/install/install_rime.sh
+bash ~/.dotfiles/scripts/install/install_httpie.sh
+bash ~/.dotfiles/scripts/install/install_broot.sh
 ```
 
 ---
@@ -294,4 +347,3 @@ bash ~/.dotfiles/scripts/install/install_rime.sh
 ---
 
 **最后更新**: 2025-01-XX
-

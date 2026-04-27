@@ -9,12 +9,13 @@
 ```
 1. zinit.zsh      → Zinit 引导和初始化
 2. prompt.zsh     → Powerlevel10k 主题
-3. plugins.zsh    → Zsh 功能插件
-4. tools.zsh      → CLI 工具管理
+3. tools.zsh      → CLI 工具管理
+4. broot.zsh      → broot 的 `br` shell function 集成
 5. completion.zsh → 补全和 PATH 设置
-6. fzf.zsh        → fzf 配置和函数
-7. spf/superfile.zsh → superfile 自动安装（退出后切换目录）
-8. local.zsh      → 机器特定配置
+6. plugins.zsh    → Zsh 功能插件
+7. fzf.zsh        → fzf 配置和函数
+8. spf/superfile.zsh → superfile 自动安装（退出后切换目录）
+9. local.zsh      → 机器特定配置
 ```
 
 ## 文件详细说明
@@ -123,6 +124,7 @@
 
 #### 文件工具
 - `bat` - 文件查看器（带语法高亮）
+- `broot` - 交互式目录树导航，支持 `br` 返回 shell 后自动 `cd`
 - `fd` - 文件搜索工具（替代 find）
 - `rg` (`ripgrep`) - 文本搜索工具（替代 grep）
 - `zoxide` - 智能目录跳转
@@ -485,4 +487,3 @@ install:font          # 字体安装
 ### 字体安装失败
 - 检查网络连接
 - 手动运行：`bash ~/.dotfiles/scripts/install/install_font.sh --force`
-

@@ -160,10 +160,10 @@ install_essentials() {
     print_info "Checking essential tools..."
     
     local common_packages="git curl wget unzip git-extras ffmpeg"
-    local debian_packages="build-essential ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping"
-    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping"
-    local arch_packages="base-devel ripgrep fd bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping"
-    local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat viu yt-dlp tealdeer gping"
+    local debian_packages="build-essential ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot"
+    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot"
+    local arch_packages="base-devel ripgrep fd bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot"
+    local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat viu yt-dlp tealdeer gping jq httpie broot"
 
     OS=$(detect_os)
     if [[ "$OS" == "debian" ]]; then

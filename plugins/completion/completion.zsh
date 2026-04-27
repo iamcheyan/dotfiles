@@ -7,6 +7,21 @@ if [[ -L $vendor_completions_dir && ! -e $vendor_completions_dir ]]; then
   fpath=("${(@)fpath:#$vendor_completions_dir}")
 fi
 
+# WSL 上的 docker 补全有时会留下断链的 _docker，compinit 会在启动时反复报错并拖慢初始化。
+# 遇到这种情况时，改用一个过滤过坏链的镜像目录。
+broken_docker_completion="$vendor_completions_dir/_docker"
+if [[ -L $broken_docker_completion && ! -e $broken_docker_completion ]]; then
+  clean_vendor_completions_dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/vendor-completions-clean"
+  mkdir -p "$clean_vendor_completions_dir"
+  rm -f "$clean_vendor_completions_dir"/_*
+  for completion_file in "$vendor_completions_dir"/_*; do
+    [[ -e "$completion_file" ]] || continue
+    ln -sf "$completion_file" "$clean_vendor_completions_dir/${completion_file:t}"
+  done
+  fpath=("${(@)fpath:#$vendor_completions_dir}")
+  fpath=("$clean_vendor_completions_dir" $fpath)
+fi
+
 autoload -Uz compinit
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"

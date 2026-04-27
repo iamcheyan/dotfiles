@@ -4,6 +4,16 @@ zi_cmd() {
   zinit light "$1"
 }
 
+unalias install:httpie 2>/dev/null || true
+install:httpie() {
+  bash "$HOME/.dotfiles/scripts/install/install_httpie.sh" "$@"
+}
+
+unalias install:broot 2>/dev/null || true
+install:broot() {
+  bash "$HOME/.dotfiles/scripts/install/install_broot.sh" "$@"
+}
+
 # pyenv + pyenv-virtualenv
 export PYENV_ROOT="$HOME/.pyenv"
 if [ -d "$PYENV_ROOT" ]; then
@@ -85,6 +95,22 @@ zinit light orf/gping
 
 # 文件工具
 zi_cmd sharkdp/bat bat
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  zinit ice as"command" from"gh-r" bpick"broot_*.zip" mv"broot_*/aarch64-apple-darwin/broot -> broot" pick"broot"
+else
+  case "$(uname -m)" in
+    aarch64|arm64)
+      zinit ice as"command" from"gh-r" bpick"broot_*.zip" mv"broot_*/aarch64-unknown-linux-gnu/broot -> broot" pick"broot"
+      ;;
+    armv7l|armv7)
+      zinit ice as"command" from"gh-r" bpick"broot_*.zip" mv"broot_*/armv7-unknown-linux-gnueabihf/broot -> broot" pick"broot"
+      ;;
+    *)
+      zinit ice as"command" from"gh-r" bpick"broot_*.zip" mv"broot_*/x86_64-unknown-linux-gnu-glibc2.28/broot -> broot" pick"broot"
+      ;;
+  esac
+fi
+zinit light Canop/broot
 # fd 需要特殊处理，因为文件在子目录中
 zinit ice as"command" from"gh-r" mv"fd-*/fd -> fd" pick"fd" sbin"fd"
 zinit light sharkdp/fd

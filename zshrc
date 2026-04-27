@@ -37,6 +37,9 @@ source ~/.dotfiles/plugins/prompt/prompt.zsh
 # 核心工具集合：通过 zinit 安装命令行工具，并初始化 pyenv/direnv/atuin 等 shell 集成
 source ~/.dotfiles/plugins/tools/tools.zsh
 
+# broot: 提供 br shell function，使 Alt+Enter 返回 shell 后能自动 cd
+[[ -f ~/.dotfiles/plugins/broot/broot.zsh ]] && source ~/.dotfiles/plugins/broot/broot.zsh
+
 # 补全系统：初始化 compinit、额外补全定义和 fzf-tab 补全界面
 source ~/.dotfiles/plugins/completion/completion.zsh
 
