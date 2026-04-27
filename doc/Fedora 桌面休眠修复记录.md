@@ -79,9 +79,9 @@ sudo dracut -f --regenerate-all
 
 ## 四、 电源管理：持久化禁用唤醒源
 
-防止鼠标移动或总线信号导致意外唤醒。
+防止鼠标移动、USB 信号或网络包导致意外唤醒。
 
-### 1. 创建自动禁用服务
+### 4.1 ACPI 唤醒设备禁用
 创建 `/etc/systemd/system/disable-wakeup.service`：
 ```ini
 [Unit]
@@ -97,11 +97,74 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 ```
 
-### 2. 启用服务
+启用：
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now disable-wakeup.service
 ```
+
+### 4.2 USB 设备唤醒禁用（关键）
+无线鼠标/键盘接收器（如 Logitech Unifying、2.4G 接收器）在 `s2idle` 模式下极其敏感，轻微震动或信号干扰即可唤醒系统。
+
+创建 `/etc/systemd/system/disable-usb-wakeup.service`：
+```ini
+[Unit]
+Description=Disable USB wakeup sources
+After=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'for d in /sys/bus/usb/devices/*/power/wakeup; do [ -f "$d" ] && echo disabled > "$d" 2>/dev/null; done'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+```
+
+启用：
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now disable-usb-wakeup.service
+```
+
+### 4.3 网卡 Wake-on-LAN 禁用
+部分网卡默认开启 WOL，局域网内的唤醒包可导致意外恢复。
+
+创建 `/etc/systemd/system/disable-nic-wol.service`：
+```ini
+[Unit]
+Description=Disable NIC Wake-on-LAN
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'for nic in /sys/class/net/*; do nic=$(basename "$nic"); [ "$nic" = "lo" ] && continue; [ -d "/sys/class/net/$nic/device" ] || continue; /usr/sbin/ethtool -s "$nic" wol d 2>/dev/null || true; done'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+
+启用：
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now disable-nic-wol.service
+```
+
+### 4.4 验证唤醒源状态
+```bash
+# 查看 ACPI 唤醒设备
+cat /proc/acpi/wakeup
+
+# 查看 USB 设备唤醒状态
+for f in /sys/bus/usb/devices/*/power/wakeup; do
+    [ -f "$f" ] && echo "$(basename $(dirname $f)): $(cat $f)"
+done
+
+# 查看网卡 WOL 状态
+sudo ethtool <网卡名> | grep Wake-on
+```
+预期结果：除电源按钮（PBTN/LNXPWRBN）外，所有设备状态应为 `disabled`；
 
 ---
 
@@ -159,6 +222,7 @@ journalctl -b 0 | grep -i "PM: hibernation"
 *   ✅ **HibernateMode=shutdown**: 解决 UEFI 恢复签名丢失问题。
 *   ✅ **High Image Size**: 解决大内存机型由于过度压缩导致的休眠前崩溃。
 *   ✅ **pm_test**: 提供了驱动级故障的快速排查手段。
+*   ✅ **USB / NIC 唤醒禁用**: 解决无线接收器、网卡 WOL 导致的休眠后意外唤醒。
 
 ---
-*最后更新日期：2026年4月20日*
+*最后更新日期：2026年4月26日*

@@ -2,6 +2,33 @@
 # 必要に応じて編集してください
 
 # ============================================
+# 清理残留的 ZELLIJ 环境变量
+# 当 zellij 客户端崩溃、异常断开，或通过中间工具（如 Kimi Code）
+# 启动 shell 时，环境变量可能残留但进程树中已无 zellij。
+# ============================================
+_ cleanup_zellij_env() {
+    # 如果不在 zellij 进程树中，清理残留的环境变量
+    local has_zellij=false
+    local pid=$$
+    while [[ -n "$pid" && "$pid" -ne 1 ]]; do
+        if ps -p "$pid" -o comm= 2>/dev/null | grep -q zellij; then
+            has_zellij=true
+            break
+        fi
+        pid=$(ps -p "$pid" -o ppid= 2>/dev/null | tr -d ' ')
+    done
+
+    if [[ "$has_zellij" == false ]]; then
+        unset ZELLIJ ZELLIJ_SESSION_NAME ZELLIJ_PANE_ID ZELLIJ_SOCKET_DIR 2>/dev/null
+    fi
+}
+
+# 交互式 shell 启动时执行清理
+if [[ -o interactive ]]; then
+    cleanup_zellij_env
+fi
+
+# ============================================
 # 字体安装功能
 # ============================================
 
