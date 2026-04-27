@@ -32,7 +32,6 @@
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
     # os_icon               # os identifier
-    context                 # user@hostname (SSH indicator)
     dir                     # current directory
     vcs                     # git status
     # =========================[ Line #2 ]=========================
@@ -85,7 +84,7 @@
     gcloud                  # google cloud cli account and project (https://cloud.google.com/)
     google_app_cred         # google application credentials (https://cloud.google.com/docs/authentication/production)
     toolbox                 # toolbox name (https://github.com/containers/toolbox)
-    context                 # user@hostname
+    context                 # user@hostname (SSH indicator)
     nordvpn                 # nordvpn connection status, linux only (https://nordvpn.com/)
     ranger                  # ranger shell (https://github.com/ranger/ranger)
     yazi                    # yazi shell (https://github.com/sxyazi/yazi)
