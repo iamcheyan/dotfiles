@@ -9,7 +9,7 @@ if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
     export TERM=xterm-256color
     # SSH 会话：kitty tab 设为红色背景
     if [[ -n "$KITTY_WINDOW_ID" ]]; then
-        nohup kitty @ --to unix:/tmp/mykitty set-tab-color active_bg=rgb(b40000) inactive_bg=rgb(5c0000) > /dev/null 2>&1 &
+        nohup kitty @ --to unix:/tmp/mykitty set-tab-color active_bg=rgb(8b0000) inactive_bg=rgb(3a0000) > /dev/null 2>&1 &
     fi
 else
     # 本地会话：恢复默认 tab 颜色
