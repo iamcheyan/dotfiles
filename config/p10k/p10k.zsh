@@ -32,6 +32,7 @@
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
     # os_icon               # os identifier
+    ssh_indicator           # SSH session indicator
     dir                     # current directory
     vcs                     # git status
     # =========================[ Line #2 ]=========================
@@ -925,7 +926,7 @@
   # Custom icon.
   # typeset -g POWERLEVEL9K_CONTEXT_VISUAL_IDENTIFIER_EXPANSION='⭐'
   # Custom prefix.
-  typeset -g POWERLEVEL9K_CONTEXT_PREFIX='%fwith '
+  # typeset -g POWERLEVEL9K_CONTEXT_PREFIX='%fwith '
 
   ###[ virtualenv: python virtual environment (https://docs.python.org/3/library/venv.html) ]###
   # Python virtual environment color.
@@ -1658,6 +1659,17 @@
   # Type `p10k help segment` for documentation and a more sophisticated example.
   function prompt_example() {
     p10k segment -f 208 -i '⭐' -t 'hello, %n'
+  }
+
+  # SSH indicator: show 🌐 when in SSH session
+  function prompt_ssh_indicator() {
+    if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
+      p10k segment -f 196 -i '🌐' -t ''
+    fi
+  }
+
+  function instant_prompt_ssh_indicator() {
+    prompt_ssh_indicator
   }
 
   # User-defined prompt segments may optionally provide an instant_prompt_* function. Its job
