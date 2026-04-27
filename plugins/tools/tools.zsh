@@ -162,8 +162,8 @@ zinit light direnv/direnv
 
 # atuin 只下载二进制，不再自动初始化（初始化在 zshrc 中进行）
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  zinit ice as"command" from"gh-r" bpick"*apple-darwin*" mv"atuin-*/atuin -> atuin" pick"atuin"
+  zinit ice as"command" from"gh-r" bpick"*apple-darwin*.tar.gz" mv"atuin-*/atuin -> atuin" pick"atuin"
 else
-  zinit ice as"command" from"gh-r" bpick"*unknown-linux-gnu*" mv"atuin-*/atuin -> atuin" pick"atuin"
+  zinit ice as"command" from"gh-r" bpick"atuin-x86_64-unknown-linux-gnu.tar.gz" mv"atuin-*/atuin -> atuin" pick"atuin"
 fi
 zinit light atuinsh/atuin
