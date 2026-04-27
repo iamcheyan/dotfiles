@@ -273,7 +273,7 @@ return {
         mode = "buffers",
         diagnostics = false,
         themable = false,
-        color_icons = false,
+        color_icons = true,
         offsets = {
           {
             filetype = "snacks_layout_box",

@@ -18,8 +18,10 @@ return {
       -- },
       {
         "<leader>o",
-        "<cmd>Oil --float<cr>",
-        desc = "Open Oil (float)",
+        function()
+          require("oil").toggle_float()
+        end,
+        desc = "Toggle Oil (float)",
       },
     },
     opts = {

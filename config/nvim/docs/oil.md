@@ -13,11 +13,9 @@
 - `-`
   在当前文件所在目录打开 `oil`
 - `<leader>o`
-  在当前窗口打开 `oil`
-- `<leader>O`
-  用浮窗打开 `oil`
+  切换 `oil` 浮窗，再按一次关闭
 
-`<leader>e` 仍然保留给你现有的文件树，不和 `oil` 冲突。
+`<leader>e` 现在保留给 `yazi.nvim`，不和 `oil` 冲突。
 
 ## 最常用操作
 
@@ -116,4 +114,3 @@ new_name.py
 ## 官方文档
 
 - GitHub: https://github.com/stevearc/oil.nvim
-
