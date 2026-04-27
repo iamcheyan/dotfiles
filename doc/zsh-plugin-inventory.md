@@ -25,17 +25,18 @@
 2. `source ~/.dotfiles/plugins/zinit/zinit.zsh`
 3. `source ~/.dotfiles/plugins/prompt/prompt.zsh`
 4. `source ~/.dotfiles/plugins/tools/tools.zsh`
-5. `source ~/.dotfiles/plugins/completion/completion.zsh`
-6. `zinit light mroth/evalcache`
-7. `zinit light jeffreytse/zsh-vi-mode`
-8. `zinit light zsh-users/zsh-history-substring-search`
-9. `zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh` with `wait"0"`
-10. `source ~/.dotfiles/plugins/fzf/fzf.zsh`
-11. `_evalcache atuin init zsh`
-12. `_evalcache zoxide init zsh`
-13. `_evalcache direnv hook zsh`
-14. `source ~/.dotfiles/plugins/spf/superfile.zsh` if present
-15. `source ~/.dotfiles/plugins/local/local.zsh` if present
+5. `source ~/.dotfiles/plugins/broot/broot.zsh`
+6. `source ~/.dotfiles/plugins/completion/completion.zsh`
+7. `zinit light mroth/evalcache`
+8. `zinit light jeffreytse/zsh-vi-mode`
+9. `zinit light zsh-users/zsh-history-substring-search`
+10. `zinit snippet ~/.dotfiles/plugins/plugins/plugins.zsh` with `wait"0"`
+11. `source ~/.dotfiles/plugins/fzf/fzf.zsh`
+12. `_evalcache atuin init zsh`
+13. `_evalcache zoxide init zsh`
+14. `_evalcache direnv hook zsh`
+15. `source ~/.dotfiles/plugins/spf/superfile.zsh` if present
+16. `source ~/.dotfiles/plugins/local/local.zsh` if present
 
 ## 2. Zsh 插件、补全和提示符组件
 
@@ -77,6 +78,7 @@
 | `pyenv-virtualenv` | Python 虚拟环境集成 | 本地 `eval "$($PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init -)"` | 同步初始化，条件加载 |
 | `nvm` | Node.js 版本管理 | 在 `zshrc` 中定义 `load_nvm` 和 `nvm()` 惰性加载函数，首次调用 `nvm` 时才 `source ~/.nvm/nvm.sh` | 惰性加载 |
 | `superfile` | 若本地配置存在，则加载 superfile 相关 shell 配置 | `source ~/.dotfiles/plugins/spf/superfile.zsh` | 条件同步加载 |
+| `broot` | 交互式目录树导航，`br` 能在退出后让当前 shell 自动 `cd` | 先用 `zinit light` + `as"command"` 下载命令，再 `source ~/.dotfiles/plugins/broot/broot.zsh` 加载 shell function | 二进制同步可用，shell function 条件初始化 |
 
 ## 4. 通过 zinit 安装并加入 PATH 的命令行工具
 
@@ -99,6 +101,7 @@
 | `xh` | 类似 HTTPie 的 HTTP 客户端 | `zinit light` + `as"command"` |
 | `gping` | 图形化 `ping` | `zinit light` + `as"command"`，按平台选发行包 |
 | `bat` | 带高亮的 `cat` 替代 | `zinit light` + `as"command"` |
+| `broot` | 交互式目录浏览与目录跳转 | `zinit light` + `as"command"` |
 | `fd` | 更快的文件查找工具 | `zinit light` + `as"command"`，带特殊 `mv/pick/sbin` 规则 |
 | `rg` (`ripgrep`) | 高性能文本搜索工具 | `zinit light` + `as"command"`，带特殊 `mv/pick/sbin` 规则 |
 | `zoxide` | 智能目录跳转 | `zinit light` + `as"command"` |

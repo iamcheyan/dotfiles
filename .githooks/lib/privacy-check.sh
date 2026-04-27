@@ -43,6 +43,8 @@ privacy_filter_hits() {
   awk '
     BEGIN {
       comment_regex = "^[[:space:]]*(#|//|;|--|/\\*|\\*)"
+      doc_path_regex = "\\.(md|markdown|mdx|adoc|txt)$"
+      example_secret_regex = "(Authorization:\"Bearer (TOKEN|\\$TOKEN)\"|http -a username:password GET https://httpbin\\.org/basic-auth/username/password)"
     }
     {
       if (match($0, /^[^:]+:([^:]+):[0-9]+:(.*)$/, m)) {
@@ -61,6 +63,7 @@ privacy_filter_hits() {
       if (path == "git.md" && line ~ /(\/home\/[^[:space:]]+\/\.dotfiles|\\\$HOME\/\.dotfiles)/) next
       if (path == "doc/git.md" && line ~ /(\/home\/[^[:space:]]+\/\.dotfiles|\\\$HOME\/\.dotfiles)/) next
       if (line ~ comment_regex) next
+      if (path ~ doc_path_regex && line ~ example_secret_regex) next
       if (line ~ /127[.]0[.]0[.]1/) next
       if (line ~ /0[.]0[.]0[.]0/) next
       if (path ~ "^scripts/system/initialization\\.sh$" && line ~ /wps-office/) next

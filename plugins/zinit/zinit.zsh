@@ -15,25 +15,10 @@ source ~/.zinit/bin/zinit.zsh
 # }
 
 zz() {
-  # 如果已经在 zellij 里：提示用户如何 detach
-  if [[ -n "$ZELLIJ" ]]; then
-    echo "You are in a zellij session. Please use 'Ctrl+o' and then 'd' to detach."
-    return
-  fi
-
-  # session 名：优先用参数，其次用当前目录名
-  local session_name
-  if [[ -n "$1" ]]; then
-    session_name="$1"
-  else
-    session_name="$(basename "$PWD")"
-  fi
-
-  # 如果 session 已存在就 attach，否则新建
-  # 对已退出会话使用 -f，自动重跑 resurrect 记录下来的命令
-  if zellij list-sessions 2>/dev/null | grep -q "^${session_name}\b"; then
-    zellij attach -f "$session_name"
-  else
-    zellij attach -c -f "$session_name"
-  fi
+  local dir
+  dir=$( (zoxide query -l; find ~ -type d 2>/dev/null | head -2000) | sort -u | fzf \
+    --height 50% \
+    --reverse \
+    --prompt="dirs> ")
+  [ -n "$dir" ] && cd "$dir"
 }

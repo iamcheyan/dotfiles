@@ -52,10 +52,12 @@ zi_cmd() {
 #### 网络工具
 
 - **xh**: HTTP 客户端（curl 的替代品）
+- **HTTPie**: 面向 API 调试的 HTTP 客户端，适合替代一部分 Postman / curl 场景
 
 #### 文件工具
 
 - **bat**: 带语法高亮的 cat 替代品
+- **broot**: 交互式目录树导航器，适合快速找目录并 `cd` 过去
 - **fd**: 快速文件查找工具
 - **ripgrep (rg)**: 快速文本搜索工具
 - **zoxide**: 智能目录跳转工具
@@ -193,6 +195,7 @@ zinit delete owner/repo
 ### 文件工具
 
 - **bat**: `bat` - 带语法高亮的 cat
+- **broot**: `broot` / `br` - 交互式目录浏览与目录跳转
 - **fd**: `fd` - 快速文件查找
 - **ripgrep**: `rg` - 快速文本搜索
 - **zoxide**: `z` - 智能目录跳转
@@ -206,6 +209,7 @@ zinit delete owner/repo
 - **fzf**: `fzf` - 模糊查找
 - **atuin**: `atuin` - 命令历史管理
 - **zellij**: `zellij` - 终端多路复用器
+- **HTTPie**: `http` - 更适合人工调试 API 的 HTTP 客户端
 
 ## 注意事项
 
