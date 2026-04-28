@@ -389,7 +389,7 @@ web_client {
 // default_mode "locked"
 
 // 恢复鼠标交互
-mouse_mode true
+mouse_mode false
 
 // 恢复完整 UI
 simplified_ui false
