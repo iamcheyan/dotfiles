@@ -1,0 +1,28 @@
+// Zellij plugin permissions
+// Pre-authorize plugins to avoid interactive prompts
+
+permissions {
+    zjstatus {
+        ReadApplicationState
+        ChangeApplicationState
+    }
+    zjstatus-hints {
+        ReadApplicationState
+        ChangeApplicationState
+    }
+    zellij-attention {
+        ReadApplicationState
+    }
+    zellij-pane-picker {
+        ReadApplicationState
+        ChangeApplicationState
+    }
+    zj-quit {
+        ReadApplicationState
+        ChangeApplicationState
+    }
+    notepad {
+        ReadApplicationState
+        ChangeApplicationState
+    }
+}
