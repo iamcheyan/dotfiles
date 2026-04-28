@@ -24,27 +24,27 @@ if ! command -v fzf >/dev/null 2>&1 && [[ -d "$HOME/.fzf/bin" ]]; then
     fi
 fi
 
-# 在 Zellij 里优先用浮动窗运行 fzf，外部环境保持原始行为。
-if [[ -x ~/dotfiles/plugins/zellij/fzf-zellij ]]; then
-    fzf-zellij() {
-        ~/dotfiles/plugins/zellij/fzf-zellij "$@"
-    }
+# # 在 Zellij 里优先用浮动窗运行 fzf，外部环境保持原始行为。
+# if [[ -x ~/dotfiles/plugins/zellij/fzf-zellij ]]; then
+#     fzf-zellij() {
+#         ~/dotfiles/plugins/zellij/fzf-zellij "$@"
+#     }
 
-    fzf() {
-        case "$1" in
-            --bash|--zsh|--fish|--version|-h|--help|--man)
-                command fzf "$@"
-                ;;
-            *)
-                if [[ -n "${ZELLIJ:-}" ]]; then
-                    fzf-zellij "$@"
-                else
-                    command fzf "$@"
-                fi
-                ;;
-        esac
-    }
-fi
+#     fzf() {
+#         case "$1" in
+#             --bash|--zsh|--fish|--version|-h|--help|--man)
+#                 command fzf "$@"
+#                 ;;
+#             *)
+#                 if [[ -n "${ZELLIJ:-}" ]]; then
+#                     fzf-zellij "$@"
+#                 else
+#                     command fzf "$@"
+#                 fi
+#                 ;;
+#         esac
+#     }
+# fi
 
 # ============================================
 # fzf 基础设置
@@ -76,11 +76,11 @@ fi
 # fzf 预览设置（支持 bat 和目录预览）
 # ============================================
 if command -v bat >/dev/null 2>&1; then
-    export FZF_DEFAULT_OPTS="--height 80% --layout=reverse --border \
+    export FZF_DEFAULT_OPTS="--height 90% --layout=reverse --border --wrap --wrap-sign='' \
       --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
-      --preview-window=right:60%"
+      --preview-window=right:40%"
 else
-    export FZF_DEFAULT_OPTS="--height 80% --layout=reverse --border \
+    export FZF_DEFAULT_OPTS="--height 80% --layout=reverse --border --wrap --wrap-sign='' \
       --preview '([[ -d {} ]] && ls -F --color=always {})'"
 fi
 
@@ -133,20 +133,46 @@ EOF
 ff() {
     # 交互式调用
     if [[ -t 0 ]]; then
-        local out query key target mode header copy_cmd
-        local search_cmd
+        local out query key target mode header copy_cmd base
+        local white gray reset
+        local -a search_cmd
         mode="open"
         copy_cmd="$(_fzf_copy_path_cmd)"
+        white=$'\033[37m'
+        gray=$'\033[90m'
+        reset=$'\033[0m'
+        base="$HOME"
+
+        if [[ $# -gt 0 ]]; then
+            if [[ "$1" == "." ]]; then
+                base="$PWD"
+                shift
+            elif [[ "$1" == "~" ]]; then
+                base="$HOME"
+                shift
+            elif [[ "$1" == ~/* ]]; then
+                base="${HOME}/${1#~/}"
+                shift
+            elif [[ -d "$1" ]]; then
+                base="$1"
+                shift
+            fi
+        fi
+
+        if [[ ! -d "$base" ]]; then
+            echo "ff: not a directory: $base" >&2
+            return 1
+        fi
         
         # 确定搜索命令：优先使用 fd，其次 fdfind，最后使用 find
         # 使用 which 或 command -v 检查，并验证命令是否真的可执行
         if command -v fd >/dev/null 2>&1 && fd --version >/dev/null 2>&1; then
-            search_cmd=(fd -H -I --exclude .git .)
+            search_cmd=(fd . "$base" --hidden --follow --exclude .git)
         elif command -v fdfind >/dev/null 2>&1 && fdfind --version >/dev/null 2>&1; then
-            search_cmd=(fdfind -H -I --exclude .git .)
+            search_cmd=(fdfind . "$base" --hidden --follow --exclude .git)
         else
             # 回退到 find 命令
-            search_cmd=(find . -type f -o -type d)
+            search_cmd=(find "$base" \( -type f -o -type d \))
         fi
         
         if [[ $# -gt 0 ]]; then
@@ -162,12 +188,23 @@ ff() {
                 header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
             fi
 
-            out=$("${search_cmd[@]}" 2>/dev/null | command fzf --print-query --expect=ctrl-y \
+            out=$("${search_cmd[@]}" 2>/dev/null | while IFS= read -r path; do
+                [[ -z "$path" ]] && continue
+                if [[ -d "$path" ]]; then
+                    printf 'dir\t%s%s%s\t%s\n' "$gray" "$path" "$reset" "$path"
+                else
+                    printf 'file\t%s%s%s\t%s\n' "$white" "$path" "$reset" "$path"
+                fi
+            done | command fzf --ansi --print-query --expect=ctrl-y \
                 --bind 'tab:down' \
                 --bind 'btab:up' \
-                --bind "ctrl-x:execute-silent(zsh -c '$copy_cmd' -- {})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
+                --bind "ctrl-x:execute-silent(zsh -c '$copy_cmd' -- {3})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
                 --header "$header" \
-                --query "$query") || return
+                --query "$query" \
+                --delimiter=$'\t' \
+                --with-nth=2 \
+                --preview '([[ -d {3} ]] && ls -F --color=always {3}) || ([[ -f {3} ]] && bat --style=numbers --color=always --line-range :300 {3})' \
+                --preview-window=right:40%) || return
             query=$(printf '%s\n' "$out" | sed -n '1p')
             key=$(printf '%s\n' "$out" | sed -n '2p')
             target=$(printf '%s\n' "$out" | sed -n '3p')
@@ -187,6 +224,7 @@ ff() {
             fi
 
             if [[ -n "$target" ]]; then
+                target="${target##*$'\t'}"
                 if [[ "$mode" == "jump" ]]; then
                     if [[ -d "$target" ]]; then
                         y "$target"
@@ -233,14 +271,19 @@ rf() {
             header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
         fi
 
-        out=$(rg --hidden --no-ignore --glob '!.git' --glob '!.git/**' --line-number --no-heading --color=always . | \
+        out=$(rg --hidden --no-ignore --glob '!.git' --glob '!.git/**' --line-number --no-heading --color=always \
+            --colors 'path:fg:15' \
+            --colors 'line:fg:8' \
+            --colors 'column:fg:8' \
+            --colors 'match:fg:15' \
+            --colors 'match:bg:18' . | \
             command fzf --ansi --print-query --expect=ctrl-y --bind "ctrl-x:execute-silent(zsh -c '$copy_cmd' -- {1})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
                 --bind 'tab:down' --bind 'btab:up' \
                 --delimiter ':' \
                 --prompt "RG (cwd: $(pwd))> " \
                 --header "$header" \
-                --preview 'q={q}; f={1}; if [ -z "$f" ]; then exit 0; fi; if [ -n "$q" ]; then rg --hidden --no-ignore --glob "!.git" --glob "!.git/**" --smart-case --pretty --color=always --line-number --context=6 --colors "line:none" --colors "path:none" --colors "match:fg:white" --colors "match:bg:yellow" -- "$q" "$f" | awk '\''{ hl="\033[38;5;15m\033[48;5;236m"; line=$0; plain=$0; gsub(/\033\[[0-9;]*m/, "", plain); if (plain ~ /^[0-9]+:/) { gsub(/\033\[0m/, "\033[0m" hl, line); sub(/^(\033\[[0-9;]*m)+/, "", line); print hl line "\033[0m"; } else print line }'\''; else bat --style=numbers --color=always "$f" --highlight-line {2}; fi' \
-                --preview-window 'right:60%') || return
+                --preview 'q={q}; f={1}; if [ -z "$f" ]; then exit 0; fi; if [ -n "$q" ]; then rg --hidden --no-ignore --glob "!.git" --glob "!.git/**" --smart-case --pretty --color=always --line-number --context=6 --colors "line:fg:8" --colors "path:none" --colors "match:fg:white" --colors "match:bg:94" -- "$q" "$f" | awk '\''{ hl="\033[38;5;15m\033[48;5;94m"; line=$0; plain=$0; gsub(/\033\[[0-9;]*m/, "", plain); if (plain ~ /^[0-9]+:/) { gsub(/\033\[0m/, "\033[0m" hl, line); sub(/^(\033\[[0-9;]*m)+/, "", line); print hl line "\033[0m"; } else print line }'\''; else bat --style=numbers --color=always "$f" --highlight-line {2}; fi' \
+                --preview-window 'right:40%') || return
 
         query=$(printf '%s\n' "$out" | sed -n '1p')
         key=$(printf '%s\n' "$out" | sed -n '2p')
@@ -280,38 +323,4 @@ rf() {
         fi
         return
     done
-}
-
-# ============================================
-# 其他工具函数
-# ============================================
-
-# 使用 zoxide 结合 fzf 交互式选择目录（不显示右侧预览）并切换
-zd() {
-    local dir
-    dir=$(zoxide query -l | fzf --bind 'tab:down' --bind 'btab:up' --prompt="zoxide directory> " --no-preview)
-    [[ -n "$dir" ]] && cd "$dir"
-}
-
-# y: 启动 yazi 文件管理器，退出后切换到选择的目录
-# - 使用临时文件保存 yazi 退出时的当前目录
-# - 退出后自动切换到该目录
-# - 解决 Terminal Response Timeout 问题（通过禁用 shell hook）
-y() {
-  local tmp cwd
-  tmp="$(mktemp -t yazi-cwd.XXXXXX)"
-  
-  # 禁用 shell hook 以避免 TRT 错误（使用 --cwd-file 时不需要）
-  # 如果指定了目录参数，先切换到该目录
-  if [[ $# -gt 0 ]]; then
-    cd "$1" && YA_SHELL_INTEGRATION=0 yazi --cwd-file="$tmp"
-  else
-    YA_SHELL_INTEGRATION=0 yazi --cwd-file="$tmp"
-  fi
-
-  if [ -f "$tmp" ]; then
-    cwd="$(cat "$tmp")"
-    [ -n "$cwd" ] && [ -d "$cwd" ] && cd "$cwd"
-    rm -f "$tmp"
-  fi
 }
