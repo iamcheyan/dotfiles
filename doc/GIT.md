@@ -36,7 +36,7 @@ Forgit 提供了基于 `fzf` 的交互式界面，极大简化了筛选过程。
 
 ## 4. 自动化管理 (Scripts)
 - **`.gitignore` 自动生成**：使用 `git:init` 时会自动注入包含 `ANGENS.md`、`GEMINI.md`、Node.js、Python、Rust 等常见环境的忽略规则。
-- **多端同步**：通过 `dotsync:push` 和 `dotsync:pull` 快速管理 Dotfiles 仓库的同步。
+- **多端同步**：通过 `dotsync:push` 和 `dotsync:pull` 快速管理 dotfiles 仓库的同步。
 
 ---
 *建议经常运行 `g:s` 检查状态，配合 `ga` 进行精细化的文件管理。*

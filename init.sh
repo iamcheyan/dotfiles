@@ -1,5 +1,5 @@
 #!/bin/bash
-# Dotfiles initialization script
+# dotfiles initialization script
 # Used for first-time setup after cloning the repository
 # Usage: bash init.sh
 # Usage: bash init.sh --repair  # Repair broken zinit plugins (e.g., atuin)
@@ -545,7 +545,7 @@ detect_dotfiles_dir() {
     fi
 
     if [[ -z "$dotfiles_dir" ]]; then
-        print_error "Dotfiles directory not found"
+        print_error "dotfiles directory not found"
         print_info "Please make sure:"
         print_info "  1. You run this script inside the dotfiles repository, or"
         print_info "  2. The repository has been cloned into ~/dotfiles"
@@ -558,7 +558,7 @@ detect_dotfiles_dir() {
     fi
 
     export DOTFILES_DIR="$dotfiles_dir"
-    print_success "Dotfiles directory: $DOTFILES_DIR"
+    print_success "dotfiles directory: $DOTFILES_DIR"
     return 0
 }
 
