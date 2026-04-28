@@ -60,8 +60,8 @@ privacy_filter_hits() {
       if (path == ".githooks/pre-push") next
       if (path == ".githooks/pre-commit") next
       if (path == ".githooks/lib/privacy-check.sh") next
-      if (path == "git.md" && line ~ /(\/home\/[^[:space:]]+\/\.dotfiles|\\\$HOME\/\.dotfiles)/) next
-      if (path == "doc/git.md" && line ~ /(\/home\/[^[:space:]]+\/\.dotfiles|\\\$HOME\/\.dotfiles)/) next
+      if (path == "git.md" && line ~ /(\/home\/[^[:space:]]+\/\dotfiles|\\\$HOME\/\dotfiles)/) next
+      if (path == "doc/git.md" && line ~ /(\/home\/[^[:space:]]+\/\dotfiles|\\\$HOME\/\dotfiles)/) next
       if (line ~ comment_regex) next
       if (path ~ doc_path_regex && line ~ example_secret_regex) next
       if (line ~ /127[.]0[.]0[.]1/) next
@@ -96,7 +96,7 @@ privacy_build_path_hints() {
       }
 
       if (dotfiles != "" && index(line, dotfiles)) {
-        print path ": replace hardcoded dotfiles path with ${DOTFILES_DIR:-$HOME/.dotfiles}"
+        print path ": replace hardcoded dotfiles path with ${DOTFILES_DIR:-$HOME/dotfiles}"
       }
       if (home != "" && index(line, home)) {
         print path ": replace hardcoded home path with $HOME"

@@ -30,21 +30,21 @@ for cmd in nvm node npm npx yarn pnpm gemini gm; do
 done
 
 # zinit: 插件管理器，负责下载、缓存和加载后面的 zsh 插件/命令
-source ~/.dotfiles/plugins/zinit/zinit.zsh
+source ~/dotfiles/plugins/zinit/zinit.zsh
 
 # powerlevel10k: 提示符主题，显示目录、Git 状态和环境信息
 if [[ -t 1 ]]; then
-  source ~/.dotfiles/plugins/prompt/prompt.zsh
+  source ~/dotfiles/plugins/prompt/prompt.zsh
 fi
 
 # 核心工具集合：通过 zinit 安装命令行工具，并初始化 pyenv/direnv/atuin 等 shell 集成
-source ~/.dotfiles/plugins/tools/tools.zsh
+source ~/dotfiles/plugins/tools/tools.zsh
 
 # broot: 提供 br shell function，使 Alt+Enter 返回 shell 后能自动 cd
-[[ -f ~/.dotfiles/plugins/broot/broot.zsh ]] && source ~/.dotfiles/plugins/broot/broot.zsh
+[[ -f ~/dotfiles/plugins/broot/broot.zsh ]] && source ~/dotfiles/plugins/broot/broot.zsh
 
 # 补全系统：初始化 compinit、额外补全定义和 fzf-tab 补全界面
-source ~/.dotfiles/plugins/completion/completion.zsh
+source ~/dotfiles/plugins/completion/completion.zsh
 
 # evalcache: 缓存 init 脚本输出，减少 atuin/zoxide/direnv 这类 hook 的重复开销
 zinit light mroth/evalcache
@@ -89,11 +89,11 @@ function zvm_after_init() {
 # 其他增强插件集合：autosuggestions、语法高亮、autopair、forgit 等
 # 这里直接 source 本地文件，避免 zinit 对本地 snippet 的缓存副本滞后
 # 具体插件是否异步加载，仍由 plugins.zsh 内部的各个 zinit ice 控制
-source ~/.dotfiles/plugins/plugins/plugins.zsh
+source ~/dotfiles/plugins/plugins/plugins.zsh
 
 # fzf 相关函数和默认选项：ff/rf/zd/zc/y 等交互工具
 # 这里必须同步加载，否则 ff/rf 在新 shell 中可能不存在
-source ~/.dotfiles/plugins/fzf/fzf.zsh
+source ~/dotfiles/plugins/fzf/fzf.zsh
 
 # atuin: 增强版 shell 历史，支持更强的搜索和历史同步
 # 这里初始化 shell hook，并用 evalcache 缓存其输出
@@ -114,11 +114,11 @@ fi
 # fi
 
 # superfile: 文件管理器的 shell 集成；存在本地配置时才加载
-# [[ -f ~/.dotfiles/plugins/spf/superfile.zsh ]] && source ~/.dotfiles/plugins/spf/superfile.zsh
+# [[ -f ~/dotfiles/plugins/spf/superfile.zsh ]] && source ~/dotfiles/plugins/spf/superfile.zsh
 
 # local.zsh: 机器本地专用配置，不同机器可以放不同逻辑
-[[ -f ~/.dotfiles/plugins/local/local.zsh ]] && source ~/.dotfiles/plugins/local/local.zsh
-[[ -f ~/.dotfiles/plugins/wdiff/wdiff.zsh ]] && source ~/.dotfiles/plugins/wdiff/wdiff.zsh
+[[ -f ~/dotfiles/plugins/local/local.zsh ]] && source ~/dotfiles/plugins/local/local.zsh
+[[ -f ~/dotfiles/plugins/wdiff/wdiff.zsh ]] && source ~/dotfiles/plugins/wdiff/wdiff.zsh
 
 # vi 别名：优先使用 nvim，其次 vim，最后 vi
 unalias vi 2>/dev/null
@@ -146,9 +146,9 @@ else
 fi
 
 # 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
-source ~/.dotfiles/aliases.conf
-[[ -d ~/.dotfiles/aliases ]] &&
-  for f in ~/.dotfiles/aliases/*.conf(N); do
+source ~/dotfiles/aliases.conf
+[[ -d ~/dotfiles/aliases ]] &&
+  for f in ~/dotfiles/aliases/*.conf(N); do
     [[ -r $f ]] && source $f
   done
 

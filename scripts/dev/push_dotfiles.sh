@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-DOTFILES_DIR="$HOME/.dotfiles"
+DOTFILES_DIR="$HOME/dotfiles"
 ALIASES_DIR="$DOTFILES_DIR/aliases"
 TIMESTAMP="$(date '+%Y%m%d_%H%M%S')"
 

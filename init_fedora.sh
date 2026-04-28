@@ -48,9 +48,9 @@ fi
 # 3. OmnySSH Setup
 echo "[3/4] Setting up OmnySSH..."
 mkdir -p "$HOME/.config/omnyssh"
-ln -sf "$HOME/Dotfiles/omnyssh/config.toml" "$HOME/.config/omnyssh/config.toml"
-ln -sf "$HOME/Dotfiles/omnyssh/hosts.toml" "$HOME/.config/omnyssh/hosts.toml"
-ln -sf "$HOME/Dotfiles/omnyssh/snippets.toml" "$HOME/.config/omnyssh/snippets.toml"
+ln -sf "$HOME/dotfiles/omnyssh/config.toml" "$HOME/.config/omnyssh/config.toml"
+ln -sf "$HOME/dotfiles/omnyssh/hosts.toml" "$HOME/.config/omnyssh/hosts.toml"
+ln -sf "$HOME/dotfiles/omnyssh/snippets.toml" "$HOME/.config/omnyssh/snippets.toml"
 export PATH="$HOME/.cargo/bin:$PATH"
 
 # 4. Finalize Zsh

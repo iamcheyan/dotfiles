@@ -6,7 +6,7 @@
 
 ## 文件位置
 
-- **配置文件**: `~/.dotfiles/plugins/tools/tools.zsh`
+- **配置文件**: `~/dotfiles/plugins/tools/tools.zsh`
 - **加载位置**: 在 `~/.zshrc` 中，在 prompt 之后、completion 之前加载
 
 ## 功能
@@ -230,8 +230,8 @@ zinit delete owner/repo
 
 ## 相关文件
 
-- **fzf 配置**: `~/.dotfiles/plugins/fzf/fzf.zsh` - fzf 的详细配置和函数
-- **补全配置**: `~/.dotfiles/plugins/completion/completion.zsh` - 补全系统配置
+- **fzf 配置**: `~/dotfiles/plugins/fzf/fzf.zsh` - fzf 的详细配置和函数
+- **补全配置**: `~/dotfiles/plugins/completion/completion.zsh` - 补全系统配置
 
 ## 参考资源
 

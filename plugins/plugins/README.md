@@ -6,7 +6,7 @@
 
 ## 文件位置
 
-- **配置文件**: `~/.dotfiles/plugins/plugins/plugins.zsh`
+- **配置文件**: `~/dotfiles/plugins/plugins/plugins.zsh`
 - **加载位置**: 在 `~/.zshrc` 中，在 `completion.zsh` 之后加载
 
 ## 已安装的插件
@@ -241,9 +241,9 @@ zinit light zsh-users/zsh-history-substring-search
 
 ## 相关文件
 
-- **补全配置**: `~/.dotfiles/plugins/completion/completion.zsh` - 补全系统配置
-- **工具配置**: `~/.dotfiles/plugins/tools/tools.zsh` - CLI 工具安装
-- **fzf 配置**: `~/.dotfiles/plugins/fzf/fzf.zsh` - fzf 详细配置
+- **补全配置**: `~/dotfiles/plugins/completion/completion.zsh` - 补全系统配置
+- **工具配置**: `~/dotfiles/plugins/tools/tools.zsh` - CLI 工具安装
+- **fzf 配置**: `~/dotfiles/plugins/fzf/fzf.zsh` - fzf 详细配置
 
 ## 参考资源
 

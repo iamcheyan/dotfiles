@@ -28,7 +28,7 @@
 - 提供 `zz` 函数，用于交互式选目录并切换
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/zinit/zinit.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/zinit/zinit.zsh` 加载
 - 必须在所有其他插件配置之前加载
 
 **提供的功能：**
@@ -42,7 +42,7 @@
 - 加载用户自定义的 `~/.p10k.zsh` 配置
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/prompt/prompt.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/prompt/prompt.zsh` 加载
 - 在 `zinit.zsh` 之后加载
 
 **提供的功能：**
@@ -57,7 +57,7 @@
 - 替代 Oh My Zsh，只加载需要的插件
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/plugins/plugins.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/plugins/plugins.zsh` 加载
 
 **安装的插件：**
 
@@ -97,7 +97,7 @@
 - 使用统一的 `zi_cmd()` 函数简化工具安装
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/tools/tools.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/tools/tools.zsh` 加载
 - 工具会在首次使用时自动下载安装
 
 **安装的工具：**
@@ -158,7 +158,7 @@
 - 初始化 `zoxide`
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/completion/completion.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/completion/completion.zsh` 加载
 - 在 `tools.zsh` 之后、`plugins.zsh` 之前加载（确保加载顺序正确）
 
 **补全插件：**
@@ -187,7 +187,7 @@
 - 提供自定义搜索函数
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/fzf/fzf.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/fzf/fzf.zsh` 加载
 - 在 `tools.zsh` 之后加载（确保 fzf 已安装）
 
 **配置内容：**
@@ -260,7 +260,7 @@ y ~/Documents        # 从指定目录启动 yazi
 - 创建别名以支持拼写容错
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/spf/superfile.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/spf/superfile.zsh` 加载
 
 **提供的功能：**
 - `spf` 函数 - 自动安装并执行 superfile，退出后切换目录
@@ -298,7 +298,7 @@ superfiles             # 同上（拼写容错）
 - 提供字体安装功能
 
 **调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/.dotfiles/plugins/local/local.zsh` 加载
+- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/local/local.zsh` 加载
 - 最后加载，可以覆盖之前的配置
 
 **提供的功能：**
@@ -486,4 +486,4 @@ install:font          # 字体安装
 
 ### 字体安装失败
 - 检查网络连接
-- 手动运行：`bash ~/.dotfiles/scripts/install/install_font.sh --force`
+- 手动运行：`bash ~/dotfiles/scripts/install/install_font.sh --force`

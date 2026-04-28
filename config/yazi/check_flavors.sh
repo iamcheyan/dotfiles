@@ -5,7 +5,7 @@ echo "检查 yazi flavor 配置..."
 echo ""
 
 YAZI_CONFIG="$HOME/.config/yazi"
-YAZI_SOURCE="$HOME/.dotfiles/config/yazi"
+YAZI_SOURCE="$HOME/dotfiles/config/yazi"
 
 # 1. 检查软链接
 echo "1. 检查配置目录链接："

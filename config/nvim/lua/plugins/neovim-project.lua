@@ -6,11 +6,11 @@ return {
     priority = 100,
     opts = {
       projects = {
-        "~/Dotfiles",
-        "~/.dotfiles",
+        "~/dotfiles",
+        "~/dotfiles",
         "~/DEV/*",
         "~/Development/*",
-        "~/Dotfiles/*",
+        "~/dotfiles/*",
       },
       picker = {
         type = "telescope",

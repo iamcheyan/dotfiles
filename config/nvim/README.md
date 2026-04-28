@@ -77,7 +77,7 @@ install:nvim
 或者：
 
 ```bash
-bash ~/.dotfiles/scripts/install/install_nvim.sh
+bash ~/dotfiles/scripts/install/install_nvim.sh
 ```
 
 **选项：**

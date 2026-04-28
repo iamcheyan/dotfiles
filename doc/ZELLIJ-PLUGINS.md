@@ -147,15 +147,15 @@ FZF_ZELLIJ_HEIGHT=80% FZF_ZELLIJ_WIDTH=90% fzf-zellij
 使用示例：
 
 - 按 `Alt+Shift+s`
-- 选择一个项目目录，比如 `~/Dotfiles`
+- 选择一个项目目录，比如 `~/dotfiles`
 - 自动创建或切换到同名 session
 
 默认搜索路径：
 
 - `~/Projects`
 - `~/Code`
-- `~/.dotfiles`
-- `~/.dotfiles/.config/nvim`
+- `~/dotfiles`
+- `~/dotfiles/.config/nvim`
 
 适合场景：
 

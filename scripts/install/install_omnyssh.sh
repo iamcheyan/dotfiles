@@ -2,7 +2,7 @@
 set -e
 
 CONFIG_DIR="$HOME/.config/omnyssh"
-DOTFILES_OMNY="$HOME/Dotfiles/omnyssh"
+DOTFILES_OMNY="$HOME/dotfiles/omnyssh"
 
 echo "Installing OmnySSH..."
 

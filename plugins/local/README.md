@@ -6,7 +6,7 @@
 
 ## 文件位置
 
-- **配置文件**: `~/.dotfiles/plugins/local/local.zsh`
+- **配置文件**: `~/dotfiles/plugins/local/local.zsh`
 - **加载位置**: 在 `~/.zshrc` 中最后加载（在其他配置之后）
 
 ## 功能
@@ -17,7 +17,7 @@
 
 ```zsh
 install:font() {
-    bash "$HOME/.dotfiles/scripts/install/install_font.sh" "$@"
+    bash "$HOME/dotfiles/scripts/install/install_font.sh" "$@"
 }
 ```
 
@@ -87,7 +87,7 @@ install:font
 如果不想在启动时询问，可以：
 
 1. 手动安装字体
-2. 或者创建标记文件：`touch ~/.dotfiles/.font_install_asked`
+2. 或者创建标记文件：`touch ~/dotfiles/.font_install_asked`
 
 ### NVM 使用
 
@@ -200,17 +200,17 @@ export PATH="/home/username/custom/bin:$PATH"
 
 1. **检查脚本是否存在**:
    ```bash
-   ls -la ~/.dotfiles/scripts/install/install_font.sh
+   ls -la ~/dotfiles/scripts/install/install_font.sh
    ```
 
 2. **手动运行脚本**:
    ```bash
-   bash ~/.dotfiles/scripts/install/install_font.sh
+   bash ~/dotfiles/scripts/install/install_font.sh
    ```
 
 3. **检查权限**:
    ```bash
-   chmod +x ~/.dotfiles/scripts/install/install_font.sh
+   chmod +x ~/dotfiles/scripts/install/install_font.sh
    ```
 
 ### NVM 不工作
@@ -247,7 +247,7 @@ export PATH="/home/username/custom/bin:$PATH"
 
 ## 相关文件
 
-- **字体安装脚本**: `~/.dotfiles/scripts/install/install_font.sh`
+- **字体安装脚本**: `~/dotfiles/scripts/install/install_font.sh`
 - **主配置文件**: `~/.zshrc` - 加载此文件
 
 ## 注意事项

@@ -8,7 +8,7 @@ git-open 是一个 Git 插件，可以在浏览器中快速打开 GitHub、GitLa
 
 ## 安装
 
-git-open 已通过 Zinit 自动安装和管理。插件配置位于 `~/.dotfiles/plugins/plugins/plugins.zsh`。
+git-open 已通过 Zinit 自动安装和管理。插件配置位于 `~/dotfiles/plugins/plugins/plugins.zsh`。
 
 ## 基本使用
 
@@ -301,7 +301,7 @@ git config --global --list | grep git-open
 
 ### 1. 创建别名
 
-可以在 `~/.dotfiles/aliases.conf` 中添加别名：
+可以在 `~/dotfiles/aliases.conf` 中添加别名：
 
 ```zsh
 # 快速打开仓库

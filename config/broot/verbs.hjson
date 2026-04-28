@@ -1,5 +1,5 @@
 ###############################################################
-# Managed by ~/.dotfiles/config/broot/verbs.hjson
+# Managed by ~/dotfiles/config/broot/verbs.hjson
 # Use nvim as broot's default editor, which loads the LazyVim config.
 ###############################################################
 

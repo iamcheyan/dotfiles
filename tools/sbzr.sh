@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Rime 配置目录
-RIME_DIR="$HOME/.dotfiles/config/rime"
+RIME_DIR="$HOME/dotfiles/config/rime"
 GIT_REPO_URL="https://github.com/iamcheyan/rime.git"
 
 echo -e "${BLUE}========================================${NC}"

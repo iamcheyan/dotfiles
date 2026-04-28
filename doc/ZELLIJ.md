@@ -4,8 +4,8 @@ This file is a practical reference for the current local Zellij setup.
 
 ## Current Setup
 
-- Config file: `~/.dotfiles/config/zellij/config.kdl`
-- Layout directory: `~/.dotfiles/config/zellij/layouts/`
+- Config file: `~/dotfiles/config/zellij/config.kdl`
+- Layout directory: `~/dotfiles/config/zellij/layouts/`
 - Current default layout: `compact-zjstatus`
 - Current custom layouts:
   - `clean`
@@ -22,7 +22,7 @@ This file is a practical reference for the current local Zellij setup.
   - `zj-quit.wasm`
   - `zjstatus.wasm`
   - `zjstatus-hints.wasm`
-- Plugin usage guide: `~/.dotfiles/doc/ZELLIJ-PLUGINS.md`
+- Plugin usage guide: `~/dotfiles/doc/ZELLIJ-PLUGINS.md`
 
 Your config uses `clear-defaults=true`, so the keybindings below are the ones that actually matter.
 
@@ -366,6 +366,6 @@ If the session is listed as `EXITED - attach to resurrect`, attaching will resur
 
 ## Files Worth Remembering
 
-- Config: `~/.dotfiles/config/zellij/config.kdl`
-- Layouts: `~/.dotfiles/config/zellij/layouts/`
-- Aliases: `~/.dotfiles/aliases/zellij.conf`
+- Config: `~/dotfiles/config/zellij/config.kdl`
+- Layouts: `~/dotfiles/config/zellij/layouts/`
+- Aliases: `~/dotfiles/aliases/zellij.conf`

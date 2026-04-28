@@ -12,7 +12,7 @@ return {
       if vim.loop.os_uname().nodename == "LH25030" then
         vim.g.ZFVimIM_plugin_dir = vim.fn.stdpath("config") .. "/local/sbzr.nvim.im"
       end
-      vim.g.ZFVimIM_dict_path = vim.fn.expand("~/.dotfiles/rime/sbzr.chrome.extension/dicts/base.dict.yaml")
+      vim.g.ZFVimIM_dict_path = vim.fn.expand("~/dotfiles/rime/sbzr.chrome.extension/dicts/base.dict.yaml")
       vim.g.ZFVimIM_keymap = 1
     end,
     config = function()

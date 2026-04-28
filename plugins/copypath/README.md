@@ -8,7 +8,7 @@ copypath 是 Oh My Zsh 提供的一个实用插件，用于快速将文件或目
 
 ## 安装
 
-copypath 已通过 Zinit 自动安装和管理。插件配置位于 `~/.dotfiles/plugins/plugins/plugins.zsh`。
+copypath 已通过 Zinit 自动安装和管理。插件配置位于 `~/dotfiles/plugins/plugins/plugins.zsh`。
 
 ### 前置要求
 
@@ -221,7 +221,7 @@ realpath --relative-to=. ~/Documents/file.txt
 
 ### 创建别名简化操作
 
-可以在 `~/.dotfiles/aliases.conf` 中添加别名：
+可以在 `~/dotfiles/aliases.conf` 中添加别名：
 
 ```zsh
 # 复制当前目录路径的简短别名

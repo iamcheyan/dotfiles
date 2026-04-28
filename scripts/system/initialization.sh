@@ -1,6 +1,6 @@
 #!/bin/bash
 # 定义dotfiles相关目录
-export DOTFILES_DIR="$HOME/.dotfiles"
+export DOTFILES_DIR="$HOME/dotfiles"
 export DOTFILES_SCRIPT_DIR="$DOTFILES_DIR/Scripts"
 
 echo "当前dotfiles所在的绝对路径：$(readlink -f "$0")"
@@ -15,12 +15,12 @@ else
 fi
 
 echo "当前位于：$(pwd)"
-echo "将当前目录 rsync 到 $HOME/.dotfiles/"
-# echo "rsync -avz --delete $(dirname $(readlink -f "$0"))/  $HOME/.dotfiles/"
+echo "将当前目录 rsync 到 $HOME/dotfiles/"
+# echo "rsync -avz --delete $(dirname $(readlink -f "$0"))/  $HOME/dotfiles/"
 
 # 定义需要同步的目录列表
 SYNC_DIRS=(
-    ".dotfiles" 
+    "dotfiles" 
     "Documents"
     "ピクチャ"
     "Applications"

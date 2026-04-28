@@ -183,7 +183,7 @@ install:fzf --completion       # 只安装补全文件
 
 **功能：**
 - 从 GitHub 克隆 Rime 输入法配置仓库
-- 克隆到 `~/.dotfiles/rime`
+- 克隆到 `~/dotfiles/rime`
 
 **用法：**
 ```bash
@@ -200,7 +200,7 @@ install:rime --force   # 强制重新克隆
 - 交互式确认删除现有配置
 
 **安装位置：**
-- `~/.dotfiles/rime`
+- `~/dotfiles/rime`
 
 **后续步骤：**
 安装后需要使用 `dotlink` 创建符号链接到：
@@ -280,14 +280,14 @@ install:broot       # 安装 broot
 ### 直接运行脚本
 
 ```bash
-bash ~/.dotfiles/scripts/install/install_font.sh
-bash ~/.dotfiles/scripts/install/install_nvim.sh
-bash ~/.dotfiles/scripts/install/install_nvm.sh
-bash ~/.dotfiles/scripts/install/install_treesitter.sh
-bash ~/.dotfiles/scripts/install/install_fzf.sh
-bash ~/.dotfiles/scripts/install/install_rime.sh
-bash ~/.dotfiles/scripts/install/install_httpie.sh
-bash ~/.dotfiles/scripts/install/install_broot.sh
+bash ~/dotfiles/scripts/install/install_font.sh
+bash ~/dotfiles/scripts/install/install_nvim.sh
+bash ~/dotfiles/scripts/install/install_nvm.sh
+bash ~/dotfiles/scripts/install/install_treesitter.sh
+bash ~/dotfiles/scripts/install/install_fzf.sh
+bash ~/dotfiles/scripts/install/install_rime.sh
+bash ~/dotfiles/scripts/install/install_httpie.sh
+bash ~/dotfiles/scripts/install/install_broot.sh
 ```
 
 ---
@@ -342,7 +342,7 @@ bash ~/.dotfiles/scripts/install/install_broot.sh
 ### Rime 配置克隆失败
 - 检查网络连接
 - 确保 Git 已安装
-- 检查 `~/.dotfiles/rime` 目录权限
+- 检查 `~/dotfiles/rime` 目录权限
 
 ---
 

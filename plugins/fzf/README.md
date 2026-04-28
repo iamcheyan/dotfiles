@@ -6,7 +6,7 @@
 
 ## 文件位置
 
-- **配置文件**: `~/.dotfiles/plugins/fzf/fzf.zsh`
+- **配置文件**: `~/dotfiles/plugins/fzf/fzf.zsh`
 - **加载位置**: 在 `~/.zshrc` 中，在 `tools.zsh` 之后加载（确保 fzf 二进制已安装）
 
 ## 功能
@@ -279,8 +279,8 @@ ff() {
 
 ## 相关文件
 
-- **工具配置**: `~/.dotfiles/plugins/tools/tools.zsh` - fzf 安装配置
-- **补全配置**: `~/.dotfiles/plugins/completion/completion.zsh` - fzf 补全配置
+- **工具配置**: `~/dotfiles/plugins/tools/tools.zsh` - fzf 安装配置
+- **补全配置**: `~/dotfiles/plugins/completion/completion.zsh` - fzf 补全配置
 
 ## 参考资源
 

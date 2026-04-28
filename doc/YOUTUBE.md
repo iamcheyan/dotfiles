@@ -32,7 +32,7 @@
 
 ## 4. 自定义配置
 如需修改下载保存目录，请编辑以下文件：
-`~/.dotfiles/tools/ytdl.sh` 中的 `DOWNLOAD_DIR` 变量。
+`~/dotfiles/tools/ytdl.sh` 中的 `DOWNLOAD_DIR` 变量。
 
 ---
 *提示：请尊重内容版权，本工具仅供个人学习与离线收藏使用。*

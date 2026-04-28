@@ -213,7 +213,7 @@ sbzr                              # 初始化/同步 Rime 配置
 - Git
 - Rime 输入法
 
-**配置目录**：`~/.dotfiles/config/rime`
+**配置目录**：`~/dotfiles/config/rime`
 
 **Git 仓库**：`https://github.com/iamcheyan/rime.git`
 

@@ -6,7 +6,7 @@
 
 ## 文件位置
 
-- **配置文件**: `~/.dotfiles/plugins/completion/completion.zsh`
+- **配置文件**: `~/dotfiles/plugins/completion/completion.zsh`
 - **加载位置**: 在 `~/.zshrc` 中，必须在 `plugins.zsh` 之前加载
 
 ## 加载顺序说明
@@ -181,9 +181,9 @@ fi
 
 ## 相关文件
 
-- **插件配置**: `~/.dotfiles/plugins/plugins/plugins.zsh` - Zsh 功能插件
-- **工具配置**: `~/.dotfiles/plugins/tools/tools.zsh` - CLI 工具安装
-- **fzf 配置**: `~/.dotfiles/plugins/fzf/fzf.zsh` - fzf 详细配置
+- **插件配置**: `~/dotfiles/plugins/plugins/plugins.zsh` - Zsh 功能插件
+- **工具配置**: `~/dotfiles/plugins/tools/tools.zsh` - CLI 工具安装
+- **fzf 配置**: `~/dotfiles/plugins/fzf/fzf.zsh` - fzf 详细配置
 
 ## 参考资源
 
