@@ -2,6 +2,7 @@
 # Dotfiles initialization script
 # Used for first-time setup after cloning the repository
 # Usage: bash init.sh
+# Usage: bash init.sh --repair  # Repair broken zinit plugins (e.g., atuin)
 
 set -e
 
@@ -153,6 +154,25 @@ install_zinit() {
         print_error "Failed to install zinit"
         return 1
     fi
+}
+
+# Repair broken zinit plugins (e.g., atuin downloaded wrong binary)
+repair_zinit_plugins() {
+    local atuin_dir="$HOME/.zinit/plugins/atuinsh---atuin"
+    
+    if [[ -d "$atuin_dir" ]]; then
+        # Check if atuin binary exists and is executable
+        if [[ ! -f "$atuin_dir/atuin" ]] || [[ ! -x "$atuin_dir/atuin" ]]; then
+            print_warning "Detected broken atuin installation (wrong binary downloaded)"
+            print_info "Removing broken atuin plugin..."
+            rm -rf "$atuin_dir"
+            print_success "Broken atuin plugin removed. It will be reinstalled on next zsh launch"
+        else
+            print_success "atuin binary looks correct"
+        fi
+    fi
+    
+    # Add more plugin repairs here as needed
 }
 
 # Install essential tools
@@ -787,6 +807,13 @@ EOF
     print_info "Step 4/15: Checking and installing zinit"
     install_zinit
     echo ""
+
+    # 3.5 Repair broken zinit plugins (if --repair flag is passed)
+    if [[ "$1" == "--repair" ]]; then
+        print_info "Repair mode: Checking for broken zinit plugins..."
+        repair_zinit_plugins
+        echo ""
+    fi
 
     # 4. Install pyenv
     print_info "Step 5/15: Checking and installing pyenv"
