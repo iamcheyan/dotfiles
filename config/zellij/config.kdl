@@ -106,6 +106,13 @@ keybinds clear-defaults=true {
         bind "Ctrl t" { SwitchToMode "normal"; }
         bind "x" { CloseTab; SwitchToMode "normal"; }
         bind "tab" { ToggleTab; }
+        bind "a" {
+            LaunchOrFocusPlugin "zellij-pane-picker" {
+                floating true
+                move_to_focused_tab true
+            }
+            SwitchToMode "normal"
+        }
     }
     resize {
         bind "left" { Resize "Increase left"; }
@@ -187,6 +194,7 @@ keybinds clear-defaults=true {
             }
             SwitchToMode "normal"
         }
+        bind "x" { Quit; }
     }
     shared_except "locked" {
         bind "Alt left" { MoveFocusOrTab "left"; }
@@ -213,12 +221,6 @@ keybinds clear-defaults=true {
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
         bind "Alt p" { TogglePaneInGroup; }
-        bind "Ctrl q" {
-            LaunchOrFocusPlugin "zj-quit" {
-                floating true
-                move_to_focused_tab true
-            }
-        }
         bind "Alt Shift g" { ToggleGroupMarking; }
         bind "Alt Shift s" {
             Run "zellij-sessionizer" {
@@ -228,12 +230,6 @@ keybinds clear-defaults=true {
                 y "10%"
                 width "60%"
                 height "80%"
-            }
-        }
-        bind "Alt w" {
-            LaunchOrFocusPlugin "zellij-pane-picker" {
-                floating true
-                move_to_focused_tab true
             }
         }
     }
@@ -351,11 +347,6 @@ plugins {
         toggle_star ""
         next_star ""
         previous_star ""
-    }
-    zj-quit location="file:~/.config/zellij/plugins/zj-quit.wasm" {
-        cwd "~"
-        confirm_key "q"
-        cancel_key "Esc"
     }
     zjstatus location="file:~/.config/zellij/plugins/zjstatus.wasm"
     zjstatus-hints location="file:~/.config/zellij/plugins/zjstatus-hints.wasm" {

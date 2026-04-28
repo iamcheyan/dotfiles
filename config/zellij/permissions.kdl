@@ -8,7 +8,7 @@ permissions {
     }
     zjstatus-hints {
         ReadApplicationState
-        ChangeApplicationState
+        MessageAndLaunchOtherPlugins
     }
     zellij-attention {
         ReadApplicationState
