@@ -30,7 +30,7 @@ scripts/
 
 **当前脚本：**
 - `git_clean.sh` - Git 清理未跟踪文件
-- `push_dotfiles.sh` - Dotfiles 推送工具（自动包含 IP、设备名、时间戳）
+- `push_dotfiles.sh` - dotfiles 推送工具（自动包含 IP、设备名、时间戳）
 
 ### `scripts/install/` - 安装脚本
 **特点：**

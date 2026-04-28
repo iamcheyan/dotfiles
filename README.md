@@ -1,4 +1,4 @@
-# 🚀 Modern Dotfiles Ecosystem (macOS & Linux)
+# 🚀 Modern dotfiles Ecosystem (macOS & Linux)
 
 一套经过极致调校、追求**瞬时启动**与**沉浸式体验**的现代化终端配置方案。基于 Zsh、Zinit 和 Rust 工具链构建，深度适配 Apple Silicon (M1/M2/M3) 及主流 Linux 发行版。
 
