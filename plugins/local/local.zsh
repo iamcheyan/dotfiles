@@ -6,7 +6,7 @@
 # 当 zellij 客户端崩溃、异常断开，或通过中间工具（如 Kimi Code）
 # 启动 shell 时，环境变量可能残留但进程树中已无 zellij。
 # ============================================
-_ cleanup_zellij_env() {
+cleanup_zellij_env() {
     # 如果不在 zellij 进程树中，清理残留的环境变量
     local has_zellij=false
     local pid=$$
@@ -36,46 +36,10 @@ fi
 unalias install:font 2>/dev/null || true
 
 # 字体安装函数（可通过命令调用）
+# 不在 shell 启动期间自动提示，避免和 p10k instant prompt 冲突。
 install:font() {
     bash "$HOME/.dotfiles/scripts/install/install_font.sh" "$@"
 }
-
-# zsh 初始化时询问是否安装字体（仅在交互式 shell 中）
-if [[ -o interactive ]] && [ -t 0 ]; then
-    # 检查字体是否已安装（通过检查字体文件）
-    FONT_INSTALLED=false
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        if command -v fc-list >/dev/null 2>&1 && fc-list | grep -qi "meslo" 2>/dev/null; then
-            FONT_INSTALLED=true
-        elif [ -d "$HOME/.fonts" ] && find "$HOME/.fonts" -name "*Meslo*" -o -name "*meslo*" 2>/dev/null | grep -q .; then
-            FONT_INSTALLED=true
-        fi
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        if [ -d "$HOME/Library/Fonts" ] && find "$HOME/Library/Fonts" -name "*Meslo*" -o -name "*meslo*" 2>/dev/null | grep -q .; then
-            FONT_INSTALLED=true
-        fi
-    fi
-
-    # 如果未安装，询问用户
-    if [ "$FONT_INSTALLED" = false ]; then
-        # 只在首次启动时询问（检查标记文件）
-        FONT_INSTALL_CHECK="$HOME/.dotfiles/.font_install_asked"
-        if [ ! -f "$FONT_INSTALL_CHECK" ]; then
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "  Meslo 字体未安装"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            read -q "?是否要安装 Meslo 字体？(y/N): " && echo
-            if [ $? -eq 0 ]; then
-                install:font
-            else
-                echo "已跳过字体安装。以后可以使用 'install:font' 命令安装。"
-            fi
-            # 创建标记文件，避免每次启动都询问
-            touch "$FONT_INSTALL_CHECK"
-        fi
-    fi
-fi
 
 # nvm 使用 zshrc 中定义的惰性加载，不在这里同步 source。
 

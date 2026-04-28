@@ -1,7 +1,3 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-# Set instant prompt to quiet to suppress warnings during zinit tool installation
 
 # SSH 会话中降级 TERM，避免远程服务器不认识 xterm-kitty
 # 同时设置 kitty tab 颜色为红色，直观区分远程会话
@@ -33,16 +29,13 @@ for cmd in nvm node npm npx yarn pnpm gemini gm; do
     eval "${cmd}() { unset -f nvm node npm npx yarn pnpm gemini gm; load_nvm; ${cmd} \"\$@\"; }"
 done
 
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # zinit: 插件管理器，负责下载、缓存和加载后面的 zsh 插件/命令
 source ~/.dotfiles/plugins/zinit/zinit.zsh
 
 # powerlevel10k: 提示符主题，显示目录、Git 状态和环境信息
-source ~/.dotfiles/plugins/prompt/prompt.zsh
+if [[ -t 1 ]]; then
+  source ~/.dotfiles/plugins/prompt/prompt.zsh
+fi
 
 # 核心工具集合：通过 zinit 安装命令行工具，并初始化 pyenv/direnv/atuin 等 shell 集成
 source ~/.dotfiles/plugins/tools/tools.zsh
