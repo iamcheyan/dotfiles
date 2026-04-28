@@ -453,48 +453,6 @@ install_fzf() {
     fi
 }
 
-# Create the Dotfiles symlink (make ~/dotfiles point to ~/dotfiles)
-# ~/dotfiles is the real directory, ~/dotfiles is the symlink
-create_dotfiles_link() {
-    local dotfiles_real="$HOME/dotfiles"
-    local dotfiles_link="$HOME/dotfiles"
-
-    # If ~/dotfiles does not exist, the repository is not in the standard location
-    if [[ ! -d "$dotfiles_real" ]]; then
-        print_warning "~/dotfiles does not exist. Skipping symlink creation"
-        return 0
-    fi
-
-    # Check whether ~/dotfiles already exists and points to the correct target
-    if [[ -L "$dotfiles_link" ]]; then
-        local current_target=$(readlink -f "$dotfiles_link")
-        if [[ "$current_target" == "$dotfiles_real" ]]; then
-            print_success "Symlink already exists: $dotfiles_link -> $dotfiles_real"
-            return 0
-        else
-            print_warning "Symlink points to a different target: $dotfiles_link -> $current_target"
-            read -p "Recreate the symlink? (y/N): " -n 1 -r
-            echo
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                rm -f "$dotfiles_link"
-            else
-                return 0
-            fi
-        fi
-    elif [[ -e "$dotfiles_link" ]]; then
-        print_info "Removing existing $dotfiles_link"
-        rm -rf "$dotfiles_link"
-    fi
-
-    # Create ~/dotfiles -> ~/dotfiles
-    if ln -s "$dotfiles_real" "$dotfiles_link" 2>/dev/null; then
-        print_success "Created symlink: $dotfiles_link -> $dotfiles_real"
-    else
-        print_error "Failed to create symlink"
-        return 1
-    fi
-}
-
 # Use dotlink to create symlinks for config files
 run_dotlink() {
     local dotlink_script="${DOTFILES_DIR:-$HOME/dotfiles}/dotlink/dotlink"
@@ -572,123 +530,34 @@ create_zshrc_link() {
 }
 
 # Detect and configure the dotfiles directory
-# ~/dotfiles is the real directory, ~/dotfiles is the symlink
 detect_dotfiles_dir() {
     local current_dir="$(pwd)"
-    local dotfiles_real=""
-    local dotfiles_link="$HOME/dotfiles"
-    
+    local dotfiles_dir=""
+
     # Prefer ~/dotfiles first
     if [[ -d "$HOME/dotfiles" ]] && [[ -f "$HOME/dotfiles/zshrc" ]]; then
-        dotfiles_real="$HOME/dotfiles"
-        print_info "Detected dotfiles real directory: $dotfiles_real"
-        
-        # Ensure ~/dotfiles points to ~/dotfiles
-        if [[ ! -e "$dotfiles_link" ]]; then
-            print_info "Creating ~/dotfiles symlink..."
-            if ln -s "$dotfiles_real" "$dotfiles_link" 2>/dev/null; then
-                print_success "Created symlink: ~/dotfiles -> ~/dotfiles"
-            else
-                print_error "Failed to create symlink"
-                return 1
-            fi
-        elif [[ -L "$dotfiles_link" ]]; then
-            local target=$(readlink -f "$dotfiles_link")
-            if [[ "$target" == "$dotfiles_real" ]]; then
-                print_success "Symlink already exists: ~/dotfiles -> ~/dotfiles"
-            else
-                print_warning "~/dotfiles points to a different target: $target"
-                print_info "Expected target: $dotfiles_real"
-                read -p "Recreate the symlink? (y/N): " -n 1 -r
-                echo
-                if [[ $REPLY =~ ^[Yy]$ ]]; then
-                    rm -f "$dotfiles_link"
-                    if ln -s "$dotfiles_real" "$dotfiles_link" 2>/dev/null; then
-                        print_success "Recreated symlink: ~/dotfiles -> ~/dotfiles"
-                    else
-                        print_error "Failed to recreate symlink"
-                        return 1
-                    fi
-                fi
-            fi
-        elif [[ -d "$dotfiles_link" ]]; then
-            print_warning "~/dotfiles already exists but is a directory, not a symlink"
-            print_info "Removing ~/dotfiles and creating a symlink"
-            rm -rf "$dotfiles_link"
-            if ln -s "$dotfiles_real" "$dotfiles_link" 2>/dev/null; then
-                print_success "Created symlink: ~/dotfiles -> ~/dotfiles"
-            else
-                print_error "Failed to create symlink"
-                return 1
-            fi
-        fi
-    # If the current directory is a dotfiles repository, but not ~/dotfiles
+        dotfiles_dir="$HOME/dotfiles"
+        print_info "Detected dotfiles directory: $dotfiles_dir"
+    # If the current directory is a dotfiles repository
     elif [[ -f "$current_dir/zshrc" ]] && [[ -f "$current_dir/init.sh" ]]; then
-        dotfiles_real="$current_dir"
-        print_info "Detected dotfiles repository at: $dotfiles_real"
-        
-        # If the current directory is not ~/dotfiles, ask whether to create symlinks
-        if [[ "$dotfiles_real" != "$HOME/dotfiles" ]]; then
-            print_info "The current directory is not ~/dotfiles. Create symlinks?"
-            print_info "  Option 1: Create ~/dotfiles -> $dotfiles_real"
-            print_info "  Option 2: Create ~/dotfiles -> $dotfiles_real, then ~/dotfiles -> ~/dotfiles"
-            read -p "Choose an option (1/2/N to skip): " -n 1 -r
-            echo
-            if [[ $REPLY == "1" ]]; then
-                if [[ -e "$dotfiles_link" ]]; then
-                    print_warning "~/dotfiles already exists and must be removed first"
-                    read -p "Continue? (y/N): " -n 1 -r
-                    echo
-                    if [[ $REPLY =~ ^[Yy]$ ]]; then
-                        rm -rf "$dotfiles_link"
-                    else
-                        return 1
-                    fi
-                fi
-                if ln -s "$dotfiles_real" "$dotfiles_link" 2>/dev/null; then
-                    print_success "Created symlink: ~/dotfiles -> $dotfiles_real"
-                else
-                    print_error "Failed to create symlink"
-                    return 1
-                fi
-            elif [[ $REPLY == "2" ]]; then
-                if [[ ! -e "$HOME/dotfiles" ]]; then
-                    if ln -s "$dotfiles_real" "$HOME/dotfiles" 2>/dev/null; then
-                        print_success "Created symlink: ~/dotfiles -> $dotfiles_real"
-                        dotfiles_real="$HOME/dotfiles"
-                    else
-                        print_error "Failed to create symlink"
-                        return 1
-                    fi
-                fi
-                # Then create ~/dotfiles -> ~/dotfiles
-                if [[ ! -e "$dotfiles_link" ]]; then
-                    if ln -s "$HOME/dotfiles" "$dotfiles_link" 2>/dev/null; then
-                        print_success "Created symlink: ~/dotfiles -> ~/dotfiles"
-                    else
-                        print_error "Failed to create symlink"
-                        return 1
-                    fi
-                fi
-            fi
-        fi
+        dotfiles_dir="$current_dir"
+        print_info "Detected dotfiles repository at: $dotfiles_dir"
     fi
-    
-    # Final check for ~/dotfiles
-    if [[ ! -e "$dotfiles_link" ]]; then
-        print_error "~/dotfiles was not found"
+
+    if [[ -z "$dotfiles_dir" ]]; then
+        print_error "Dotfiles directory not found"
         print_info "Please make sure:"
         print_info "  1. You run this script inside the dotfiles repository, or"
-        print_info "  2. The repository has been cloned into ~/dotfiles or the current directory"
+        print_info "  2. The repository has been cloned into ~/dotfiles"
         return 1
     fi
-    
-    if [[ ! -f "$dotfiles_link/zshrc" ]]; then
-        print_error "~/dotfiles/zshrc does not exist"
+
+    if [[ ! -f "$dotfiles_dir/zshrc" ]]; then
+        print_error "$dotfiles_dir/zshrc does not exist"
         return 1
     fi
-    
-    export DOTFILES_DIR="$dotfiles_link"
+
+    export DOTFILES_DIR="$dotfiles_dir"
     print_success "Dotfiles directory: $DOTFILES_DIR"
     return 0
 }
@@ -821,24 +690,24 @@ EOF
     echo ""
 
     # Detect and configure the dotfiles directory
-    print_info "Step 1/15: Detecting the dotfiles repository location"
+    print_info "Step 1/14: Detecting the dotfiles repository location"
     if ! detect_dotfiles_dir; then
         exit 1
     fi
     echo ""
 
     # 1. Install zsh
-    print_info "Step 2/15: Checking and installing zsh"
+    print_info "Step 2/14: Checking and installing zsh"
     install_zsh
     echo ""
 
     # 2. Install essential tools
-    print_info "Step 3/15: Installing essential tools (git, curl, build-essential, etc.)"
+    print_info "Step 3/14: Installing essential tools (git, curl, build-essential, etc.)"
     install_essentials
     echo ""
 
     # 3. Install zinit
-    print_info "Step 4/15: Checking and installing zinit"
+    print_info "Step 4/14: Checking and installing zinit"
     install_zinit
     echo ""
 
@@ -850,57 +719,52 @@ EOF
     fi
 
     # 4. Install pyenv
-    print_info "Step 5/15: Checking and installing pyenv"
+    print_info "Step 5/14: Checking and installing pyenv"
     install_pyenv
     echo ""
 
     # 5. Install nvm
-    print_info "Step 6/15: Checking and installing nvm"
+    print_info "Step 6/14: Checking and installing nvm"
     install_nvm
     echo ""
 
     # 6. Install fzf
-    print_info "Step 7/15: Checking and installing fzf"
+    print_info "Step 7/14: Checking and installing fzf"
     install_fzf
     echo ""
 
     # 7. Install direnv
-    print_info "Step 8/15: Checking and installing direnv"
+    print_info "Step 8/14: Checking and installing direnv"
     install_direnv
     echo ""
 
-    # 8. Create the Dotfiles symlink
-    print_info "Step 9/15: Creating the Dotfiles symlink"
-    create_dotfiles_link
-    echo ""
-
-    # 9. Create config file symlinks with dotlink
-    print_info "Step 10/15: Creating config file symlinks with dotlink"
+    # 8. Create config file symlinks with dotlink
+    print_info "Step 9/14: Creating config file symlinks with dotlink"
     run_dotlink
     echo ""
 
-    # 10. Create the .zshrc symlink
-    print_info "Step 11/15: Creating the .zshrc symlink"
+    # 9. Create the .zshrc symlink
+    print_info "Step 10/14: Creating the .zshrc symlink"
     create_zshrc_link
     echo ""
 
-    # 11. Install Neovim
-    print_info "Step 12/15: Installing Neovim"
+    # 10. Install Neovim
+    print_info "Step 11/14: Installing Neovim"
     install_neovim
     echo ""
 
-    # 12. Install fonts
-    print_info "Step 13/15: Installing fonts"
+    # 11. Install fonts
+    print_info "Step 12/14: Installing fonts"
     install_fonts
     echo ""
 
-    # 13. Initialize Yazi config
-    print_info "Step 14/15: Initializing Yazi config"
+    # 12. Initialize Yazi config
+    print_info "Step 13/14: Initializing Yazi config"
     install_yazi_config
     echo ""
 
-    # 14. Install additional tools
-    print_info "Step 15/15: Checking and installing additional tools (Zellij, Gemini, Codex, etc.)"
+    # 13. Install additional tools
+    print_info "Step 14/14: Checking and installing additional tools (Zellij, Gemini, Codex, etc.)"
     install_extra_tools
     echo ""
 
