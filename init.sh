@@ -159,9 +159,10 @@ install_zinit() {
 # Repair broken zinit plugins (e.g., atuin downloaded wrong binary)
 repair_zinit_plugins() {
     local atuin_dir="$HOME/.zinit/plugins/atuinsh---atuin"
+    local broot_dir="$HOME/.zinit/plugins/Canop---broot"
     
+    # Repair atuin
     if [[ -d "$atuin_dir" ]]; then
-        # Check if atuin binary exists and is executable
         if [[ ! -f "$atuin_dir/atuin" ]] || [[ ! -x "$atuin_dir/atuin" ]]; then
             print_warning "Detected broken atuin installation (wrong binary downloaded)"
             print_info "Removing broken atuin plugin..."
@@ -169,6 +170,39 @@ repair_zinit_plugins() {
             print_success "Broken atuin plugin removed. It will be reinstalled on next zsh launch"
         else
             print_success "atuin binary looks correct"
+        fi
+    fi
+    
+    # Repair broot: zinit mv sometimes fails to move binary from subdir to root
+    if [[ -d "$broot_dir" ]]; then
+        if [[ ! -f "$broot_dir/broot" ]] || [[ ! -x "$broot_dir/broot" ]]; then
+            print_warning "Detected broken broot installation (binary not in PATH)"
+            # Find the actual broot binary in subdirectories
+            local broot_binary
+            broot_binary=$(find "$broot_dir" -name "broot" -type f -executable 2>/dev/null | head -n 1)
+            if [[ -n "$broot_binary" ]]; then
+                print_info "Copying broot binary from $(dirname "$broot_binary") to plugin root..."
+                cp "$broot_binary" "$broot_dir/broot"
+                chmod +x "$broot_dir/broot"
+                print_success "broot binary fixed"
+            else
+                print_error "broot binary not found in subdirectories, removing plugin..."
+                rm -rf "$broot_dir"
+                print_success "Broken broot plugin removed. It will be reinstalled on next zsh launch"
+            fi
+        else
+            print_success "broot binary looks correct"
+        fi
+        
+        # Regenerate br shell function if needed
+        local broot_launcher="${XDG_CONFIG_HOME:-$HOME/.config}/broot/launcher/br"
+        local broot_init_script="$HOME/.dotfiles/config/broot/init.sh"
+        if [[ -f "$broot_dir/broot" ]] && [[ -f "$broot_init_script" ]]; then
+            if [[ ! -f "$broot_launcher" ]]; then
+                print_info "Regenerating br shell function..."
+                bash "$broot_init_script" >/dev/null 2>&1 || true
+                print_success "br shell function regenerated"
+            fi
         fi
     fi
     
