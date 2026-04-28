@@ -8,7 +8,7 @@
 
 ### `update_flavors.sh` - 主题更新脚本
 
-从 [yazi-rs/flavors](https://github.com/yazi-rs/flavors) 仓库克隆/更新所有主题到 `~/.dotfiles/config/yazi/flavors` 目录。
+从 [yazi-rs/flavors](https://github.com/yazi-rs/flavors) 仓库克隆/更新所有主题到 `~/dotfiles/config/yazi/flavors` 目录。
 
 **功能：**
 - 自动从 GitHub 克隆 flavors 仓库
@@ -20,10 +20,10 @@
 
 ```bash
 # 直接运行脚本
-~/.dotfiles/plugins/yazi/update_flavors.sh
+~/dotfiles/plugins/yazi/update_flavors.sh
 
 # 或者添加别名后使用
-alias yazi:update-flavors='~/.dotfiles/plugins/yazi/update_flavors.sh'
+alias yazi:update-flavors='~/dotfiles/plugins/yazi/update_flavors.sh'
 yazi:update-flavors
 ```
 
@@ -31,7 +31,7 @@ yazi:update-flavors
 
 1. 克隆 yazi-rs/flavors 仓库到临时目录（使用 `--depth 1` 仅克隆最新版本）
 2. 查找所有 `.yazi` 格式的主题目录
-3. 将每个主题目录复制到 `~/.dotfiles/config/yazi/flavors/`
+3. 将每个主题目录复制到 `~/dotfiles/config/yazi/flavors/`
 4. 安装额外的主题仓库（如 kanagawa、flexoki-dark、synthwave84 等）
 5. 如果主题已存在，先删除再复制（更新）
 6. 自动清理临时文件
@@ -74,7 +74,7 @@ EXTRA_FLAVORS=(
 ✓ 新增: 5 个主题
 ✓ 更新: 15 个主题
 
-ℹ 主题已安装到: /home/tetsuya/.dotfiles/config/yazi/flavors
+ℹ 主题已安装到: /home/tetsuya/dotfiles/config/yazi/flavors
 ℹ 使用 'y' 命令启动 yazi 查看效果
 ```
 
@@ -105,7 +105,7 @@ EXTRA_FLAVORS=(
 
 ### 方法 1: 使用 theme.toml
 
-编辑 `~/.dotfiles/config/yazi/theme.toml`：
+编辑 `~/dotfiles/config/yazi/theme.toml`：
 
 ```toml
 [flavor]

@@ -8,7 +8,7 @@
 
 ## 文件位置
 
-- **配置文件**: `~/.dotfiles/plugins/zinit/zinit.zsh`
+- **配置文件**: `~/dotfiles/plugins/zinit/zinit.zsh`
 - **加载位置**: 在 `~/.zshrc` 中最早加载（在其他插件之前）
 
 ## 功能
@@ -80,9 +80,9 @@ zinit delete --clean
 
 ## 相关文件
 
-- **插件配置**: `~/.dotfiles/plugins/plugins/plugins.zsh` - Zsh 功能插件
-- **工具配置**: `~/.dotfiles/plugins/tools/tools.zsh` - CLI 工具安装
-- **补全配置**: `~/.dotfiles/plugins/completion/completion.zsh` - 补全系统配置
+- **插件配置**: `~/dotfiles/plugins/plugins/plugins.zsh` - Zsh 功能插件
+- **工具配置**: `~/dotfiles/plugins/tools/tools.zsh` - CLI 工具安装
+- **补全配置**: `~/dotfiles/plugins/completion/completion.zsh` - 补全系统配置
 
 ## 参考资源
 

@@ -8,7 +8,7 @@
 
 ## 文件位置
 
-- **配置文件**: `~/.dotfiles/plugins/prompt/prompt.zsh`
+- **配置文件**: `~/dotfiles/plugins/prompt/prompt.zsh`
 - **加载位置**: 在 `~/.zshrc` 中，在 zinit 初始化之后、其他插件之前加载
 
 ## 功能
@@ -137,7 +137,7 @@ install:font
 
 ## 相关文件
 
-- **Zinit 配置**: `~/.dotfiles/plugins/zinit/zinit.zsh`
+- **Zinit 配置**: `~/dotfiles/plugins/zinit/zinit.zsh`
 - **用户配置**: `~/.p10k.zsh` - Powerlevel10k 用户配置文件
 
 ## 参考资源

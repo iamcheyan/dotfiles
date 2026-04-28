@@ -1,13 +1,7 @@
 #!/bin/bash
 
-# 程序启动的时候先判断有没有$HOME/Dotfiles （快捷方式
-if [ ! -e "$HOME/Dotfiles" ]; then
-    ln -s "$HOME/.dotfiles" "$HOME/Dotfiles"
-    echo "已创建软连接: $HOME/Dotfiles -> $HOME/.dotfiles"
-fi
-
-# 定义 .dotfiles 目录的路径
-DOTFILES_DIR="$HOME/.dotfiles"
+# 定义 Dotfiles 目录的路径
+DOTFILES_DIR="$HOME/dotfiles"
 
 # 颜色定义
 RED='\033[0;31m'

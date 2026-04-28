@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================
 # Yazi Flavors 更新脚本
-# 从 yazi-rs/flavors 仓库克隆/更新所有主题到 ~/.dotfiles/config/yazi/flavors
+# 从 yazi-rs/flavors 仓库克隆/更新所有主题到 ~/dotfiles/config/yazi/flavors
 # ============================================
 
 set -e
@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # 配置
 FLAVORS_REPO="https://github.com/yazi-rs/flavors.git"
-TARGET_DIR="$HOME/.dotfiles/config/yazi/flavors"
+TARGET_DIR="$HOME/dotfiles/config/yazi/flavors"
 TEMP_DIR=$(mktemp -d)
 REPO_DIR="$TEMP_DIR/flavors"
 

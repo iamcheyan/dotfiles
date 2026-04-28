@@ -129,8 +129,8 @@ done
 
 if command_exists broot && [[ "$FORCE" -ne 1 ]]; then
   print_success "broot is already installed: $(broot --version)"
-  if [[ -x "$HOME/.dotfiles/config/broot/init.sh" ]]; then
-    bash "$HOME/.dotfiles/config/broot/init.sh" >/dev/null 2>&1 || true
+  if [[ -x "$HOME/dotfiles/config/broot/init.sh" ]]; then
+    bash "$HOME/dotfiles/config/broot/init.sh" >/dev/null 2>&1 || true
   fi
   exit 0
 fi
@@ -259,8 +259,8 @@ case "$METHOD" in
 esac
 
 if command_exists broot; then
-  if [[ -x "$HOME/.dotfiles/config/broot/init.sh" ]]; then
-    bash "$HOME/.dotfiles/config/broot/init.sh"
+  if [[ -x "$HOME/dotfiles/config/broot/init.sh" ]]; then
+    bash "$HOME/dotfiles/config/broot/init.sh"
   fi
   print_success "broot installed successfully: $(broot --version)"
   print_info "Open a new shell or run: source ~/.zshrc"

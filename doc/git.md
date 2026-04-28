@@ -21,15 +21,15 @@
 
 相关配置文件:
 
-- [plugins/tools/tools.zsh]($HOME/.dotfiles/plugins/tools/tools.zsh)
-- [aliases.conf]($HOME/.dotfiles/aliases.conf)
+- [plugins/tools/tools.zsh]($HOME/dotfiles/plugins/tools/tools.zsh)
+- [aliases.conf]($HOME/dotfiles/aliases.conf)
 
 ## 首次启用
 
 重载 shell 让 Zinit 拉起新工具:
 
 ```zsh
-source ~/.dotfiles/zshrc
+source ~/dotfiles/zshrc
 ```
 
 如果你想让 Git 全局默认使用 `delta`，执行一次:

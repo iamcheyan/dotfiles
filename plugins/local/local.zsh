@@ -38,7 +38,7 @@ unalias install:font 2>/dev/null || true
 # 字体安装函数（可通过命令调用）
 # 不在 shell 启动期间自动提示，避免和 p10k instant prompt 冲突。
 install:font() {
-    bash "$HOME/.dotfiles/scripts/install/install_font.sh" "$@"
+    bash "$HOME/dotfiles/scripts/install/install_font.sh" "$@"
 }
 
 # nvm 使用 zshrc 中定义的惰性加载，不在这里同步 source。

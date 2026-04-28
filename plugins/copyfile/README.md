@@ -8,7 +8,7 @@ copyfile 是 Oh My Zsh 提供的一个实用插件，用于快速将文件的内
 
 ## 安装
 
-copyfile 已通过 Zinit 自动安装和管理。插件配置位于 `~/.dotfiles/plugins/plugins/plugins.zsh`。
+copyfile 已通过 Zinit 自动安装和管理。插件配置位于 `~/dotfiles/plugins/plugins/plugins.zsh`。
 
 ### 前置要求
 
@@ -174,7 +174,7 @@ pbpaste | head -20
 
 ### 创建别名简化操作
 
-可以在 `~/.dotfiles/aliases.conf` 中添加别名：
+可以在 `~/dotfiles/aliases.conf` 中添加别名：
 
 ```zsh
 # 复制当前目录下最近修改的文件内容

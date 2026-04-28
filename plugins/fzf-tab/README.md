@@ -8,7 +8,7 @@ fzf-tab 是一个强大的 Zsh 插件，用 fzf 替换 Zsh 的默认补全选择
 
 ## 安装
 
-fzf-tab 已通过 Zinit 自动安装和管理。插件配置位于 `~/.dotfiles/plugins/completion/completion.zsh`。
+fzf-tab 已通过 Zinit 自动安装和管理。插件配置位于 `~/dotfiles/plugins/completion/completion.zsh`。
 
 ### 前置要求
 
@@ -93,7 +93,7 @@ toggle-fzf-tab
 
 ### 当前配置
 
-本 dotfiles 已包含以下常用配置（位于 `~/.dotfiles/plugins/completion/completion.zsh`）：
+本 dotfiles 已包含以下常用配置（位于 `~/dotfiles/plugins/completion/completion.zsh`）：
 
 ```zsh
 # 禁用某些命令的排序（如 git checkout）

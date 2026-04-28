@@ -1,4 +1,4 @@
--- ~/Dotfiles/config/nvim/lua/plugins/translator-panel.lu
+-- ~/dotfiles/config/nvim/lua/plugins/translator-panel.lu
 
 return {
 	dir = vim.fn.expand("~/.local/share/nvim/lazy/translator-panel.nvim"),

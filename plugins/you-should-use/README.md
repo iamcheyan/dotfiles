@@ -8,7 +8,7 @@ You Should Use 是一个智能的 Zsh 插件，当您输入命令时，如果存
 
 ## 安装
 
-You Should Use 已通过 Zinit 自动安装和管理。插件配置位于 `~/.dotfiles/plugins/plugins/plugins.zsh`。
+You Should Use 已通过 Zinit 自动安装和管理。插件配置位于 `~/dotfiles/plugins/plugins/plugins.zsh`。
 
 ## 基本使用
 
@@ -61,7 +61,7 @@ check_alias_usage 200
 默认情况下，提醒消息会在命令**执行前**显示。您可以配置为在命令**执行后**显示：
 
 ```zsh
-# 在 ~/.dotfiles/plugins/local/local.zsh 中添加
+# 在 ~/dotfiles/plugins/local/local.zsh 中添加
 export YSU_MESSAGE_POSITION="after"
 ```
 
@@ -193,7 +193,7 @@ check_alias_usage
 
 ### 基础配置
 
-在 `~/.dotfiles/plugins/local.zsh` 中添加：
+在 `~/dotfiles/plugins/local.zsh` 中添加：
 
 ```zsh
 # You Should Use 配置

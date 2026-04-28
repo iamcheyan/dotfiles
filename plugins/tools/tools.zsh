@@ -6,12 +6,12 @@ zi_cmd() {
 
 unalias install:httpie 2>/dev/null || true
 install:httpie() {
-  bash "$HOME/.dotfiles/scripts/install/install_httpie.sh" "$@"
+  bash "$HOME/dotfiles/scripts/install/install_httpie.sh" "$@"
 }
 
 unalias install:broot 2>/dev/null || true
 install:broot() {
-  bash "$HOME/.dotfiles/scripts/install/install_broot.sh" "$@"
+  bash "$HOME/dotfiles/scripts/install/install_broot.sh" "$@"
 }
 
 # pyenv + pyenv-virtualenv
@@ -132,8 +132,8 @@ fi
 zinit light sxyazi/yazi
 # 初始化 yazi（仅首次）
 yazi_init_flag="${XDG_STATE_HOME:-$HOME/.local/state}/yazi/init.done"
-if [ ! -f "$yazi_init_flag" ] && [ -f ~/.dotfiles/config/yazi/init.sh ]; then
-  mkdir -p "${yazi_init_flag%/*}" && bash ~/.dotfiles/config/yazi/init.sh && touch "$yazi_init_flag"
+if [ ! -f "$yazi_init_flag" ] && [ -f ~/dotfiles/config/yazi/init.sh ]; then
+  mkdir -p "${yazi_init_flag%/*}" && bash ~/dotfiles/config/yazi/init.sh && touch "$yazi_init_flag"
 fi
 
 # fzf（使用系统安装的 fzf，这里只加载补全和键绑定）

@@ -8,7 +8,7 @@ zshcp 是一个轻量级且直观的 Zsh 剪贴板管理插件，增强了命令
 
 ## 安装
 
-zshcp 已通过 Zinit 自动安装和管理。插件配置位于 `~/.dotfiles/plugins/plugins/plugins.zsh`。
+zshcp 已通过 Zinit 自动安装和管理。插件配置位于 `~/dotfiles/plugins/plugins/plugins.zsh`。
 
 ## 前置要求
 
@@ -334,9 +334,9 @@ zpp > ~/.config/app.conf
 
 ## 相关资源
 
-- **copypath**: `~/.dotfiles/plugins/copypath/README.md` - 复制路径工具
-- **copyfile**: `~/.dotfiles/plugins/copyfile/README.md` - 复制文件内容工具
-- **zsh-vi-mode**: `~/.dotfiles/plugins/zsh-vi-mode/README.md` - Vim 模式剪贴板集成
+- **copypath**: `~/dotfiles/plugins/copypath/README.md` - 复制路径工具
+- **copyfile**: `~/dotfiles/plugins/copyfile/README.md` - 复制文件内容工具
+- **zsh-vi-mode**: `~/dotfiles/plugins/zsh-vi-mode/README.md` - Vim 模式剪贴板集成
 
 ## 参考资源
 

@@ -8,7 +8,7 @@ fi
 
 CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-REPO_BROOT_DIR="$HOME/.dotfiles/config/broot"
+REPO_BROOT_DIR="$HOME/dotfiles/config/broot"
 CONFIG_DIR="$CONFIG_HOME/broot"
 LAUNCHER_DIR="$CONFIG_HOME/broot/launcher"
 LAUNCHER_FILE="$LAUNCHER_DIR/br"

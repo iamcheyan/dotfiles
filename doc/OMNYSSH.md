@@ -11,12 +11,12 @@ OmnySSH 是一个 TUI SSH 仪表盘和服务器管理工具，可以从单个终
 首次运行前需要配置配置文件链接:
 
 ```bash
-ln -sf ~/Dotfiles/omnyssh/config.toml ~/.config/omnyssh/config.toml
-ln -sf ~/Dotfiles/omnyssh/hosts.toml ~/.config/omnyssh/hosts.toml
-ln -sf ~/Dotfiles/omnyssh/snippets.toml ~/.config/omnyssh/snippets.toml
+ln -sf ~/dotfiles/omnyssh/config.toml ~/.config/omnyssh/config.toml
+ln -sf ~/dotfiles/omnyssh/hosts.toml ~/.config/omnyssh/hosts.toml
+ln -sf ~/dotfiles/omnyssh/snippets.toml ~/.config/omnyssh/snippets.toml
 ```
 
-或直接运行 `~/Dotfiles/scripts/install/install_omnyssh.sh`
+或直接运行 `~/dotfiles/scripts/install/install_omnyssh.sh`
 
 ## 使用
 

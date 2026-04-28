@@ -37,7 +37,7 @@ install:broot --method cargo
 本仓库会在加载 `plugins/broot/broot.zsh` 时自动完成：
 
 - 生成 `~/.config/broot/launcher/br`
-- 同步 `~/.dotfiles/config/broot/verbs.hjson` 到 `~/.config/broot/verbs.hjson`
+- 同步 `~/dotfiles/config/broot/verbs.hjson` 到 `~/.config/broot/verbs.hjson`
 - `source` 这个 launcher
 - 让 `Alt+Enter` 后能够把当前 shell `cd` 到选中的目录
 
@@ -52,7 +52,7 @@ nvim
 如果要手动重建：
 
 ```bash
-bash ~/.dotfiles/config/broot/init.sh
+bash ~/dotfiles/config/broot/init.sh
 source ~/.zshrc
 ```
 

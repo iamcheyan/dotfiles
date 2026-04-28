@@ -1,12 +1,12 @@
 #!/bin/bash
 # 声笔自然 (sbzr) 配置安装脚本
-# 从 GitHub 克隆声笔自然配置仓库到 ~/.dotfiles/rime
+# 从 GitHub 克隆声笔自然配置仓库到 ~/dotfiles/rime
 # 用法: install_sbzr [--force]
 
 set -e
 
 RIME_REPO_URL="https://github.com/iamcheyan/rime.git"
-RIME_DIR="$HOME/.dotfiles/rime"
+RIME_DIR="$HOME/dotfiles/rime"
 
 # 检查目录是否已存在
 if [ -d "$RIME_DIR" ]; then

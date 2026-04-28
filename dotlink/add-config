@@ -22,8 +22,8 @@ if [ $# -eq 0 ]; then
 fi
 
 INPUT_PATH="$1"
-DOTFILES_DIR="$HOME/.dotfiles"
-DOTLINK_DIR="$HOME/Dotfiles/dotlink"
+DOTFILES_DIR="$HOME/dotfiles"
+DOTLINK_DIR="$HOME/dotfiles/dotlink"
 
 # 转换为绝对路径
 if [[ "$INPUT_PATH" == ~* ]]; then
@@ -88,9 +88,9 @@ else
 fi
 
 # 生成完整的路径变量
-DOTFILES_SRC_PATH="\$HOME/.dotfiles/$DOTFILES_RELATIVE_PATH"
+DOTFILES_SRC_PATH="\$HOME/dotfiles/$DOTFILES_RELATIVE_PATH"
 DOTFILES_DEST_PATH="\$HOME/$RELATIVE_PATH"
-DOTFILES_ABS_SRC_PATH="$HOME/.dotfiles/$DOTFILES_RELATIVE_PATH"
+DOTFILES_ABS_SRC_PATH="$HOME/dotfiles/$DOTFILES_RELATIVE_PATH"
 
 echo -e "${GREEN}输入路径: $INPUT_PATH${NC}"
 echo -e "${GREEN}Dotfiles 源路径: $DOTFILES_ABS_SRC_PATH${NC}"
@@ -99,7 +99,7 @@ echo -e "${GREEN}目标路径: $HOME/$RELATIVE_PATH${NC}"
 # 检查配置文件中是否已存在该规则（需要转义特殊字符）
 ESCAPED_SRC_PATH=$(echo "$DOTFILES_RELATIVE_PATH" | sed 's/[.[\*^$()+?{|]/\\&/g')
 ESCAPED_DEST_PATH=$(echo "$RELATIVE_PATH" | sed 's/[.[\*^$()+?{|]/\\&/g')
-EXISTING_RULE=$(grep -E "^\\\$HOME/\\.dotfiles/$ESCAPED_SRC_PATH:\\\$HOME/$ESCAPED_DEST_PATH" "$CONFIG_FILE" 2>/dev/null | head -1 || true)
+EXISTING_RULE=$(grep -E "^\\\$HOME/\\dotfiles/$ESCAPED_SRC_PATH:\\\$HOME/$ESCAPED_DEST_PATH" "$CONFIG_FILE" 2>/dev/null | head -1 || true)
 
 # 判断是添加还是删除
 if [ -n "$EXISTING_RULE" ]; then
@@ -209,7 +209,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     # 在 [link] 部分
     if [ "$IN_SECTION" = true ]; then
         # 检查是否是目标规则（使用转义后的路径进行匹配）
-        if echo "$line" | grep -qE "^\\\$HOME/\\.dotfiles/$ESCAPED_SRC_PATH:\\\$HOME/$ESCAPED_DEST_PATH"; then
+        if echo "$line" | grep -qE "^\\\$HOME/\\dotfiles/$ESCAPED_SRC_PATH:\\\$HOME/$ESCAPED_DEST_PATH"; then
             # 如果是删除操作，跳过这一行
             if [ "$ACTION" = "remove" ]; then
                 RULE_FOUND=true

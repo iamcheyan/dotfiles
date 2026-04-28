@@ -31,7 +31,7 @@ vim.keymap.set("n", "<leader>fC", function()
   require("telescope.builtin").find_files({
     prompt_title = "常用配置文件",
     search_dirs = {
-      "~/.dotfiles",
+      "~/dotfiles",
       "~/.config/nvim",
       -- vim.env.SBZR_CHROME_RIME_YAML, -- 甚至可以精确到具体文件
     },

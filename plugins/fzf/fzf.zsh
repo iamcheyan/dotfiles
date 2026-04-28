@@ -25,9 +25,9 @@ if ! command -v fzf >/dev/null 2>&1 && [[ -d "$HOME/.fzf/bin" ]]; then
 fi
 
 # 在 Zellij 里优先用浮动窗运行 fzf，外部环境保持原始行为。
-if [[ -x ~/.dotfiles/plugins/zellij/fzf-zellij ]]; then
+if [[ -x ~/dotfiles/plugins/zellij/fzf-zellij ]]; then
     fzf-zellij() {
-        ~/.dotfiles/plugins/zellij/fzf-zellij "$@"
+        ~/dotfiles/plugins/zellij/fzf-zellij "$@"
     }
 
     fzf() {
