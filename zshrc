@@ -154,6 +154,9 @@ source ~/dotfiles/aliases.conf
 
 [[ -r ~/.aws/aliases.conf ]] && source ~/.aws/aliases.conf
 
+# 加载 chezmoi 管理的私有别名（含敏感信息，加密存储）
+[[ -r ~/.config/dotfiles/aliases/private.conf ]] && source ~/.config/dotfiles/aliases/private.conf
+
 # Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.
 
 # SSH 会话时在窗口标题前加 [SSH] 标记
