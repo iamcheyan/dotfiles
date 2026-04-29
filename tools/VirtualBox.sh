@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# 确保使用tetsuya用户运行VBoxManage命令
-VBOXMANAGE="sudo -u tetsuya VBoxManage"
+# 默认使用当前用户运行 VBoxManage，可通过环境变量覆盖
+VB_USER="${VB_USER:-$USER}"
+VBOXMANAGE="sudo -u $VB_USER VBoxManage"
 
 # 函数：显示帮助信息
 show_help() {
@@ -49,7 +50,7 @@ start_windows11() {
 # 函数：导出所有虚拟机
 export_vms() {
     echo "开始导出虚拟机..."
-    export_path="/var/home/tetsuya/VirtualBox VMs"
+    export_path="$HOME/VirtualBox VMs"
     if [ ! -d "$export_path" ]; then
         mkdir -p "$export_path"
     fi
