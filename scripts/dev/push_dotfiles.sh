@@ -1,10 +1,9 @@
 #!/bin/bash
-# Push dotfiles and aliases as two independent repositories.
+# Push dotfiles repository.
 
 set -euo pipefail
 
 DOTFILES_DIR="$HOME/dotfiles"
-ALIASES_DIR="$DOTFILES_DIR/aliases"
 TIMESTAMP="$(date '+%Y%m%d_%H%M%S')"
 
 ensure_git_repo() {
@@ -69,14 +68,11 @@ push_repo() {
 }
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Push dotfiles + aliases"
+echo "  Push dotfiles"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "Commit message: $TIMESTAMP"
 echo ""
 
-# The root repo ignores aliases via .gitignore, so do not pass it to git add.
 push_repo "$DOTFILES_DIR" "dotfiles"
-echo ""
-push_repo "$ALIASES_DIR" "aliases"
 echo ""
 echo "Done"
