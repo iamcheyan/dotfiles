@@ -634,13 +634,13 @@ install_extra_tools() {
         print_success "Opencode is already installed"
     fi
 
-    # Sbzr
-    if ! command_exists sbzr; then
-        print_info "Installing Sbzr..."
-        [[ -f "$install_dir/install_sbzr.sh" ]] && bash "$install_dir/install_sbzr.sh"
-    else
-        print_success "Sbzr is already installed"
-    fi
+    # Sbzr (rime config clone disabled — managed manually)
+    # if ! command_exists sbzr; then
+    #     print_info "Installing Sbzr..."
+    #     [[ -f "$install_dir/install_sbzr.sh" ]] && bash "$install_dir/install_sbzr.sh"
+    # else
+    #     print_success "Sbzr is already installed"
+    # fi
 
     # tree-sitter
     if ! command_exists tree-sitter; then
