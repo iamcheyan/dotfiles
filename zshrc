@@ -147,15 +147,12 @@ fi
 
 # 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
 source ~/dotfiles/aliases.conf
-[[ -d ~/dotfiles/aliases ]] &&
-  for f in ~/dotfiles/aliases/*.conf(N); do
+[[ -d ~/.config/dotfiles/aliases ]] &&
+  for f in ~/.config/dotfiles/aliases/*.conf(N); do
     [[ -r $f ]] && source $f
   done
 
 [[ -r ~/.aws/aliases.conf ]] && source ~/.aws/aliases.conf
-
-# 加载 chezmoi 管理的私有别名（含敏感信息，加密存储）
-[[ -r ~/.config/dotfiles/aliases/private.conf ]] && source ~/.config/dotfiles/aliases/private.conf
 
 # Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.
 
