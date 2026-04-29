@@ -27,6 +27,10 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompcache"
 { compinit -C -u -d "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump" } 2>/dev/null
 
+# 大小写不敏感 + 模糊匹配补全
+# 示例: cd deve<Tab> 可匹配 Development，cd dow<Tab> 可匹配 ダウンロード
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
 # fzf-tab: 用 fzf 替换 zsh 的默认补全选择菜单
 # 必须在 compinit 之后加载，但在 zsh-autosuggestions 之前加载
 zinit light Aloxaf/fzf-tab
