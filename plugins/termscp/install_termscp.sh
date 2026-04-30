@@ -134,7 +134,20 @@ install_release_tarball() {
     local tmp_dir
     local archive
     local extracted_bin
-    local install_dir="${HOME}/.local/bin"
+    local install_dir
+
+    # macOS: use standard paths; Linux: use ~/.local/bin
+    if [[ "$OS" == "macos" ]]; then
+        if [[ "$ARCH" == "aarch64" ]] && [[ -d "/opt/homebrew/bin" ]]; then
+            install_dir="/opt/homebrew/bin"
+        elif [[ -d "/usr/local/bin" ]]; then
+            install_dir="/usr/local/bin"
+        else
+            install_dir="${HOME}/.local/bin"
+        fi
+    else
+        install_dir="${HOME}/.local/bin"
+    fi
 
     tmp_dir="$(mktemp -d)"
     archive="${tmp_dir}/termscp.tar.gz"
@@ -229,7 +242,7 @@ install_with_package_manager() {
                 print_warning "Homebrew was not found"
                 return 1
             fi
-            brew install veeso/termscp/termscp
+            brew install termscp
             ;;
         arch)
             require_sudo
