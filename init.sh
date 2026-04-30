@@ -2,9 +2,12 @@
 # dotfiles initialization script
 # Used for first-time setup after cloning the repository
 # Usage: bash init.sh
-# Usage: bash init.sh --repair  # Repair broken zinit plugins (e.g., atuin)
+# Usage: bash init.sh --repair   # Repair broken zinit plugins (e.g., atuin)
+# Usage: bash init.sh --minimal  # Skip fonts, neovim, tree-sitter, jq, yt-dlp, translate-shell
 
 set -e
+
+MINIMAL="false"
 
 # Color definitions
 RED='\033[0;31m'
@@ -212,12 +215,25 @@ repair_zinit_plugins() {
 # Install essential tools
 install_essentials() {
     print_info "Checking essential tools..."
-    
+
     local common_packages="git curl wget unzip git-extras ffmpeg"
     local debian_packages="build-essential ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot htop"
     local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot htop"
     local arch_packages="base-devel ripgrep fd bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot htop"
     local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat viu yt-dlp tealdeer gping jq httpie broot htop"
+
+    if [[ "$MINIMAL" == "true" ]]; then
+        print_info "Minimal mode: skipping translate-shell, yt-dlp, jq"
+        for pkg_list in debian_packages rhel_packages arch_packages brew_packages; do
+            local cleaned=""
+            for pkg in ${!pkg_list}; do
+                if [[ "$pkg" != "translate-shell" && "$pkg" != "yt-dlp" && "$pkg" != "jq" ]]; then
+                    cleaned="$cleaned $pkg"
+                fi
+            done
+            eval "$pkg_list=\"$cleaned\""
+        done
+    fi
 
     OS=$(detect_os)
     if [[ "$OS" == "debian" ]]; then
@@ -741,11 +757,15 @@ install_extra_tools() {
     # fi
 
     # tree-sitter
-    if ! command_exists tree-sitter; then
-        print_info "Installing Tree-sitter..."
-        [[ -f "$install_dir/install_treesitter.sh" ]] && bash "$install_dir/install_treesitter.sh"
+    if [[ "$MINIMAL" != "true" ]]; then
+        if ! command_exists tree-sitter; then
+            print_info "Installing Tree-sitter..."
+            [[ -f "$install_dir/install_treesitter.sh" ]] && bash "$install_dir/install_treesitter.sh"
+        else
+            print_success "Tree-sitter is already installed"
+        fi
     else
-        print_success "Tree-sitter is already installed"
+        print_info "Minimal mode: skipping Tree-sitter"
     fi
 
     # Firefox theme (Linux only)
@@ -759,6 +779,30 @@ install_extra_tools() {
 
 # Main function
 main() {
+    # Parse arguments
+    local REPAIR="false"
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --minimal)
+                MINIMAL="true"
+                shift
+                ;;
+            --repair)
+                REPAIR="true"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    if [[ "$MINIMAL" == "true" ]]; then
+        echo -e "${YELLOW}⚠  Minimal mode enabled${NC}"
+        echo "Skipping: fonts, neovim, tree-sitter, jq, yt-dlp, translate-shell"
+        echo ""
+    fi
+
     echo -e "${BLUE}"
     cat << "EOF"
    ___  ____  ________   _____  ____ __
@@ -810,7 +854,7 @@ EOF
     echo ""
 
     # 3.5 Repair broken zinit plugins (if --repair flag is passed)
-    if [[ "$1" == "--repair" ]]; then
+    if [[ "$REPAIR" == "true" ]]; then
         print_info "Repair mode: Checking for broken zinit plugins..."
         repair_zinit_plugins
         echo ""
@@ -847,13 +891,21 @@ EOF
     echo ""
 
     # 10. Install Neovim
-    print_info "Step 11/14: Installing Neovim"
-    install_neovim
+    if [[ "$MINIMAL" != "true" ]]; then
+        print_info "Step 11/14: Installing Neovim"
+        install_neovim
+    else
+        print_info "Step 11/14: Skipping Neovim (minimal mode)"
+    fi
     echo ""
 
     # 11. Install fonts
-    print_info "Step 12/14: Installing fonts"
-    install_fonts
+    if [[ "$MINIMAL" != "true" ]]; then
+        print_info "Step 12/14: Installing fonts"
+        install_fonts
+    else
+        print_info "Step 12/14: Skipping fonts (minimal mode)"
+    fi
     echo ""
 
     # 12. Initialize Yazi config
