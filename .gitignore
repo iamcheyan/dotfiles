@@ -33,6 +33,8 @@ aws
 aws/
 /chezmoi
 /aws
+/rime
+/aliases
 
 config/nvim/lua/plugins/im-select.lua
 
