@@ -4,7 +4,7 @@ add_newline = true
 command_timeout = 1000
 
 format = """
-$hostname$directory$git_branch$git_status$python$nodejs$rust$golang$java$package$docker_context$kubernetes$aws$terraform
+$hostname$directory$git_branch$git_status$python$nodejs$rust$golang$java$package$docker_context$kubernetes$aws$terraform$time
 $character"""
 
 right_format = """$status$cmd_duration$jobs"""
@@ -17,7 +17,7 @@ vimcmd_symbol = "[❯](bold yellow)"
 [directory]
 truncation_length = 3
 truncate_to_repo = true
-style = "bold cyan"
+style = "bold #50fa7b"
 
 [git_branch]
 symbol = " "
@@ -99,6 +99,12 @@ format = "[$duration](bold yellow) "
 [jobs]
 symbol = "󰒋 "
 style = "bold blue"
+
+[time]
+disabled = false
+format = "at [$time]($style) "
+time_format = "%H:%M"
+style = "#ffffff"
 
 [hostname]
 ssh_only = true

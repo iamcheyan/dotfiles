@@ -19,9 +19,7 @@ This file is a practical reference for the current local Zellij setup.
   - `zellij-newtab-plus.wasm`
   - `zellij-pane-picker.wasm`
   - `zellij-switch.wasm`
-  - `zj-quit.wasm`
   - `zjstatus.wasm`
-  - `zjstatus-hints.wasm`
 - Plugin usage guide: `~/dotfiles/doc/ZELLIJ-PLUGINS.md`
 
 Your config uses `clear-defaults=true`, so the keybindings below are the ones that actually matter.

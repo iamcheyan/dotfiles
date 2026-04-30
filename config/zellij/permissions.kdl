@@ -6,18 +6,10 @@ permissions {
         ReadApplicationState
         ChangeApplicationState
     }
-    zjstatus-hints {
-        ReadApplicationState
-        MessageAndLaunchOtherPlugins
-    }
     zellij-attention {
         ReadApplicationState
     }
     zellij-pane-picker {
-        ReadApplicationState
-        ChangeApplicationState
-    }
-    zj-quit {
         ReadApplicationState
         ChangeApplicationState
     }

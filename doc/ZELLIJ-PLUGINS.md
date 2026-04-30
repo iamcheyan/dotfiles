@@ -8,23 +8,19 @@
 - `zellij-pane-picker`
 - `zellij-newtab-plus`
 - `zellij-sessionizer`
-- `zj-quit`
 - `zellij-notepad`
 - `zellij-attention`
 - `zjstatus`
-- `zjstatus-hints`
 
 说明：
 
 - `zellij-sessionizer` 依赖 `zellij-switch.wasm`
-- `zjstatus-hints` 依赖 `zjstatus`
 
 ## 当前快捷键
 
 - `Alt+w`：打开 `zellij-pane-picker`
 - `Alt+t`：打开 `zellij-newtab-plus`
 - `Alt+Shift+s`：运行 `zellij-sessionizer`
-- `Alt+q`：打开 `zj-quit`
 - `Alt+f`：切换 `zellij-notepad`
 
 后台常驻：
@@ -34,7 +30,6 @@
 状态栏候选：
 
 - `zjstatus`
-- `zjstatus-hints`
 
 ## 首次授权
 
@@ -43,7 +38,6 @@
 - `zellij-pane-picker`
 - `zellij-newtab-plus`
 - `zjstatus`
-- `zjstatus-hints`
 
 如果打开后像“没反应”：
 
@@ -161,27 +155,6 @@ FZF_ZELLIJ_HEIGHT=80% FZF_ZELLIJ_WIDTH=90% fzf-zellij
 
 - 你按项目维度切换 session
 
-### zj-quit
-
-作用：
-
-- 退出当前 session 前先确认
-
-打开方式：
-
-- `Alt+q`
-
-使用示例：
-
-- 按 `Alt+q`
-- 按 `q` 确认退出
-- 按 `Esc` 取消
-
-注意：
-
-- `Ctrl+q` 仍然是直接退出
-- `Alt+q` 是安全退出入口
-
 ### zellij-notepad
 
 作用：
@@ -250,23 +223,6 @@ zellij -l compact-zjstatus
 
 - 你想要比内置状态栏更强的自定义能力
 
-### zjstatus-hints
-
-作用：
-
-- 给 `zjstatus` 增加当前 mode 的快捷键提示
-
-注意：
-
-- 它依赖 `zjstatus`
-- 不适合单独启用
-
-当前状态：
-
-- 已安装
-- 已在后台默认加载
-- `compact-zjstatus` / `zjstatus-setup` 已经接好了 `{pipe_zjstatus_hints}`
-
 ## 推荐试用顺序
 
 建议你按这个顺序感受：
@@ -274,11 +230,9 @@ zellij -l compact-zjstatus
 1. `Alt+w` 试 `zellij-pane-picker`
 2. `Alt+t` 试 `zellij-newtab-plus`
 3. `Alt+Shift+s` 试 `zellij-sessionizer`
-4. `Alt+q` 试 `zj-quit`
-5. `Alt+Shift+n` 试 `zellij-notepad`
-6. `zellij -l zjstatus-setup` 完成首次授权
-7. `zellij -l compact-zjstatus` 正式试 `zjstatus`
-8. 看看 `zjstatus-hints` 的提示信息是否对你有价值
+4. `Alt+Shift+n` 试 `zellij-notepad`
+5. `zellij -l zjstatus-setup` 完成首次授权
+6. `zellij -l compact-zjstatus` 正式试 `zjstatus`
 
 ## 重载方式
 
