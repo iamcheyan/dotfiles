@@ -119,6 +119,7 @@ fi
 # local.zsh: 机器本地专用配置，不同机器可以放不同逻辑
 [[ -f ~/dotfiles/plugins/local/local.zsh ]] && source ~/dotfiles/plugins/local/local.zsh
 [[ -f ~/dotfiles/plugins/wdiff/wdiff.zsh ]] && source ~/dotfiles/plugins/wdiff/wdiff.zsh
+[[ -f ~/dotfiles/plugins/termscp/termscp.zsh ]] && source ~/dotfiles/plugins/termscp/termscp.zsh
 
 # vi 别名：优先使用 nvim，其次 vim，最后 vi
 unalias vi 2>/dev/null
@@ -143,6 +144,11 @@ elif command -v vim &> /dev/null; then
 else
     export EDITOR=vi
     export VISUAL=vi
+fi
+
+# 启动 shell 前自动同步 chezmoi 管理的 aliases，避免修改源文件后目标文件滞后
+if command -v chezmoi >/dev/null 2>&1 && [[ -d "$HOME/chezmoi" ]]; then
+    chezmoi apply "$HOME/.config/dotfiles/aliases" >/dev/null 2>&1
 fi
 
 # 加载别名配置 (如果目录存在且包含 .conf 文件则加载)

@@ -596,11 +596,109 @@ install_yazi_config() {
     fi
 }
 
+# Install Docker (Linux only)
+install_docker() {
+    local os
+    local current_user
+
+    os=$(detect_os)
+    current_user="${SUDO_USER:-$USER}"
+
+    case "$os" in
+        macos)
+            print_info "macOS detected. Skipping Docker Engine install in init.sh. Use Docker Desktop or Colima manually."
+            return 0
+            ;;
+        unknown)
+            print_warning "Unknown OS. Skipping Docker install."
+            return 0
+            ;;
+    esac
+
+    if command_exists docker; then
+        print_success "Docker is already installed: $(docker --version 2>/dev/null || true)"
+        if command_exists systemctl; then
+            sudo systemctl enable --now docker >/dev/null 2>&1 || true
+        fi
+        return 0
+    fi
+
+    if ! command_exists sudo; then
+        print_error "sudo privileges are required to install Docker"
+        return 1
+    fi
+
+    print_info "Installing Docker for $os..."
+
+    case "$os" in
+        debian)
+            sudo apt-get update
+            sudo apt-get install -y ca-certificates curl gnupg
+            sudo install -m 0755 -d /etc/apt/keyrings
+            if [[ ! -f /etc/apt/keyrings/docker.gpg ]]; then
+                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+                sudo chmod a+r /etc/apt/keyrings/docker.gpg
+            fi
+            if [[ ! -f /etc/apt/sources.list.d/docker.list ]]; then
+                echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo ${VERSION_CODENAME}) stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+            fi
+            sudo apt-get update
+            sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            ;;
+        fedora)
+            sudo dnf install -y dnf-plugins-core
+            sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo || true
+            sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            ;;
+        rhel)
+            if command_exists dnf; then
+                sudo dnf install -y dnf-plugins-core
+                sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo || true
+                sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            else
+                sudo yum install -y yum-utils
+                sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo || true
+                sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            fi
+            ;;
+        arch)
+            sudo pacman -S --noconfirm docker docker-buildx docker-compose
+            ;;
+        *)
+            print_warning "Unsupported Linux distribution for automatic Docker install: $os"
+            return 0
+            ;;
+    esac
+
+    if command_exists systemctl; then
+        sudo systemctl enable --now docker || true
+    fi
+
+    if getent group docker >/dev/null 2>&1; then
+        sudo usermod -aG docker "$current_user" || true
+    fi
+
+    if command_exists docker; then
+        print_success "Docker installed successfully: $(sudo docker --version 2>/dev/null || docker --version 2>/dev/null)"
+        print_info "You may need to restart the shell or run 'newgrp docker' before using docker without sudo."
+    else
+        print_error "Failed to install Docker"
+        return 1
+    fi
+}
+
 # Install additional tools (Zellij, Codex, Gemini, Opencode, Sbzr, Tree-sitter, etc.)
 install_extra_tools() {
     local install_dir="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install"
     
     print_info "Checking and installing additional tools..."
+
+    # Docker (Linux only)
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        install_docker
+    else
+        print_info "Skipping Docker install on non-Linux system"
+    fi
 
     # Zellij
     if ! command_exists zellij; then

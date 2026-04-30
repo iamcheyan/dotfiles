@@ -8,13 +8,6 @@ CACHE_DIR="$HOME/.cache/zellij"
 mkdir -p "$CACHE_DIR"
 
 cat > "$CACHE_DIR/permissions.kdl" <<EOF
-"$HOME/.config/zellij/plugins/zj-quit.wasm" {
-    ChangeApplicationState
-}
-"$HOME/.config/zellij/plugins/zjstatus-hints.wasm" {
-    MessageAndLaunchOtherPlugins
-    ReadApplicationState
-}
 "$HOME/.config/zellij/plugins/zellij-pane-picker.wasm" {
     ReadApplicationState
     ChangeApplicationState

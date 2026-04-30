@@ -29,10 +29,11 @@ private/
 rime_sbzrjp/
 sbsrf/
 aliases/
+chezmoi/
+aws/
 
 config/nvim/lua/plugins/im-select.lua
 
-aws
 
 config/nvim/tmp/*
 config/yazi/flavors/*

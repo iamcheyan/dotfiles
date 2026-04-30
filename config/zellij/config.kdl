@@ -349,17 +349,10 @@ plugins {
         previous_star ""
     }
     zjstatus location="file:~/.config/zellij/plugins/zjstatus.wasm"
-    zjstatus-hints location="file:~/.config/zellij/plugins/zjstatus-hints.wasm" {
-        max_length 180
-        overflow_str "..."
-        pipe_name "zjstatus_hints"
-        hide_in_base_mode true
-    }
 }
 load_plugins {
     notepad
     zellij-attention
-    zjstatus-hints
 }
 web_client {
     font "monospace"
