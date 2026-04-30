@@ -23,14 +23,16 @@ Thumbs.db
 .cache/fonts/
 
 # 子仓库配置
+aliases
+aliases/
 rime
 rime/
-private/
-rime_sbzrjp/
-sbsrf/
-aliases/
+chezmoi
 chezmoi/
+aws
 aws/
+/chezmoi
+/aws
 
 config/nvim/lua/plugins/im-select.lua
 
