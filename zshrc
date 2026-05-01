@@ -1,3 +1,9 @@
+export HISTSIZE=10000
+export SAVEHIST=10000
+
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt AUTO_CD              # 启用 AUTO_CD：输入目录路径时自动 cd
 
 # SSH 会话中降级 TERM，避免远程服务器不认识 xterm-kitty
 # 同时设置 kitty tab 颜色为红色，直观区分远程会话
@@ -16,8 +22,7 @@ fi
 
 export PATH="$HOME/.fzf/bin:$PATH"
 
-# 启用 AUTO_CD：输入目录路径时自动 cd
-setopt AUTO_CD
+
 
 # NVM 惰性加载（仅在需要时加载）
 load_nvm() {
@@ -172,8 +177,7 @@ function _update_window_title() {
 }
 precmd_functions+=(_update_window_title)
 
-#
-
+# GO
 export GOENV_ROOT="$HOME/.goenv"
 export PATH="$GOENV_ROOT/shims:$GOENV_ROOT/bin:$PATH"
 
