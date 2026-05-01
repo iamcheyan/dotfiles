@@ -4,6 +4,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$HOME/dotfiles"
+PUSH_HELPER="$HOME/dotfiles/scripts/dev/git_push_with_pat_fallback.sh"
 USER_COMMIT_MESSAGE="${*:-}"
 
 ensure_git_repo() {
@@ -22,6 +23,36 @@ has_changes() {
     else
         [ -n "$(git -C "$repo_dir" status --porcelain --untracked-files=all)" ]
     fi
+}
+
+current_branch() {
+    local repo_dir="$1"
+    local branch
+
+    branch="$(git -C "$repo_dir" branch --show-current 2>/dev/null || true)"
+    if [ -z "$branch" ]; then
+        branch="main"
+    fi
+
+    printf '%s\n' "$branch"
+}
+
+has_unpushed_commits() {
+    local repo_dir="$1"
+    local branch="$2"
+    local upstream_ref
+
+    if upstream_ref="$(git -C "$repo_dir" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)"; then
+        [ -n "$(git -C "$repo_dir" rev-list "${upstream_ref}..HEAD" 2>/dev/null)" ]
+        return
+    fi
+
+    if git -C "$repo_dir" show-ref --verify --quiet "refs/remotes/origin/${branch}"; then
+        [ -n "$(git -C "$repo_dir" rev-list "origin/${branch}..HEAD" 2>/dev/null)" ]
+        return
+    fi
+
+    return 1
 }
 
 stage_changes() {
@@ -44,8 +75,19 @@ push_repo() {
     local branch
 
     ensure_git_repo "$repo_dir"
+    branch="$(current_branch "$repo_dir")"
 
     if ! has_changes "$repo_dir"; then
+        if has_unpushed_commits "$repo_dir" "$branch"; then
+            echo "[$repo_name] No new changes to commit"
+            echo "[$repo_name] Pushing existing local commits..."
+            if ! bash "$PUSH_HELPER" "$repo_dir" "$branch" origin; then
+                echo "Error: push failed: $repo_name" >&2
+                exit 1
+            fi
+            return 0
+        fi
+
         echo "[$repo_name] No changes to commit"
         return 0
     fi
@@ -56,13 +98,8 @@ push_repo() {
     echo "[$repo_name] Committing..."
     git -C "$repo_dir" commit -m "$commit_message"
 
-    branch="$(git -C "$repo_dir" branch --show-current 2>/dev/null || true)"
-    if [ -z "$branch" ]; then
-        branch="main"
-    fi
-
     echo "[$repo_name] Pushing..."
-    if ! git -C "$repo_dir" push -u origin "$branch"; then
+    if ! bash "$PUSH_HELPER" "$repo_dir" "$branch" origin; then
         echo "Error: push failed: $repo_name" >&2
         exit 1
     fi
