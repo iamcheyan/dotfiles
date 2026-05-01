@@ -28,7 +28,7 @@ export USER_HOME DOTFILES_DIR WIN_HOME RIME_DIR WIN_HOME_BASENAME RIME_SUFFIX
 SECRET_REGEX='(AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|aws_access_key_id|aws_secret_access_key|authorization:[[:space:]]*Bearer[[:space:]]+[A-Za-z0-9._=-]+|token=[A-Za-z0-9._=-]+|client_secret[[:space:]:=]+[^[:space:]]+|password[[:space:]:=]+[^[:space:]]+|passwd[[:space:]:=]+[^[:space:]]+)'
 PRIVACY_REGEX="([A-Za-z0-9._%+-]+@(outlook\\.com|gmail\\.com|hotmail\\.com|qq\\.com|icloud\\.com|yahoo\\.com|sbilife\\.co\\.jp)|([0-9]{1,3}\\.){3}[0-9]{1,3}|${DOTFILES_RE}|${HOME_RE}|${RIME_RE}|${WIN_HOME_RE}|${RIME_SUFFIX_RE}|\\\\Users\\\\${WIN_HOME_WIN_RE})"
 SAFE_EMAIL_REGEX='(@users[.]noreply[.]github[.]com|@example[.]com|@outlook[.]com)$'
-SENSITIVE_PATH_REGEX='(^|/)(private_.*(env|key|secret)|.*[._-](secret|secrets|token|tokens|credential|credentials|passwd|passwords?)([._-].*)?|\.env([._-].*)?)$'
+SENSITIVE_PATH_REGEX='(^|/)(private_.*(env|key|secret)|.*[._-](secret|secrets|token|tokens|credential|credentials|passwd|passwords?)([._-].*)?|[.]env([._-].*)?)$'
 
 privacy_tmpdir=
 
@@ -44,7 +44,7 @@ privacy_filter_hits() {
   awk '
     BEGIN {
       comment_regex = "^[[:space:]]*(#|//|;|--|/\\*|\\*)"
-      doc_path_regex = "\\.(md|markdown|mdx|adoc|txt)$"
+      doc_path_regex = "[.](md|markdown|mdx|adoc|txt)$"
       example_secret_regex = "(Authorization:\"Bearer (TOKEN|\\$TOKEN)\"|http -a username:password GET https://httpbin\\.org/basic-auth/username/password)"
     }
     {
@@ -61,13 +61,13 @@ privacy_filter_hits() {
       if (path == ".githooks/pre-push") next
       if (path == ".githooks/pre-commit") next
       if (path == ".githooks/lib/privacy-check.sh") next
-      if (path == "git.md" && line ~ /(\/home\/[^[:space:]]+\/\dotfiles|\\\$HOME\/\dotfiles)/) next
-      if (path == "doc/git.md" && line ~ /(\/home\/[^[:space:]]+\/\dotfiles|\\\$HOME\/\dotfiles)/) next
+      if (path == "git.md" && line ~ /(\/home\/[^[:space:]]+\/dotfiles|\\\$HOME\/dotfiles)/) next
+      if (path == "doc/git.md" && line ~ /(\/home\/[^[:space:]]+\/dotfiles|\\\$HOME\/dotfiles)/) next
       if (line ~ comment_regex) next
       if (path ~ doc_path_regex && line ~ example_secret_regex) next
       if (line ~ /127[.]0[.]0[.]1/) next
       if (line ~ /0[.]0[.]0[.]0/) next
-      if (path ~ "^scripts/system/initialization\\.sh$" && line ~ /wps-office/) next
+      if (path ~ "^scripts/system/initialization[.]sh$" && line ~ /wps-office/) next
       print
     }
   ' "$input_file" > "$output_file"
