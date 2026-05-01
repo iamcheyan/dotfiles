@@ -51,7 +51,6 @@
 | `zsh-users/zsh-autosuggestions` | 根据历史记录和补全结果显示灰色命令建议 | `zinit light` | 异步加载，来自本地片段 |
 | `zdharma-continuum/fast-syntax-highlighting` | 输入时高亮命令、参数、路径和错误语法 | `zinit light` | 异步加载，来自本地片段 |
 | `hlissner/zsh-autopair` | 自动补全括号、引号等成对字符 | `zinit light` | 异步加载，来自本地片段 |
-| `wfxr/forgit` | 基于 `fzf` 的 Git 交互工具，如交互式 `add`、`log`、`diff` | `zinit load` with `wait"0"` | 异步加载 |
 | `OMZP::sudo` | 输入两次 `Esc` 后自动给上一条命令加 `sudo` | `zinit snippet` | 异步加载 |
 | `OMZP::git` | 提供一组 Git 别名和辅助函数 | `zinit snippet` | 异步加载 |
 | `1mykull/zshcp` | 剪贴板辅助功能，供路径/文件复制类功能使用 | `zinit light` | 异步加载 |
