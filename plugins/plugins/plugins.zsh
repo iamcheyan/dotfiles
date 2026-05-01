@@ -1,7 +1,3 @@
-# forgit: 用 fzf 玩转 Git (交互式 add, log, diff)
-zinit ice lucid wait="0"
-zinit load wfxr/forgit
-
 # # sudo 插件（替代 OMZ sudo）
 # zinit snippet OMZP::sudo
 #

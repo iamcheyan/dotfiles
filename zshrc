@@ -91,7 +91,7 @@ function zvm_after_init() {
   fi
 }
 
-# 其他增强插件集合：autosuggestions、语法高亮、autopair、forgit 等
+# 其他增强插件集合：autosuggestions、语法高亮、autopair 等
 # 这里直接 source 本地文件，避免 zinit 对本地 snippet 的缓存副本滞后
 # 具体插件是否异步加载，仍由 plugins.zsh 内部的各个 zinit ice 控制
 source ~/dotfiles/plugins/plugins/plugins.zsh
