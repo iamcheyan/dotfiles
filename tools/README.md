@@ -15,44 +15,7 @@
 
 ## 工具列表
 
-### 1. `easygit.sh` - Git 仓库管理工具
-
-**功能**：提供完整的 Git 仓库管理功能，包括初始化、推送、拉取、强制操作等。
-
-**主要功能**：
-- 初始化新仓库并推送到 GitHub（可选择公开/私有）
-- 设置/更新远程仓库地址
-- 普通推送和拉取
-- 强制推送和拉取（覆盖远程/本地）
-- 显示仓库信息
-
-**用法**：
-```bash
-easygit init                    # 初始化并推送新仓库
-easygit set-remote <URL>        # 设置远程仓库
-easygit push                    # 普通推送
-easygit pull                    # 普通拉取
-easygit force-push              # 强制推送覆盖远程
-easygit force-pull              # 强制拉取覆盖本地
-easygit info                    # 显示仓库信息
-easygit help                    # 显示帮助
-```
-
-**别名**：`easygit`, `git:init`
-
-**依赖**：
-- Git
-- GitHub CLI (`gh`)（用于创建仓库，可选）
-
-**特点**：
-- 交互式菜单
-- 自动检测 GitHub CLI 可用性
-- 支持公开/私有仓库选择
-- 彩色输出
-
----
-
-### 2. `repo_size.sh` - 仓库大小分析工具
+### 1. `repo_size.sh` - 仓库大小分析工具
 
 **功能**：显示 Git 仓库的真实大小，排除 `.gitignore` 和 `.git` 等文件。
 
@@ -85,7 +48,7 @@ repo:size -e                        # 排除子仓库（简写）
 
 ---
 
-### 3. `packtar.sh` - 目录打包工具
+### 2. `packtar.sh` - 目录打包工具
 
 **功能**：将当前目录打包为 `tar.gz` 文件，并放置到父目录。
 
@@ -121,7 +84,7 @@ node_modules/
 
 ---
 
-### 4. `unzip_here.sh` - 批量解压工具
+### 3. `unzip_here.sh` - 批量解压工具
 
 **功能**：递归查找当前目录下的所有 `.zip` 文件并自动解压。
 
@@ -154,7 +117,7 @@ sh:unzip                           # 同上
 
 ---
 
-### 5. `jp_convert.sh` - 日语转换工具
+### 4. `jp_convert.sh` - 日语转换工具
 
 **功能**：将日语文本转换为平假名、片假名、罗马字。
 
@@ -192,7 +155,7 @@ $ jp "日本語"
 
 ---
 
-### 6. `sbzr.sh` - Rime 输入法配置工具
+### 5. `sbzr.sh` - Rime 输入法配置工具
 
 **功能**：初始化/同步 Rime 输入法配置并更新日语词库。
 
@@ -382,7 +345,6 @@ winetricks vcrun2019             # 安装 Visual C++ 2019
 ## 工具分类
 
 ### Git 相关
-- `easygit.sh` - Git 仓库管理
 - `repo_size.sh` - 仓库大小分析
 
 ### 文件操作
@@ -408,7 +370,6 @@ winetricks vcrun2019             # 安装 Visual C++ 2019
 
 ### 何时使用这些工具
 
-- **easygit.sh**：需要完整的 Git 工作流管理时
 - **repo_size.sh**：需要分析仓库真实大小时
 - **packtar.sh**：需要打包目录时
 - **unzip_here.sh**：需要批量解压多个 zip 文件时
@@ -450,4 +411,3 @@ winetricks vcrun2019             # 安装 Visual C++ 2019
 - [主 README](../README.md) - 整体目录结构说明
 - [Scripts Utils README](../scripts/utils/README.md) - 通用工具文档
 - [Scripts README](../scripts/README.md) - Scripts 目录详细说明
-

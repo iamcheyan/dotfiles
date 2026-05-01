@@ -66,7 +66,7 @@ scripts/
 - 环境特定（如 WSL、特定系统配置）
 
 **示例：**
-- `easygit.sh` - Git 仓库管理工具（有菜单）
+- `git:init` - 本地仓库初始化和安全 `.gitignore` 模板生成
 - `VirtualBox.sh` - VirtualBox 虚拟机管理
 - `sbzr.sh` - Rime 输入法配置
 - `repo_size.sh` - 仓库大小分析（复杂逻辑）
@@ -101,6 +101,5 @@ scripts/
 | `extract.sh` | `scripts/utils/` | 单文件解压，支持多种格式 |
 | `unzip_here.sh` | `tools/` | 批量递归解压所有 .zip |
 | `git_clean.sh` | `scripts/dev/` | 简单 Git 清理 |
-| `easygit.sh` | `tools/` | 完整 Git 工作流管理 |
 
 两者可以共存，因为用途不同。
