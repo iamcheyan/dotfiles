@@ -1,0 +1,41 @@
+###############################################################
+# Managed by ~/dotfiles/config/broot/conf.hjson
+###############################################################
+
+show_selection_mark: true
+content_search_max_file_size: 10MB
+lines_before_match_in_preview: 1
+lines_after_match_in_preview: 1
+max_panels_count: 2
+enable_kitty_keyboard: false
+
+# Keep the right preview panel more stable when searching.
+layout: [
+  {
+    width: 1/1
+    panes: [
+      {
+        contents: tree
+      }
+      {
+        size: 0.42
+        contents: preview
+      }
+    ]
+  }
+]
+
+special_paths: {
+  "/media": {
+    list: "never"
+    sum: "never"
+  }
+  "~/.config": {
+    show: "always"
+  }
+  "trav": {
+    show: always
+    list: "always"
+    sum: "never"
+  }
+}
