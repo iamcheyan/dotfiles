@@ -3,31 +3,126 @@
 # 定义 dotfiles 目录的路径
 DOTFILES_DIR="$HOME/dotfiles"
 
-# 定义获取提交信息的函数
-get_commit_message() {
-    local hardware_model=""
-    local os_name=""
-    local time=$(date +"%Y-%m-%d %H:%M:%S")
-    local desktop_env=$(echo $XDG_CURRENT_DESKTOP)
-    
-    # 检测操作系统类型
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS 系统
-        hardware_model=$(system_profiler SPHardwareDataType | grep "Model Identifier" | cut -d ":" -f2 | xargs)
-        os_name="macOS $(sw_vers -productVersion)"
-    else
-        # Linux 系统
-        if command -v hostnamectl &> /dev/null; then
-            hardware_model=$(hostnamectl | grep "Hardware Model" | cut -d ":" -f2 | xargs)
-            os_name=$(hostnamectl | grep "Operating System" | cut -d ":" -f2 | xargs)
-        else
-            # 如果没有 hostnamectl 命令，使用其他方法
-            hardware_model=$(uname -m)
-            os_name=$(uname -s)
-        fi
+trim_text() {
+    local text="$*"
+    text="${text#"${text%%[![:space:]]*}"}"
+    text="${text%"${text##*[![:space:]]}"}"
+    printf '%s' "$text"
+}
+
+classify_scope() {
+    local path="$1"
+
+    case "$path" in
+        config/zellij/*|plugins/zellij/*)
+            echo "zellij"
+            ;;
+        config/nvim/*|plugins/nvim/*)
+            echo "nvim"
+            ;;
+        aliases.conf|aliases/*)
+            echo "shell aliases"
+            ;;
+        documents/*|doc/*|*.md|*.adoc|*.txt)
+            echo "docs"
+            ;;
+        scripts/*)
+            echo "scripts"
+            ;;
+        tools/*)
+            echo "tools"
+            ;;
+        config/*)
+            echo "$(echo "$path" | cut -d/ -f2)"
+            ;;
+        plugins/*)
+            echo "$(echo "$path" | cut -d/ -f2)"
+            ;;
+        *)
+            basename "$path" | sed 's/\.[^.]*$//'
+            ;;
+    esac
+}
+
+detect_commit_prefix() {
+    local path
+
+    if [ "$#" -eq 0 ]; then
+        echo "chore"
+        return
     fi
-    
-    echo "${hardware_model} - ${os_name} - ${desktop_env} ${time}"
+
+    for path in "$@"; do
+        case "$path" in
+            documents/*|doc/*|*.md|*.adoc|*.txt)
+                ;;
+            *)
+                echo "chore"
+                return
+                ;;
+        esac
+    done
+
+    echo "docs"
+}
+
+join_scopes() {
+    local count="$#"
+
+    if [ "$count" -eq 0 ]; then
+        return
+    fi
+
+    if [ "$count" -eq 1 ]; then
+        printf '%s' "$1"
+        return
+    fi
+
+    if [ "$count" -eq 2 ]; then
+        printf '%s and %s' "$1" "$2"
+        return
+    fi
+
+    printf '%s, %s, and %s' "$1" "$2" "$3"
+}
+
+build_auto_commit_message() {
+    local path scope prefix
+    local -a staged_paths=()
+    local -a unique_scopes=()
+
+    while IFS= read -r path; do
+        [ -n "$path" ] && staged_paths+=("$path")
+    done < <(git diff --cached --name-only)
+
+    if [ "${#staged_paths[@]}" -eq 0 ]; then
+        echo "chore: sync dotfiles"
+        return
+    fi
+
+    prefix=$(detect_commit_prefix "${staged_paths[@]}")
+
+    for path in "${staged_paths[@]}"; do
+        scope=$(classify_scope "$path")
+        [ -z "$scope" ] && continue
+
+        case " ${unique_scopes[*]} " in
+            *" $scope "*)
+                ;;
+            *)
+                unique_scopes+=("$scope")
+                ;;
+        esac
+
+        [ "${#unique_scopes[@]}" -ge 3 ] && break
+    done
+
+    if [ "${#unique_scopes[@]}" -eq 0 ]; then
+        echo "${prefix}: update dotfiles"
+        return
+    fi
+
+    echo "${prefix}: update $(join_scopes "${unique_scopes[@]}")"
 }
 
 # 定义函数来处理备份操作
@@ -157,11 +252,15 @@ push() {
         git reset HEAD -- "$file"
     done
 
-    # 获取提交信息
-    commit_message=$(get_commit_message)
+    # 获取提交信息：优先使用手写 message，否则根据 staged 文件自动生成
     if [ $# -gt 0 ]; then
-        extra_msg="$*"
-        commit_message="$commit_message - $extra_msg"
+        commit_message=$(trim_text "$*")
+    else
+        commit_message=$(build_auto_commit_message)
+    fi
+
+    if [ -z "$commit_message" ]; then
+        commit_message=$(build_auto_commit_message)
     fi
 
     git commit -m "$commit_message" --allow-empty
