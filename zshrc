@@ -158,8 +158,8 @@ fi
 
 # 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
 source ~/dotfiles/aliases.conf
-[[ -d ~/.config/dotfiles/aliases ]] &&
-  for f in ~/.config/dotfiles/aliases/*.conf(N); do
+[[ -d ~/.config/aliases ]] &&
+  for f in ~/.config/aliases/*.conf(N); do
     [[ -r $f ]] && source $f
   done
 
