@@ -12,3 +12,40 @@ if [[ (! -f "$BROOT_LAUNCHER" || ! -f "$BROOT_INIT_FLAG") && -f "$BROOT_INIT_SCR
 fi
 
 [[ -f "$BROOT_LAUNCHER" ]] && source "$BROOT_LAUNCHER"
+
+if typeset -f br >/dev/null 2>&1; then
+  functions[_broot_launcher]="$functions[br]"
+
+  br() {
+    emulate -L zsh
+
+    if [[ $# -eq 0 ]]; then
+      _broot_launcher
+      return
+    fi
+
+    if [[ "$1" == -* ]]; then
+      _broot_launcher "$@"
+      return
+    fi
+
+    if [[ -e "$1" || "$1" == "." || "$1" == ".." || "$1" == "~" || "$1" == ~/* ]]; then
+      _broot_launcher "$@"
+      return
+    fi
+
+    local cmd_file cmd code query
+    query="$*"
+    cmd_file="$(mktemp)"
+
+    if broot --outcmd "$cmd_file" --cmd "${query};:panel_right" "${PWD}"; then
+      cmd="$(<"$cmd_file")"
+      command rm -f "$cmd_file"
+      eval "$cmd"
+    else
+      code=$?
+      command rm -f "$cmd_file"
+      return "$code"
+    fi
+  }
+fi

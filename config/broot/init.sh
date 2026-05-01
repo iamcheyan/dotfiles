@@ -15,6 +15,9 @@ LAUNCHER_FILE="$LAUNCHER_DIR/br"
 INIT_FLAG="$STATE_HOME/broot/init.done"
 
 mkdir -p "$CONFIG_DIR" "$LAUNCHER_DIR" "${INIT_FLAG%/*}"
+if [[ -f "$REPO_BROOT_DIR/conf.hjson" ]]; then
+  install -m 0644 "$REPO_BROOT_DIR/conf.hjson" "$CONFIG_DIR/conf.hjson"
+fi
 if [[ -f "$REPO_BROOT_DIR/verbs.hjson" ]]; then
   install -m 0644 "$REPO_BROOT_DIR/verbs.hjson" "$CONFIG_DIR/verbs.hjson"
 fi
