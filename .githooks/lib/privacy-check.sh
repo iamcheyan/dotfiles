@@ -28,6 +28,7 @@ export USER_HOME DOTFILES_DIR WIN_HOME RIME_DIR WIN_HOME_BASENAME RIME_SUFFIX
 SECRET_REGEX='(AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY|aws_access_key_id|aws_secret_access_key|authorization:[[:space:]]*Bearer[[:space:]]+[A-Za-z0-9._=-]+|token=[A-Za-z0-9._=-]+|client_secret[[:space:]:=]+[^[:space:]]+|password[[:space:]:=]+[^[:space:]]+|passwd[[:space:]:=]+[^[:space:]]+)'
 PRIVACY_REGEX="([A-Za-z0-9._%+-]+@(outlook\\.com|gmail\\.com|hotmail\\.com|qq\\.com|icloud\\.com|yahoo\\.com|sbilife\\.co\\.jp)|([0-9]{1,3}\\.){3}[0-9]{1,3}|${DOTFILES_RE}|${HOME_RE}|${RIME_RE}|${WIN_HOME_RE}|${RIME_SUFFIX_RE}|\\\\Users\\\\${WIN_HOME_WIN_RE})"
 SAFE_EMAIL_REGEX='(@users[.]noreply[.]github[.]com|@example[.]com|@outlook[.]com)$'
+SENSITIVE_PATH_REGEX='(^|/)(private_.*(env|key|secret)|.*[._-](secret|secrets|token|tokens|credential|credentials|passwd|passwords?)([._-].*)?|\.env([._-].*)?)$'
 
 privacy_tmpdir=
 
@@ -132,13 +133,25 @@ privacy_check_identities() {
   ' | sort -u > "$output_file"
 }
 
+privacy_check_paths() {
+  local input_file="$1"
+  local output_file="$2"
+
+  awk -v sensitive_path_regex="$SENSITIVE_PATH_REGEX" '
+    $0 ~ sensitive_path_regex {
+      print $0
+    }
+  ' "$input_file" | sort -u > "$output_file"
+}
+
 privacy_report_and_exit() {
   local mode="$1"
   local metadata_hits="$2"
   local content_hits="$3"
   local path_hints="$4"
+  local path_hits="$5"
 
-  if [[ ! -s "$metadata_hits" && ! -s "$content_hits" ]]; then
+  if [[ ! -s "$metadata_hits" && ! -s "$content_hits" && ! -s "$path_hits" ]]; then
     return 0
   fi
 
@@ -160,6 +173,12 @@ privacy_report_and_exit() {
   if [[ -s "$content_hits" ]]; then
     echo "Content matches requiring review:" >&2
     sed -n '1,80p' "$content_hits" >&2
+    echo >&2
+  fi
+
+  if [[ -s "$path_hits" ]]; then
+    echo "Sensitive file paths requiring review:" >&2
+    sed -n '1,40p' "$path_hits" >&2
     echo >&2
   fi
 
@@ -186,6 +205,7 @@ run_pre_commit_check() {
   local raw_content_hits="$privacy_tmpdir/content_hits_raw.txt"
   local content_hits="$privacy_tmpdir/content_hits.txt"
   local path_hints="$privacy_tmpdir/path_hints.txt"
+  local path_hits="$privacy_tmpdir/path_hits.txt"
   local -a staged_paths=()
 
   while IFS= read -r -d '' path; do
@@ -197,10 +217,11 @@ run_pre_commit_check() {
   fi
 
   privacy_check_identities "$metadata_hits"
+  printf '%s\n' "${staged_paths[@]}" | privacy_check_paths /dev/stdin "$path_hits"
   git grep --cached -n -I -E "${SECRET_REGEX}|${PRIVACY_REGEX}" -- "${staged_paths[@]}" > "$raw_content_hits" || true
   privacy_filter_hits "$raw_content_hits" "$content_hits"
   privacy_build_path_hints "$content_hits" "$path_hints"
-  privacy_report_and_exit "pre-commit" "$metadata_hits" "$content_hits" "$path_hints"
+  privacy_report_and_exit "pre-commit" "$metadata_hits" "$content_hits" "$path_hints" "$path_hits"
 }
 
 run_pre_push_check() {
@@ -211,8 +232,9 @@ run_pre_push_check() {
   local raw_content_hits="$privacy_tmpdir/content_hits_raw.txt"
   local content_hits="$privacy_tmpdir/content_hits.txt"
   local path_hints="$privacy_tmpdir/path_hints.txt"
+  local path_hits="$privacy_tmpdir/path_hits.txt"
 
-  touch "$commits_file" "$metadata_hits" "$raw_content_hits" "$content_hits" "$path_hints"
+  touch "$commits_file" "$metadata_hits" "$raw_content_hits" "$content_hits" "$path_hints" "$path_hits"
 
   while read -r local_ref local_sha remote_ref remote_sha; do
     [[ -z "${local_ref:-}" ]] && continue
@@ -243,7 +265,11 @@ run_pre_push_check() {
     git grep -n -I -E "${SECRET_REGEX}|${PRIVACY_REGEX}" "$commit" -- || true
   done < "$commits_file" > "$raw_content_hits"
 
+  while read -r commit; do
+    git diff-tree --no-commit-id --name-only -r "$commit" || true
+  done < "$commits_file" | privacy_check_paths /dev/stdin "$path_hits"
+
   privacy_filter_hits "$raw_content_hits" "$content_hits"
   privacy_build_path_hints "$content_hits" "$path_hints"
-  privacy_report_and_exit "pre-push" "$metadata_hits" "$content_hits" "$path_hints"
+  privacy_report_and_exit "pre-push" "$metadata_hits" "$content_hits" "$path_hints" "$path_hits"
 }

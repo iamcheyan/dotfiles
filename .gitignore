@@ -6,10 +6,10 @@ Thumbs.db
 # 临时文件
 *.swp
 *.swo
-.env
 *~
 .python-version
 .nvimlog
+.direnv/
 
 # zsh 缓存
 .zinit/
@@ -46,6 +46,27 @@ config/nvim/sbzr.nvim.im.db/*
 config/nvim/local/sbzr.nvim.im
 
 # 环境变量文件
+# 默认拦截本地环境变量和凭据文件
+.env
+.env.*
+*.env.local
+*.local.env
+*.credentials
+*.creds
+*.secret
+*.secrets
+*.token
+*.tokens
+private_dot_env
+dot_env
+env
+
+# 允许提交的示例文件
+!.env.example
+!.env.sample
+!.env.template
+
+# 具体已知本地敏感文件
 plugins/avante/.env
 config/nvim/.nvimlog
 config/nvim/tmp/
@@ -54,3 +75,7 @@ config/nvim/lazy-lock.json
 config/git-credentials
 pat.sh
 a.out
+
+# chezmoi
+age.key
+dot_config/claude2kimi/private_dot_env
