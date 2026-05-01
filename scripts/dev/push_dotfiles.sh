@@ -4,7 +4,7 @@
 set -euo pipefail
 
 DOTFILES_DIR="$HOME/dotfiles"
-USER_COMMIT_MESSAGE="${1:-}"
+USER_COMMIT_MESSAGE="${*:-}"
 
 ensure_git_repo() {
     local repo_dir="$1"
