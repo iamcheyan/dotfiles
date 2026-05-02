@@ -20,3 +20,5 @@ todos/
 *.sqlite-shm
 *.sqlite-wal
 subagents/
+tool-results/
+*.txt
