@@ -1,0 +1,5 @@
+log/
+sessions/
+history.jsonl
+version.json
+skills/.system/

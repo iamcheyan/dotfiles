@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 定义 Dotfiles 目录的路径
+# 定义 dotfiles 目录的路径
 DOTFILES_DIR="$HOME/dotfiles"
 
 # 颜色定义

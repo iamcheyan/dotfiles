@@ -209,7 +209,7 @@ build_auto_commit_message() {
         scope=$(classify_scope "$path")
         [ -z "$scope" ] && continue
 
-        case " ${unique_scopes[*]} " in
+        case " ${unique_scopes[@]+"${unique_scopes[*]}"} " in
             *" $scope "*)
                 ;;
             *)
