@@ -1,0 +1,22 @@
+# Runtime & sensitive
+history.jsonl
+*.jsonl
+*.meta.json
+sessions/
+tasks/
+cache/
+telemetry/
+shell-snapshots/
+file-history/
+paste-cache/
+session-env/
+backups/
+debug/
+plans/
+statsig/
+stats-cache.json
+todos/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+subagents/

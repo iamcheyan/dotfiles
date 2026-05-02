@@ -48,6 +48,7 @@ config/nvim/local/sbzr.nvim.im
 # 环境变量文件
 # 默认拦截本地环境变量和凭据文件
 .env
+agents/*/.env
 .env.*
 *.env.local
 *.local.env

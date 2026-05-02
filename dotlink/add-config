@@ -93,7 +93,7 @@ DOTFILES_DEST_PATH="\$HOME/$RELATIVE_PATH"
 DOTFILES_ABS_SRC_PATH="$HOME/dotfiles/$DOTFILES_RELATIVE_PATH"
 
 echo -e "${GREEN}输入路径: $INPUT_PATH${NC}"
-echo -e "${GREEN}Dotfiles 源路径: $DOTFILES_ABS_SRC_PATH${NC}"
+echo -e "${GREEN}dotfiles 源路径: $DOTFILES_ABS_SRC_PATH${NC}"
 echo -e "${GREEN}目标路径: $HOME/$RELATIVE_PATH${NC}"
 
 # 检查配置文件中是否已存在该规则（需要转义特殊字符）
