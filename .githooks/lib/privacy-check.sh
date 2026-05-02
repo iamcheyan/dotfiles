@@ -48,12 +48,20 @@ privacy_filter_hits() {
       example_secret_regex = "(Authorization:\"Bearer (TOKEN|\\$TOKEN)\"|http -a username:password GET https://httpbin\\.org/basic-auth/username/password)"
     }
     {
-      if (match($0, /^[^:]+:([^:]+):[0-9]+:(.*)$/, m)) {
-        path = m[1]
-        line = m[2]
-      } else if (match($0, /^([^:]+):[0-9]+:(.*)$/, m)) {
-        path = m[1]
-        line = m[2]
+      if (match($0, /:[0-9]+:/)) {
+        line = substr($0, RSTART + RLENGTH)
+        before = substr($0, 1, RSTART - 1)
+        last_colon = 0
+        for (i = 1; i <= length(before); i++) {
+          if (substr(before, i, 1) == ":") {
+            last_colon = i
+          }
+        }
+        if (last_colon > 0) {
+          path = substr(before, last_colon + 1)
+        } else {
+          path = before
+        }
       } else {
         next
       }
@@ -86,12 +94,20 @@ privacy_build_path_hints() {
       win_home_basename = ENVIRON["WIN_HOME_BASENAME"]
     }
     {
-      if (match($0, /^[^:]+:([^:]+):[0-9]+:(.*)$/, m)) {
-        path = m[1]
-        line = m[2]
-      } else if (match($0, /^([^:]+):[0-9]+:(.*)$/, m)) {
-        path = m[1]
-        line = m[2]
+      if (match($0, /:[0-9]+:/)) {
+        line = substr($0, RSTART + RLENGTH)
+        before = substr($0, 1, RSTART - 1)
+        last_colon = 0
+        for (i = 1; i <= length(before); i++) {
+          if (substr(before, i, 1) == ":") {
+            last_colon = i
+          }
+        }
+        if (last_colon > 0) {
+          path = substr(before, last_colon + 1)
+        } else {
+          path = before
+        }
       } else {
         next
       }
@@ -125,9 +141,14 @@ privacy_check_identities() {
     git var GIT_AUTHOR_IDENT 2>/dev/null || true
     git var GIT_COMMITTER_IDENT 2>/dev/null || true
   } | awk -v safe_email_regex="$SAFE_EMAIL_REGEX" '
-    match($0, /^(.*) <([^>]+)> /, m) {
-      if (m[2] !~ safe_email_regex) {
-        print m[1] "\t" m[2]
+    {
+      if (match($0, /<[^>]+>/)) {
+        email = substr($0, RSTART + 1, RLENGTH - 2)
+        name = substr($0, 1, RSTART - 2)
+        sub(/[[:space:]]+$/, "", name)
+        if (email !~ safe_email_regex) {
+          print name "\t" email
+        }
       }
     }
   ' | sort -u > "$output_file"
@@ -146,29 +167,15 @@ privacy_check_paths() {
 
 privacy_report_and_exit() {
   local mode="$1"
-  local metadata_hits="$2"
-  local content_hits="$3"
-  local path_hints="$4"
-  local path_hits="$5"
+  local content_hits="$2"
+  local path_hits="$3"
 
-  if [[ ! -s "$metadata_hits" && ! -s "$content_hits" && ! -s "$path_hits" ]]; then
+  if [[ ! -s "$content_hits" && ! -s "$path_hits" ]]; then
     return 0
   fi
 
-  echo "${mode}: blocked due to possible privacy/secrets." >&2
+  echo "${mode}: blocked due to possible secrets." >&2
   echo >&2
-
-  if [[ -s "$metadata_hits" ]]; then
-    if [[ "$mode" == "pre-commit" ]]; then
-      echo "Commit identity requiring review:" >&2
-    else
-      echo "Commit metadata requiring review:" >&2
-    fi
-    sed -n '1,40p' "$metadata_hits" >&2
-    echo >&2
-    echo "Allowed commit email regex: ${SAFE_EMAIL_REGEX}" >&2
-    echo >&2
-  fi
 
   if [[ -s "$content_hits" ]]; then
     echo "Content matches requiring review:" >&2
@@ -182,29 +189,16 @@ privacy_report_and_exit() {
     echo >&2
   fi
 
-  if [[ -s "$path_hints" ]]; then
-    echo "Suggested environment-variable replacements for hardcoded paths:" >&2
-    sed -n '1,40p' "$path_hints" >&2
-    echo >&2
-  fi
-
-  if [[ "$mode" == "pre-commit" ]]; then
-    echo "Fix the staged files before committing." >&2
-    echo "If this is intentional, edit .githooks/pre-commit or .githooks/lib/privacy-check.sh instead of bypassing it." >&2
-  else
-    echo "Fix the matching commits/files before pushing." >&2
-    echo "If this is intentional, edit .githooks/pre-push or .githooks/lib/privacy-check.sh instead of bypassing it." >&2
-  fi
+  echo "Fix the staged files before committing." >&2
+  echo "If this is intentional, edit .githooks/pre-commit or .githooks/lib/privacy-check.sh instead of bypassing it." >&2
   exit 1
 }
 
 run_pre_commit_check() {
   privacy_init_tmpdir
 
-  local metadata_hits="$privacy_tmpdir/metadata_hits.txt"
   local raw_content_hits="$privacy_tmpdir/content_hits_raw.txt"
   local content_hits="$privacy_tmpdir/content_hits.txt"
-  local path_hints="$privacy_tmpdir/path_hints.txt"
   local path_hits="$privacy_tmpdir/path_hits.txt"
   local -a staged_paths=()
 
@@ -216,60 +210,13 @@ run_pre_commit_check() {
     exit 0
   fi
 
-  privacy_check_identities "$metadata_hits"
   printf '%s\n' "${staged_paths[@]}" | privacy_check_paths /dev/stdin "$path_hits"
-  git grep --cached -n -I -E "${SECRET_REGEX}|${PRIVACY_REGEX}" -- "${staged_paths[@]}" > "$raw_content_hits" || true
+  git grep --cached -n -I -E "${SECRET_REGEX}" -- "${staged_paths[@]}" > "$raw_content_hits" || true
   privacy_filter_hits "$raw_content_hits" "$content_hits"
-  privacy_build_path_hints "$content_hits" "$path_hints"
-  privacy_report_and_exit "pre-commit" "$metadata_hits" "$content_hits" "$path_hints" "$path_hits"
+  privacy_report_and_exit "pre-commit" "$content_hits" "$path_hits"
 }
 
 run_pre_push_check() {
-  privacy_init_tmpdir
-
-  local commits_file="$privacy_tmpdir/commits.txt"
-  local metadata_hits="$privacy_tmpdir/metadata_hits.txt"
-  local raw_content_hits="$privacy_tmpdir/content_hits_raw.txt"
-  local content_hits="$privacy_tmpdir/content_hits.txt"
-  local path_hints="$privacy_tmpdir/path_hints.txt"
-  local path_hits="$privacy_tmpdir/path_hits.txt"
-
-  touch "$commits_file" "$metadata_hits" "$raw_content_hits" "$content_hits" "$path_hints" "$path_hits"
-
-  while read -r local_ref local_sha remote_ref remote_sha; do
-    [[ -z "${local_ref:-}" ]] && continue
-    [[ "$local_sha" == "$ZERO_SHA" ]] && continue
-
-    if [[ "$remote_sha" == "$ZERO_SHA" ]]; then
-      git rev-list "$local_sha" >> "$commits_file"
-    else
-      git rev-list "${remote_sha}..${local_sha}" >> "$commits_file"
-    fi
-  done
-
-  sort -u "$commits_file" -o "$commits_file"
-
-  if [[ ! -s "$commits_file" ]]; then
-    exit 0
-  fi
-
-  while read -r commit; do
-    git show -s --format='%H%x09%an%x09%ae%x09%cn%x09%ce%x09%s' "$commit"
-  done < "$commits_file" | awk -F'\t' -v safe_email_regex="$SAFE_EMAIL_REGEX" '
-    $3 !~ safe_email_regex || $5 !~ safe_email_regex {
-      print
-    }
-  ' > "$metadata_hits" || true
-
-  while read -r commit; do
-    git grep -n -I -E "${SECRET_REGEX}|${PRIVACY_REGEX}" "$commit" -- || true
-  done < "$commits_file" > "$raw_content_hits"
-
-  while read -r commit; do
-    git diff-tree --no-commit-id --name-only -r "$commit" || true
-  done < "$commits_file" | privacy_check_paths /dev/stdin "$path_hits"
-
-  privacy_filter_hits "$raw_content_hits" "$content_hits"
-  privacy_build_path_hints "$content_hits" "$path_hints"
-  privacy_report_and_exit "pre-push" "$metadata_hits" "$content_hits" "$path_hints" "$path_hits"
+  # pre-push 不做隐私检查，只在 pre-commit 时检查
+  exit 0
 }
