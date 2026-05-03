@@ -7,7 +7,7 @@ model_reasoning_effort = "medium"
 name = "mimo"
 env_key = "MIMO_API_KEY"
 base_url = "https://token-plan-cn.xiaomimimo.com/v1"
-wire_api = "chat"
+wire_api = "responses"
 
 [projects."/Users/tetsuya/dotfiles"]
 trust_level = "trusted"

@@ -1,3 +1,9 @@
+# 如果 TERM 对应的 terminfo 条目缺失（例如卸载 kitty 后残留 xterm-kitty），
+# 退回到通用值，避免 tput / 终端程序启动时报 "unknown terminal"
+if [[ -n "$TERM" ]] && ! infocmp -- "$TERM" >/dev/null 2>&1; then
+    export TERM=xterm-256color
+fi
+
 export HISTSIZE=10000
 export SAVEHIST=10000
 
@@ -184,3 +190,10 @@ export PATH="$GOENV_ROOT/shims:$GOENV_ROOT/bin:$PATH"
 if command -v goenv >/dev/null 2>&1; then
   eval "$(goenv init -)"
 fi
+
+# bun completions
+[ -s "/Users/tetsuya/.bun/_bun" ] && source "/Users/tetsuya/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
