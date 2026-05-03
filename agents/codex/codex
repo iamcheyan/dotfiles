@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Codex CLI (MiMo) — install if missing, then launch with MiMo API
-# 直接运行 codex 走用户登录的 ChatGPT（全局 0.80.0）
-# 通过此脚本/xmcodex 运行走 MiMo API（nvm codex-mimo 0.78.0，完全隔离）
+# Codex CLI — install if missing, then launch
+# 配置文件: home/config.toml (可移植，提交到 dotfiles)
+# 密钥文件: .env (不提交，通过 .gitignore 排除)
 
 CODEX_NODE_VERSION="22"
 CODEX_NVM_ALIAS="codex-mimo"
@@ -68,7 +68,8 @@ main() {
     do_install
   fi
 
-  # CODEX_HOME points to plugin's own config — user's ~/.codex is untouched
+  # Always use home/ as CODEX_HOME — config is portable dotfiles
+  # Secrets (API keys) come from .env, not config.toml
   CODEX_HOME="$MIMO_HOME" nvm exec "$CODEX_NVM_ALIAS" codex "$@"
 }
 
