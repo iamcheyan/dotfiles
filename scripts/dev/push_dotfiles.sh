@@ -3,8 +3,12 @@
 
 set -euo pipefail
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="${1:-$HOME/dotfiles}"
 PUSH_HELPER="$HOME/dotfiles/scripts/dev/git_push_with_pat_fallback.sh"
+REPO_NAME="${2:-dotfiles}"
+
+# Shift consumed args so $* is the commit message (if any)
+if [ $# -ge 2 ]; then shift 2; elif [ $# -ge 1 ]; then shift; fi
 USER_COMMIT_MESSAGE="${*:-}"
 
 ensure_git_repo() {
@@ -134,6 +138,31 @@ classify_scope() {
         tools/*)
             echo "tools"
             ;;
+        # chezmoi-style paths
+        dot_config/zellij/*)
+            echo "zellij"
+            ;;
+        dot_config/nvim/*)
+            echo "nvim"
+            ;;
+        dot_config/*)
+            echo "$(echo "$path" | cut -d/ -f2)"
+            ;;
+        private_dot_ssh/*)
+            echo "ssh"
+            ;;
+        dot_lftp/*)
+            echo "lftp"
+            ;;
+        dot_local/*)
+            echo "local"
+            ;;
+        private_Library/*)
+            echo "library"
+            ;;
+        .chezmoi.*|init.sh)
+            echo "config"
+            ;;
         config/*)
             echo "$(echo "$path" | cut -d/ -f2)"
             ;;
@@ -229,7 +258,7 @@ build_auto_commit_message() {
 }
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Push dotfiles"
+echo "  Push $REPO_NAME"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 if [ -n "$USER_COMMIT_MESSAGE" ]; then
@@ -242,6 +271,6 @@ fi
 echo "Commit message: $COMMIT_MESSAGE"
 echo ""
 
-push_repo "$DOTFILES_DIR" "dotfiles" "$COMMIT_MESSAGE"
+push_repo "$DOTFILES_DIR" "$REPO_NAME" "$COMMIT_MESSAGE"
 echo ""
 echo "Done"
