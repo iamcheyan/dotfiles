@@ -159,13 +159,13 @@ fi
 
 # 启动 shell 前自动同步 chezmoi 管理的 aliases，避免修改源文件后目标文件滞后
 if command -v chezmoi >/dev/null 2>&1 && [[ -d "$HOME/chezmoi" ]]; then
-    chezmoi apply "$HOME/.config/dotfiles/aliases" >/dev/null 2>&1
+    chezmoi apply "$HOME/.config/aliases" >/dev/null 2>&1
 fi
 
 # 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
 source ~/dotfiles/aliases.conf
-[[ -d ~/.config/dotfiles/aliases ]] &&
-  for f in ~/.config/dotfiles/aliases/*.conf(N); do
+[[ -d ~/.config/aliases ]] &&
+  for f in ~/.config/aliases/*.conf(N); do
     [[ -r $f ]] && source $f
   done
 
