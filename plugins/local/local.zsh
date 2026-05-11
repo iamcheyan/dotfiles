@@ -49,16 +49,19 @@ install:font() {
 #   nvim <path>   -> 路径存在时直接打开
 #   nvim <query>  -> 路径不存在时，用 snacks files picker 预填 query
 nvim() {
+    # 非交互式输入（管道、重定向）直接转交原生 nvim
     if [[ ! -t 0 ]]; then
         command nvim "$@"
         return
     fi
 
+    # 没有参数 → 正常启动
     if [[ $# -eq 0 ]]; then
         command nvim
         return
     fi
 
+    # 多参数 → 直接交给原生 nvim（保持兼容）
     if [[ $# -ne 1 ]]; then
         command nvim "$@"
         return
@@ -77,9 +80,26 @@ nvim() {
             if [[ -e "$target" ]]; then
                 command nvim "$target"
             else
-                NVIM_PICKER_FILE_QUERY="$target" command nvim \
-                    --cmd 'let g:started_with_stdin = 1' \
-                    +'lua vim.schedule(function() local q = vim.env.NVIM_PICKER_FILE_QUERY; if q and q ~= "" then require("snacks").picker.files({ search = q }) end end)'
+                # 文件不存在，询问是创建还是搜索
+                while true; do
+                    read -r "choice?File '$target' does not exist. Create it (Enter/y) or search for it (n)? [Enter/y/n] "
+                    case "$choice" in
+                        ""|[Yy]*)
+                            command touch "$target"
+                            command nvim "$target"
+                            break
+                            ;;
+                        [Nn]*)
+                            NVIM_PICKER_FILE_QUERY="$target" command nvim \
+                                --cmd 'let g:started_with_stdin = 1' \
+                                +'lua vim.schedule(function() local q = vim.env.NVIM_PICKER_FILE_QUERY; if q and q ~= "" then require("snacks").picker.files({ search = q }) end end)'
+                            break
+                            ;;
+                        *)
+                            echo "Please answer y (create) or n (search)."
+                            ;;
+                    esac
+                done
             fi
             ;;
     esac
