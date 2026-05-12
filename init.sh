@@ -746,6 +746,21 @@ install_extra_tools() {
         [[ -f "$install_dir/install_opencode.sh" ]] && bash "$install_dir/install_opencode.sh"
     else
         print_success "Opencode is already installed"
+    # Hunk - terminal diff viewer
+    if ! command_exists hunk; then
+        print_info "Installing Hunk..."
+        if command_exists npm; then
+            npm i -g hunkdiff
+            print_success "Hunk installed via npm"
+        elif command_exists brew; then
+            brew install modem-dev/tap/hunk
+            print_success "Hunk installed via brew"
+        else
+            print_warning "npm or brew not found; cannot install Hunk"
+        fi
+    else
+        print_success "Hunk is already installed"
+    fi
     fi
 
     # Sbzr (rime config clone disabled — managed manually)
