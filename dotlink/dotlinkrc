@@ -23,7 +23,6 @@ $HOME/dotfiles/config/atuin:$HOME/.config/atuin                          #atuin�
 $HOME/dotfiles/config/kitty:$HOME/.config/kitty                          #kitty终端配置
 $HOME/dotfiles/config/ghostty:$HOME/.config/ghostty                      #ghostty终端配置
 
-
 #[link:macos]
 #MacOS 配置可以单独写在这里
 #$HOME/dotfiles/config/karabiner:$HOME/.config/karabiner    # Karabiner 配置文件
