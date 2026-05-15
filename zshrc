@@ -1,7 +1,19 @@
+
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh"
+
 # 如果 TERM 对应的 terminfo 条目缺失（例如卸载 kitty 后残留 xterm-kitty），
 # 退回到通用值，避免 tput / 终端程序启动时报 "unknown terminal"
 if [[ -n "$TERM" ]] && ! infocmp -- "$TERM" >/dev/null 2>&1; then
     export TERM=xterm-256color
+fi
+
+# WSL 上如果 Windows 挂载（/mnt/c 等）异常，zsh 在扫描 PATH 时会卡死。
+# 交互 shell 里先移除 /mnt 下的 PATH 项，优先保证 shell 可用性。
+if [[ -n "$WSL_DISTRO_NAME" ]]; then
+    typeset -gaU path
+    path=(${path:#/mnt/*})
+    export PATH="${(j/:/)path}"
 fi
 
 export HISTSIZE=10000
@@ -201,3 +213,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export ANDROID_HOME=$HOME/Android/Sdk
 export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2
+
