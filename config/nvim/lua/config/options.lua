@@ -32,8 +32,18 @@ vim.opt.smartcase = true
 -- 告诉 Neovim 自动尝试这些编码
 vim.opt.fileencodings = "ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,default,latin1"
 
--- 诊断图标常驻左侧，避免代码区提示干扰
+-- 禁用诊断图标和诊断功能
 vim.opt.signcolumn = "yes"
+
+-- 完全禁用诊断显示
+vim.diagnostic.config({
+	enabled = false,
+	virtual_text = false,
+	signs = false,
+	underline = false,
+	update_in_insert = false,
+	severity_sort = false,
+})
 vim.opt.smoothscroll = false -- 关闭平滑滚动
 vim.opt.list = true
 vim.opt.listchars = {
