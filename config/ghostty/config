@@ -28,6 +28,7 @@ palette = 15=#ffffff
 
 # ===== Clipboard =====
 copy-on-select = clipboard
+keybind = ctrl+v=paste_from_clipboard
 
 # ===== Window & Decorations =====
 window-padding-x = 5
