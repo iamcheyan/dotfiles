@@ -45,6 +45,7 @@ vim.diagnostic.config({
 	severity_sort = false,
 })
 vim.opt.smoothscroll = false -- 关闭平滑滚动
+vim.opt.showtabline = 0 -- 隐藏顶部的 Tab Page 标签栏（通过 leader+tab 管理）
 vim.opt.list = true
 vim.opt.listchars = {
   tab = "»·",

@@ -16,7 +16,14 @@ return {
     "sindrets/diffview.nvim",
     cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFocusFiles" },
     keys = {
-      { "<leader>gdv", "<cmd>DiffviewOpen<cr>", desc = "Open Diffview" },
+      { "<leader>gdv", function()
+        local view = require("diffview.lib").get_current_view()
+        if view then
+          vim.cmd("DiffviewClose")
+        else
+          vim.cmd("DiffviewOpen")
+        end
+      end, desc = "Toggle Diffview" },
       { "<leader>gdc", "<cmd>DiffviewClose<cr>", desc = "Close Diffview" },
       { "<leader>gdf", "<cmd>DiffviewFocusFiles<cr>", desc = "Focus Diffview Files" },
       { "<leader>gdt", "<cmd>DiffviewToggleFiles<cr>", desc = "Toggle Diffview Files" },
@@ -172,22 +179,6 @@ return {
   },
 
   {
-    "airblade/vim-gitgutter",
-    event = { "BufReadPre", "BufNewFile" },
-    init = function()
-      -- Avoid duplicate git signs with gitsigns by default.
-      vim.g.gitgutter_enabled = 0
-      vim.g.gitgutter_map_keys = 0
-    end,
-    keys = {
-      { "<leader>uG", "<cmd>GitGutterToggle<cr>", desc = "Toggle GitGutter" },
-      { "]h", "<cmd>GitGutterNextHunk<cr>", desc = "GitGutter Next Hunk" },
-      { "[h", "<cmd>GitGutterPrevHunk<cr>", desc = "GitGutter Prev Hunk" },
-      { "<leader>hp", "<cmd>GitGutterPreviewHunk<cr>", desc = "GitGutter Preview Hunk" },
-    },
-  },
-
-  {
     "kevinhwang91/nvim-hlslens",
     event = "VeryLazy",
     opts = {},
@@ -240,19 +231,6 @@ return {
         end,
         desc = "Search Partial Word Backward",
       },
-    },
-  },
-
-  {
-    "ellisonleao/glow.nvim",
-    cmd = "Glow",
-    opts = {
-      border = "single",
-      style = "dark",
-      width = 120,
-    },
-    keys = {
-      { "<leader>mg", "<cmd>Glow<cr>", desc = "Markdown Preview (Glow)" },
     },
   },
 

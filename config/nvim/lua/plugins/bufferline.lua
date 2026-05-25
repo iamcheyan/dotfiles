@@ -275,6 +275,7 @@ return {
         diagnostics = false,
         themable = false,
         color_icons = true,
+        show_tab_indicators = false,  -- 隐藏右侧 Tab Page 数字指示器
         offsets = {
           {
             filetype = "snacks_layout_box",

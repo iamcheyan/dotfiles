@@ -112,6 +112,40 @@ vim.keymap.set("n", "<2-LeftMouse>", function()
   end
 end, { desc = "双击颜色弹出 ccc 取色器" })
 
+-- 添加到 LazyVim 默认的 <leader><tab> 菜单中
+-- <leader><tab><tab> - 列出所有 Tab Pages 并选择切换（类似 buffer 切换）
+vim.keymap.set("n", "<leader><tab><tab>", function()
+  local tabs = vim.api.nvim_list_tabpages()
+  local current_tab = vim.api.nvim_get_current_tabpage()
+  local items = {}
+  
+  for i, tab in ipairs(tabs) do
+    local windows = vim.api.nvim_tabpage_list_wins(tab)
+    local buf_names = {}
+    for _, win in ipairs(windows) do
+      local buf = vim.api.nvim_win_get_buf(win)
+      local name = vim.api.nvim_buf_get_name(buf)
+      if name ~= "" then
+        table.insert(buf_names, vim.fn.fnamemodify(name, ":t"))
+      end
+    end
+    local label = #buf_names > 0 and table.concat(buf_names, ", ") or "[empty]"
+    local marker = tab == current_tab and "● " or "  "
+    table.insert(items, string.format("%s%d: %s", marker, i, label))
+  end
+  
+  vim.ui.select(items, {
+    prompt = "Select Tab Page:",
+  }, function(_, idx)
+    if idx then
+      vim.cmd("tabnext " .. idx)
+    end
+  end)
+end, { desc = "List and switch Tab Pages" })
+
+-- 覆盖 LazyVim 默认的 <leader><tab><tab>（原本是新建 Tab），改用 n
+vim.keymap.set("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
+
 -- Click a diagnostics sign line to open its message float.
 vim.keymap.set("n", "<LeftMouse>", function()
   local m = vim.fn.getmousepos()
