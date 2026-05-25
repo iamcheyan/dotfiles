@@ -19,18 +19,18 @@ themes {
 
         // Pane border colors
         frame_unselected {
-            base "#3e3e3e"
-            emphasis_0 "#3e3e3e"
-            emphasis_1 "#3e3e3e"
-            emphasis_2 "#3e3e3e"
-            emphasis_3 "#3e3e3e"
+            base "#222222"  
+            emphasis_0 "#222222" 
+            emphasis_1 "#222222" 
+            emphasis_2 "#222222" 
+            emphasis_3 "#222222"
         }
         frame_selected {
-            base "#000000"
-            emphasis_0 "#000000"
-            emphasis_1 "#000000"
-            emphasis_2 "#000000"
-            emphasis_3 "#000000"
+            base "#333333"
+            emphasis_0 "#333333"
+            emphasis_1 "#333333"
+            emphasis_2 "#333333"
+            emphasis_3 "#333333"
         }
         frame_highlight {
             base "#50fa7b"
@@ -123,13 +123,14 @@ keybinds clear-defaults=true {
         bind "8" { GoToTab 8; SwitchToMode "Normal"; }
         bind "9" { GoToTab 9; SwitchToMode "Normal"; }
         bind "Tab" { ToggleTab; }
-        bind "a" {
-            LaunchOrFocusPlugin "zellij-pane-picker" {
-                floating true
-                move_to_focused_tab true
-            };
-            SwitchToMode "Normal"
-        }
+        // zellij-pane-picker 已卸载
+        // bind "a" {
+        //     LaunchOrFocusPlugin "zellij-pane-picker" {
+        //         floating true
+        //         move_to_focused_tab true
+        //     };
+        //     SwitchToMode "Normal"
+        // }
     }
     scroll {
         bind "Ctrl s" { SwitchToMode "Normal"; }
@@ -288,7 +289,8 @@ plugins {
     filepicker location="zellij:strider" {
         cwd "/"
     }
-    notepad location="file:~/.config/zellij/plugins/notepad.wasm"
+    // notepad 已卸载
+    // notepad location="file:~/.config/zellij/plugins/notepad.wasm"
     zellij-attention location="file:~/.config/zellij/plugins/zellij-attention.wasm"
     plugin-manager location="zellij:plugin-manager"
     session-manager location="zellij:session-manager"
@@ -298,18 +300,18 @@ plugins {
     welcome-screen location="zellij:session-manager" {
         welcome_screen true
     }
-    zellij-pane-picker location="file:~/.config/zellij/plugins/zellij-pane-picker.wasm" {
-        cwd "~"
-        list_panes ""
-        navigate_back ""
-        toggle_star ""
-        next_star ""
-        previous_star ""
-    }
+    // zellij-pane-picker 已卸载
+    // zellij-pane-picker location="file:~/.config/zellij/plugins/zellij-pane-picker.wasm" {
+    //     cwd "~"
+    //     list_panes ""
+    //     navigate_back ""
+    //     toggle_star ""
+    //     next_star ""
+    //     previous_star ""
+    // }
     zjstatus location="file:~/.config/zellij/plugins/zjstatus.wasm"
 }
 load_plugins {
-    notepad
     zellij-attention
 }
 web_client {
@@ -460,7 +462,8 @@ session_serialization true
 //   - true
 //   - false (default)
 // 
-// serialize_pane_viewport false
+serialize_pane_viewport true
+scrollback_lines_to_serialize 5000
  
 // Scrollback lines to serialize along with the pane viewport when serializing sessions, 0
 // defaults to the scrollback size. If this number is higher than the scrollback size, it will

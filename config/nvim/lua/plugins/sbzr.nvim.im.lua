@@ -6,7 +6,8 @@ return {
   {
     "iamcheyan/sbzr.nvim.im",
     name = "ZFVimIM",
-    lazy = false,
+    lazy = true,
+    event = "InsertEnter",
     dir = vim.loop.os_uname().nodename == "LH25030" and (vim.fn.stdpath("config") .. "/local/sbzr.nvim.im") or nil,
     init = function()
       if vim.loop.os_uname().nodename == "LH25030" then
