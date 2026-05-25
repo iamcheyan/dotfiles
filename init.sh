@@ -600,6 +600,17 @@ install_fonts() {
     fi
 }
 
+# Install deja (zsh predictive autosuggestions)
+install_deja() {
+    local install_script="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install/install_deja.sh"
+    if [[ -f "$install_script" ]]; then
+        print_info "Installing deja (zsh predictive autosuggestions)..."
+        chmod +x "$install_script"
+        bash "$install_script"
+    else
+        print_warning "Deja install script not found: $install_script"
+    fi
+}
 # Initialize Yazi config
 install_yazi_config() {
     local install_script="${DOTFILES_DIR:-$HOME/dotfiles}/config/yazi/init.sh"
@@ -907,29 +918,34 @@ EOF
 
     # 10. Install Neovim
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 11/14: Installing Neovim"
+        print_info "Step 11/15: Installing Neovim"
         install_neovim
     else
-        print_info "Step 11/14: Skipping Neovim (minimal mode)"
+        print_info "Step 11/15: Skipping Neovim (minimal mode)"
     fi
     echo ""
 
     # 11. Install fonts
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 12/14: Installing fonts"
+        print_info "Step 12/15: Installing fonts"
         install_fonts
     else
-        print_info "Step 12/14: Skipping fonts (minimal mode)"
+        print_info "Step 12/15: Skipping fonts (minimal mode)"
     fi
     echo ""
 
-    # 12. Initialize Yazi config
-    print_info "Step 13/14: Initializing Yazi config"
+    # 12. Install deja (zsh predictive autosuggestions)
+    print_info "Step 13/15: Installing deja (zsh predictive autosuggestions)"
+    install_deja
+    echo ""
+
+    # 13. Initialize Yazi config
+    print_info "Step 14/15: Initializing Yazi config"
     install_yazi_config
     echo ""
 
-    # 13. Install additional tools
-    print_info "Step 14/14: Checking and installing additional tools (Zellij, Gemini, Codex, etc.)"
+    # 14. Install additional tools
+    print_info "Step 15/15: Checking and installing additional tools (Zellij, Gemini, Codex, etc.)"
     install_extra_tools
     echo ""
 

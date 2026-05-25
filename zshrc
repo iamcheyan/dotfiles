@@ -71,8 +71,14 @@ source ~/dotfiles/plugins/completion/completion.zsh
 # evalcache: 缓存 init 脚本输出，减少 atuin/zoxide/direnv 这类 hook 的重复开销
 zinit light mroth/evalcache
 
-# 自动补全
-zinit light zsh-users/zsh-autosuggestions
+# deja: 预测性自动补全工具（替代 zsh-autosuggestions）
+# 使用模糊匹配、目录感知和命令序列预测来提供更智能的建议
+if command -v deja > /dev/null; then
+  eval "$(deja init zsh)"
+else
+  # 如果 deja 未安装，使用 zsh-autosuggestions 作为回退
+  zinit light zsh-users/zsh-autosuggestions
+fi
 
 # zsh-autopair: 自动补全括号、引号等
 zinit light hlissner/zsh-autopair
