@@ -16,11 +16,15 @@ if [[ -n "$WSL_DISTRO_NAME" ]]; then
     export PATH="${(j/:/)path}"
 fi
 
-export HISTSIZE=10000
-export SAVEHIST=10000
+export HISTSIZE=100000
+export SAVEHIST=100000
+export HISTFILE=~/.zsh_history
 
 setopt SHARE_HISTORY
 setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS   # 移除历史记录中的多余空格
+setopt HIST_VERIFY          # 执行前允许编辑历史扩展
+setopt INC_APPEND_HISTORY   # 立即追加历史（而不是退出时）
 setopt AUTO_CD              # 启用 AUTO_CD：输入目录路径时自动 cd
 
 # SSH 会话中降级 TERM，避免远程服务器不认识 xterm-kitty
@@ -73,6 +77,11 @@ zinit light mroth/evalcache
 
 # zsh-autosuggestions: 根据历史记录提供自动建议
 zinit light zsh-users/zsh-autosuggestions
+# autosuggestions 配置
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)  # 优先历史，然后补全
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=8"         # 灰色显示建议
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=100            # 大命令禁用建议，提升性能
+ZSH_AUTOSUGGEST_USE_ASYNC=1                    # 异步获取建议
 
 # zsh-autopair: 自动补全括号、引号等
 zinit light hlissner/zsh-autopair
@@ -127,6 +136,10 @@ fi
 # 这里初始化 shell hook，并用 evalcache 缓存其输出
 if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
+  # zoxide + fzf 交互式目录选择
+  alias zi='z -i'      # 交互式选择
+  alias za='z -a'      # 添加目录
+  alias zr='z -r'      # 移除目录
 fi
 
 # direnv: 进入目录时自动加载/卸载环境变量
