@@ -22,8 +22,31 @@ local function set_cmdline_highlights()
   vim.api.nvim_set_hl(0, "VertSplit", { fg = bg, bg = "NONE" })
 end
 
+-- gitsigns line highlight 颜色配置
+local function set_gitsigns_highlights()
+  -- 整行背景高亮（linehl = true 时使用）
+  vim.api.nvim_set_hl(0, "GitSignsAddLn", { bg = "#1a3a1a" })          -- 新增行：深绿色背景
+  vim.api.nvim_set_hl(0, "GitSignsChangeLn", { bg = "#3a3a1a" })       -- 修改行：深黄色背景
+  vim.api.nvim_set_hl(0, "GitSignsDeleteLn", { bg = "#3a1a1a" })       -- 删除行：深红色背景
+  vim.api.nvim_set_hl(0, "GitSignsChangedeleteLn", { bg = "#3a2a1a" }) -- 修改+删除：深橙色背景
+  vim.api.nvim_set_hl(0, "GitSignsTopdeleteLn", { bg = "#3a1a1a" })    -- 顶部删除：深红色背景
+  vim.api.nvim_set_hl(0, "GitSignsUntrackedLn", { bg = "#1a3a3a" })    -- 未跟踪：深青色背景
+
+  -- sign 列符号颜色
+  vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#00ff00", bold = true })
+  vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#ffff00", bold = true })
+  vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#ff0000", bold = true })
+  vim.api.nvim_set_hl(0, "GitSignsChangedelete", { fg = "#ff8800", bold = true })
+  vim.api.nvim_set_hl(0, "GitSignsTopdelete", { fg = "#ff0000", bold = true })
+  vim.api.nvim_set_hl(0, "GitSignsUntracked", { fg = "#00ffff", bold = true })
+end
+
 vim.api.nvim_create_autocmd("ColorScheme", {
-  callback = set_cmdline_highlights,
+  callback = function()
+    set_cmdline_highlights()
+    set_gitsigns_highlights()
+  end,
 })
 
 set_cmdline_highlights()
+set_gitsigns_highlights()
