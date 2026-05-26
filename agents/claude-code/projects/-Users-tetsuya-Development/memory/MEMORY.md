@@ -1,1 +1,0 @@
-- [OpenJLPT 项目状态](project_openjlpt.md) — 离线JLPT考试App，N2题库构建中，3个AI供应商

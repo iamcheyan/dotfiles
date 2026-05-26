@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "defaultMode": "auto"
-  },
-  "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true,
-  "theme": "dark-ansi"
-}
