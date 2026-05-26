@@ -95,17 +95,19 @@ return {
     },
     keys = {
       -- 基本替换
-      { "s", mode = { "n", "x" } },
-      { "ss", "<cmd>lua require('substitute').line()<cr>", desc = "Substitute line" },
-      { "S", "<cmd>lua require('substitute').eol()<cr>", desc = "Substitute to end of line" },
+      { "r", "<cmd>lua require('substitute').operator()<cr>", mode = { "n", "x" }, desc = "Substitute operator" },
+      { "rr", "<cmd>lua require('substitute').line()<cr>", desc = "Substitute line" },
+      { "R", "<cmd>lua require('substitute').eol()<cr>", desc = "Substitute to end of line" },
 
       -- 在 Visual 模式下替换
-      { "s", "<cmd>lua require('substitute').visual()<cr>", mode = "x", desc = "Substitute in visual" },
+      { "r", "<cmd>lua require('substitute').visual()<cr>", mode = "x", desc = "Substitute in visual" },
 
       -- Exchange 模式（交换两段文本）
-      { "sx", "<cmd>lua require('substitute.exchange').operator()<cr>", desc = "Exchange operator" },
-      { "sxx", "<cmd>lua require('substitute.exchange').line()<cr>", desc = "Exchange line" },
-      { "sxc", "<cmd>lua require('substitute.exchange').cancel()<cr>", desc = "Cancel exchange" },
+      -- 使用 gr (go replace/exchange)
+      -- 注意：r 是 operator，但 gr 应该能作为独立映射工作
+      { "gr", "<cmd>lua require('substitute.exchange').operator()<cr>", desc = "Exchange operator" },
+      { "grr", "<cmd>lua require('substitute.exchange').line()<cr>", desc = "Exchange line" },
+      { "grc", "<cmd>lua require('substitute.exchange').cancel()<cr>", desc = "Cancel exchange" },
       { "X", "<cmd>lua require('substitute.exchange').visual()<cr>", mode = "x", desc = "Exchange visual" },
 
       -- 范围替换 (substitute.range)
