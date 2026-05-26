@@ -11,7 +11,7 @@ return {
     },
     keys = {
       {
-        "<leader>e",
+        "<leader>y",
         function()
           require("yazi").yazi(nil, vim.fn.expand("%:p"))
         end,
@@ -19,7 +19,7 @@ return {
         desc = "Yazi (current file)",
       },
       {
-        "<leader>E",
+        "<leader>Y",
         function()
           require("yazi").yazi(nil, vim.fn.getcwd())
         end,
