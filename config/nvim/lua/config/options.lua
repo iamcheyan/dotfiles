@@ -44,8 +44,17 @@ vim.diagnostic.config({
 	update_in_insert = false,
 	severity_sort = false,
 })
-vim.opt.smoothscroll = false -- 关闭平滑滚动
+-- Neovim 0.10+ 才支持的选项
+if vim.version().minor >= 10 then
+  vim.opt.smoothscroll = false -- 关闭平滑滚动
+end
 vim.opt.showtabline = 0 -- 隐藏顶部的 Tab Page 标签栏（通过 leader+tab 管理）
+
+-- 去掉窗口分隔线
+vim.opt.fillchars = {
+  vert = " ",      -- 垂直分隔线（侧栏和编辑区之间）
+  horiz = " ",     -- 水平分隔线
+}
 vim.opt.list = true
 vim.opt.listchars = {
   tab = "»·",

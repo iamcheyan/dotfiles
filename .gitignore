@@ -36,9 +36,10 @@ aws/
 /rime
 /aliases
 
+test
+test/
+
 config/nvim/lua/plugins/im-select.lua
-
-
 config/nvim/tmp/*
 config/yazi/flavors/*
 config/sway/*
