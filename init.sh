@@ -3,7 +3,7 @@
 # Used for first-time setup after cloning the repository
 # Usage: bash init.sh
 # Usage: bash init.sh --repair   # Repair broken zinit plugins (e.g., atuin)
-# Usage: bash init.sh --minimal  # Skip fonts, neovim, tree-sitter, jq, yt-dlp, translate-shell
+# Usage: bash init.sh --minimal  # Skip fonts, neovim, jq, yt-dlp, translate-shell
 
 set -e
 
@@ -724,20 +724,6 @@ install_extra_tools() {
         print_success "Zellij is already installed"
     fi
 
-    # Codex
-    if ! command_exists codex; then
-        print_info "Installing Codex..."
-        [[ -f "$install_dir/install_codex.sh" ]] && bash "$install_dir/install_codex.sh"
-    else
-        print_success "Codex is already installed"
-    fi
-
-    # Opencode
-    if ! command_exists opencode; then
-        print_info "Installing Opencode..."
-        [[ -f "$install_dir/install_opencode.sh" ]] && bash "$install_dir/install_opencode.sh"
-    else
-        print_success "Opencode is already installed"
     # Hunk - terminal diff viewer
     if ! command_exists hunk; then
         print_info "Installing Hunk..."
@@ -753,7 +739,6 @@ install_extra_tools() {
     else
         print_success "Hunk is already installed"
     fi
-    fi
 
     # Sbzr (rime config clone disabled — managed manually)
     # if ! command_exists sbzr; then
@@ -762,18 +747,6 @@ install_extra_tools() {
     # else
     #     print_success "Sbzr is already installed"
     # fi
-
-    # tree-sitter
-    if [[ "$MINIMAL" != "true" ]]; then
-        if ! command_exists tree-sitter; then
-            print_info "Installing Tree-sitter..."
-            [[ -f "$install_dir/install_treesitter.sh" ]] && bash "$install_dir/install_treesitter.sh"
-        else
-            print_success "Tree-sitter is already installed"
-        fi
-    else
-        print_info "Minimal mode: skipping Tree-sitter"
-    fi
 
     # Firefox theme (Linux only)
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -806,7 +779,7 @@ main() {
 
     if [[ "$MINIMAL" == "true" ]]; then
         echo -e "${YELLOW}⚠  Minimal mode enabled${NC}"
-        echo "Skipping: fonts, neovim, tree-sitter, jq, yt-dlp, translate-shell"
+        echo "Skipping: fonts, neovim, jq, yt-dlp, translate-shell"
         echo ""
     fi
 
