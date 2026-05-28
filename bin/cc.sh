@@ -90,4 +90,4 @@ if [ -n "${PROVIDER:-}" ]; then
   echo "${MODEL:-}" >> "$CC_CONFIG"
 fi
 
-exec claude "$@"
+exec claude --dangerously-skip-permissions "$@"
