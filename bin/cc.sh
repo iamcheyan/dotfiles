@@ -12,6 +12,10 @@
 
 set -euo pipefail
 
+# Config file to remember last used model
+CC_CONFIG="$HOME/.cache/cc_last_model"
+mkdir -p "$(dirname "$CC_CONFIG")"
+
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -s "$NVM_DIR/nvm.sh" ]; then
   \. "$NVM_DIR/nvm.sh"
@@ -30,6 +34,16 @@ if ! command -v claude &>/dev/null; then
 fi
 
 CONFIG="$HOME/.config/opencode/opencode.json"
+
+# Load last used model if no arguments provided
+if [ $# -eq 0 ] && [ -f "$CC_CONFIG" ]; then
+  LAST_PROVIDER=$(head -1 "$CC_CONFIG" 2>/dev/null || echo "")
+  LAST_MODEL=$(tail -1 "$CC_CONFIG" 2>/dev/null || echo "")
+  if [ -n "$LAST_PROVIDER" ]; then
+    set -- "$LAST_PROVIDER" ${LAST_MODEL:+"$LAST_MODEL"}
+  fi
+fi
+
 PROVIDER="${1:-}"
 MODEL="${2:-}"
 
@@ -59,6 +73,21 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
 
   shift
   [ -n "$MODEL" ] && shift
+fi
+
+# Auto update
+echo "Checking for Claude Code updates..."
+npm update -g @anthropic-ai/claude-code 2>/dev/null || true
+
+# Print model info
+if [ -n "${ANTHROPIC_MODEL:-}" ]; then
+  echo "Model: $ANTHROPIC_MODEL"
+fi
+
+# Save current model for next time
+if [ -n "${PROVIDER:-}" ]; then
+  echo "$PROVIDER" > "$CC_CONFIG"
+  echo "${MODEL:-}" >> "$CC_CONFIG"
 fi
 
 exec claude "$@"
