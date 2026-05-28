@@ -187,15 +187,14 @@ if command -v chezmoi >/dev/null 2>&1 && [[ -d "$HOME/chezmoi" ]]; then
 fi
 
 # 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
-source ~/dotfiles/aliases.conf
-[[ -d ~/.config/aliases ]] &&
-  for f in ~/.config/aliases/*.conf(N); do
-    [[ -r $f ]] && source $f
-  done
-
-[[ -r ~/.aws/aliases.conf ]] && source ~/.aws/aliases.conf
-
-# Prompt customization is handled in plugins/prompt/prompt.zsh, which loads ~/.p10k.zsh.
+# aliases
+for f in \
+  ~/dotfiles/aliases.conf \
+  ~/.config/aliases/*.conf(N-.r) \
+  ~/.aws/aliases.conf
+do
+  source "$f"
+done
 
 # SSH 会话时在窗口标题前加 [SSH] 标记
 function _update_window_title() {
@@ -216,7 +215,7 @@ if command -v goenv >/dev/null 2>&1; then
 fi
 
 # bun completions
-[ -s "/Users/tetsuya/.bun/_bun" ] && source "/Users/tetsuya/.bun/_bun"
+[ -s "$HOME/bun/_bun" ] && source "$HOME/bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -228,8 +227,6 @@ export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2
 
 
-# >>> grok installer >>>
 export PATH="$HOME/.grok/bin:$PATH"
 fpath=(~/.grok/completions/zsh $fpath)
 autoload -Uz compinit && compinit -C
-# <<< grok installer <<<
