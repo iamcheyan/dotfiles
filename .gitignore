@@ -42,6 +42,7 @@ aws/
 
 test
 test/
+/screen
 
 config/nvim/lua/plugins/im-select.lua
 config/nvim/tmp/*
