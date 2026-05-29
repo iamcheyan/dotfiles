@@ -6,6 +6,19 @@
 #   cc -s, --select             # Interactive model selection
 #   cc -v, --version            # Show current vs latest version
 #   cc --versions               # Show recent 10 versions
+#   cc -c                       # Continue the most recent conversation
+#   cc -r, --resume [id]        # Resume a conversation (interactive picker or by ID)
+#   cc --session-id <uuid>      # Use a specific session ID
+#   cc --fork-session           # Fork session when resuming
+#   cc --from-pr [pr]           # Resume session linked to a PR
+#   cc -p, --print <prompt>     # Non-interactive mode (print and exit)
+#   cc -n, --name <name>        # Set session display name
+#   cc -d, --debug [filter]     # Enable debug mode
+#   cc --bare                   # Minimal mode
+#   cc --effort <level>         # Set effort level (low/medium/high/xhigh/max)
+#   cc -w, --worktree [name]    # Create a git worktree for this session
+#   cc --permission-mode <mode> # Permission mode (acceptEdits/auto/bypassPermissions/default/dontAsk/plan)
+#   cc --model <model>          # Override model for this session
 #
 # Examples:
 #   cc mimo-anthropic           # Uses mimo-v2.5-pro (first model)
@@ -13,6 +26,10 @@
 #   cc deepseek                 # Uses deepseek-v4-flash
 #   cc kimi kimi-k2.6           # Uses kimi-k2.6
 #   cc -s                       # Pick model from interactive list
+#   cc -c                       # Continue last conversation
+#   cc -r                       # Interactive session picker
+#   cc -r abc123-def456         # Resume specific session
+#   cc -p "fix the bug"         # Non-interactive print mode
 
 set -euo pipefail
 
@@ -66,8 +83,114 @@ fi
 
 CONFIG="$HOME/.config/opencode/opencode.json"
 
+# ── Parse arguments ──────────────────────────────────────────────────────────
+# Two-pass approach: first identify provider/model, then collect everything
+# else as passthrough args for claude.
+#
+# Pass 1: scan non-flag args against opencode.json providers.
+#   - If a non-flag arg matches a provider name, it's consumed.
+#   - If the next non-flag arg after a provider doesn't match any provider, it's the model.
+# Pass 2: all remaining args (including all flags) → EXTRA_ARGS → passed to claude.
+
+PROVIDER=""
+MODEL=""
+EXTRA_ARGS=()
+SELECT_MODE=false
+
+if [ $# -gt 0 ]; then
+  # Build list of known providers from config
+  PROVIDERS=()
+  if [ -f "$CONFIG" ]; then
+    mapfile -t PROVIDERS < <(node -e "
+      const config = require('$CONFIG');
+      Object.keys(config.provider || {}).forEach(p => console.log(p));
+    " 2>/dev/null || true)
+  fi
+
+  # Two-pass: first pass identifies provider/model, second collects extras
+  ARGS=("$@")
+  USED=() # track indices consumed by provider/model
+  IDX=0
+
+  for arg in "${ARGS[@]}"; do
+    # -s / --select
+    if [ "$arg" = "-s" ] || [ "$arg" = "--select" ]; then
+      SELECT_MODE=true
+      USED+=("$IDX")
+      IDX=$((IDX + 1))
+      continue
+    fi
+
+    # Non-flag arg: could be provider or model
+    if [[ "$arg" != -* ]]; then
+      # Already found provider and model? Skip (shouldn't happen, but safe)
+      if [ -n "$PROVIDER" ] && [ -n "$MODEL" ]; then
+        IDX=$((IDX + 1))
+        continue
+      fi
+      # Check if this is a known provider
+      IS_PROVIDER=false
+      if [ ${#PROVIDERS[@]} -gt 0 ]; then
+        for p in "${PROVIDERS[@]}"; do
+          if [ "$arg" = "$p" ]; then
+            IS_PROVIDER=true
+            break
+          fi
+        done
+      fi
+      if $IS_PROVIDER && [ -z "$PROVIDER" ]; then
+        PROVIDER="$arg"
+        USED+=("$IDX")
+        # Peek ahead: next non-flag arg that isn't a known provider = model
+        JDX=$((IDX + 1))
+        while [ "$JDX" -lt "${#ARGS[@]}" ]; do
+          NEXT="${ARGS[$JDX]}"
+          if [[ "$NEXT" == -* ]] || [ "$NEXT" = "-s" ] || [ "$NEXT" = "--select" ]; then
+            JDX=$((JDX + 1))
+            continue
+          fi
+          # Check if it's a known provider — if so, it's not the model
+          NEXT_IS_PROVIDER=false
+          if [ ${#PROVIDERS[@]} -gt 0 ]; then
+            for p in "${PROVIDERS[@]}"; do
+              if [ "$NEXT" = "$p" ]; then
+                NEXT_IS_PROVIDER=true
+                break
+              fi
+            done
+          fi
+          if ! $NEXT_IS_PROVIDER; then
+            MODEL="$NEXT"
+            USED+=("$JDX")
+          fi
+          break
+        done
+      fi
+    fi
+    IDX=$((IDX + 1))
+  done
+
+  # Collect everything not used as provider/model
+  IDX=0
+  for arg in "${ARGS[@]}"; do
+    USED_FLAG=false
+    if [ ${#USED[@]} -gt 0 ]; then
+      for u in "${USED[@]}"; do
+        if [ "$IDX" -eq "$u" ]; then
+          USED_FLAG=true
+          break
+        fi
+      done
+    fi
+    if ! $USED_FLAG; then
+      EXTRA_ARGS+=("$arg")
+    fi
+    IDX=$((IDX + 1))
+  done
+fi
+
 # Interactive model selection
-if [ "${1:-}" = "-s" ] || [ "${1:-}" = "--select" ]; then
+if $SELECT_MODE; then
   if [ ! -f "$CONFIG" ]; then
     echo "Error: Config file not found: $CONFIG" >&2
     exit 1
@@ -76,24 +199,21 @@ if [ "${1:-}" = "-s" ] || [ "${1:-}" = "--select" ]; then
   SELECTOR="$(dirname "$0")/cc-select.mjs"
   RESULT=$(node "$SELECTOR" "$CONFIG") || exit 1
 
-  SEL_PROVIDER=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).provider")
-  SEL_MODEL=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).model")
+  PROVIDER=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).provider")
+  MODEL=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).model")
 
-  echo "Selected: $SEL_PROVIDER / $SEL_MODEL"
-  set -- "$SEL_PROVIDER" "$SEL_MODEL"
+  echo "Selected: $PROVIDER / $MODEL"
 fi
 
-# Load last used model if no arguments provided
-if [ $# -eq 0 ] && [ -f "$CC_CONFIG" ]; then
+# Load last used model if no provider specified
+if [ -z "$PROVIDER" ] && [ -f "$CC_CONFIG" ] && [ "$HAS_ARGS" -eq 0 ]; then
   LAST_PROVIDER=$(head -1 "$CC_CONFIG" 2>/dev/null || echo "")
   LAST_MODEL=$(tail -1 "$CC_CONFIG" 2>/dev/null || echo "")
   if [ -n "$LAST_PROVIDER" ]; then
-    set -- "$LAST_PROVIDER" ${LAST_MODEL:+"$LAST_MODEL"}
+    PROVIDER="$LAST_PROVIDER"
+    MODEL="${LAST_MODEL:-}"
   fi
 fi
-
-PROVIDER="${1:-}"
-MODEL="${2:-}"
 
 if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
   PROVIDER_CONFIG=$(node -e "
@@ -118,9 +238,6 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
     DEFAULT_MODEL=$(echo "$MODELS" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'))[0]")
     export ANTHROPIC_MODEL="$DEFAULT_MODEL"
   fi
-
-  shift
-  [ -n "$MODEL" ] && shift
 fi
 
 # Auto update only when arguments are provided
@@ -140,4 +257,8 @@ if [ -n "${PROVIDER:-}" ]; then
   echo "${MODEL:-}" >> "$CC_CONFIG"
 fi
 
-exec claude --dangerously-skip-permissions "$@"
+if [ ${#EXTRA_ARGS[@]} -gt 0 ]; then
+  exec claude --dangerously-skip-permissions "${EXTRA_ARGS[@]}"
+else
+  exec claude --dangerously-skip-permissions
+fi
