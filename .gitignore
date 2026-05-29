@@ -3,6 +3,10 @@
 Thumbs.db
 *.orig
 
+# CLI 工具本地数据
+.grok/
+.antigravitycli/
+
 # 临时文件
 *.swp
 *.swo
