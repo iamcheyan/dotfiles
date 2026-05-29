@@ -3,14 +3,20 @@
 #   cc                          # Run Claude Code with default Anthropic
 #   cc <provider>               # Run with provider from opencode.json (uses first model)
 #   cc <provider> <model>       # Run with specific model
+#   cc -s, --select             # Interactive model selection
+#   cc -v, --version            # Show current vs latest version
+#   cc --versions               # Show recent 10 versions
 #
 # Examples:
 #   cc mimo-anthropic           # Uses mimo-v2.5-pro (first model)
 #   cc mimo-anthropic mimo-v2.5 # Uses specific model
 #   cc deepseek                 # Uses deepseek-v4-flash
 #   cc kimi kimi-k2.6           # Uses kimi-k2.6
+#   cc -s                       # Pick model from interactive list
 
 set -euo pipefail
+
+HAS_ARGS=$#
 
 # Config file to remember last used model
 CC_CONFIG="$HOME/.cache/cc_last_model"
@@ -26,14 +32,56 @@ if ! command -v nvm &>/dev/null; then
   exit 1
 fi
 
-nvm use node
+nvm use node >/dev/null 2>&1
 
 if ! command -v claude &>/dev/null; then
   echo "claude not found, installing @anthropic-ai/claude-code..."
   npm i -g @anthropic-ai/claude-code
 fi
 
+# Version commands
+if [ "${1:-}" = "-v" ] || [ "${1:-}" = "--version" ]; then
+  CURRENT=$(npm list -g @anthropic-ai/claude-code --depth=0 2>/dev/null | grep '@anthropic-ai/claude-code@' | sed 's/.*@//')
+  LATEST=$(npm view @anthropic-ai/claude-code version 2>/dev/null)
+  echo "Current:  ${CURRENT:-not installed}"
+  echo "Latest:   ${LATEST:-unknown}"
+  if [ -n "$CURRENT" ] && [ -n "$LATEST" ] && [ "$CURRENT" = "$LATEST" ]; then
+    echo "Status:   up to date ✓"
+  elif [ -n "$CURRENT" ] && [ -n "$LATEST" ]; then
+    echo "Status:   update available"
+  fi
+  exit 0
+fi
+
+if [ "${1:-}" = "--versions" ]; then
+  LATEST=$(npm view @anthropic-ai/claude-code version 2>/dev/null)
+  CURRENT=$(npm list -g @anthropic-ai/claude-code --depth=0 2>/dev/null | grep '@anthropic-ai/claude-code@' | sed 's/.*@//')
+  echo "Current: ${CURRENT:-not installed}  Latest: ${LATEST:-unknown}"
+  echo ""
+  echo "Recent versions:"
+  npm view @anthropic-ai/claude-code versions --json 2>/dev/null \
+    | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).slice(-10).join('\n')"
+  exit 0
+fi
+
 CONFIG="$HOME/.config/opencode/opencode.json"
+
+# Interactive model selection
+if [ "${1:-}" = "-s" ] || [ "${1:-}" = "--select" ]; then
+  if [ ! -f "$CONFIG" ]; then
+    echo "Error: Config file not found: $CONFIG" >&2
+    exit 1
+  fi
+
+  SELECTOR="$(dirname "$0")/cc-select.mjs"
+  RESULT=$(node "$SELECTOR" "$CONFIG") || exit 1
+
+  SEL_PROVIDER=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).provider")
+  SEL_MODEL=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).model")
+
+  echo "Selected: $SEL_PROVIDER / $SEL_MODEL"
+  set -- "$SEL_PROVIDER" "$SEL_MODEL"
+fi
 
 # Load last used model if no arguments provided
 if [ $# -eq 0 ] && [ -f "$CC_CONFIG" ]; then
@@ -75,9 +123,11 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
   [ -n "$MODEL" ] && shift
 fi
 
-# Auto update
-echo "Checking for Claude Code updates..."
-npm update -g @anthropic-ai/claude-code 2>/dev/null || true
+# Auto update only when arguments are provided
+if [ "$HAS_ARGS" -gt 0 ]; then
+  echo "Checking for Claude Code updates..."
+  npm update -g @anthropic-ai/claude-code 2>/dev/null || true
+fi
 
 # Print model info
 if [ -n "${ANTHROPIC_MODEL:-}" ]; then
