@@ -46,15 +46,11 @@ export PATH="$HOME/.fzf/bin:$PATH"
 
 
 
-# NVM 惰性加载（仅在需要时加载）
-load_nvm() {
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-}
-unalias gm 2>/dev/null
-for cmd in nvm node npm npx yarn pnpm gemini gm; do
-    eval "${cmd}() { unset -f nvm node npm npx yarn pnpm gemini gm; load_nvm; ${cmd} \"\$@\"; }"
-done
+# NVM 自动检测与安装
+# 确保每次 zsh 启动都能加载正确的 Node 版本
+# 使用 zinit ice wait 异步加载，不阻塞 shell 启动
+zinit ice wait"0a" lucid
+zinit snippet "${HOME}/dotfiles/scripts/system/setup_nvm.sh"
 
 # zinit: 插件管理器，负责下载、缓存和加载后面的 zsh 插件/命令
 source ~/dotfiles/plugins/zinit/zinit.zsh
