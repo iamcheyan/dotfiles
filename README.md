@@ -73,12 +73,18 @@ zsh
 
 我们提供了一键切换 AI Agent 账户的脚本，支持多个 AI 编码助手：
 
-### cc 脚本（Claude Code）
+### cc 脚本（Claude Code 启动器）
+
+Claude Code 的封装脚本，支持多 provider/model 切换、会话恢复、非交互模式等。详见 [CC.md](CC.md)。
 
 ```bash
-cc              # 切换 Claude Code 账户
-cc --list       # 列出所有配置的账户
-cc <账户名>     # 切换到指定账户
+cc                          # 启动 Claude Code
+cc <provider>               # 使用指定 provider
+cc <provider> <model>       # 使用指定 provider + model
+cc -s                       # 交互式选择 model
+cc -c                       # 继续上次对话
+cc -r                       # 恢复历史对话
+cc -p "prompt"              # 非交互模式
 ```
 
 ### cx 脚本（通用 Agent 切换）
