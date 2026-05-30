@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Usage:
 #   cx                              # Run Codex with current login
+#   cx -s, --select                 # Interactive profile selection
 #   cx --profile <name>             # Run with specific profile
 #   cx --save-profile <name>        # Save current login as named profile
 #   cx --list-profiles              # List saved profiles
@@ -36,6 +37,35 @@ AUTH_FILE="$CODEX_DIR/auth.json"
 PROFILES_DIR="$CODEX_DIR/profiles"
 
 mkdir -p "$PROFILES_DIR"
+
+SELECT_MODE=false
+EXTRA_ARGS=()
+
+for arg in "$@"; do
+  if [ "$arg" = "-s" ] || [ "$arg" = "--select" ]; then
+    SELECT_MODE=true
+  else
+    EXTRA_ARGS+=("$arg")
+  fi
+done
+
+# Interactive profile selection
+if $SELECT_MODE; then
+  SELECTOR="$(dirname "$0")/lib/select.mjs"
+  RESULT=$(node "$SELECTOR" --profile "$PROFILES_DIR" --all) || exit 1
+
+  PROFILE_NAME=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).profile")
+  echo "Selected: $PROFILE_NAME"
+
+  # Apply selected profile
+  if [ ! -f "$PROFILES_DIR/$PROFILE_NAME.json" ]; then
+    echo "Error: Profile '$PROFILE_NAME' not found." >&2
+    exit 1
+  fi
+  cp "$PROFILES_DIR/$PROFILE_NAME.json" "$AUTH_FILE"
+  echo "Switched to profile '$PROFILE_NAME'."
+  exec codex ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
+fi
 
 case "${1:-}" in
   --save-profile)
