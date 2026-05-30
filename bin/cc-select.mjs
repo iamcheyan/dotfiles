@@ -24,9 +24,12 @@ if (existsSync(lastModelPath)) {
   lastModel = (lines[1] || '').trim();
 }
 
-// Flatten all provider/model pairs
+// Flatten all provider/model pairs (only Anthropic API for Claude Code)
 const items = [];
 for (const [provKey, prov] of Object.entries(config.provider)) {
+  // Skip non-Anthropic providers (Claude Code requires Anthropic API format)
+  if (prov.api !== 'anthropic') continue;
+
   const provName = prov.name || provKey;
   for (const [modelKey, model] of Object.entries(prov.models || {})) {
     const modelName = model.name || modelKey;
