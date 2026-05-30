@@ -22,6 +22,7 @@ $HOME/dotfiles/config/superfile:$HOME/.config/superfile                  #superf
 $HOME/dotfiles/config/atuin:$HOME/.config/atuin                          #atuin历史查询工具配置
 $HOME/dotfiles/config/kitty:$HOME/.config/kitty                          #kitty终端配置
 $HOME/dotfiles/config/ghostty:$HOME/.config/ghostty                      #ghostty终端配置
+$HOME/dotfiles/config/alacritty:$HOME/.config/alacritty                  #alacritty终端配置
 
 #[link:macos]
 #MacOS 配置可以单独写在这里

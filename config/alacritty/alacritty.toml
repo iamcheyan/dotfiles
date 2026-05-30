@@ -1,0 +1,75 @@
+# ===== Font =====
+[font]
+size = 12.0
+
+[font.normal]
+family = "MesloLGS Nerd Font Mono"
+style = "Regular"
+
+[font.bold]
+family = "MesloLGS Nerd Font Mono"
+style = "Bold"
+
+[font.italic]
+family = "MesloLGS Nerd Font Mono"
+style = "Italic"
+
+[font.bold_italic]
+family = "MesloLGS Nerd Font Mono"
+style = "Bold Italic"
+
+# ===== Colors (Dracula/Zellij Green) =====
+[colors.primary]
+background = "#000000"
+foreground = "#f8f8f2"
+bright_foreground = "#ffffff"
+
+[colors.cursor]
+text = "#f8f8f2"
+cursor = "#50fa7b"
+
+[colors.selection]
+text = "#f8f8f2"
+background = "#44475a"
+
+[colors.normal]
+black   = "#21222c"
+red     = "#ff5555"
+green   = "#50fa7b"
+yellow  = "#f1fa8c"
+blue    = "#bd93f9"
+magenta = "#ff79c6"
+cyan    = "#8be9fd"
+white   = "#f8f8f2"
+
+[colors.bright]
+black   = "#6272a4"
+red     = "#ff6e6e"
+green   = "#69ff94"
+yellow  = "#ffffa5"
+blue    = "#d6acff"
+magenta = "#ff92df"
+cyan    = "#a4ffff"
+white   = "#ffffff"
+
+# ===== Window =====
+[window]
+padding = { x = 5, y = 5 }
+decorations = "Full"
+opacity = 0.95
+
+# ===== Scrolling =====
+[scrolling]
+history = 10000
+
+# ===== Keyboard Bindings =====
+[keyboard]
+bindings = [
+  { key = "C",      mods = "Shift|Control", action = "Copy" },
+  { key = "V",      mods = "Shift|Control", action = "Paste" },
+  { key = "F11",    action = "ToggleFullscreen" },
+  { key = "F",      mods = "Shift|Control", action = "ToggleSimpleFullscreen" },
+  { key = "Plus",   mods = "Control", action = "IncreaseFontSize" },
+  { key = "Minus",  mods = "Control", action = "DecreaseFontSize" },
+  { key = "Key0",   mods = "Control", action = "ResetFontSize" },
+]
