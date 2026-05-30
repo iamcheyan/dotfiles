@@ -32,11 +32,20 @@ fi
 # zellij 启动分流：SSH 用原生配置，本地用 zjstatus
 # ============================================
 zj() {
+    local session=""
     if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
-        local tmpdir=$(mktemp -d)
-        command zellij --config-dir "$tmpdir" --session "ssh" "$@"
+        session="ssh"
+    fi
+
+    if [[ -n "$session" ]]; then
+        if command zellij ls 2>/dev/null | grep -q "$session"; then
+            command zellij attach "$session"
+        else
+            local tmpdir=$(mktemp -d)
+            command zellij --config-dir "$tmpdir" --session "$session" "$@"
+        fi
     else
-        command zellij --layout "compact-zjstatus" "$@"
+        command zellij --layout "compact-zjstatus" --session "$session" "$@"
     fi
 }
 
