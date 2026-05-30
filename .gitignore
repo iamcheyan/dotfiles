@@ -85,3 +85,4 @@ a.out
 # chezmoi
 age.key
 dot_config/claude2kimi/private_dot_env
+agents/claude-code/projects/
