@@ -1,28 +1,12 @@
 // Zellij Configuration
 
-// 恢复原来使用的主题
-// theme "dracula"
-
 themes {
-    mytheme {
-        fg "#c0caf5"
-        bg "#1a1b26"
-        black "#1a1b26"
-        red "#f7768e"
-        green "#9ece6a"
-        yellow "#e0af68"
-        blue "#7aa2f7"
-        magenta "#bb9af7"
-        cyan "#7dcfff"
-        white "#c0caf5"
-        orange "#ff9e64"
-
-        // Pane border colors
+    dracula {
         frame_unselected {
-            base "#222222"  
-            emphasis_0 "#222222" 
-            emphasis_1 "#222222" 
-            emphasis_2 "#222222" 
+            base "#222222"
+            emphasis_0 "#222222"
+            emphasis_1 "#222222"
+            emphasis_2 "#222222"
             emphasis_3 "#222222"
         }
         frame_selected {
@@ -42,7 +26,7 @@ themes {
     }
 }
 
-theme "mytheme"
+theme "dracula"
 
 ui {
     pane_frames {
