@@ -20,6 +20,7 @@
 #   cc --permission-mode <mode> # Permission mode (acceptEdits/auto/bypassPermissions/default/dontAsk/plan)
 #   cc --model <model>          # Override model for this session
 #   cc --update                 # Check and install Claude Code updates
+#   cc -f                       # Force reinstall Claude Code
 #
 # Examples:
 #   cc mimo-anthropic           # Uses mimo-v2.5-pro (first model)
@@ -52,8 +53,17 @@ fi
 
 nvm use node >/dev/null 2>&1
 
-if ! command -v claude &>/dev/null; then
-  echo "claude not found, installing @anthropic-ai/claude-code..."
+# Check for -f flag (force reinstall)
+FORCE_REINSTALL=false
+for arg in "$@"; do
+  if [ "$arg" = "-f" ]; then
+    FORCE_REINSTALL=true
+    break
+  fi
+done
+
+if $FORCE_REINSTALL || ! command -v claude &>/dev/null; then
+  echo "Installing/reinstalling @anthropic-ai/claude-code..."
   npm i -g @anthropic-ai/claude-code
 fi
 

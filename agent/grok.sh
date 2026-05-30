@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Usage:
 #   grok                          # Run Grok CLI
+#   grok -f                       # Force reinstall Grok
 
 set -euo pipefail
 
@@ -16,7 +17,16 @@ fi
 
 nvm use node
 
-if ! command -v grok &>/dev/null; then
+# Check for -f flag (force reinstall)
+FORCE_REINSTALL=false
+for arg in "$@"; do
+  if [ "$arg" = "-f" ]; then
+    FORCE_REINSTALL=true
+    break
+  fi
+done
+
+if $FORCE_REINSTALL || ! command -v grok &>/dev/null; then
   echo "grok not found, installing..."
   curl -fsSL https://x.ai/cli/install.sh | bash
 fi

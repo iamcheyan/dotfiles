@@ -7,7 +7,7 @@
 #   oc-ask -p <file> <question>          # Attach file context
 #   oc-ask -c <question>                 # Continue last session
 #   oc-ask --dangerously-skip-permissions <question>  # Auto-approve all
-#
+#   oc-ask -f <question>                              # Force reinstall opencode
 # Examples:
 #   oc-ask "what does this script do" ./setup.sh
 #   oc-ask "fix the typo in README.md"
@@ -19,8 +19,17 @@ set -euo pipefail
 
 OPENCODE_BIN="$HOME/.local/bin/opencode"
 
+# Check for -f flag (force reinstall)
+FORCE_REINSTALL=false
+for arg in "$@"; do
+  if [ "$arg" = "-f" ]; then
+    FORCE_REINSTALL=true
+    break
+  fi
+done
+
 # ── Install check ─────────────────────────────────────────────────────────────
-if [ ! -x "$OPENCODE_BIN" ]; then
+if $FORCE_REINSTALL || [ ! -x "$OPENCODE_BIN" ]; then
   # Try global opencode
   if command -v opencode &>/dev/null; then
     OPENCODE_BIN="$(command -v opencode)"

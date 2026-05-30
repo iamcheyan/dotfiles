@@ -5,7 +5,7 @@ layout {
             plugin location="zjstatus" {
                 format_left   "{mode} {tabs}"
                 format_center ""
-                format_right  "#[bg=#50fa7b,fg=#0f1117,bold] {session} #[bg=#f8f8f2,fg=#282a36,bold] {datetime} "
+                format_right  "#[bg=#50fa7b,fg=#0f1117,bold] {session} #[bg=#f8f8f2,fg=#1a1b26,bold] {datetime} "
                 format_space  ""
 
                 border_enabled  "false"
