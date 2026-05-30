@@ -46,7 +46,7 @@ theme "mytheme"
 
 ui {
     pane_frames {
-        hide_session_name true
+        hide_session_name false
     }
 }
 
