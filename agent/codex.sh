@@ -6,6 +6,7 @@
 #   cx --save-profile <name>        # Save current login as named profile
 #   cx --list-profiles              # List saved profiles
 #   cx --delete-profile <name>      # Delete a profile
+#   cx -f                           # Force reinstall Codex
 #
 # Examples:
 #   cx --profile personal           # Use personal account
@@ -27,8 +28,17 @@ fi
 
 nvm use node
 
-if ! command -v codex &>/dev/null; then
-  echo "codex not found, installing @openai/codex..."
+# Check for -f flag (force reinstall)
+FORCE_REINSTALL=false
+for arg in "$@"; do
+  if [ "$arg" = "-f" ]; then
+    FORCE_REINSTALL=true
+    break
+  fi
+done
+
+if $FORCE_REINSTALL || ! command -v codex &>/dev/null; then
+  echo "Installing/reinstalling @openai/codex..."
   npm i -g @openai/codex
 fi
 

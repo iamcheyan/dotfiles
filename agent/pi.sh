@@ -2,6 +2,7 @@
 # Usage:
 #   pi                          # Run Pi (auto-install if needed)
 #   pi <args>                   # Pass arguments to Pi
+#   pi -f                       # Force reinstall Pi
 #
 # Pi is auto-installed to ~/Development/pi/ if not present.
 # Binary path is resolved from PI_REPO or ~/Development/pi/.
@@ -12,6 +13,15 @@ set -euo pipefail
 export PATH="$HOME/.pi/bin:$PATH"
 
 PI_ROOT="${PI_REPO:-$HOME/Development/pi}"
+
+# Check for -f flag (force reinstall)
+FORCE_REINSTALL=false
+for arg in "$@"; do
+  if [ "$arg" = "-f" ]; then
+    FORCE_REINSTALL=true
+    break
+  fi
+done
 
 # Ensure npm is available (needed by pi-subagents)
 if ! command -v npm &>/dev/null; then
@@ -35,8 +45,8 @@ if ! command -v npm &>/dev/null; then
   fi
 fi
 
-# Auto-install if PI_ROOT doesn't exist
-if [[ ! -d "$PI_ROOT" ]]; then
+# Auto-install if PI_ROOT doesn't exist or force reinstall
+if $FORCE_REINSTALL || [[ ! -d "$PI_ROOT" ]]; then
   echo "Pi not found at $PI_ROOT, installing..."
   curl -fsSL https://raw.githubusercontent.com/iamcheyan/pi/main/fork/init.sh | bash
 fi

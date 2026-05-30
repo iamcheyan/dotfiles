@@ -17,13 +17,23 @@
 #   oc -m mimo/mimo-v2.5-pro        # Use specific model
 #   oc -p "explain this function"   # Non-interactive question
 #   oc -s                           # Pick model from interactive list
+#   oc -f                           # Force reinstall opencode
 
 set -euo pipefail
 
 HAS_ARGS=$#
 
+# Check for -f flag (force reinstall)
+FORCE_REINSTALL=false
+for arg in "$@"; do
+  if [ "$arg" = "-f" ]; then
+    FORCE_REINSTALL=true
+    break
+  fi
+done
+
 # ── Install check ─────────────────────────────────────────────────────────────
-if ! command -v opencode &>/dev/null; then
+if $FORCE_REINSTALL || ! command -v opencode &>/dev/null; then
   echo "opencode not found, installing..."
   curl -fsSL https://opencode.ai/install | bash
   export PATH="$HOME/.local/bin:$PATH"
