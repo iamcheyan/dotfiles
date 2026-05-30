@@ -19,6 +19,7 @@
 #   cc -w, --worktree [name]    # Create a git worktree for this session
 #   cc --permission-mode <mode> # Permission mode (acceptEdits/auto/bypassPermissions/default/dontAsk/plan)
 #   cc --model <model>          # Override model for this session
+#   cc --update                 # Check and install Claude Code updates
 #
 # Examples:
 #   cc mimo-anthropic           # Uses mimo-v2.5-pro (first model)
@@ -96,6 +97,7 @@ PROVIDER=""
 MODEL=""
 EXTRA_ARGS=()
 SELECT_MODE=false
+UPDATE_MODE=false
 
 if [ $# -gt 0 ]; then
   # Build list of known providers from config
@@ -118,6 +120,14 @@ if [ $# -gt 0 ]; then
     # -s / --select
     if [ "$arg" = "-s" ] || [ "$arg" = "--select" ]; then
       SELECT_MODE=true
+      USED+=("$IDX")
+      IDX=$((IDX + 1))
+      continue
+    fi
+
+    # --update
+    if [ "$arg" = "--update" ]; then
+      UPDATE_MODE=true
       USED+=("$IDX")
       IDX=$((IDX + 1))
       continue
@@ -242,8 +252,8 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
   fi
 fi
 
-# Auto update only when arguments are provided
-if [ "$HAS_ARGS" -gt 0 ]; then
+# Auto update only when --update flag is provided
+if $UPDATE_MODE; then
   echo "Checking for Claude Code updates..."
   npm update -g @anthropic-ai/claude-code 2>/dev/null || true
 fi
