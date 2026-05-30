@@ -29,19 +29,14 @@ if [[ -o interactive ]]; then
 fi
 
 # ============================================
-# zellij 启动分流：SSH 用干净布局，本地用 zjstatus
+# zellij 启动分流：SSH 用原生配置，本地用 zjstatus
 # ============================================
 zj() {
-    local layout="compact-zjstatus"
-    local session=""
     if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
-        layout="clean"
-        session="ssh"
-    fi
-    if [[ -n "$session" ]]; then
-        command zellij --layout "$layout" --session "$session" "$@"
+        local tmpdir=$(mktemp -d)
+        command zellij --config-dir "$tmpdir" --session "ssh" "$@"
     else
-        command zellij --layout "$layout" "$@"
+        command zellij --layout "compact-zjstatus" "$@"
     fi
 }
 
