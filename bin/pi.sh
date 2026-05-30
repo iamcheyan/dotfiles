@@ -8,7 +8,32 @@
 
 set -euo pipefail
 
+# Ensure ~/.pi/bin is in PATH (created by pi installer)
+export PATH="$HOME/.pi/bin:$PATH"
+
 PI_ROOT="${PI_REPO:-$HOME/Development/pi}"
+
+# Ensure npm is available (needed by pi-subagents)
+if ! command -v npm &>/dev/null; then
+  echo "npm not found, installing Node.js..."
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    if command -v brew &>/dev/null; then
+      brew install node
+    else
+      echo "Error: brew not found. Install Homebrew first: https://brew.sh" >&2
+      exit 1
+    fi
+  elif [[ -f /etc/debian_version ]]; then
+    curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash -
+    sudo apt install -y nodejs
+  elif [[ -f /etc/redhat-release ]]; then
+    curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+    sudo yum install -y nodejs
+  else
+    echo "Error: npm not found. Install Node.js manually: https://nodejs.org" >&2
+    exit 1
+  fi
+fi
 
 # Auto-install if PI_ROOT doesn't exist
 if [[ ! -d "$PI_ROOT" ]]; then
