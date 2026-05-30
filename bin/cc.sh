@@ -101,7 +101,9 @@ if [ $# -gt 0 ]; then
   # Build list of known providers from config
   PROVIDERS=()
   if [ -f "$CONFIG" ]; then
-    mapfile -t PROVIDERS < <(node -e "
+    while IFS= read -r line; do
+      PROVIDERS+=("$line")
+    done < <(node -e "
       const config = require('$CONFIG');
       Object.keys(config.provider || {}).forEach(p => console.log(p));
     " 2>/dev/null || true)
