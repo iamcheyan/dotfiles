@@ -49,9 +49,18 @@ zj() {
     fi
 }
 
-# 原生 zellij：不加载任何自定义配置
+# 原生 zellij：不加载任何自定义配置，只加 session 模式按键
 zjn() {
     local tmpdir=$(mktemp -d)
+    cat > "$tmpdir/config.kdl" <<'EOF'
+keybindings {
+    session {
+        bind "Ctrl o" { SwitchToMode "Normal"; }
+        bind "d" { Detach; }
+        bind "x" { Quit; }
+    }
+}
+EOF
     command zellij --config-dir "$tmpdir" "$@"
 }
 
