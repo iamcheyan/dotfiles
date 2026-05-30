@@ -208,8 +208,8 @@ if $SELECT_MODE; then
     exit 1
   fi
 
-  SELECTOR="$(dirname "$0")/cc-select.mjs"
-  RESULT=$(node "$SELECTOR" "$CONFIG") || exit 1
+  SELECTOR="$(dirname "$0")/lib/select.mjs"
+  RESULT=$(node "$SELECTOR" --provider "$CONFIG") || exit 1
 
   PROVIDER=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).provider")
   MODEL=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).model")
