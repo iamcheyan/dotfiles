@@ -47,7 +47,8 @@ zj() {
 
 # 原生 zellij：不加载任何自定义配置
 zjn() {
-    command zellij --clean "$@"
+    local tmpdir=$(mktemp -d)
+    command zellij --config-dir "$tmpdir" "$@"
 }
 
 # ============================================
