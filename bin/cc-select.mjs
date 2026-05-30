@@ -24,11 +24,11 @@ if (existsSync(lastModelPath)) {
   lastModel = (lines[1] || '').trim();
 }
 
-// Flatten all provider/model pairs (only Anthropic API for Claude Code)
+// Flatten all provider/model pairs
 const items = [];
 for (const [provKey, prov] of Object.entries(config.provider)) {
-  // Skip non-Anthropic providers (Claude Code requires Anthropic API format)
-  if (prov.api !== 'anthropic') continue;
+  // Skip Xiaomi MiMo OpenAI version (Claude Code can't use it)
+  if (provKey === 'mimo') continue;
 
   const provName = prov.name || provKey;
   for (const [modelKey, model] of Object.entries(prov.models || {})) {
