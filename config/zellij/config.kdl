@@ -1,31 +1,5 @@
 // Zellij Configuration
 
-themes {
-    dracula {
-        frame_unselected {
-            base "#222222"
-            emphasis_0 "#222222"
-            emphasis_1 "#222222"
-            emphasis_2 "#222222"
-            emphasis_3 "#222222"
-        }
-        frame_selected {
-            base "#333333"
-            emphasis_0 "#333333"
-            emphasis_1 "#333333"
-            emphasis_2 "#333333"
-            emphasis_3 "#333333"
-        }
-        frame_highlight {
-            base "#50fa7b"
-            emphasis_0 "#50fa7b"
-            emphasis_1 "#50fa7b"
-            emphasis_2 "#50fa7b"
-            emphasis_3 "#50fa7b"
-        }
-    }
-}
-
 theme "dracula"
 
 ui {

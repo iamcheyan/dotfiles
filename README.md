@@ -169,7 +169,7 @@ dotfiles/
 │   ├── dev/              # 开发工具
 │   └── system/           # 系统工具
 ├── tools/                # 独立工具脚本
-├── bin/                  # 可执行文件
+├── agent/                # Agent 脚本（cc/cx/opencode 等）
 ├── documents/            # 文档/笔记
 └── rime/                 # Rime 输入法配置
 ```
