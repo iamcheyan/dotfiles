@@ -73,8 +73,15 @@ if $FORCE_REINSTALL || [[ ! -d "$PI_ROOT" ]]; then
   curl -fsSL https://raw.githubusercontent.com/iamcheyan/pi/main/fork/init.sh | bash
 fi
 
+# ── Ensure pi-ralph is available locally (for skills sync) ─────────────
+PI_RALPH_LOCAL="$PI_ROOT/fork/pi-ralph"
+if [[ ! -d "$PI_RALPH_LOCAL" ]]; then
+  mkdir -p "$PI_ROOT/fork"
+  git clone --depth 1 https://github.com/iamcheyan/pi-ralph.git "$PI_RALPH_LOCAL" 2>/dev/null || true
+fi
+
 # ── Sync all skills from pi-ralph (covers skills missing from init.sh) ─
-PI_RALPH_SKILLS="$PI_ROOT/fork/pi-ralph/skills"
+PI_RALPH_SKILLS="$PI_RALPH_LOCAL/skills"
 if [[ -d "$PI_RALPH_SKILLS" ]]; then
   SKILLS_DIR="$HOME/.pi/agent/skills"
   for skill_dir in "$PI_RALPH_SKILLS"/*/; do
