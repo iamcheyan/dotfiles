@@ -6,6 +6,7 @@
 #   cx --save-profile <name>        # Save current login as named profile
 #   cx --list-profiles              # List saved profiles
 #   cx --delete-profile <name>      # Delete a profile
+#   cx -n                           # New profile (clear login, prompt for name, re-login)
 #   cx -f                           # Force reinstall Codex
 #
 # Examples:
@@ -49,15 +50,51 @@ PROFILES_DIR="$CODEX_DIR/profiles"
 mkdir -p "$PROFILES_DIR"
 
 SELECT_MODE=false
+NEW_PROFILE=false
 EXTRA_ARGS=()
 
 for arg in "$@"; do
   if [ "$arg" = "-s" ] || [ "$arg" = "--select" ]; then
     SELECT_MODE=true
+  elif [ "$arg" = "-n" ]; then
+    NEW_PROFILE=true
   else
     EXTRA_ARGS+=("$arg")
   fi
 done
+
+# Handle -n flag: new profile with fresh login
+if $NEW_PROFILE; then
+  read -rp "Enter profile name: " PROFILE_NAME
+  if [ -z "$PROFILE_NAME" ]; then
+    echo "Error: Profile name cannot be empty." >&2
+    exit 1
+  fi
+
+  # Check if profile already exists
+  if [ -f "$PROFILES_DIR/$PROFILE_NAME.json" ]; then
+    read -rp "Profile '$PROFILE_NAME' already exists. Overwrite? (y/N): " CONFIRM
+    if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
+      echo "Aborted."
+      exit 0
+    fi
+  fi
+
+  # Clear current auth (start fresh)
+  rm -f "$AUTH_FILE"
+  echo "Cleared login state. Please login..."
+  codex login
+
+  # Save new profile
+  if [ -f "$AUTH_FILE" ]; then
+    cp "$AUTH_FILE" "$PROFILES_DIR/$PROFILE_NAME.json"
+    echo "Profile '$PROFILE_NAME' created and saved."
+  else
+    echo "Error: Login failed. No auth.json created." >&2
+    exit 1
+  fi
+  exec codex
+fi
 
 # Interactive profile selection
 if $SELECT_MODE; then
