@@ -2,7 +2,7 @@
 # Usage:
 #   pi                          # Run Pi (auto-install if needed)
 #   pi <args>                   # Pass arguments to Pi
-#   pi -f                       # Force reinstall Pi
+#   pi --reinstall              # Force reinstall Pi
 #
 # Pi is auto-installed to ~/Development/pi/ if not present.
 # Binary path is resolved from PI_REPO or ~/Development/pi/.
@@ -14,12 +14,14 @@ export PATH="$HOME/.pi/bin:$PATH"
 
 PI_ROOT="${PI_REPO:-$HOME/Development/pi}"
 
-# Check for -f flag (force reinstall)
+# Parse --reinstall flag and strip it from args
 FORCE_REINSTALL=false
+PI_ARGS=()
 for arg in "$@"; do
-  if [ "$arg" = "-f" ]; then
+  if [[ "$arg" == "--reinstall" ]]; then
     FORCE_REINSTALL=true
-    break
+  else
+    PI_ARGS+=("$arg")
   fi
 done
 
@@ -72,4 +74,4 @@ if [[ ! -x "$PI_BIN" ]]; then
   exit 1
 fi
 
-exec "$PI_BIN" "$@"
+exec "$PI_BIN" "${PI_ARGS[@]}"
