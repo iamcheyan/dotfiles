@@ -18,7 +18,7 @@ PI_ROOT="${PI_REPO:-$HOME/Development/pi}"
 FORCE_REINSTALL=false
 PI_ARGS=()
 for arg in "$@"; do
-  if [[ "$arg" == "--reinstall" ]]; then
+  if [[ "$arg" == "--reinstall" || "$arg" == "-r" ]]; then
     FORCE_REINSTALL=true
   else
     PI_ARGS+=("$arg")
