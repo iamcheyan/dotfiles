@@ -1,0 +1,10 @@
+// 使用内置 tab-bar 显示标签（底部）
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="tab-bar"
+        }
+    }
+    tab name="main"
+}

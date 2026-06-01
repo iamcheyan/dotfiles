@@ -43,45 +43,6 @@ zj() {
         else
             local tmpdir=$(mktemp -d)
             cat > "$tmpdir/config.kdl" <<'KDL'
-themes {
-    mytheme {
-        fg "#c0caf5"
-        bg "#1a1b26"
-        black "#1a1b26"
-        red "#f7768e"
-        green "#9ece6a"
-        yellow "#e0af68"
-        blue "#7aa2f7"
-        magenta "#bb9af7"
-        cyan "#7dcfff"
-        white "#c0caf5"
-        orange "#ff9e64"
-
-        frame_unselected {
-            base "#222222"
-            emphasis_0 "#222222"
-            emphasis_1 "#222222"
-            emphasis_2 "#222222"
-            emphasis_3 "#222222"
-        }
-        frame_selected {
-            base "#333333"
-            emphasis_0 "#333333"
-            emphasis_1 "#333333"
-            emphasis_2 "#333333"
-            emphasis_3 "#333333"
-        }
-        frame_highlight {
-            base "#50fa7b"
-            emphasis_0 "#50fa7b"
-            emphasis_1 "#50fa7b"
-            emphasis_2 "#50fa7b"
-            emphasis_3 "#50fa7b"
-        }
-    }
-}
-theme "mytheme"
-
 keybindings {
     session {
         bind "Ctrl o" { SwitchToMode "Normal"; }
@@ -93,7 +54,7 @@ KDL
             command zellij --config-dir "$tmpdir" --session "$session" "$@"
         fi
     else
-        command zellij --layout "compact-zjstatus" --session "$session" "$@"
+        command zellij --layout "default" --session "$session" "$@"
     fi
 }
 

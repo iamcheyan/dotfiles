@@ -1,15 +1,12 @@
 // Zellij Configuration
 
-// 恢复原来使用的主题
-// theme "dracula"
-
 themes {
     mytheme {
         fg "#c0caf5"
         bg "#1a1b26"
         black "#1a1b26"
         red "#f7768e"
-        green "#9ece6a"
+        green "#51fa7a"
         yellow "#e0af68"
         blue "#7aa2f7"
         magenta "#bb9af7"
@@ -33,11 +30,39 @@ themes {
             emphasis_3 "#333333"
         }
         frame_highlight {
-            base "#50fa7b"
-            emphasis_0 "#50fa7b"
-            emphasis_1 "#50fa7b"
-            emphasis_2 "#50fa7b"
-            emphasis_3 "#50fa7b"
+            base "#51fa7a"
+            emphasis_0 "#51fa7a"
+            emphasis_1 "#51fa7a"
+            emphasis_2 "#51fa7a"
+            emphasis_3 "#51fa7a"
+        }
+
+        // Tab 颜色（不动）
+        ribbon_selected {
+            base "#0e1116"
+            background "#f8f8f3"
+            emphasis_0 "#0e1116"
+            emphasis_1 "#0e1116"
+            emphasis_2 "#0e1116"
+            emphasis_3 "#0e1116"
+        }
+        ribbon_unselected {
+            base "#0e1116"
+            background "#51fa79"
+            emphasis_0 "#0e1116"
+            emphasis_1 "#0e1116"
+            emphasis_2 "#0e1116"
+            emphasis_3 "#0e1116"
+        }
+
+        // 会话名颜色
+        text_unselected {
+            base "#00fd7f"
+            background "#000000"
+            emphasis_0 "#00fd7f"
+            emphasis_1 "#00fd7f"
+            emphasis_2 "#00fd7f"
+            emphasis_3 "#00fd7f"
         }
     }
 }
@@ -177,41 +202,12 @@ keybinds clear-defaults=true {
         bind "Ctrl o" { SwitchToMode "Normal"; }
         bind "Ctrl s" { SwitchToMode "Scroll"; }
         bind "d" { Detach; }
-        bind "w" {
-            LaunchOrFocusPlugin "session-manager" {
-                floating true
-                move_to_focused_tab true
-            };
-            SwitchToMode "Normal"
-        }
-        bind "c" {
-            LaunchOrFocusPlugin "configuration" {
-                floating true
-                move_to_focused_tab true
-            };
-            SwitchToMode "Normal"
-        }
-        bind "p" {
-            LaunchOrFocusPlugin "plugin-manager" {
-                floating true
-                move_to_focused_tab true
-            };
-            SwitchToMode "Normal"
-        }
-        bind "a" {
-            LaunchOrFocusPlugin "zellij:about" {
-                floating true
-                move_to_focused_tab true
-            };
-            SwitchToMode "Normal"
-        }
-        bind "s" {
-            LaunchOrFocusPlugin "zellij:share" {
-                floating true
-                move_to_focused_tab true
-            };
-            SwitchToMode "Normal"
-        }
+        // 插件已禁用，以下快捷键不可用
+        // bind "w" { LaunchOrFocusPlugin "session-manager" ... }
+        // bind "c" { LaunchOrFocusPlugin "configuration" ... }
+        // bind "p" { LaunchOrFocusPlugin "plugin-manager" ... }
+        // bind "a" { LaunchOrFocusPlugin "zellij:about" ... }
+        // bind "s" { LaunchOrFocusPlugin "zellij:share" ... }
         bind "x" { Quit; }
     }
     tmux {
@@ -280,36 +276,10 @@ keybinds clear-defaults=true {
     }
 }
 
-// Plugin aliases - can be used to change the implementation of Zellij
-// changing these requires a restart to take effect
+// Plugin aliases
 plugins {
-    about location="zellij:about"
-    compact-bar location="zellij:compact-bar"
-    configuration location="zellij:configuration"
-    filepicker location="zellij:strider" {
-        cwd "/"
-    }
-    // notepad 已卸载
-    // notepad location="file:~/.config/zellij/plugins/notepad.wasm"
-    zellij-attention location="file:~/.config/zellij/plugins/zellij-attention.wasm"
-    plugin-manager location="zellij:plugin-manager"
-    session-manager location="zellij:session-manager"
-    status-bar location="zellij:status-bar"
-    strider location="zellij:strider"
     tab-bar location="zellij:tab-bar"
-    welcome-screen location="zellij:session-manager" {
-        welcome_screen true
-    }
-    // zellij-pane-picker 已卸载
-    // zellij-pane-picker location="file:~/.config/zellij/plugins/zellij-pane-picker.wasm" {
-    //     cwd "~"
-    //     list_panes ""
-    //     navigate_back ""
-    //     toggle_star ""
-    //     next_star ""
-    //     previous_star ""
-    // }
-    zjstatus location="file:~/.config/zellij/plugins/zjstatus.wasm"
+    zellij-attention location="file:~/.config/zellij/plugins/zellij-attention.wasm"
 }
 load_plugins {
     zellij-attention
@@ -348,7 +318,7 @@ simplified_ui false
 // default_cwd "/tmp"
 
 // Default to the zjstatus layout inspired by D3B-0x0's configuration.
-default_layout "compact-zjstatus"
+default_layout "default"
  
 // The folder in which Zellij will look for themes
 // (Requires restart)
