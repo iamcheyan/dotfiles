@@ -29,36 +29,17 @@ if [[ -o interactive ]]; then
 fi
 
 # ============================================
-# zellij 启动分流：SSH 用原生配置，本地用 zjstatus
+# zellij 启动分流：SSH 用 zjn，本地用默认布局
 # ============================================
 zj() {
-    local session=""
     if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
-        session="ssh"
-    fi
-
-    if [[ -n "$session" ]]; then
-        if command zellij ls 2>/dev/null | grep -q "$session"; then
-            command zellij attach "$session"
-        else
-            local tmpdir=$(mktemp -d)
-            cat > "$tmpdir/config.kdl" <<'KDL'
-keybindings {
-    session {
-        bind "Ctrl o" { SwitchToMode "Normal"; }
-        bind "d" { Detach; }
-        bind "x" { Quit; }
-    }
-}
-KDL
-            command zellij --config-dir "$tmpdir" --session "$session" "$@"
-        fi
+        zjn --session ssh "$@"
     else
-        command zellij --layout "default" --session "$session" "$@"
+        command zellij --layout "default" "$@"
     fi
 }
 
-# 原生 zellij：不加载任何自定义配置，只加 session 模式按键
+# 原生 zellij：不加载任何自定义配置，只加 session 模式按键（SSH 也用这个）
 zjn() {
     local tmpdir=$(mktemp -d)
     cat > "$tmpdir/config.kdl" <<'EOF'

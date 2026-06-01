@@ -32,6 +32,9 @@ cursor = "#50fa7b"
 text = "#f8f8f2"
 background = "#44475a"
 
+[selection]
+save_to_clipboard = true
+
 [colors.normal]
 black   = "#21222c"
 red     = "#ff5555"
