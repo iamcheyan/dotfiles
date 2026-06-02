@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -eu
+
+value=${1-}
+
+if [ -n "${WAYLAND_DISPLAY-}" ] && command -v wl-copy >/dev/null 2>&1; then
+  printf '%s' "$value" | wl-copy
+elif [ -n "${DISPLAY-}" ] && command -v xclip >/dev/null 2>&1; then
+  printf '%s' "$value" | xclip -selection clipboard
+elif command -v xsel >/dev/null 2>&1; then
+  printf '%s' "$value" | xsel -ib
+elif command -v pbcopy >/dev/null 2>&1; then
+  printf '%s' "$value" | pbcopy
+elif command -v clip.exe >/dev/null 2>&1; then
+  printf '%s' "$value" | clip.exe
+else
+  printf 'vifm-copy: no clipboard command found\n' >&2
+  exit 1
+fi
