@@ -56,6 +56,32 @@ set classify+=" ::*.json::"
 
 nnoremap <space>p :if layoutis('only') | vsplit | else | only | endif<cr>
 nnoremap <space>q :quit<cr>
+nnoremap q :quit<cr>
+nnoremap Q :quit!<cr>
+nnoremap . :set dotfiles!<cr>
+nnoremap a :touch<space>
+nnoremap r :rename<cr>
+nnoremap y yy
+nnoremap x dd
+nnoremap d :delete<cr>
+nnoremap D :delete!<cr>
+nnoremap p p
+nnoremap P P
+nnoremap o l
+nnoremap O :edit<cr>
+nnoremap s :shell<cr>
+nnoremap f /
+nnoremap F =
+nnoremap n n
+nnoremap N N
+nnoremap <tab> :tabnext<cr>
+nnoremap <s-tab> :tabprevious<cr>
+nnoremap T :tabnew<cr>
+nnoremap X :tabclose<cr>
+nnoremap m :bmark<space>
+nnoremap ' :bmarks<cr>
+nnoremap b :delbmarks<space>
+nnoremap B :delbmarks!<cr>
 nnoremap cc :!vifm-copy %"c:p &<cr>
 nnoremap cf :!vifm-copy %"c:t &<cr>
 nnoremap cd :!vifm-copy %"c:p:h &<cr>

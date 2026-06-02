@@ -1,9 +1,41 @@
-// 使用内置 tab-bar 显示标签（底部）
+// 使用 zellij-cb 显示标签（底部）
 layout {
     default_tab_template {
         children
         pane size=1 borderless=true {
-            plugin location="tab-bar"
+            plugin location="zellij-cb" {
+                // zellij-cb 颜色格式：
+                // - 8-bit: "16"
+                // - RGB:   "78,154,6"
+                //
+                // tmux 风格：绿色状态栏背景（#4e9a06）+ 深色文字。
+                DisplaySessionDirectory "false"
+                DefaultTabName "tab"
+                BgColor "78,154,6"
+                FgColor "0"
+                SessionDirectoryColor "0"
+                SessionNameColor "0"
+                TabColor "0"
+                ActiveTabColor "255,255,255"
+                NormalModeColor "0"
+                OtherModesColor "255,255,255"
+                OthersColor "0"
+
+                // 模式显示：正常模式不显示字母，其它模式保留短标签。
+                LockedModeLabel ""
+                NormalModeLabel ""
+                ResizeModeLabel "R"
+                PaneModeLabel "P"
+                TabModeLabel "T"
+                ScrollModeLabel "S"
+                SearchModeLabel "/"
+                EnterSearchModeLabel "/"
+                RenameTabModeLabel "RT"
+                RenamePaneModeLabel "RP"
+                SessionModeLabel "O"
+                MoveModeLabel "M"
+                TmuxModeLabel "B"
+            }
         }
     }
     tab name="main"

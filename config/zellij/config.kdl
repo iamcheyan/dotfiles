@@ -243,6 +243,7 @@ keybinds clear-defaults=true {
 // Plugin aliases
 plugins {
     tab-bar location="zellij:tab-bar"
+    zellij-cb location="file:~/.config/zellij/plugins/zellij-cb.wasm"
     zellij-attention location="file:~/.config/zellij/plugins/zellij-attention.wasm"
 }
 load_plugins {
