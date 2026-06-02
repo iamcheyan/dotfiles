@@ -23,6 +23,12 @@ $HOME/dotfiles/config/atuin:$HOME/.config/atuin                          #atuin�
 $HOME/dotfiles/config/kitty:$HOME/.config/kitty                          #kitty终端配置
 $HOME/dotfiles/config/ghostty:$HOME/.config/ghostty                      #ghostty终端配置
 $HOME/dotfiles/config/alacritty:$HOME/.config/alacritty                  #alacritty终端配置
+$HOME/dotfiles/config/herdr/config.toml:$HOME/.config/herdr/config.toml				 #herdr
+
+# vifm
+$HOME/dotfiles/config/vifm/vifmrc:$HOME/.config/vifm/vifmrc
+$HOME/dotfiles/config/vifm/colors:$HOME/.config/vifm/colors
+$HOME/dotfiles/config/vifm/scripts:$HOME/.config/vifm/scripts
 
 #[link:macos]
 #MacOS 配置可以单独写在这里
