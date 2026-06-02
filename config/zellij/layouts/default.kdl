@@ -11,14 +11,14 @@ layout {
                 // tmux 风格：绿色状态栏背景（#4e9a06）+ 深色文字。
                 DisplaySessionDirectory "false"
                 DefaultTabName "tab"
-                BgColor "78,154,6"
+                BgColor "0,255,0"
                 FgColor "0"
                 SessionDirectoryColor "0"
                 SessionNameColor "0"
                 TabColor "0"
-                ActiveTabColor "255,255,255"
+                ActiveTabColor "0"
                 NormalModeColor "0"
-                OtherModesColor "255,255,255"
+                OtherModesColor "0"
                 OthersColor "0"
 
                 // 模式显示：正常模式不显示字母，其它模式保留短标签。

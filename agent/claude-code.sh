@@ -21,6 +21,7 @@
 #   cc --model <model>          # Override model for this session
 #   cc --update                 # Check and install Claude Code updates
 #   cc -f                       # Force reinstall Claude Code
+#   cc -install <version>       # Install a specific version of Claude Code
 #
 # Examples:
 #   cc mimo-anthropic           # Uses mimo-v2.5-pro (first model)
@@ -108,6 +109,7 @@ MODEL=""
 EXTRA_ARGS=()
 SELECT_MODE=false
 UPDATE_MODE=false
+INSTALL_VERSION=""
 
 if [ $# -gt 0 ]; then
   # Build list of known providers from config
@@ -140,6 +142,22 @@ if [ $# -gt 0 ]; then
       UPDATE_MODE=true
       USED+=("$IDX")
       IDX=$((IDX + 1))
+      continue
+    fi
+
+    # -install <version>
+    if [ "$arg" = "-install" ]; then
+      # Peek ahead for the version number
+      NEXT_IDX=$((IDX + 1))
+      if [ "$NEXT_IDX" -lt "${#ARGS[@]}" ]; then
+        INSTALL_VERSION="${ARGS[$NEXT_IDX]}"
+        USED+=("$IDX")
+        USED+=("$NEXT_IDX")
+      else
+        echo "Error: -install requires a version number (e.g., -install 2.1.150)" >&2
+        exit 1
+      fi
+      IDX=$((IDX + 2))
       continue
     fi
 
@@ -266,6 +284,17 @@ fi
 if $UPDATE_MODE; then
   echo "Checking for Claude Code updates..."
   npm update -g @anthropic-ai/claude-code 2>/dev/null || true
+fi
+
+# Install specific version
+if [ -n "$INSTALL_VERSION" ]; then
+  echo "Installing @anthropic-ai/claude-code@${INSTALL_VERSION}..."
+  npm i -g "@anthropic-ai/claude-code@${INSTALL_VERSION}" || {
+    echo "Error: Failed to install version ${INSTALL_VERSION}" >&2
+    exit 1
+  }
+  echo "Installed @anthropic-ai/claude-code@${INSTALL_VERSION}"
+  exit 0
 fi
 
 # Print model info

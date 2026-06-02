@@ -43,6 +43,76 @@ zj() {
 zjn() {
     local tmpdir=$(mktemp -d)
     cat > "$tmpdir/config.kdl" <<'EOF'
+themes {
+    ssh {
+        fg "#ffd7af"
+        bg "#1c1008"
+        black "#3e2a14"
+        red "#ff4444"
+        green "#ffa500"
+        yellow "#ffcc00"
+        blue "#ff8c42"
+        magenta "#e06040"
+        cyan "#ffb347"
+        white "#ffe4c4"
+        orange "#ff6600"
+
+        frame_unselected {
+            base "#3e1a00"
+            emphasis_0 "#5a2800"
+            emphasis_1 "#5a2800"
+            emphasis_2 "#5a2800"
+            emphasis_3 "#5a2800"
+        }
+        frame_selected {
+            base "#ff4400"
+            emphasis_0 "#ff6600"
+            emphasis_1 "#ff6600"
+            emphasis_2 "#ff6600"
+            emphasis_3 "#ff6600"
+        }
+        frame_highlight {
+            base "#ffcc00"
+            emphasis_0 "#ffcc00"
+            emphasis_1 "#ffcc00"
+            emphasis_2 "#ffcc00"
+            emphasis_3 "#ffcc00"
+        }
+
+        ribbon_selected {
+            base "#000000"
+            background "#ff4400"
+            emphasis_0 "#000000"
+            emphasis_1 "#000000"
+            emphasis_2 "#000000"
+            emphasis_3 "#000000"
+        }
+        ribbon_unselected {
+            base "#000000"
+            background "#ff8c00"
+            emphasis_0 "#000000"
+            emphasis_1 "#000000"
+            emphasis_2 "#000000"
+            emphasis_3 "#000000"
+        }
+
+        text_unselected {
+            base "#ff4400"
+            background "#000000"
+            emphasis_0 "#ff4400"
+            emphasis_1 "#ff4400"
+            emphasis_2 "#ff4400"
+            emphasis_3 "#ff4400"
+        }
+    }
+}
+
+theme "ssh"
+pane_frames true
+mouse_mode true
+simplified_ui false
+show_startup_tips false
+
 keybindings {
     session {
         bind "Ctrl o" { SwitchToMode "Normal"; }

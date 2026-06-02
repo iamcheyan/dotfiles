@@ -8,6 +8,7 @@
 #   cx --delete-profile <name>      # Delete a profile
 #   cx -n                           # New profile (clear login, prompt for name, re-login)
 #   cx -f                           # Force reinstall Codex
+#   cx -u, --update                 # Update Codex to latest version
 #
 # Examples:
 #   cx --profile personal           # Use personal account
@@ -29,18 +30,37 @@ fi
 
 nvm use node
 
-# Check for -f flag (force reinstall)
+# Check for updates on normal run (not when flags are passed)
+if [ $# -eq 0 ]; then
+  CURRENT=$(npm list -g @openai/codex --depth=0 2>/dev/null | grep '@openai/codex' | sed 's/.*@//')
+  LATEST=$(npm view @openai/codex version 2>/dev/null)
+  if [ -n "$CURRENT" ] && [ -n "$LATEST" ] && [ "$CURRENT" != "$LATEST" ]; then
+    echo "⬆️  Update available: $CURRENT -> $LATEST (run: cx -u)"
+  fi
+fi
+
+# Check for -f flag (force reinstall) and -u flag (update)
 FORCE_REINSTALL=false
+UPDATE_MODE=false
 for arg in "$@"; do
   if [ "$arg" = "-f" ]; then
     FORCE_REINSTALL=true
-    break
+  elif [ "$arg" = "-u" ] || [ "$arg" = "--update" ]; then
+    UPDATE_MODE=true
   fi
 done
 
+# Handle -u/--update: update codex and exit
+if $UPDATE_MODE; then
+  echo "Updating @openai/codex..."
+  npm install -g @openai/codex@latest
+  echo "Done."
+  exit 0
+fi
+
 if $FORCE_REINSTALL || ! command -v codex &>/dev/null; then
   echo "Installing/reinstalling @openai/codex..."
-  npm i -g @openai/codex
+  npm install -g @openai/codex@latest
 fi
 
 CODEX_DIR="$HOME/.codex"
@@ -58,6 +78,8 @@ for arg in "$@"; do
     SELECT_MODE=true
   elif [ "$arg" = "-n" ]; then
     NEW_PROFILE=true
+  elif [ "$arg" = "-u" ] || [ "$arg" = "--update" ]; then
+    : # handled above, skip
   else
     EXTRA_ARGS+=("$arg")
   fi
