@@ -731,6 +731,15 @@ install_extra_tools() {
         print_success "Zellij is already installed"
     fi
 
+    # Configure Zellij plugin permissions automatically
+    local fix_perms_script="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/utils/fix-zellij-permissions.sh"
+    if [[ -f "$fix_perms_script" ]]; then
+        print_info "Configuring Zellij plugin permissions..."
+        chmod +x "$fix_perms_script"
+        bash "$fix_perms_script"
+        print_success "Zellij plugin permissions configured"
+    fi
+
     # Hunk - terminal diff viewer
     if ! command_exists hunk; then
         print_info "Installing Hunk..."
