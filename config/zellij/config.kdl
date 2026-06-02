@@ -1,7 +1,7 @@
 // Zellij Configuration
 
 themes {
-    mytheme {
+    default {
         fg "#c0caf5"
         bg "#1a1b26"
         black "#1a1b26"
@@ -40,7 +40,7 @@ themes {
         // Tab 颜色（不动）
         ribbon_selected {
             base "#0e1116"
-            background "#f8f8f3"
+            background "#f3f8f4"
             emphasis_0 "#0e1116"
             emphasis_1 "#0e1116"
             emphasis_2 "#0e1116"
@@ -67,7 +67,7 @@ themes {
     }
 }
 
-theme "mytheme"
+theme "default"
 
 ui {
     pane_frames {
@@ -148,14 +148,6 @@ keybinds clear-defaults=true {
         bind "8" { GoToTab 8; SwitchToMode "Normal"; }
         bind "9" { GoToTab 9; SwitchToMode "Normal"; }
         bind "Tab" { ToggleTab; }
-        // zellij-pane-picker 已卸载
-        // bind "a" {
-        //     LaunchOrFocusPlugin "zellij-pane-picker" {
-        //         floating true
-        //         move_to_focused_tab true
-        //     };
-        //     SwitchToMode "Normal"
-        // }
     }
     scroll {
         bind "Ctrl s" { SwitchToMode "Normal"; }
@@ -202,37 +194,9 @@ keybinds clear-defaults=true {
         bind "Ctrl o" { SwitchToMode "Normal"; }
         bind "Ctrl s" { SwitchToMode "Scroll"; }
         bind "d" { Detach; }
-        // 插件已禁用，以下快捷键不可用
-        // bind "w" { LaunchOrFocusPlugin "session-manager" ... }
-        // bind "c" { LaunchOrFocusPlugin "configuration" ... }
-        // bind "p" { LaunchOrFocusPlugin "plugin-manager" ... }
-        // bind "a" { LaunchOrFocusPlugin "zellij:about" ... }
-        // bind "s" { LaunchOrFocusPlugin "zellij:share" ... }
         bind "x" { Quit; }
     }
-    tmux {
-        bind "[" { SwitchToMode "Scroll"; }
-        bind "Ctrl b" { Write 2; SwitchToMode "Normal"; }
-        bind "\"" { NewPane "Down"; SwitchToMode "Normal"; }
-        bind "%" { NewPane "Right"; SwitchToMode "Normal"; }
-        bind "z" { ToggleFocusFullscreen; SwitchToMode "Normal"; }
-        bind "c" { NewTab; SwitchToMode "Normal"; }
-        bind "," { SwitchToMode "RenameTab"; }
-        bind "p" { GoToPreviousTab; SwitchToMode "Normal"; }
-        bind "n" { GoToNextTab; SwitchToMode "Normal"; }
-        bind "Left" { MoveFocus "Left"; SwitchToMode "Normal"; }
-        bind "Right" { MoveFocus "Right"; SwitchToMode "Normal"; }
-        bind "Down" { MoveFocus "Down"; SwitchToMode "Normal"; }
-        bind "Up" { MoveFocus "Up"; SwitchToMode "Normal"; }
-        bind "h" { MoveFocus "Left"; SwitchToMode "Normal"; }
-        bind "l" { MoveFocus "Right"; SwitchToMode "Normal"; }
-        bind "j" { MoveFocus "Down"; SwitchToMode "Normal"; }
-        bind "k" { MoveFocus "Up"; SwitchToMode "Normal"; }
-        bind "o" { FocusNextPane; }
-        bind "d" { Detach; }
-        bind "Space" { NextSwapLayout; }
-        bind "x" { CloseFocus; SwitchToMode "Normal"; }
-    }
+    
     shared_except "locked" {
         bind "Ctrl g" { SwitchToMode "Locked"; }
         bind "Alt f" { ToggleFloatingPanes; }

@@ -1,4 +1,5 @@
 " Vifm config
+colorscheme papercolor-dark
 
 " 快速连接 alpine 练习容器（scp 浏览模式）
 command! alpine :!
@@ -12,10 +13,50 @@ command! alpine :!
 set vicmd=nvim
 set syscalls
 set trash
-set history=100
+set history=200
 set nofollowlinks
 set number
+only
 
-colorscheme papercolor-dark
-nnoremap yf :let @+ = expand('%:t')<cr>
-nnoremap yp :let @+ = expand('%:p')<cr>
+" Nerd Font icons. These are display-only prefixes; file names stay unchanged.
+set classify=" :dir:"
+set classify+=" :link:"
+set classify+=" :exe:"
+set classify+="󰈔 :reg:"
+set classify+=" ::*.lua::"
+set classify+=" ::*.rs::"
+set classify+=" ::*.go::"
+set classify+=" ::*.py::"
+set classify+=" ::*.js::"
+set classify+=" ::*.ts::"
+set classify+=" ::*.html::"
+set classify+=" ::*.css::"
+set classify+=" ::.git::"
+set classify+=" ::*.git::"
+set classify+=" ::*.gitignore::"
+set classify+=" ::*.zip::"
+set classify+=" ::*.tar::"
+set classify+=" ::*.gz::"
+set classify+=" ::*.xz::"
+set classify+=" ::*.7z::"
+set classify+=" ::*.png::"
+set classify+=" ::*.jpg::"
+set classify+=" ::*.jpeg::"
+set classify+=" ::*.gif::"
+set classify+=" ::*.mp4::"
+set classify+=" ::*.mkv::"
+set classify+=" ::*.mp3::"
+set classify+=" ::*.flac::"
+set classify+=" ::*.pdf::"
+set classify+="󰈙 ::*.md::"
+set classify+=" ::*.toml::"
+set classify+=" ::*.yaml::"
+set classify+=" ::*.yml::"
+set classify+=" ::*.json::"
+
+nnoremap <space>p :if layoutis('only') | vsplit | else | only | endif<cr>
+nnoremap <space>q :quit<cr>
+nnoremap cc :!vifm-copy %"c:p &<cr>
+nnoremap cf :!vifm-copy %"c:t &<cr>
+nnoremap cd :!vifm-copy %"c:p:h &<cr>
+nnoremap cn :!vifm-copy %"c:t:r &<cr>
