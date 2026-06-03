@@ -11,7 +11,7 @@ set -e
 fix_docker_repo() {
     local list_file="/etc/apt/sources.list.d/docker.list"
     [[ -f "$list_file" ]] || return 0
-    command_exists apt-get || return 0
+    command -v apt-get >/dev/null 2>&1 || return 0
 
     local distro_id codename
     distro_id=$(. /etc/os-release && echo "$ID")
@@ -108,8 +108,8 @@ install_zsh() {
     case "$OS" in
         debian)
             if command_exists sudo; then
-                sudo apt-get update
-                sudo apt-get install -y zsh
+                sudo apt-get update || true
+                sudo apt-get install -y zsh || true
             else
                 print_error "sudo privileges are required to install zsh"
                 return 1
@@ -265,7 +265,7 @@ install_essentials() {
     OS=$(detect_os)
     if [[ "$OS" == "debian" ]]; then
         if command_exists sudo; then
-            sudo apt-get update
+            sudo apt-get update || true
             # Only install packages that are available in the configured repositories
             local install_list=""
             for pkg in $common_packages $debian_packages; do
@@ -443,8 +443,8 @@ install_fzf() {
     case "$OS" in
         debian)
             if command_exists sudo; then
-                sudo apt-get update
-                sudo apt-get install -y fzf
+                sudo apt-get update || true
+                sudo apt-get install -y fzf || true
             else
                 print_error "sudo privileges are required to install fzf"
                 return 1
@@ -675,8 +675,8 @@ install_docker() {
 
     case "$os" in
         debian)
-            sudo apt-get update
-            sudo apt-get install -y ca-certificates curl gnupg
+            sudo apt-get update || true
+            sudo apt-get install -y ca-certificates curl gnupg || true
             sudo install -m 0755 -d /etc/apt/keyrings
 
             # 从 /etc/os-release 读取发行版 ID（debian / ubuntu / linuxmint ...）
