@@ -59,7 +59,7 @@ white   = "#ffffff"
 [window]
 padding = { x = 5, y = 5 }
 decorations = "Full"
-opacity = 0.95
+opacity = 1.0
 
 # ===== Scrolling =====
 [scrolling]
