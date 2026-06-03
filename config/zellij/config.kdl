@@ -1,6 +1,6 @@
 // Zellij Configuration
 
-theme_dir "/Users/tetsuya/.config/zellij/themes"
+theme_dir "~/.config/zellij/themes"
 theme "tmux-color"
 
 ui {
