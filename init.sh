@@ -663,6 +663,10 @@ install_docker() {
             if [[ ! -f /etc/apt/sources.list.d/docker.list ]]; then
                 local codename
                 codename=$(. /etc/os-release && echo "${VERSION_CODENAME}")
+                # Docker 不支持 Debian testing/unstable，使用 bookworm 代替
+                if [[ "$distro_id" == "debian" && "$codename" != "bookworm" && "$codename" != "bullseye" && "$codename" != "buster" ]]; then
+                    codename="bookworm"
+                fi
                 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${distro_id} ${codename} stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
             fi
             sudo apt-get update
