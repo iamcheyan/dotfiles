@@ -28,11 +28,11 @@ tmux-color {
         emphasis_3 "#333333"
     }
     frame_highlight {
-        base "#51fa7a"
-        emphasis_0 "#51fa7a"
-        emphasis_1 "#51fa7a"
-        emphasis_2 "#51fa7a"
-        emphasis_3 "#51fa7a"
+        base "#444444"
+        emphasis_0 "#444444"
+        emphasis_1 "#444444"
+        emphasis_2 "#444444"
+        emphasis_3 "#444444"
     }
 
     // Tab 颜色
