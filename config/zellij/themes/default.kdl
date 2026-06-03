@@ -14,18 +14,18 @@ default {
 
     // Pane border colors
     frame_unselected {
-        base "#1a2e1a"
-        emphasis_0 "#1a2e1a"
-        emphasis_1 "#1a2e1a"
-        emphasis_2 "#1a2e1a"
-        emphasis_3 "#1a2e1a"
+        base "#222222"
+        emphasis_0 "#222222"
+        emphasis_1 "#222222"
+        emphasis_2 "#222222"
+        emphasis_3 "#222222"
     }
     frame_selected {
-        base "#2a4a2a"
-        emphasis_0 "#2a4a2a"
-        emphasis_1 "#2a4a2a"
-        emphasis_2 "#2a4a2a"
-        emphasis_3 "#2a4a2a"
+        base "#333333"
+        emphasis_0 "#333333"
+        emphasis_1 "#333333"
+        emphasis_2 "#333333"
+        emphasis_3 "#333333"
     }
     frame_highlight {
         base "#51fa7a"
