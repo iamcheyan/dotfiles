@@ -7,6 +7,33 @@
 
 set -e
 
+# Fix broken Docker repo (e.g. wrong distro in docker.list) before any apt-get update
+fix_docker_repo() {
+    local list_file="/etc/apt/sources.list.d/docker.list"
+    [[ -f "$list_file" ]] || return 0
+    command_exists apt-get || return 0
+
+    local distro_id codename
+    distro_id=$(. /etc/os-release && echo "$ID")
+    codename=$(. /etc/os-release && echo "${VERSION_CODENAME}")
+
+    if [[ "$distro_id" == "debian" ]]; then
+        if [[ "$codename" != "bookworm" && "$codename" != "bullseye" && "$codename" != "buster" ]]; then
+            codename="bookworm"
+        fi
+    fi
+
+    local expected_line="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${distro_id} ${codename} stable"
+    local current_line
+    current_line=$(grep '^deb ' "$list_file" | head -1)
+
+    if [[ "$current_line" != "$expected_line" ]]; then
+        echo "$expected_line" | sudo tee "$list_file" >/dev/null
+        echo -e "${GREEN}✓${NC} Fixed Docker repo: ${distro_id} ${codename}"
+    fi
+}
+fix_docker_repo
+
 MINIMAL="false"
 
 # Color definitions
@@ -843,6 +870,14 @@ EOF
     echo "Starting...      "
     echo ""
 
+    # Helper: run a step, catch errors and continue
+    run_step() {
+        local step_name="$1"; shift
+        if ! "$@"; then
+            print_warning "$step_name failed, skipping..."
+        fi
+    }
+
     # Detect and configure the dotfiles directory
     print_info "Step 1/14: Detecting the dotfiles repository location"
     if ! detect_dotfiles_dir; then
@@ -852,60 +887,60 @@ EOF
 
     # 1. Install zsh
     print_info "Step 2/14: Checking and installing zsh"
-    install_zsh
+    run_step "zsh install" install_zsh
     echo ""
 
     # 2. Install essential tools
     print_info "Step 3/14: Installing essential tools (git, curl, build-essential, etc.)"
-    install_essentials
+    run_step "essential tools install" install_essentials
     echo ""
 
     # 3. Install zinit
     print_info "Step 4/14: Checking and installing zinit"
-    install_zinit
+    run_step "zinit install" install_zinit
     echo ""
 
     # 3.5 Repair broken zinit plugins (if --repair flag is passed)
     if [[ "$REPAIR" == "true" ]]; then
         print_info "Repair mode: Checking for broken zinit plugins..."
-        repair_zinit_plugins
+        run_step "zinit repair" repair_zinit_plugins
         echo ""
     fi
 
     # 4. Install pyenv
     print_info "Step 5/14: Checking and installing pyenv"
-    install_pyenv
+    run_step "pyenv install" install_pyenv
     echo ""
 
     # 5. Install nvm
     print_info "Step 6/14: Checking and installing nvm"
-    install_nvm
+    run_step "nvm install" install_nvm
     echo ""
 
     # 6. Install fzf
     print_info "Step 7/14: Checking and installing fzf"
-    install_fzf
+    run_step "fzf install" install_fzf
     echo ""
 
     # 7. Install direnv
     print_info "Step 8/14: Checking and installing direnv"
-    install_direnv
+    run_step "direnv install" install_direnv
     echo ""
 
     # 8. Create config file symlinks with dotlink
     print_info "Step 9/14: Creating config file symlinks with dotlink"
-    run_dotlink
+    run_step "dotlink" run_dotlink
     echo ""
 
     # 9. Create the .zshrc symlink
     print_info "Step 10/14: Creating the .zshrc symlink"
-    create_zshrc_link
+    run_step "zshrc link" create_zshrc_link
     echo ""
 
     # 10. Install Neovim
     if [[ "$MINIMAL" != "true" ]]; then
         print_info "Step 11/14: Installing Neovim"
-        install_neovim
+        run_step "neovim install" install_neovim
     else
         print_info "Step 11/14: Skipping Neovim (minimal mode)"
     fi
@@ -914,7 +949,7 @@ EOF
     # 11. Install fonts
     if [[ "$MINIMAL" != "true" ]]; then
         print_info "Step 12/14: Installing fonts"
-        install_fonts
+        run_step "fonts install" install_fonts
     else
         print_info "Step 12/14: Skipping fonts (minimal mode)"
     fi
@@ -922,12 +957,12 @@ EOF
 
     # 12. Initialize Yazi config
     print_info "Step 13/14: Initializing Yazi config"
-    install_yazi_config
+    run_step "yazi config" install_yazi_config
     echo ""
 
     # 13. Install additional tools
     print_info "Step 14/14: Checking and installing additional tools (Zellij, Codex, etc.)"
-    install_extra_tools
+    run_step "extra tools install" install_extra_tools
     echo ""
 
     # Completion message
