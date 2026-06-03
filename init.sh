@@ -787,11 +787,13 @@ install_extra_tools() {
     if ! command_exists hunk; then
         print_info "Installing Hunk..."
         if command_exists npm; then
-            npm i -g hunkdiff
-            print_success "Hunk installed via npm"
+            if [[ "$OSTYPE" == "linux-gnu"* ]] && command_exists sudo; then
+                sudo npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
+            else
+                npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
+            fi
         elif command_exists brew; then
-            brew install modem-dev/tap/hunk
-            print_success "Hunk installed via brew"
+            brew install modem-dev/tap/hunk && print_success "Hunk installed via brew" || print_warning "Failed to install Hunk via brew"
         else
             print_warning "npm or brew not found; cannot install Hunk"
         fi
