@@ -108,6 +108,6 @@ style = "#ffffff"
 
 [hostname]
 ssh_only = true
-format = "[$hostname]($style) "
+format = "[$hostname@ssh]($style) "
 style = "bold red"
 disabled = false
