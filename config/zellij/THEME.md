@@ -1,27 +1,24 @@
-# Zellij Theme: Green (tmux-style)
+# Zellij Theme: Green
 
 ## 色板总览
 
-| 名称 | 用途 | HEX | ANSI 8-bit | RGB |
-|------|------|-----|-----------|-----|
-| Background | 状态栏背景、面板边框背景 | `#1a1b26` | 234 | 26,27,38 |
-| Foreground | 正文默认前景色 | `#c0caf5` | 188 | 192,202,245 |
-| Green | 状态栏背景(zellij-cb)、高亮边框 | `#51fa7a` | 10 (bright) | 0,255,0 |
-| Black | 状态栏文字(zellij-cb) | `#000000` | 0 | 0,0,0 |
-| Tab Green | Tab 非选中背景 | `#51fa79` | 10 | — |
-| Tab Active BG | Tab 选中背景 | `#f3f8f4` | — | 243,248,244 |
-| Tab Text | Tab 文字 | `#0e1116` | — | 14,17,22 |
-| Session Name | 会话名颜色 | `#00fd7f` | — | 0,253,127 |
-| Red | 错误/退出码 | `#f7768e` | — | 247,118,142 |
-| Yellow | 警告 | `#e0af68` | — | 224,175,104 |
-| Blue | 信息 | `#7aa2f7` | — | 122,162,247 |
-| Magenta | 关键字 | `#bb9af7` | — | 187,154,247 |
-| Cyan | 类型 | `#7dcfff` | — | 125,207,255 |
-| Orange | 强调 | `#ff9e64` | — | 255,158,100 |
-| White | 等同 Foreground | `#c0caf5` | 188 | — |
-| Frame Unselected | 非焦点面板边框 | `#222222` | — | 34,34,34 |
-| Frame Selected | 焦点面板边框 | `#333333` | — | 51,51,51 |
-| Frame Highlight | 高亮边框 | `#51fa7a` | — | 81,250,122 |
+| 名称 | 用途 | HEX | ANSI 8-bit |
+|------|------|-----|-----------|
+| Background | 主背景、状态栏 | `#0a1a0a` | 22 (dark green-black) |
+| Foreground | 正文、状态栏文字 | `#a0f0a0` | 157 (light green) |
+| Green | 高亮、边框焦点、状态栏 | `#51fa7a` | 10 (bright green) |
+| Session Name | 会话名 | `#00fd7f` | 48 |
+| Tab Text | Tab 文字 | `#0e1116` | — |
+| Tab Active BG | Tab 选中背景 | `#f3f8f4` | — |
+| Tab Green | Tab 非选中背景 | `#51fa79` | 10 |
+| Frame Unselected | 非焦点边框 | `#1a2e1a` | — |
+| Frame Selected | 焦点边框 | `#2a4a2a` | — |
+| Red | 错误 | `#f7768e` | — |
+| Yellow | 警告 | `#e0af68` | — |
+| Blue | 信息 | `#7aa2f7` | — |
+| Magenta | 关键字 | `#bb9af7` | — |
+| Cyan | 类型 | `#7dcfff` | — |
+| Orange | 强调 | `#ff9e64` | — |
 
 ## 配色分组
 
@@ -37,9 +34,9 @@
 
 | 状态 | 颜色 |
 |------|------|
-| 非选中 | `#222222` (深灰) |
-| 选中 | `#333333` (中灰) |
-| 高亮 | `#51fa7a` (绿色) |
+| 非选中 | `#1a2e1a` (深绿) |
+| 选中 | `#2a4a2a` (中绿) |
+| 高亮 | `#51fa7a` (亮绿) |
 
 ### Tab Bar (ribbon)
 
@@ -53,6 +50,13 @@
 | 元素 | 前景色 | 背景色 |
 |------|--------|--------|
 | 会话名 | `#00fd7f` | `#000000` |
+
+## 设计思路
+
+- **基调**：深绿黑底 (`#0a1a0a`) + 亮绿文字 (`#a0f0a0`)
+- **强调**：高亮绿 (`#51fa7a`) 用于边框焦点和状态栏
+- **状态栏**：ANSI bright green (`0,255,0`) 底 + 黑色文字，tmux 风格
+- **面板边框**：从深绿到中绿的层次，选中时亮绿
 
 ## ANSI 转义序列参考
 
@@ -68,15 +72,13 @@
 # 重置
 \e[0m
 
-# 常用色值
-# 0   = Black       # 10  = Bright Green
-# 1   = Red         # 11  = Bright Yellow
-# 2   = Green       # 12  = Bright Blue
-# 3   = Yellow      # 13  = Bright Magenta
-# 4   = Blue        # 14  = Bright Cyan
-# 5   = Magenta     # 15  = Bright White
-# 6   = Cyan        # 234 = Dark BG (#1a1b26)
-# 7   = White       # 188 = Light FG (#c0caf5)
+# 本主题常用色值
+# 0   = Black (状态栏文字)
+# 10  = Bright Green (状态栏背景、高亮)
+# 22  = Dark Green-Black (主背景)
+# 48  = Spring Green (会话名)
+# 157 = Light Green (主前景)
+# 235 = Very Dark Green (#1a2e1a, 非焦点边框)
 ```
 
 ## 文件索引
@@ -87,3 +89,4 @@
 | `themes/default.kdl` | 主题定义：所有色值 |
 | `layouts/default.kdl` | 布局：zellij-cb 状态栏 |
 | `plugins/zellij-cb/` | 状态栏插件 (fork) |
+| `THEME.md` | 本文件 |
