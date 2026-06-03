@@ -6,8 +6,8 @@ font-size = 14
 background = #000000
 foreground = #f8f8f2
 cursor-color = #50fa7b
-selection-background = #44475a
-selection-foreground = #f8f8f2
+selection-background = #50fa7b
+selection-foreground = #000000
 
 palette = 0=#21222c
 palette = 1=#ff5555
@@ -33,6 +33,8 @@ copy-on-select = clipboard
 window-padding-x = 5
 window-padding-y = 5
 window-decoration = auto
+window-theme = dark
+window-border-color = #000000
 quit-after-last-window-closed = false
 
 # Window management

@@ -4,9 +4,9 @@ onboarding = false
 name = "terminal"
 
 [theme.custom]
-panel_bg = "#0a1a0a"
-accent = "#51fa7a"
-green = "#51fa7a"
+panel_bg = "#000000"
+accent = "#50fa7b"
+green = "#50fa7b"
 red = "#f7768e"
 yellow = "#e0af68"
 blue = "#7aa2f7"
