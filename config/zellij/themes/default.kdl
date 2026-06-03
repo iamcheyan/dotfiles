@@ -1,0 +1,66 @@
+themes {
+default {
+    fg "#c0caf5"
+    bg "#1a1b26"
+    black "#1a1b26"
+    red "#f7768e"
+    green "#51fa7a"
+    yellow "#e0af68"
+    blue "#7aa2f7"
+    magenta "#bb9af7"
+    cyan "#7dcfff"
+    white "#c0caf5"
+    orange "#ff9e64"
+
+    // Pane border colors
+    frame_unselected {
+        base "#222222"
+        emphasis_0 "#222222"
+        emphasis_1 "#222222"
+        emphasis_2 "#222222"
+        emphasis_3 "#222222"
+    }
+    frame_selected {
+        base "#333333"
+        emphasis_0 "#333333"
+        emphasis_1 "#333333"
+        emphasis_2 "#333333"
+        emphasis_3 "#333333"
+    }
+    frame_highlight {
+        base "#51fa7a"
+        emphasis_0 "#51fa7a"
+        emphasis_1 "#51fa7a"
+        emphasis_2 "#51fa7a"
+        emphasis_3 "#51fa7a"
+    }
+
+    // Tab 颜色
+    ribbon_selected {
+        base "#0e1116"
+        background "#f3f8f4"
+        emphasis_0 "#0e1116"
+        emphasis_1 "#0e1116"
+        emphasis_2 "#0e1116"
+        emphasis_3 "#0e1116"
+    }
+    ribbon_unselected {
+        base "#0e1116"
+        background "#51fa79"
+        emphasis_0 "#0e1116"
+        emphasis_1 "#0e1116"
+        emphasis_2 "#0e1116"
+        emphasis_3 "#0e1116"
+    }
+
+    // 会话名颜色
+    text_unselected {
+        base "#00fd7f"
+        background "#000000"
+        emphasis_0 "#00fd7f"
+        emphasis_1 "#00fd7f"
+        emphasis_2 "#00fd7f"
+        emphasis_3 "#00fd7f"
+    }
+}
+}

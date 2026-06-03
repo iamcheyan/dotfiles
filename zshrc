@@ -1,7 +1,3 @@
-
-# Kiro CLI pre block. Keep at the top of this file.
-[[ -f "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/.local/share/kiro-cli/shell/zshrc.pre.zsh"
-
 # 如果 TERM 对应的 terminfo 条目缺失（例如卸载 kitty 后残留 xterm-kitty），
 # 退回到通用值，避免 tput / 终端程序启动时报 "unknown terminal"
 if [[ -n "$TERM" ]] && ! infocmp -- "$TERM" >/dev/null 2>&1; then
@@ -28,18 +24,8 @@ setopt INC_APPEND_HISTORY   # 立即追加历史（而不是退出时）
 setopt AUTO_CD              # 启用 AUTO_CD：输入目录路径时自动 cd
 
 # SSH 会话中降级 TERM，避免远程服务器不认识 xterm-kitty
-# 同时设置 kitty tab 颜色为红色，直观区分远程会话
 if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
     export TERM=xterm-256color
-    # SSH 会话：kitty tab 设为红色背景
-    if [[ -n "$KITTY_WINDOW_ID" ]]; then
-        (kitty @ --to unix:/tmp/mykitty set-tab-color active_bg=rgb(8b0000) inactive_bg=rgb(3a0000) >/dev/null 2>&1 &) >/dev/null 2>&1
-    fi
-else
-    # 本地会话：恢复默认 tab 颜色
-    if [[ -n "$KITTY_WINDOW_ID" ]]; then
-        (kitty @ --to unix:/tmp/mykitty set-tab-color active_bg=default inactive_bg=default >/dev/null 2>&1 &) >/dev/null 2>&1
-    fi
 fi
 
 export PATH="$HOME/.fzf/bin:$PATH"
@@ -186,8 +172,7 @@ fi
 # aliases
 for f in \
   ~/dotfiles/aliases.conf \
-  ~/.config/aliases/*.conf(N-.r) \
-  ~/.aws/aliases.conf
+  ~/.config/aliases/*.conf(N-.r)
 do
   source "$f"
 done
@@ -201,28 +186,3 @@ function _update_window_title() {
     print -Pn "\e]2;${prefix}%n@%m: %~\a"
 }
 precmd_functions+=(_update_window_title)
-
-# GO
-export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/shims:$GOENV_ROOT/bin:$PATH"
-
-if command -v goenv >/dev/null 2>&1; then
-  eval "$(goenv init -)"
-fi
-
-# bun completions
-[ -s "$HOME/bun/_bun" ] && source "$HOME/bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# Android SDK
-export ANDROID_HOME=$HOME/Android/Sdk
-export ANDROID_SDK_ROOT=$HOME/Android/Sdk
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2
-
-
-export PATH="$HOME/.grok/bin:$PATH"
-fpath=(~/.grok/completions/zsh $fpath)
-autoload -Uz compinit && compinit -C
