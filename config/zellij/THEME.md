@@ -1,4 +1,4 @@
-# Zellij Theme: Green
+# Zellij Theme: tmux-color
 
 ## 色板总览
 
@@ -86,7 +86,7 @@
 | 文件 | 内容 |
 |------|------|
 | `config.kdl` | 主配置：theme_dir、keybindings、plugins |
-| `themes/default.kdl` | 主题定义：所有色值 |
+| `themes/tmux-color.kdl` | 主题定义：所有色值 |
 | `layouts/default.kdl` | 布局：zellij-cb 状态栏 |
 | `plugins/zellij-cb/` | 状态栏插件 (fork) |
 | `THEME.md` | 本文件 |

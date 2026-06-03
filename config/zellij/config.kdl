@@ -1,7 +1,7 @@
 // Zellij Configuration
 
 theme_dir "/Users/tetsuya/.config/zellij/themes"
-theme "default"
+theme "tmux-color"
 
 ui {
     pane_frames {

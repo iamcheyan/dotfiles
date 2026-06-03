@@ -3,3 +3,13 @@ onboarding = false
 [theme]
 name = "terminal"
 
+[theme.custom]
+panel_bg = "#0a1a0a"
+accent = "#51fa7a"
+green = "#51fa7a"
+red = "#f7768e"
+yellow = "#e0af68"
+blue = "#7aa2f7"
+magenta = "#bb9af7"
+cyan = "#7dcfff"
+

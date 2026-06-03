@@ -1,5 +1,5 @@
 themes {
-default {
+tmux-color {
     fg "#a0f0a0"
     bg "#0a1a0a"
     black "#0a1a0a"

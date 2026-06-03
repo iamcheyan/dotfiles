@@ -740,6 +740,15 @@ install_extra_tools() {
         print_success "Zellij plugin permissions configured"
     fi
 
+    # herdr - local AI coding assistant
+    if ! command_exists herdr; then
+        print_info "Installing herdr..."
+        curl -fsSL https://herdr.dev/install.sh | sh
+        print_success "herdr installed successfully"
+    else
+        print_success "herdr is already installed"
+    fi
+
     # Hunk - terminal diff viewer
     if ! command_exists hunk; then
         print_info "Installing Hunk..."
