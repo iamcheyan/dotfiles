@@ -1,16 +1,10 @@
 onboarding = false
 
 [theme]
-name = "terminal"
+name = "one-dark"
 
 [theme.custom]
 panel_bg = "#000000"
 accent = "#50fa7b"
 green = "#50fa7b"
-mauve = "#50fa7b"
-red = "#f7768e"
-yellow = "#e0af68"
-blue = "#7aa2f7"
-cyan = "#7dcfff"
-teal = "#50fa7b"
 
