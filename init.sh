@@ -660,14 +660,17 @@ install_docker() {
                 curl -fsSL "https://download.docker.com/linux/${distro_id}/gpg" | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
                 sudo chmod a+r /etc/apt/keyrings/docker.gpg
             fi
-            if [[ ! -f /etc/apt/sources.list.d/docker.list ]]; then
-                local codename
-                codename=$(. /etc/os-release && echo "${VERSION_CODENAME}")
-                # Docker 不支持 Debian testing/unstable，使用 bookworm 代替
-                if [[ "$distro_id" == "debian" && "$codename" != "bookworm" && "$codename" != "bullseye" && "$codename" != "buster" ]]; then
-                    codename="bookworm"
-                fi
-                echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${distro_id} ${codename} stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+            local codename
+            codename=$(. /etc/os-release && echo "${VERSION_CODENAME}")
+            # Docker 不支持 Debian testing/unstable，使用 bookworm 代替
+            if [[ "$distro_id" == "debian" && "$codename" != "bookworm" && "$codename" != "bullseye" && "$codename" != "buster" ]]; then
+                codename="bookworm"
+            fi
+            local expected_line="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/${distro_id} ${codename} stable"
+            local current_line=""
+            [[ -f /etc/apt/sources.list.d/docker.list ]] && current_line=$(grep '^deb ' /etc/apt/sources.list.d/docker.list | head -1)
+            if [[ "$current_line" != "$expected_line" ]]; then
+                echo "$expected_line" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
             fi
             sudo apt-get update
             sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
