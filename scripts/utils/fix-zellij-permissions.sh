@@ -20,5 +20,5 @@ for CACHE_DIR in "${CACHE_DIRS[@]}"; do
     RunCommands
 }
 EOF
-    echo "Zellij permissions cache fixed: $CACHE_DIR/permissions.kdl"
+    echo "✓ Zellij permissions cache fixed: $CACHE_DIR/permissions.kdl"
 done
