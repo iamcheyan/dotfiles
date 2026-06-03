@@ -1,6 +1,6 @@
 // Zellij Configuration
 
-theme_dir "themes"
+theme_dir "/Users/tetsuya/.config/zellij/themes"
 theme "default"
 
 ui {
