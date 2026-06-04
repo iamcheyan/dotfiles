@@ -43,7 +43,20 @@ choose_ssh_host() {
 	fi
 
 	if command -v fzf >/dev/null 2>&1; then
-		selected="$(printf '%s\n' "$hosts" | fzf --prompt='ssh host> ' || true)"
+		selected="$(
+			printf '%s\n' "$hosts" |
+				FZF_DEFAULT_OPTS= \
+					fzf \
+					--height=30% \
+					--layout=reverse \
+					--border \
+					--preview '
+        ssh -G {} 2>/dev/null | grep -E "user|hostname|port"
+        echo "----"
+        ssh -o ConnectTimeout=1 {} "uptime" 2>/dev/null
+      ' ||
+				true
+		)"
 	else
 		PS3="ssh host> "
 		select selected in $hosts; do
@@ -69,42 +82,42 @@ PORT=""
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
-		-h | --help)
-			usage
-			exit 0
-			;;
-		-p)
-			if [ "$#" -lt 2 ]; then
-				echo "[ERROR] -p requires a port" >&2
-				usage >&2
-				exit 1
-			fi
-			PORT="$2"
-			shift 2
-			;;
-		-d)
-			if [ "$#" -lt 2 ]; then
-				echo "[ERROR] -d requires a remote path" >&2
-				usage >&2
-				exit 1
-			fi
-			REMOTE_PATH="$2"
-			shift 2
-			;;
-		-*)
-			echo "[ERROR] Unknown option: $1" >&2
+	-h | --help)
+		usage
+		exit 0
+		;;
+	-p)
+		if [ "$#" -lt 2 ]; then
+			echo "[ERROR] -p requires a port" >&2
 			usage >&2
 			exit 1
-			;;
-		*)
-			if [ -n "$HOST_ALIAS" ]; then
-				echo "[ERROR] Unexpected argument: $1" >&2
-				usage >&2
-				exit 1
-			fi
-			HOST_ALIAS="$1"
-			shift
-			;;
+		fi
+		PORT="$2"
+		shift 2
+		;;
+	-d)
+		if [ "$#" -lt 2 ]; then
+			echo "[ERROR] -d requires a remote path" >&2
+			usage >&2
+			exit 1
+		fi
+		REMOTE_PATH="$2"
+		shift 2
+		;;
+	-*)
+		echo "[ERROR] Unknown option: $1" >&2
+		usage >&2
+		exit 1
+		;;
+	*)
+		if [ -n "$HOST_ALIAS" ]; then
+			echo "[ERROR] Unexpected argument: $1" >&2
+			usage >&2
+			exit 1
+		fi
+		HOST_ALIAS="$1"
+		shift
+		;;
 	esac
 done
 
