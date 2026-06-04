@@ -131,6 +131,7 @@ fi
 [[ -f ~/dotfiles/plugins/local/local.zsh ]] && source ~/dotfiles/plugins/local/local.zsh
 [[ -f ~/dotfiles/plugins/wdiff/wdiff.zsh ]] && source ~/dotfiles/plugins/wdiff/wdiff.zsh
 [[ -f ~/dotfiles/plugins/termscp/termscp.zsh ]] && source ~/dotfiles/plugins/termscp/termscp.zsh
+[[ -f ~/dotfiles/plugins/omnyssh/omnyssh.zsh ]] && source ~/dotfiles/plugins/omnyssh/omnyssh.zsh
 
 # vi 别名：优先使用 nvim，其次 vim，最后 vi
 unalias vi 2>/dev/null

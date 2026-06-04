@@ -671,18 +671,6 @@ install_fonts() {
     fi
 }
 
-# Initialize Yazi config
-install_yazi_config() {
-    local install_script="${DOTFILES_DIR:-$HOME/dotfiles}/config/yazi/init.sh"
-    if [[ -f "$install_script" ]]; then
-        print_info "Initializing Yazi config..."
-        chmod +x "$install_script"
-        bash "$install_script"
-    else
-        print_warning "Yazi init script not found: $install_script"
-    fi
-}
-
 # Install Docker (Linux only)
 install_docker() {
     local os
@@ -929,24 +917,24 @@ EOF
     }
 
     # Detect and configure the dotfiles directory
-    print_info "Step 1/14: Detecting the dotfiles repository location"
+    print_info "Step 1/13: Detecting the dotfiles repository location"
     if ! detect_dotfiles_dir; then
         exit 1
     fi
     echo ""
 
     # 1. Install zsh
-    print_info "Step 2/14: Checking and installing zsh"
+    print_info "Step 2/13: Checking and installing zsh"
     run_step "zsh install" install_zsh
     echo ""
 
     # 2. Install essential tools
-    print_info "Step 3/14: Installing essential tools (git, curl, build-essential, etc.)"
+    print_info "Step 3/13: Installing essential tools (git, curl, build-essential, etc.)"
     run_step "essential tools install" install_essentials
     echo ""
 
     # 3. Install zinit
-    print_info "Step 4/14: Checking and installing zinit"
+    print_info "Step 4/13: Checking and installing zinit"
     run_step "zinit install" install_zinit
     echo ""
 
@@ -958,60 +946,55 @@ EOF
     fi
 
     # 4. Install pyenv
-    print_info "Step 5/14: Checking and installing pyenv"
+    print_info "Step 5/13: Checking and installing pyenv"
     run_step "pyenv install" install_pyenv
     echo ""
 
     # 5. Install fnm
-    print_info "Step 6/14: Checking and installing fnm"
+    print_info "Step 6/13: Checking and installing fnm"
     run_step "fnm install" install_fnm
     echo ""
 
     # 6. Install fzf
-    print_info "Step 7/14: Checking and installing fzf"
+    print_info "Step 7/13: Checking and installing fzf"
     run_step "fzf install" install_fzf
     echo ""
 
     # 7. Install direnv
-    print_info "Step 8/14: Checking and installing direnv"
+    print_info "Step 8/13: Checking and installing direnv"
     run_step "direnv install" install_direnv
     echo ""
 
     # 8. Create config file symlinks with dotlink
-    print_info "Step 9/14: Creating config file symlinks with dotlink"
+    print_info "Step 9/13: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
     echo ""
 
     # 9. Create the .zshrc symlink
-    print_info "Step 10/14: Creating the .zshrc symlink"
+    print_info "Step 10/13: Creating the .zshrc symlink"
     run_step "zshrc link" create_zshrc_link
     echo ""
 
     # 10. Install Neovim
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 11/14: Installing Neovim"
+        print_info "Step 11/13: Installing Neovim"
         run_step "neovim install" install_neovim
     else
-        print_info "Step 11/14: Skipping Neovim (minimal mode)"
+        print_info "Step 11/13: Skipping Neovim (minimal mode)"
     fi
     echo ""
 
     # 11. Install fonts
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 12/14: Installing fonts"
+        print_info "Step 12/13: Installing fonts"
         run_step "fonts install" install_fonts
     else
-        print_info "Step 12/14: Skipping fonts (minimal mode)"
+        print_info "Step 12/13: Skipping fonts (minimal mode)"
     fi
     echo ""
 
-    # 12. Initialize Yazi config
-    print_info "Step 13/14: Initializing Yazi config"
-    run_step "yazi config" install_yazi_config
-    echo ""
-
-    # 13. Install additional tools
-    print_info "Step 14/14: Checking and installing additional tools (Zellij, Codex, etc.)"
+    # 12. Install additional tools
+    print_info "Step 13/13: Checking and installing additional tools (Zellij, Codex, etc.)"
     run_step "extra tools install" install_extra_tools
     echo ""
 
