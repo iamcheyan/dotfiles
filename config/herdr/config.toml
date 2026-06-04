@@ -1,7 +1,7 @@
 onboarding = false
 
-[theme]
-name = "one-dark"
+# [theme]
+# name = "one-dark"
 
 [theme.custom]
 panel_bg = "#000000"

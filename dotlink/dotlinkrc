@@ -25,6 +25,8 @@ $HOME/dotfiles/config/ghostty:$HOME/.config/ghostty                      #ghostt
 $HOME/dotfiles/config/alacritty:$HOME/.config/alacritty                  #alacritty终端配置
 $HOME/dotfiles/config/herdr/config.toml:$HOME/.config/herdr/config.toml				 #herdr
 
+# ranger
+$HOME/dotfiles/config/ranger:$HOME/.config/ranger
 # vifm
 $HOME/dotfiles/config/vifm/vifmrc:$HOME/.config/vifm/vifmrc
 $HOME/dotfiles/config/vifm/colors:$HOME/.config/vifm/colors

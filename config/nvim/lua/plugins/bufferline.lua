@@ -25,7 +25,7 @@ return {
           fg = "#7a7a7a",
         },
         tab_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -46,7 +46,7 @@ return {
           fg = "#a0a0a0",
         },
         buffer_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -59,7 +59,7 @@ return {
           fg = "#a0a0a0",
         },
         diagnostic_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -72,7 +72,7 @@ return {
           fg = "#d46b79",
         },
         error_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -85,7 +85,7 @@ return {
           fg = "#d46b79",
         },
         error_diagnostic_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -98,7 +98,7 @@ return {
           fg = "#c8ab68",
         },
         warning_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -111,7 +111,7 @@ return {
           fg = "#c8ab68",
         },
         warning_diagnostic_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -124,7 +124,7 @@ return {
           fg = "#80a1bb",
         },
         info_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -137,7 +137,7 @@ return {
           fg = "#80a1bb",
         },
         info_diagnostic_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -150,7 +150,7 @@ return {
           fg = "#7fad8d",
         },
         hint_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -163,7 +163,7 @@ return {
           fg = "#7fad8d",
         },
         hint_diagnostic_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -178,7 +178,7 @@ return {
           italic = false,
         },
         duplicate_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           italic = false,
         },
@@ -191,7 +191,7 @@ return {
           fg = "#929292",
         },
         numbers_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
         },
@@ -204,7 +204,7 @@ return {
           fg = "#949494",
         },
         close_button_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
         },
         modified = {
@@ -216,7 +216,7 @@ return {
           fg = "#b3b3b3",
         },
         modified_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
         },
         separator = {
@@ -228,20 +228,20 @@ return {
           fg = "#262626",
         },
         separator_selected = {
-          bg = "#4e9a06",
-          fg = "#4e9a06",
+          bg = "#00ff00",
+          fg = "#00ff00",
         },
         tab_separator = {
           bg = "#1c1c1c",
           fg = "#1c1c1c",
         },
         tab_separator_selected = {
-          bg = "#4e9a06",
-          fg = "#4e9a06",
+          bg = "#00ff00",
+          fg = "#00ff00",
         },
         indicator_selected = {
-          bg = "#4e9a06",
-          fg = "#4e9a06",
+          bg = "#00ff00",
+          fg = "#00ff00",
         },
         indicator_visible = {
           bg = "#262626",
@@ -260,7 +260,7 @@ return {
           italic = false,
         },
         pick_selected = {
-          bg = "#4e9a06",
+          bg = "#00ff00",
           fg = "#000000",
           bold = true,
           italic = false,
