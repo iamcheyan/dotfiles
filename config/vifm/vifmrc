@@ -5,13 +5,11 @@ let $VIFM_SERVER_NAME = v:servername
 " Vifm config
 colorscheme papercolor-dark
 
-" 快速连接 alpine 练习容器（scp 浏览模式）
-command! alpine :!
-    \ echo "=== Alpine Practice ===" &&
-    \ echo "sftp://student@localhost:2222" &&
-    \ echo "密码: student" &&
-    \ echo "" &&
-    \ echo "建议: 用 termscp 或 lftp 连接远程，vifm 更适合本地文件管理"
+" 启动时设置右侧为 home
+autocmd VimEnter * wincmd l | cd ~
+
+" 每次切换焦点都强制保持
+autocmd WinEnter * if winnr() == 2 | cd ~ | endif
 
 " 常用设置
 set trash
