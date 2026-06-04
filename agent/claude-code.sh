@@ -42,17 +42,16 @@ HAS_ARGS=$#
 CC_CONFIG="$HOME/.cache/cc_last_model"
 mkdir -p "$(dirname "$CC_CONFIG")"
 
-export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  \. "$NVM_DIR/nvm.sh"
-fi
+export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
+export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
 
-if ! command -v nvm &>/dev/null; then
-  echo "Error: nvm not found. Install nvm first." >&2
+if ! command -v fnm &>/dev/null; then
+  echo "Error: fnm not found. Run init.sh or install fnm first." >&2
   exit 1
 fi
 
-nvm use node >/dev/null 2>&1
+eval "$(fnm env --shell bash)"
+fnm use default >/dev/null 2>&1 || { fnm install --lts; latest=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1); [ -n "$latest" ] && fnm default "$latest" >/dev/null; fnm use default >/dev/null; }
 
 # Check for -f flag (force reinstall)
 FORCE_REINSTALL=false

@@ -1,33 +1,41 @@
 #!/bin/bash
 set -e
 
-# 颜色定义
 GREEN='\033[0;32m'
+RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  Installing NVM (Node Version Manager)             ${NC}"
+echo -e "${BLUE}  Installing fnm (Fast Node Manager)                ${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-NVM_VERSION="v0.39.7"
-NVM_DIR="$HOME/.nvm"
+export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
+export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
 
-if [ -d "$NVM_DIR" ]; then
-    echo -e "${GREEN}✓ nvm already installed at $NVM_DIR${NC}"
-    exit 0
+if command -v fnm >/dev/null 2>&1; then
+    echo -e "${GREEN}✓ fnm already installed: $(command -v fnm)${NC}"
+else
+    if ! command -v curl >/dev/null 2>&1; then
+        echo -e "${RED}✗ curl is required to install fnm${NC}"
+        exit 1
+    fi
+    echo -e "${BLUE}Downloading and installing fnm...${NC}"
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 fi
 
-echo -e "${BLUE}Downloading and installing nvm $NVM_VERSION...${NC}"
-curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash
+export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+
+if ! command -v fnm >/dev/null 2>&1; then
+    echo -e "${RED}✗ fnm installation failed${NC}"
+    exit 1
+fi
 
 echo ""
-echo -e "${GREEN}✓ nvm installed successfully.${NC}"
+echo -e "${GREEN}✓ fnm installed successfully.${NC}"
 
-# Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Chain subsequent setup scripts
 echo ""
 echo -e "${BLUE}Proceeding to Node.js setup...${NC}"
 if [ -f "$SCRIPT_DIR/setup_node.sh" ]; then
@@ -46,4 +54,4 @@ fi
 
 echo ""
 echo -e "${GREEN}✓ All installation steps completed.${NC}"
-echo -e "${BLUE}IMPORTANT: Please restart your shell or run 'source ~/.zshrc' to start using nvm and the installed tools.${NC}"
+echo -e "${BLUE}IMPORTANT: Please restart your shell or run 'source ~/.zshrc' to start using fnm and the installed tools.${NC}"

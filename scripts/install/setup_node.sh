@@ -1,34 +1,33 @@
 #!/bin/bash
 set -e
 
-# 颜色定义
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  Setting up Node.js Environment                    ${NC}"
+echo -e "${BLUE}  Setting up Node.js Environment with fnm           ${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-export NVM_DIR="$HOME/.nvm"
+export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
+export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
 
-# 尝试加载 nvm
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-    . "$NVM_DIR/nvm.sh"
-else
-    echo -e "${RED}✗ nvm not found. Please run install_nvm.sh first.${NC}"
+if ! command -v fnm >/dev/null 2>&1; then
+    echo -e "${RED}✗ fnm not found. Please run install_nvm.sh first.${NC}"
     exit 1
 fi
 
-NODE_VERSION="20" # 使用主要版本号，nvm 会自动选择最新的 LTS
+eval "$(fnm env --shell bash)"
+
+NODE_VERSION="22"
 
 echo -e "${BLUE}Installing Node.js $NODE_VERSION...${NC}"
-nvm install "$NODE_VERSION"
+fnm install "$NODE_VERSION"
 
 echo -e "${BLUE}Setting default version to $NODE_VERSION...${NC}"
-nvm alias default "$NODE_VERSION"
-nvm use default
+fnm default "$NODE_VERSION"
+fnm use default
 
 echo ""
 echo -e "${GREEN}✓ Node.js $(node -v) is ready.${NC}"

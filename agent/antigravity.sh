@@ -14,9 +14,11 @@
 
 set -euo pipefail
 
-export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  \. "$NVM_DIR/nvm.sh"
+export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
+export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+if command -v fnm &>/dev/null; then
+  eval "$(fnm env --shell bash)"
+  fnm use default >/dev/null 2>&1 || { fnm install --lts; latest=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1); [ -n "$latest" ] && fnm default "$latest" >/dev/null; fnm use default >/dev/null; }
 fi
 
 # Check for -f flag (force reinstall)
@@ -30,9 +32,6 @@ done
 
 # Install if needed
 if $FORCE_REINSTALL || ! command -v agy &>/dev/null; then
-  if command -v nvm &>/dev/null; then
-    nvm use node
-  fi
   echo "agy not found, installing..."
   curl -fsSL https://antigravity.google/cli/install.sh | bash
 fi

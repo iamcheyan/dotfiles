@@ -47,11 +47,9 @@ source ~/dotfiles/plugins/completion/completion.zsh
 # evalcache: 缓存 init 脚本输出，减少 atuin/zoxide/direnv 这类 hook 的重复开销
 zinit light mroth/evalcache
 
-# NVM 自动检测与安装
-# 确保每次 zsh 启动都能加载正确的 Node 版本
-# 使用 zinit ice wait 异步加载，不阻塞 shell 启动
-zinit ice wait"0a" lucid
-zinit snippet "${HOME}/dotfiles/scripts/system/setup_nvm.sh"
+# fnm 懒加载 Node.js 版本管理
+# 首次调用 node/npm/npx/corepack/fnm 时才初始化 fnm 环境
+source "${HOME}/dotfiles/scripts/system/setup_fnm.sh"
 
 # zsh-autosuggestions: 根据历史记录提供自动建议
 zinit light zsh-users/zsh-autosuggestions
@@ -192,4 +190,3 @@ v() {
     rm -f "$tmp"
   fi
 }
-

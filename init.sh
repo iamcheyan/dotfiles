@@ -366,60 +366,73 @@ install_pyenv() {
     fi
 }
 
-# Install nvm
-ensure_nvm_node() {
-    local nvm_dir="$HOME/.nvm"
-    export NVM_DIR="$nvm_dir"
+# Install fnm
+load_fnm_env() {
+    export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
+    export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
 
-    if [[ ! -s "$nvm_dir/nvm.sh" ]]; then
-        print_error "nvm.sh was not found in $nvm_dir"
+    if ! command_exists fnm; then
+        print_error "fnm was not found after installation"
         return 1
     fi
 
-    # shellcheck source=/dev/null
-    . "$nvm_dir/nvm.sh"
+    eval "$(fnm env --shell bash)"
+}
 
+get_latest_nvm_node_major() {
+    local nvm_node_dir="$HOME/.nvm/versions/node"
     local latest_installed
-    latest_installed=$(ls -1 "$nvm_dir"/versions/node 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
-
+    latest_installed=$(ls -1 "$nvm_node_dir" 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
     if [[ -n "$latest_installed" ]]; then
-        print_info "Using latest installed Node.js: $latest_installed"
-        nvm use "$latest_installed" >/dev/null
-        nvm alias default "$latest_installed" >/dev/null
-    else
-        print_info "No nvm-managed Node.js version found. Installing latest Node.js..."
-        nvm install node
-        latest_installed=$(node --version)
-        nvm alias default "$latest_installed" >/dev/null
+        echo "${latest_installed#v}" | cut -d. -f1
+    fi
+}
+
+ensure_fnm_node() {
+    load_fnm_env || return $?
+
+    local node_version
+    node_version="$(get_latest_nvm_node_major)"
+
+    if [[ -n "$node_version" ]]; then
+        print_info "Installing/using Node.js $node_version with fnm"
+        if ! fnm list 2>/dev/null | grep -Eq "v${node_version}\\.[0-9]+\\.[0-9]+"; then
+            fnm install "$node_version"
+        fi
+        fnm default "$node_version"
+    elif ! fnm use default >/dev/null 2>&1; then
+        print_info "No fnm-managed Node.js version found. Installing latest LTS Node.js..."
+        fnm install --lts
+        local latest_installed
+        latest_installed=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
+        if [[ -n "$latest_installed" ]]; then
+            fnm default "$latest_installed"
+        fi
     fi
 
+    fnm use default >/dev/null 2>&1 || true
     print_success "Node.js is ready: $(node --version)"
 }
 
-install_nvm() {
-    local nvm_dir="$HOME/.nvm"
-    
-    if [[ -d "$nvm_dir" ]]; then
-        print_success "nvm is already installed: $nvm_dir"
-        ensure_nvm_node
+install_fnm() {
+    export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
+    export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+
+    if command_exists fnm || [[ -x "$HOME/.fnm/fnm" ]] || [[ -x "$HOME/.fnm/bin/fnm" ]] || [[ -x "$HOME/.local/share/fnm/fnm" ]]; then
+        print_success "fnm is already installed"
+        ensure_fnm_node
         return $?
     fi
 
-    print_info "Installing nvm..."
+    print_info "Installing fnm..."
 
-    if ! command_exists git; then
-        print_error "git is required to install nvm"
+    if ! command_exists curl; then
+        print_error "curl is required to install fnm"
         return 1
     fi
 
-    git clone https://github.com/nvm-sh/nvm.git "$nvm_dir"
-    if [[ $? -eq 0 ]]; then
-        print_success "nvm installed successfully: $nvm_dir"
-        ensure_nvm_node
-    else
-        print_error "Failed to install nvm"
-        return 1
-    fi
+    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+    ensure_fnm_node
 }
 
 # Install direnv
@@ -818,7 +831,11 @@ install_extra_tools() {
     if ! command_exists hunk; then
         print_info "Installing Hunk..."
         if command_exists npm; then
-            if [[ "$OSTYPE" == "linux-gnu"* ]] && command_exists sudo; then
+            local npm_bin
+            npm_bin="$(command -v npm)"
+            if [[ "$npm_bin" == "$HOME/.fnm/"* || "$npm_bin" == "$HOME/.local/share/fnm/"* ]]; then
+                npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
+            elif [[ "$OSTYPE" == "linux-gnu"* ]] && command_exists sudo; then
                 sudo npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
             else
                 npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
@@ -945,9 +962,9 @@ EOF
     run_step "pyenv install" install_pyenv
     echo ""
 
-    # 5. Install nvm
-    print_info "Step 6/14: Checking and installing nvm"
-    run_step "nvm install" install_nvm
+    # 5. Install fnm
+    print_info "Step 6/14: Checking and installing fnm"
+    run_step "fnm install" install_fnm
     echo ""
 
     # 6. Install fzf

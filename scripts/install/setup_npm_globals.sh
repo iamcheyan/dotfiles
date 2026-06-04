@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-# 颜色定义
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
@@ -16,64 +15,39 @@ if [ -f "$LIB_DIR/npmrc_cleanup.sh" ]; then
 fi
 
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${BLUE}  Installing Global NPM Packages                    ${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-export NVM_DIR="$HOME/.nvm"
+export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
+export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
 
-
-# 尝试加载 nvm
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-    . "$NVM_DIR/nvm.sh"
-else
-    echo -e "${RED}✗ nvm not found. Please run install_nvm.sh first.${NC}"
+if ! command -v fnm >/dev/null 2>&1; then
+    echo -e "${RED}✗ fnm not found. Please run install_nvm.sh first.${NC}"
     exit 1
 fi
 
-# Ensure we are using the default node version and environment
-echo -e "${BLUE}Activating nvm environment...${NC}"
+eval "$(fnm env --shell bash)"
 
-# Clean up ~/.npmrc if it conflicts with nvm globals
 if command -v cleanup_npmrc_conflicts >/dev/null 2>&1; then
     cleanup_npmrc_conflicts
 fi
 
-# Helper function to ensure setup_node.sh is run if needed
-ensure_node_setup() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    if [ -f "$script_dir/setup_node.sh" ]; then
-        echo -e "${YELLOW}'default' alias not found or invalid. Running setup_node.sh...${NC}"
-        bash "$script_dir/setup_node.sh"
-        # Reload nvm to pick up changes
-        . "$NVM_DIR/nvm.sh"
-    else
-        echo -e "${RED}Error: setup_node.sh not found and 'default' alias is missing.${NC}"
-        echo -e "${YELLOW}Please run: nvm install 18 && nvm alias default 18${NC}"
-        exit 1
-    fi
-}
-
-if ! nvm use default >/dev/null 2>&1; then
-    ensure_node_setup
-else
-    # Check if the default version is at least 20
-    NODE_MAJOR_VERSION=$(node -v | cut -d'.' -f1 | tr -d 'v')
-    if [ "$NODE_MAJOR_VERSION" -lt 20 ]; then
-        echo -e "${YELLOW}Current default Node version ($NODE_MAJOR_VERSION) is too old. Upgrading to 20...${NC}"
-        ensure_node_setup
-    fi
+if ! fnm use default >/dev/null 2>&1; then
+    echo -e "${YELLOW}'default' Node version not found. Running setup_node.sh...${NC}"
+    bash "$SCRIPT_DIR/setup_node.sh"
+    eval "$(fnm env --shell bash)"
+    fnm use default >/dev/null
 fi
 
-# Try again to activate
-if ! nvm use default >/dev/null 2>&1; then
-     echo -e "${RED}Failed to activate default node version even after setup.${NC}"
-     exit 1
+NODE_MAJOR_VERSION=$(node -v | cut -d'.' -f1 | tr -d 'v')
+if [ "$NODE_MAJOR_VERSION" -lt 20 ]; then
+    echo -e "${YELLOW}Current default Node version ($NODE_MAJOR_VERSION) is too old. Upgrading to 22...${NC}"
+    bash "$SCRIPT_DIR/setup_node.sh"
+    eval "$(fnm env --shell bash)"
+    fnm use default >/dev/null
 fi
 
-# Unset any potential prefix override that might be causing permissions issues
 unset NPM_CONFIG_PREFIX
-# Force delete user prefix if it exists (just in case)
 npm config delete prefix --location=user 2>/dev/null || true
 
 TOOLS=(
