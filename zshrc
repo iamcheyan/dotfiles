@@ -30,12 +30,6 @@ fi
 
 export PATH="$HOME/.fzf/bin:$PATH"
 
-# # NVM 自动检测与安装
-# # 确保每次 zsh 启动都能加载正确的 Node 版本
-# # 使用 zinit ice wait 异步加载，不阻塞 shell 启动
-# zinit ice wait"0a" lucid
-# zinit snippet "${HOME}/dotfiles/scripts/system/setup_nvm.sh"
-#
 # zinit: 插件管理器，负责下载、缓存和加载后面的 zsh 插件/命令
 source ~/dotfiles/plugins/zinit/zinit.zsh
 
@@ -52,6 +46,12 @@ source ~/dotfiles/plugins/completion/completion.zsh
 
 # evalcache: 缓存 init 脚本输出，减少 atuin/zoxide/direnv 这类 hook 的重复开销
 zinit light mroth/evalcache
+
+# NVM 自动检测与安装
+# 确保每次 zsh 启动都能加载正确的 Node 版本
+# 使用 zinit ice wait 异步加载，不阻塞 shell 启动
+zinit ice wait"0a" lucid
+zinit snippet "${HOME}/dotfiles/scripts/system/setup_nvm.sh"
 
 # zsh-autosuggestions: 根据历史记录提供自动建议
 zinit light zsh-users/zsh-autosuggestions

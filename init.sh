@@ -367,12 +367,42 @@ install_pyenv() {
 }
 
 # Install nvm
+ensure_nvm_node() {
+    local nvm_dir="$HOME/.nvm"
+    export NVM_DIR="$nvm_dir"
+
+    if [[ ! -s "$nvm_dir/nvm.sh" ]]; then
+        print_error "nvm.sh was not found in $nvm_dir"
+        return 1
+    fi
+
+    # shellcheck source=/dev/null
+    . "$nvm_dir/nvm.sh"
+
+    local latest_installed
+    latest_installed=$(ls -1 "$nvm_dir"/versions/node 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+
+    if [[ -n "$latest_installed" ]]; then
+        print_info "Using latest installed Node.js: $latest_installed"
+        nvm use "$latest_installed" >/dev/null
+        nvm alias default "$latest_installed" >/dev/null
+    else
+        print_info "No nvm-managed Node.js version found. Installing latest Node.js..."
+        nvm install node
+        latest_installed=$(node --version)
+        nvm alias default "$latest_installed" >/dev/null
+    fi
+
+    print_success "Node.js is ready: $(node --version)"
+}
+
 install_nvm() {
     local nvm_dir="$HOME/.nvm"
     
     if [[ -d "$nvm_dir" ]]; then
         print_success "nvm is already installed: $nvm_dir"
-        return 0
+        ensure_nvm_node
+        return $?
     fi
 
     print_info "Installing nvm..."
@@ -385,6 +415,7 @@ install_nvm() {
     git clone https://github.com/nvm-sh/nvm.git "$nvm_dir"
     if [[ $? -eq 0 ]]; then
         print_success "nvm installed successfully: $nvm_dir"
+        ensure_nvm_node
     else
         print_error "Failed to install nvm"
         return 1
