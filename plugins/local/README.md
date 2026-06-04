@@ -2,7 +2,7 @@
 
 ## 简介
 
-此文件用于存放机器特定的配置，包括字体安装、NVM 配置等。这些配置通常因机器而异，不应提交到版本控制系统（或使用条件判断）。
+此文件用于存放机器特定的配置，包括字体安装、fnm 配置等。这些配置通常因机器而异，不应提交到版本控制系统（或使用条件判断）。
 
 ## 文件位置
 
@@ -41,22 +41,14 @@ install:font
 
 如果未安装，会在首次启动时询问是否安装。
 
-### 3. NVM (Node Version Manager) 配置
+### 3. fnm (Fast Node Manager) 配置
 
-自动加载 NVM（如果已安装）：
-
-```zsh
-if [[ -s "$HOME/.nvm/nvm.sh" ]]; then
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-fi
-```
+Node.js 版本管理已切换为 fnm，通过 `scripts/system/setup_fnm.sh` 实现惰性加载。
 
 **功能**:
-- 自动检测 NVM 安装
-- 自动加载 NVM 和补全
-- 设置 `NVM_DIR` 环境变量
+- 自动检测 fnm 安装
+- 惰性加载 fnm 环境
+- 首次调用 `node`/`npm`/`npx` 时自动初始化
 
 ## 使用说明
 
@@ -89,22 +81,22 @@ install:font
 1. 手动安装字体
 2. 或者创建标记文件：`touch ~/dotfiles/.font_install_asked`
 
-### NVM 使用
+### fnm 使用
 
-如果已安装 NVM，会自动加载：
+如果已安装 fnm，会自动加载：
 
 ```bash
 # 查看已安装的 Node 版本
-nvm list
+fnm list
 
 # 安装新版本
-nvm install 20
+fnm install 20
 
 # 使用特定版本
-nvm use 20
+fnm use 20
 
 # 设置默认版本
-nvm alias default 20
+fnm default 20
 ```
 
 ## 自定义配置
@@ -213,21 +205,21 @@ export PATH="/home/username/custom/bin:$PATH"
    chmod +x ~/dotfiles/scripts/install/install_font.sh
    ```
 
-### NVM 不工作
+### fnm 不工作
 
-1. **检查 NVM 是否安装**:
+1. **检查 fnm 是否安装**:
    ```bash
-   ls -la ~/.nvm
+   command -v fnm
    ```
 
-2. **手动加载 NVM**:
+2. **手动加载 fnm**:
    ```bash
-   source ~/.nvm/nvm.sh
+   eval "$(fnm env --shell zsh)"
    ```
 
-3. **检查 NVM_DIR**:
+3. **检查 FNM_DIR**:
    ```bash
-   echo $NVM_DIR
+   echo $FNM_DIR
    ```
 
 ### 配置未生效

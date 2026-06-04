@@ -14,7 +14,7 @@ export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
 export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
 
 if ! command -v fnm >/dev/null 2>&1; then
-    echo -e "${RED}✗ fnm not found. Please run install_nvm.sh first.${NC}"
+    echo -e "${RED}✗ fnm not found. Please run install_fnm.sh first.${NC}"
     exit 1
 fi
 

@@ -15,7 +15,7 @@ export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH
 if ! command -v fnm >/dev/null 2>&1; then
     echo -e "${BLUE}fnm not found. Initiating full environment setup...${NC}"
     # Run the main install script which chains everything (fnm -> node -> tools)
-    bash "$SCRIPT_DIR/install_nvm.sh"
+    bash "$SCRIPT_DIR/install_fnm.sh"
 else
     echo -e "${BLUE}fnm found. Ensuring npm globals are installed...${NC}"
     # Just ensure tools are installed

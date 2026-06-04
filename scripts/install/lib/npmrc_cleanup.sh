@@ -1,5 +1,5 @@
 #!/bin/bash
-# Detect and remove npm settings that conflict with nvm-managed globals.
+# Detect and remove npm settings that conflict with fnm-managed globals.
 
 # shellcheck shell=bash
 

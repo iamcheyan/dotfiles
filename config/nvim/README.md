@@ -253,9 +253,9 @@ sudo apt-get install -y clang libclang-dev
 
 **方案 3：使用 npm 安装 tree-sitter-cli（如果系统 GLIBC 版本足够）**
 ```bash
-# 1. 确保已安装 nvm 和 Node.js
-# 如果未安装，运行: install:nvm
-# 然后: nvm install --lts && nvm use --lts
+# 1. 确保已安装 fnm 和 Node.js
+# 如果未安装，运行: install:fnm
+# 然后: fnm install --lts && fnm use --lts
 
 # 2. 配置 npm 全局安装路径（避免权限问题，如果还未配置）
 mkdir -p ~/.npm-global

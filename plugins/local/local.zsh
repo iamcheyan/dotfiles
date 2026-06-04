@@ -137,7 +137,7 @@ install:font() {
     bash "$HOME/dotfiles/scripts/install/install_font.sh" "$@"
 }
 
-# nvm 使用 zshrc 中定义的惰性加载，不在这里同步 source。
+# fnm 使用 zshrc 中定义的惰性加载，不在这里同步 source。
 
 # nvim 启动分流：
 #   nvim          -> 保持原始启动行为

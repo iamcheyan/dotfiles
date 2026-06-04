@@ -64,37 +64,34 @@ install:nvim --version 0.9.5   # 安装指定版本
 
 ---
 
-### 3. `install_nvm.sh` - nvm (Node Version Manager) 安装脚本
+### 3. `install_fnm.sh` - fnm (Fast Node Manager) 安装脚本
 
 **功能：**
-- 安装 nvm (Node Version Manager)，用于管理 Node.js 版本
-- 自动配置 shell 环境（zsh/bash）
-- 支持检测已安装的 nvm
+- 安装 fnm (Fast Node Manager)，用于管理 Node.js 版本
+- 自动安装 Node.js 和 npm 全局工具
+- 支持检测已安装的 fnm
 
 **用法：**
 ```bash
-install:nvm           # 安装 nvm (默认版本 v0.39.7)
-install:nvm --force    # 强制重新安装
+install:fnm           # 安装 fnm + Node.js + npm 全局工具
+install:fnm --force    # 强制重新安装
 ```
 
 **别名：**
-- `install:nvm` - 通过 `aliases.conf` 定义
+- `install:fnm` - 通过 `aliases.conf` 定义
 
 **特点：**
-- 自动检测 shell 类型（zsh/bash）
-- 自动配置 shell 配置文件（~/.zshrc 或 ~/.bashrc）
+- 自动检测 fnm 安装状态
+- 安装后自动链式执行 setup_node.sh 和 setup_npm_globals.sh
 - 支持 --force 参数强制重新安装
-- 检查已安装状态，避免重复安装
 
 **安装位置：**
-- `~/.nvm`
+- `~/.fnm`
 
 **后续步骤：**
 安装后需要：
 1. 重新加载 shell: `source ~/.zshrc` 或 `source ~/.bashrc`
-2. 验证安装: `command -v nvm`
-3. 安装 Node.js: `nvm install --lts`
-4. 使用 Node.js: `nvm use --lts`
+2. 验证安装: `command -v fnm`
 
 ---
 
@@ -269,7 +266,7 @@ install:broot --method cargo
 ```bash
 install:font        # 安装字体
 install:nvim        # 安装 Neovim
-install:nvm         # 安装 nvm
+install:fnm         # 安装 fnm
 install:treesitter  # 安装 tree-sitter-cli
 install:fzf         # 安装 fzf
 install:rime        # 安装 Rime 配置
@@ -282,7 +279,7 @@ install:broot       # 安装 broot
 ```bash
 bash ~/dotfiles/scripts/install/install_font.sh
 bash ~/dotfiles/scripts/install/install_nvim.sh
-bash ~/dotfiles/scripts/install/install_nvm.sh
+bash ~/dotfiles/scripts/install/install_fnm.sh
 bash ~/dotfiles/scripts/install/install_treesitter.sh
 bash ~/dotfiles/scripts/install/install_fzf.sh
 bash ~/dotfiles/scripts/install/install_rime.sh

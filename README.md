@@ -24,7 +24,7 @@ bash init.sh --repair     # 修复损坏的 zinit 插件
 - 安装所有必备工具（git, curl, ripgrep, fd, bat, lsd, zoxide 等）
 - 安装 zinit 插件管理器
 - 安装 pyenv（Python 版本管理）
-- 安装 nvm（Node.js 版本管理）
+- 安装 fnm（Fast Node Manager）
 - 安装 fzf（模糊搜索）
 - 安装 direnv（目录级环境变量）
 - 创建配置文件符号链接

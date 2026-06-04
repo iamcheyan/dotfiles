@@ -14,7 +14,12 @@ if ! command -v fnm &>/dev/null; then
 fi
 
 eval "$(fnm env --shell bash)"
-fnm use default >/dev/null 2>&1 || { fnm install --lts; latest=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1); [ -n "$latest" ] && fnm default "$latest" >/dev/null; fnm use default >/dev/null; }
+fnm use default >/dev/null 2>&1 || {
+  fnm install --lts
+  latest=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1 || true)
+  [ -n "$latest" ] && fnm default "$latest" >/dev/null || true
+  fnm use default >/dev/null || true
+}
 
 # Check for -f flag (force reinstall)
 FORCE_REINSTALL=false

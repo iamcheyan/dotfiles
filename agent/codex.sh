@@ -27,7 +27,12 @@ if ! command -v fnm &>/dev/null; then
 fi
 
 eval "$(fnm env --shell bash)"
-fnm use default >/dev/null 2>&1 || { fnm install --lts; latest=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1); [ -n "$latest" ] && fnm default "$latest" >/dev/null; fnm use default >/dev/null; }
+fnm use default >/dev/null 2>&1 || {
+  fnm install --lts
+  latest=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1 || true)
+  [ -n "$latest" ] && fnm default "$latest" >/dev/null || true
+  fnm use default >/dev/null || true
+}
 
 # fnm env only links node/npm/npx into PATH, not globally installed binaries.
 # Add the actual npm global bin dir so installed tools (codex, etc.) are found.
@@ -36,8 +41,8 @@ NPM_GLOBAL_BIN="$(npm config get prefix 2>/dev/null)/bin"
 
 # Check for updates on normal run (not when flags are passed)
 if [ $# -eq 0 ]; then
-  CURRENT=$(npm list -g @openai/codex --depth=0 2>/dev/null | grep '@openai/codex' | sed 's/.*@//')
-  LATEST=$(npm view @openai/codex version 2>/dev/null)
+  CURRENT=$(npm list -g @openai/codex --depth=0 2>/dev/null | grep '@openai/codex' | sed 's/.*@//' || true)
+  LATEST=$(npm view @openai/codex version 2>/dev/null || true)
   if [ -n "$CURRENT" ] && [ -n "$LATEST" ] && [ "$CURRENT" != "$LATEST" ]; then
     echo "⬆️  Update available: $CURRENT -> $LATEST (run: cx -u)"
   fi

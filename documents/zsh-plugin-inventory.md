@@ -75,7 +75,7 @@
 | `direnv` | 进入目录时自动加载/卸载环境变量 | 先用 `zinit light` + `as"command"` 下载命令，再通过 `_evalcache direnv hook zsh` 初始化 | 二进制同步可用，hook 同步初始化 |
 | `pyenv` | Python 版本管理 | 本地 `eval "$(pyenv init -)"` | 同步初始化 |
 | `pyenv-virtualenv` | Python 虚拟环境集成 | 本地 `eval "$($PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init -)"` | 同步初始化，条件加载 |
-| `nvm` | Node.js 版本管理 | 在 `zshrc` 中定义 `load_nvm` 和 `nvm()` 惰性加载函数，首次调用 `nvm` 时才 `source ~/.nvm/nvm.sh` | 惰性加载 |
+| `fnm` | Node.js 版本管理 | 在 `plugins/system/setup_fnm.sh` 中定义惰性加载函数，首次调用 `node`/`npm`/`npx` 时自动初始化 fnm 环境 | 惰性加载 |
 | `superfile` | 若本地配置存在，则加载 superfile 相关 shell 配置 | `source ~/dotfiles/plugins/spf/superfile.zsh` | 条件同步加载 |
 | `broot` | 交互式目录树导航，`br` 能在退出后让当前 shell 自动 `cd` | 先用 `zinit light` + `as"command"` 下载命令，再 `source ~/dotfiles/plugins/broot/broot.zsh` 加载 shell function | 二进制同步可用，shell function 条件初始化 |
 
@@ -122,7 +122,7 @@
 | `plugins/fzf/fzf.zsh` | 配置 `FZF_DEFAULT_COMMAND`、`FZF_DEFAULT_OPTS`，定义 `ff`、`rf`、`zd`、`zc`、`y` 等函数 | `source` |
 | `plugins/local/local.zsh` | 本机专用配置，目前包含字体安装提示逻辑 | `source`，条件加载 |
 | `aliases.conf` | 命令别名 | `source` |
-| `load_nvm` / `nvm()` | `nvm` 惰性加载入口 | 在 `zshrc` 中定义函数 |
+| `fnm` | `fnm` 惰性加载入口 | 在 `plugins/system/setup_fnm.sh` 中定义函数 |
 | `vi()` | 优先使用 `nvim` 的包装函数 | 在 `zshrc` 中定义函数 |
 | `zvm_after_init()` | 给 `zsh-vi-mode` 设置历史搜索按键绑定 | 在 `zshrc` 中定义函数，供插件回调 |
 
@@ -148,7 +148,7 @@
 
 ### 惰性加载
 
-- `nvm`
+- `fnm`
 
 ## 7. 哪些组件最可能影响交互性能
 

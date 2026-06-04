@@ -54,9 +54,9 @@ Refer to `hunk <command> --help` for command‑specific syntax.
 The dotfiles wrap Hunk with a launcher script at `plugins/hunk/hunk.sh`.
 That wrapper:
 
-- loads `nvm`
+- loads `fnm`
 - prefers the current Node version if it already has `hunk`
-- falls back to the `nvm default` version
+- falls back to the `fnm default` version
 - finally falls back to any installed Node version that contains `hunk`
 
 Shell shortcuts are provided through `aliases.conf`:

@@ -1,6 +1,6 @@
 # cc — Claude Code 启动器
 
-`cc` 是 `claude` (Claude Code) 的封装脚本，自动处理 nvm 环境、provider/model 切换、会话管理等功能。
+`cc` 是 `claude` (Claude Code) 的封装脚本，自动处理 fnm 环境、provider/model 切换、会话管理等功能。
 
 ## 快速开始
 
@@ -181,7 +181,7 @@ cc -n "refactor-auth"
 
 ## 依赖
 
-- **nvm** — 用于加载 Node.js 环境
+- **fnm** — 用于加载 Node.js 环境
 - **node** — 用于解析配置和运行选择器
 - **@anthropic-ai/claude-code** — 未安装时自动安装
 - **~/.config/opencode/opencode.json** — provider 配置文件（使用 provider 时必需）

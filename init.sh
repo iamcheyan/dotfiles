@@ -379,10 +379,11 @@ load_fnm_env() {
     eval "$(fnm env --shell bash)"
 }
 
-get_latest_nvm_node_major() {
-    local nvm_node_dir="$HOME/.nvm/versions/node"
+# Migrate from old nvm: detect the latest Node major version from ~/.nvm
+get_legacy_nvm_node_major() {
+    local legacy_nvm_dir="$HOME/.nvm/versions/node"
     local latest_installed
-    latest_installed=$(ls -1 "$nvm_node_dir" 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+    latest_installed=$(ls -1 "$legacy_nvm_dir" 2>/dev/null | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
     if [[ -n "$latest_installed" ]]; then
         echo "${latest_installed#v}" | cut -d. -f1
     fi
@@ -392,7 +393,7 @@ ensure_fnm_node() {
     load_fnm_env || return $?
 
     local node_version
-    node_version="$(get_latest_nvm_node_major)"
+    node_version="$(get_legacy_nvm_node_major)"
 
     if [[ -n "$node_version" ]]; then
         print_info "Installing/using Node.js $node_version with fnm"
