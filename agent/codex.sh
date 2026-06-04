@@ -29,6 +29,11 @@ fi
 eval "$(fnm env --shell bash)"
 fnm use default >/dev/null 2>&1 || { fnm install --lts; latest=$(fnm list 2>/dev/null | grep -Eo 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1); [ -n "$latest" ] && fnm default "$latest" >/dev/null; fnm use default >/dev/null; }
 
+# fnm env only links node/npm/npx into PATH, not globally installed binaries.
+# Add the actual npm global bin dir so installed tools (codex, etc.) are found.
+NPM_GLOBAL_BIN="$(npm config get prefix 2>/dev/null)/bin"
+[ -d "$NPM_GLOBAL_BIN" ] && export PATH="$NPM_GLOBAL_BIN:$PATH"
+
 # Check for updates on normal run (not when flags are passed)
 if [ $# -eq 0 ]; then
   CURRENT=$(npm list -g @openai/codex --depth=0 2>/dev/null | grep '@openai/codex' | sed 's/.*@//')
