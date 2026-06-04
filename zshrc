@@ -30,8 +30,6 @@ fi
 
 export PATH="$HOME/.fzf/bin:$PATH"
 
-
-
 # # NVM 自动检测与安装
 # # 确保每次 zsh 启动都能加载正确的 Node 版本
 # # 使用 zinit ice wait 异步加载，不阻塞 shell 启动
@@ -41,15 +39,13 @@ export PATH="$HOME/.fzf/bin:$PATH"
 # zinit: 插件管理器，负责下载、缓存和加载后面的 zsh 插件/命令
 source ~/dotfiles/plugins/zinit/zinit.zsh
 
-# powerlevel10k: 提示符主题，显示目录、Git 状态和环境信息
+# 提示符主题，显示目录、Git 状态和环境信息
 if [[ -t 1 ]]; then
   source ~/dotfiles/plugins/prompt/prompt.zsh
 fi
 
 # 核心工具集合：通过 zinit 安装命令行工具，并初始化 pyenv/direnv/atuin 等 shell 集成
 source ~/dotfiles/plugins/tools/tools.zsh
-
-
 
 # 补全系统：初始化 compinit、额外补全定义和 fzf-tab 补全界面
 source ~/dotfiles/plugins/completion/completion.zsh
@@ -186,3 +182,14 @@ function _update_window_title() {
     print -Pn "\e]2;${prefix}%n@%m: %~\a"
 }
 precmd_functions+=(_update_window_title)
+
+# vifm
+v() {
+  local tmp="$(mktemp -t vifm-cwd.XXXXXX)"
+  vifm --choose-dir="$tmp" "$@"
+  if [ -f "$tmp" ]; then
+    cd "$(cat "$tmp")"
+    rm -f "$tmp"
+  fi
+}
+

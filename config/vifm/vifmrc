@@ -1,3 +1,7 @@
+" env
+let $COLORED_LOGS = 1
+let $VIFM_SERVER_NAME = v:servername
+
 " Vifm config
 colorscheme papercolor-dark
 
@@ -10,12 +14,20 @@ command! alpine :!
     \ echo "建议: 用 termscp 或 lftp 连接远程，vifm 更适合本地文件管理"
 
 " 常用设置
+set trash
+set dotdirs=
 set vicmd=nvim
 set syscalls
 set trash
 set history=200
-set nofollowlinks
+set followlinks
 set number
+set sortnumbers
+set vimhelp
+set timefmt=%Y-%m-%d\ %H:%M
+set incsearch
+set statusline="%t%= %A %10u:%-7g %15s %20d  "
+
 only
 
 " Nerd Font icons. These are display-only prefixes; file names stay unchanged.
@@ -86,3 +98,4 @@ nnoremap cc :!vifm-copy %"c:p &<cr>
 nnoremap cf :!vifm-copy %"c:t &<cr>
 nnoremap cd :!vifm-copy %"c:p:h &<cr>
 nnoremap cn :!vifm-copy %"c:t:r &<cr>
+nnoremap s :shell
