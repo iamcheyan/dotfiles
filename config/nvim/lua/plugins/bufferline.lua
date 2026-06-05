@@ -5,7 +5,7 @@ return {
     opts = {
       highlights = {
         fill = {
-          bg = "#161616",
+          bg = "#2a2a2a",
           fg = "#5e5e5e",
         },
         trunc_marker = {
@@ -266,8 +266,8 @@ return {
           italic = false,
         },
         offset_separator = {
-          bg = "#161616",
-          fg = "#161616",
+          bg = "#2a2a2a",
+          fg = "#2a2a2a",
         },
       },
       options = {

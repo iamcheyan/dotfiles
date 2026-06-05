@@ -575,6 +575,32 @@ run_dotlink() {
     fi
 }
 
+# Install ranger devicons plugin into the dotfiles source tree.
+install_ranger_devicons() {
+    local plugin_dir="${DOTFILES_DIR:-$HOME/dotfiles}/config/ranger/plugins/ranger_devicons"
+    local plugin_parent
+    plugin_parent="$(dirname "$plugin_dir")"
+
+    if [[ -d "$plugin_dir" ]]; then
+        print_success "ranger_devicons is already installed: $plugin_dir"
+        return 0
+    fi
+
+    if ! command_exists git; then
+        print_error "git is required to install ranger_devicons"
+        return 1
+    fi
+
+    mkdir -p "$plugin_parent"
+    print_info "Installing ranger_devicons..."
+    if git clone --depth 1 https://github.com/alexanderjeurissen/ranger_devicons.git "$plugin_dir"; then
+        print_success "ranger_devicons installed successfully: $plugin_dir"
+    else
+        print_error "Failed to install ranger_devicons"
+        return 1
+    fi
+}
+
 # Create the .zshrc symlink if needed
 create_zshrc_link() {
     local zshrc_target="$HOME/.zshrc"
@@ -969,6 +995,11 @@ EOF
     # 8. Create config file symlinks with dotlink
     print_info "Step 9/13: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
+    echo ""
+
+    # 8.5 Install ranger devicons plugin if missing
+    print_info "Step 9.5/13: Checking ranger devicons plugin"
+    run_step "ranger_devicons install" install_ranger_devicons
     echo ""
 
     # 9. Create the .zshrc symlink

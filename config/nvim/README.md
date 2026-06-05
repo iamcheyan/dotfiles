@@ -367,8 +367,10 @@ LazyVim 的 `<leader>` 键默认是 **空格键 (Space)**
 
 | 快捷键 | 功能 |
 |--------|------|
-| `<leader>e` | 打开 Yazi（当前文件位置） |
-| `<leader>E` | 打开 Yazi（当前工作目录） |
+| `<leader>e` | 打开 NeoTree（当前工作目录） |
+| `<leader>E` | 打开 Ranger（当前工作目录） |
+| `<leader>y` | 打开 Yazi（当前文件位置） |
+| `<leader>Y` | 打开 Yazi（当前工作目录） |
 
 在 Yazi 中：
 - `<F1>` - 查看 yazi.nvim 快捷键帮助
