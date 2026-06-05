@@ -181,7 +181,7 @@ ff() {
         fi
 
         while true; do
-            header='Enter: open  Alt-Enter: ranger  Alt-J/K: move  Alt-U/D: half-page  Alt-G: top  Alt-C: copy path'
+            header='Enter: open  Alt-Enter: ranger  Alt-j/k or Alt-Shift-j/k: move  Alt-U/D: half-page  Alt-G: top  Alt-C: copy path'
 
             out=$("${search_cmd[@]}" 2>/dev/null | while IFS= read -r path; do
                 [[ -z "$path" ]] && continue
@@ -195,6 +195,8 @@ ff() {
                 --bind 'btab:up' \
                 --bind 'alt-j:down' \
                 --bind 'alt-k:up' \
+                --bind 'alt-J:down' \
+                --bind 'alt-K:up' \
                 --bind 'alt-d:half-page-down' \
                 --bind 'alt-u:half-page-up' \
                 --bind 'alt-g:first' \
@@ -235,16 +237,17 @@ ff() {
     fi
 }
 
-# ffd: 使用 fd 先按文件名搜索，再交给 fzf 选择
+# ffd: 使用 fd/plocate 先按文件名搜索，再交给 fzf 选择
 # - ffd: 在 home 目录下进入 fzf 后搜索
-# - ffd bundle.mjs: 在 home 目录下用 fd 搜索 bundle.mjs
-# - ffd ~ bundle.mjs: 在 home 目录下用 fd 搜索 bundle.mjs
-# - ffd . bundle.mjs: 在当前目录下用 fd 搜索 bundle.mjs
-# - ffd /some/path bundle.mjs: 在指定目录下用 fd 搜索 bundle.mjs
+# - ffd bundle.mjs: 在 home 目录下用 fd/plocate 搜索 bundle.mjs
+# - ffd ~ bundle.mjs: 在 home 目录下用 fd/plocate 搜索 bundle.mjs
+# - ffd . bundle.mjs: 在当前目录下用 fd/plocate 搜索 bundle.mjs
+# - ffd /some/path bundle.mjs: 在指定目录下用 fd/plocate 搜索 bundle.mjs
 # - 选中文件用 nvim 打开，选中目录用 ranger 打开
+unalias ffd 2>/dev/null
 ffd() {
     if [[ -t 0 ]]; then
-        local out query key target header copy_cmd base pattern
+        local out query key target header copy_cmd base base_abs pattern fd_cmd
         local -a search_cmd
         copy_cmd="$(_fzf_copy_path_cmd)"
         base="$HOME"
@@ -278,13 +281,17 @@ ffd() {
             query=""
         fi
 
+        base_abs="$(cd "$base" && pwd -P)"
+
         if command -v fd >/dev/null 2>&1 && fd --version >/dev/null 2>&1; then
+            fd_cmd="fd"
             if [[ -n "$pattern" ]]; then
                 search_cmd=(fd "$pattern" "$base")
             else
                 search_cmd=(fd . "$base")
             fi
         elif command -v fdfind >/dev/null 2>&1 && fdfind --version >/dev/null 2>&1; then
+            fd_cmd="fdfind"
             if [[ -n "$pattern" ]]; then
                 search_cmd=(fdfind "$pattern" "$base")
             else
@@ -296,13 +303,28 @@ ffd() {
         fi
 
         while true; do
-            header='Alt: Enter=ranger, J/K=move, U/D=half-page, G=top, C=copy path'
+            header='Alt: Enter=ranger, j/k or Shift-j/k=move, U/D=half-page, G=top, C=copy path'
 
-            out=$("${search_cmd[@]}" 2>/dev/null | command fzf --print-query --expect=alt-enter \
+            out=$(
+                {
+                    if [[ -n "$pattern" ]] && command -v plocate >/dev/null 2>&1; then
+                        "$fd_cmd" --absolute-path "$pattern" "$base" 2>/dev/null
+                        plocate -- "$pattern" 2>/dev/null | while IFS= read -r path; do
+                            [[ -e "$path" ]] || continue
+                            if [[ "$path" == "$base_abs" || "$path" == "$base_abs"/* ]]; then
+                                printf '%s\n' "$path"
+                            fi
+                        done
+                    else
+                        "${search_cmd[@]}" 2>/dev/null
+                    fi
+                } | awk '!seen[$0]++' | command fzf --print-query --expect=alt-enter \
                 --bind 'tab:down' \
                 --bind 'btab:up' \
                 --bind 'alt-j:down' \
                 --bind 'alt-k:up' \
+                --bind 'alt-J:down' \
+                --bind 'alt-K:up' \
                 --bind 'alt-d:half-page-down' \
                 --bind 'alt-u:half-page-up' \
                 --bind 'alt-g:first' \
@@ -310,7 +332,8 @@ ffd() {
                 --header "$header" \
                 --query "$query" \
                 --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
-                --preview-window=right:40%) || return
+                --preview-window=right:40%
+            ) || return
             query=$(printf '%s\n' "$out" | sed -n '1p')
             key=$(printf '%s\n' "$out" | sed -n '2p')
             target=$(printf '%s\n' "$out" | sed -n '3p')
@@ -339,6 +362,7 @@ ffd() {
         command fzf "$@"
     fi
 }
+alias ffd='noglob ffd'
 
 # ============================================
 # rf: 在当前目录中精确搜索内容，并实时预览，选中后用 nvim 打开并跳转到相应行
@@ -360,7 +384,7 @@ rf() {
     query="$initial_query"
 
     while true; do
-        header='Enter: open  Alt-Enter: ranger  Alt-J/K: move  Alt-U/D: half-page  Alt-G: top  Alt-C: copy path'
+        header='Enter: open  Alt-Enter: ranger  Alt-j/k or Alt-Shift-j/k: move  Alt-U/D: half-page  Alt-G: top  Alt-C: copy path'
 
         out=$(rg --hidden --no-ignore --glob '!.git' --glob '!.git/**' --line-number --no-heading --color=always \
             --colors 'path:fg:15' \
@@ -371,6 +395,7 @@ rf() {
             command fzf --ansi --print-query --expect=alt-enter --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- {1})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
                 --bind 'tab:down' --bind 'btab:up' \
                 --bind 'alt-j:down' --bind 'alt-k:up' \
+                --bind 'alt-J:down' --bind 'alt-K:up' \
                 --bind 'alt-d:half-page-down' --bind 'alt-u:half-page-up' \
                 --bind 'alt-g:first' \
                 --delimiter ':' \
