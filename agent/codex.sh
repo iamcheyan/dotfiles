@@ -127,12 +127,18 @@ if $NEW_PROFILE; then
   exec codex
 fi
 
-# Interactive profile selection
+# Interactive profile selection via fzf
 if $SELECT_MODE; then
-  SELECTOR="$(dirname "$0")/lib/select.mjs"
-  RESULT=$(node "$SELECTOR" --profile "$PROFILES_DIR" --all) || exit 1
+  if ! ls "$PROFILES_DIR"/*.json 1>/dev/null 2>&1; then
+    echo "Error: No profiles found. Save one with: cx --save-profile <name>" >&2
+    exit 1
+  fi
 
-  PROFILE_NAME=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).profile")
+  PROFILE_NAME=$(ls "$PROFILES_DIR"/*.json | while read -r f; do basename "$f" .json; done | command fzf \
+    --header 'Select profile' \
+    --height 90% --layout=reverse --border \
+  ) || exit 1
+
   echo "Selected: $PROFILE_NAME"
 
   # Apply selected profile

@@ -155,16 +155,35 @@ if [ $# -gt 0 ]; then
   done
 fi
 
-# ── Interactive model selection ───────────────────────────────────────────────
+# ── Interactive model selection via fzf ───────────────────────────────────────
 if $SELECT_MODE; then
   if [ ! -f "$CONFIG" ]; then
     echo "Error: Config not found: $CONFIG" >&2
     exit 1
   fi
-  SELECTOR="$(dirname "$0")/lib/select.mjs"
-  RESULT=$(node "$SELECTOR" --provider "$CONFIG") || exit 1
-  PROVIDER=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).provider")
-  MODEL=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).model")
+
+  RESULT=$(node -e "
+    const c = require('$CONFIG');
+    for (const [pk, p] of Object.entries(c.provider || {})) {
+      if (pk === 'mimo') continue;
+      const pn = p.name || pk;
+      for (const [mk, m] of Object.entries(p.models || {})) {
+        const mn = m.name || mk;
+        const ctx = m.limit?.context;
+        const s = ctx >= 1048576 ? (ctx/1048576).toFixed(0)+'M' : ctx >= 1024 ? (ctx/1024).toFixed(0)+'K' : ctx;
+        console.log(pk+'\\\\'+mk+'\\t'+pn+' / '+mn+' ('+s+')');
+      }
+    }
+  " 2>/dev/null | command fzf \
+    --delimiter '\t' --with-nth 2 \
+    --header 'Select provider / model' \
+    --height 90% --layout=reverse --border \
+  ) || exit 1
+
+  _key=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
+  PROVIDER=$(printf '%s' "$_key" | awk -F'\\' '{print $1}')
+  MODEL=$(printf '%s' "$_key" | awk -F'\\' '{print $2}')
+
   echo "Selected: $PROVIDER / $MODEL"
 fi
 

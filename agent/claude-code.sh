@@ -40,6 +40,7 @@ HAS_ARGS=$#
 
 # Config file to remember last used model
 CC_CONFIG="$HOME/.cache/cc_last_model"
+CC_QUERY="$HOME/.cache/cc_last_query"
 mkdir -p "$(dirname "$CC_CONFIG")"
 
 export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
@@ -233,20 +234,46 @@ if [ $# -gt 0 ]; then
   done
 fi
 
-# Interactive model selection
+# Interactive model selection via fzf
 if $SELECT_MODE; then
   if [ ! -f "$CONFIG" ]; then
     echo "Error: Config file not found: $CONFIG" >&2
     exit 1
   fi
 
-  SELECTOR="$(dirname "$0")/lib/select.mjs"
-  RESULT=$(node "$SELECTOR" --provider "$CONFIG") || exit 1
+  # Build last-used query for pre-selection (use display name for fuzzy match)
+  LAST_QUERY=""
+  if [ -f "$CC_QUERY" ]; then
+    LAST_QUERY=$(cat "$CC_QUERY" 2>/dev/null || echo "")
+  fi
 
-  PROVIDER=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).provider")
-  MODEL=$(echo "$RESULT" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).model")
+  FZF_ARGS=(--delimiter $'\t' --with-nth 2
+    --header 'Select provider / model'
+    --height 90% --layout=reverse --border)
+  [ -n "$LAST_QUERY" ] && FZF_ARGS+=(--query "$LAST_QUERY")
+
+  RESULT=$(node -e "
+    const c = require('$CONFIG');
+    for (const [pk, p] of Object.entries(c.provider || {})) {
+      if (pk === 'mimo') continue;
+      const pn = p.name || pk;
+      for (const [mk, m] of Object.entries(p.models || {})) {
+        const mn = m.name || mk;
+        const ctx = m.limit?.context;
+        const s = ctx >= 1048576 ? (ctx/1048576).toFixed(0)+'M' : ctx >= 1024 ? (ctx/1024).toFixed(0)+'K' : ctx;
+        console.log(pk+'\\\\'+mk+'\\t'+pn+' / '+mn+' ('+s+')');
+      }
+    }
+  " 2>/dev/null | command fzf "${FZF_ARGS[@]}") || exit 1
+
+  _key=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
+  PROVIDER=$(printf '%s' "$_key" | awk -F'\\' '{print $1}')
+  MODEL=$(printf '%s' "$_key" | awk -F'\\' '{print $2}')
 
   echo "Selected: $PROVIDER / $MODEL"
+
+  # Save display name for next default query
+  printf '%s' "$RESULT" | cut -d$'\t' -f2 | sed 's|.*/ ||; s/ ([^)]*)$//' > "$CC_QUERY"
 fi
 
 # Load last used model if no provider specified
