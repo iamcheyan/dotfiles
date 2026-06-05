@@ -582,8 +582,13 @@ install_ranger_devicons() {
     plugin_parent="$(dirname "$plugin_dir")"
 
     if [[ -d "$plugin_dir" ]]; then
-        print_success "ranger_devicons is already installed: $plugin_dir"
-        return 0
+        if [[ -z "$(ls -A "$plugin_dir" 2>/dev/null)" ]]; then
+            print_info "ranger_devicons directory exists but is empty, removing and reinstalling..."
+            rm -rf "$plugin_dir"
+        else
+            print_success "ranger_devicons is already installed: $plugin_dir"
+            return 0
+        fi
     fi
 
     if ! command_exists git; then
