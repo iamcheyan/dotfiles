@@ -106,22 +106,68 @@ _fzf_copy_path() {
 }
 
 _fzf_copy_path_cmd() {
-    cat <<'EOF'
-target="$1"
-if [[ -z "$target" ]]; then
-  exit 1
-elif command -v wl-copy >/dev/null 2>&1; then
-  printf '%s' "$target" | wl-copy
-elif command -v pbcopy >/dev/null 2>&1; then
-  printf '%s' "$target" | pbcopy
-elif command -v xclip >/dev/null 2>&1; then
-  printf '%s' "$target" | xclip -selection clipboard
-elif command -v xsel >/dev/null 2>&1; then
-  printf '%s' "$target" | xsel --clipboard --input
-else
-  exit 1
-fi
-EOF
+    printf '%s' 'target="$1"; if [[ -z "$target" ]]; then exit 1; elif command -v wl-copy >/dev/null 2>&1; then printf "%s" "$target" | wl-copy; elif command -v pbcopy >/dev/null 2>&1; then printf "%s" "$target" | pbcopy; elif command -v xclip >/dev/null 2>&1; then printf "%s" "$target" | xclip -selection clipboard; elif command -v xsel >/dev/null 2>&1; then printf "%s" "$target" | xsel --clipboard --input; else exit 1; fi'
+}
+
+_fzf_file_opts() {
+    local copy_target="${1:-{}}"
+    local copy_cmd="$2"
+    local header="$3"
+
+    printf '%s\n' \
+        --print-query \
+        --expect=alt-enter \
+        --bind tab:down \
+        --bind btab:up \
+        --bind alt-j:down \
+        --bind alt-k:up \
+        --bind alt-J:down \
+        --bind alt-K:up \
+        --bind alt-d:half-page-down \
+        --bind alt-u:half-page-up \
+        --bind alt-g:first \
+        --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- $copy_target)+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
+        --header "$header" \
+        --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
+        --preview-window=right:40%
+}
+
+f() {
+    local out query key target header copy_cmd
+    local -a fzf_opts
+
+    copy_cmd="$(_fzf_copy_path_cmd)"
+    header='Alt: Enter=ranger, j/k or Shift-j/k=move, U/D=half-page, G=top, C=copy path'
+    fzf_opts=("${(@f)$(_fzf_file_opts '{}' "$copy_cmd" "$header")}")
+
+    if [ -p /dev/stdin ]; then
+        out=$(command fzf "$@" "${fzf_opts[@]}") || return
+    else
+        out=$(ls | command fzf "$@" "${fzf_opts[@]}") || return
+    fi
+
+    query=$(printf '%s\n' "$out" | sed -n '1p')
+    key=$(printf '%s\n' "$out" | sed -n '2p')
+    target=$(printf '%s\n' "$out" | sed -n '3p')
+
+    if [[ -z "$target" ]]; then
+        target="$key"
+        key=""
+    fi
+
+    if [[ "$key" == "alt-enter" && -n "$target" ]]; then
+        if [[ -d "$target" ]]; then
+            r "$target"
+        else
+            r --selectfile "$target"
+        fi
+    elif [[ -f "$target" ]]; then
+        nvim "$target"
+    elif [[ -d "$target" ]]; then
+        r "$target"
+    elif [[ -n "$target" ]]; then
+        printf '%s\n' "$target"
+    fi
 }
 
 # ffd: 使用 fd/plocate 先按文件名搜索，再交给 fzf 选择
@@ -205,21 +251,9 @@ ffd() {
                     else
                         "${search_cmd[@]}" 2>/dev/null
                     fi
-                } | awk '!seen[$0]++' | command fzf --print-query --expect=alt-enter \
-                --bind 'tab:down' \
-                --bind 'btab:up' \
-                --bind 'alt-j:down' \
-                --bind 'alt-k:up' \
-                --bind 'alt-J:down' \
-                --bind 'alt-K:up' \
-                --bind 'alt-d:half-page-down' \
-                --bind 'alt-u:half-page-up' \
-                --bind 'alt-g:first' \
-                --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- {})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
-                --header "$header" \
+                } | awk '!seen[$0]++' | command fzf \
+                "${(@f)$(_fzf_file_opts '{}' "$copy_cmd" "$header")}" \
                 --query "$query" \
-                --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
-                --preview-window=right:40%
             ) || return
             query=$(printf '%s\n' "$out" | sed -n '1p')
             key=$(printf '%s\n' "$out" | sed -n '2p')
