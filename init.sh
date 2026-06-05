@@ -606,6 +606,37 @@ install_ranger_devicons() {
     fi
 }
 
+# Install ranger archives plugin for extracting/creating archives
+install_ranger_archives() {
+    local plugin_dir="${DOTFILES_DIR:-$HOME/dotfiles}/config/ranger/plugins/archives"
+    local plugin_parent
+    plugin_parent="$(dirname "$plugin_dir")"
+
+    if [[ -d "$plugin_dir" ]]; then
+        if [[ -z "$(ls -A "$plugin_dir" 2>/dev/null)" ]]; then
+            print_info "ranger-archives directory exists but is empty, removing and reinstalling..."
+            rm -rf "$plugin_dir"
+        else
+            print_success "ranger-archives is already installed: $plugin_dir"
+            return 0
+        fi
+    fi
+
+    if ! command_exists git; then
+        print_error "git is required to install ranger-archives"
+        return 1
+    fi
+
+    mkdir -p "$plugin_parent"
+    print_info "Installing ranger-archives..."
+    if git clone --depth 1 https://github.com/maximtrp/ranger-archives.git "$plugin_dir"; then
+        print_success "ranger-archives installed successfully: $plugin_dir"
+    else
+        print_error "Failed to install ranger-archives"
+        return 1
+    fi
+}
+
 # Create the .zshrc symlink if needed
 create_zshrc_link() {
     local zshrc_target="$HOME/.zshrc"
@@ -1002,9 +1033,10 @@ EOF
     run_step "dotlink" run_dotlink
     echo ""
 
-    # 8.5 Install ranger devicons plugin if missing
-    print_info "Step 9.5/13: Checking ranger devicons plugin"
+    # 8.5 Install ranger plugins if missing
+    print_info "Step 9.5/13: Checking ranger plugins"
     run_step "ranger_devicons install" install_ranger_devicons
+    run_step "ranger_archives install" install_ranger_archives
     echo ""
 
     # 9. Create the .zshrc symlink
