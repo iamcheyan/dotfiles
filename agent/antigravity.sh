@@ -15,7 +15,7 @@
 set -euo pipefail
 
 export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
-export PATH="$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.antigravity/bin:$FNM_DIR:$FNM_DIR/bin:$HOME/.local/share/fnm:$PATH"
 if command -v fnm &>/dev/null; then
   eval "$(fnm env --shell bash)"
   fnm use default >/dev/null 2>&1 || {
@@ -269,4 +269,4 @@ if $SELECT_MODE; then
   fi
 fi
 
-exec antigravity "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
+exec agy "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"

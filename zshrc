@@ -191,3 +191,7 @@ v() {
     rm -f "$tmp"
   fi
 }
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/tetsuya/.local/bin:$PATH"
