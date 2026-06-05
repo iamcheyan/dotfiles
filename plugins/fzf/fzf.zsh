@@ -124,19 +124,18 @@ fi
 EOF
 }
 
-# ff: 使用 fzf 模糊搜索文件或目录，文件用 nvim 打开，目录用 yazi 打开
+# ff: 使用 fzf 模糊搜索文件或目录，文件用 nvim 打开，目录用 ranger 打开
 # - 支持以参数传递模糊搜索内容（支持空格、标点、多重空格等）
 # - 结合 fd/fzf, 支持管道和交互调用
 # - 包含隐藏文件，并忽略 .gitignore / .ignore / 全局 ignore 规则
 # - 在结果列表按 Ctrl-Y 可在“打开文件”和“进入目录”模式间切换
-# - 在结果列表按 Ctrl-X 可复制当前选中路径且不退出
+# - 在结果列表按 Alt-C 可复制当前选中路径且不退出
 ff() {
     # 交互式调用
     if [[ -t 0 ]]; then
-        local out query key target mode header copy_cmd base
+        local out query key target header copy_cmd base
         local white gray reset
         local -a search_cmd
-        mode="open"
         copy_cmd="$(_fzf_copy_path_cmd)"
         white=$'\033[37m'
         gray=$'\033[90m'
@@ -182,11 +181,7 @@ ff() {
         fi
 
         while true; do
-            if [[ "$mode" == "open" ]]; then
-                header='Mode: OPEN  Enter: open  Ctrl-Y: jump-dir  Ctrl-X: copy path'
-            else
-                header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
-            fi
+            header='Enter: open  Alt-Enter: ranger  Alt-J/K: move  Alt-U/D: half-page  Alt-G: top  Alt-C: copy path'
 
             out=$("${search_cmd[@]}" 2>/dev/null | while IFS= read -r path; do
                 [[ -z "$path" ]] && continue
@@ -195,10 +190,15 @@ ff() {
                 else
                     printf 'file\t%s%s%s\t%s\n' "$white" "$path" "$reset" "$path"
                 fi
-            done | command fzf --ansi --print-query --expect=ctrl-y \
+            done | command fzf --ansi --print-query --expect=alt-enter \
                 --bind 'tab:down' \
                 --bind 'btab:up' \
-                --bind "ctrl-x:execute-silent(zsh -c '$copy_cmd' -- {3})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
+                --bind 'alt-j:down' \
+                --bind 'alt-k:up' \
+                --bind 'alt-d:half-page-down' \
+                --bind 'alt-u:half-page-up' \
+                --bind 'alt-g:first' \
+                --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- {3})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
                 --header "$header" \
                 --query "$query" \
                 --delimiter=$'\t' \
@@ -214,27 +214,123 @@ ff() {
                 key=""
             fi
 
-            if [[ "$key" == "ctrl-y" ]]; then
-                if [[ "$mode" == "open" ]]; then
-                    mode="jump"
-                else
-                    mode="open"
-                fi
-                continue
-            fi
-
             if [[ -n "$target" ]]; then
                 target="${target##*$'\t'}"
-                if [[ "$mode" == "jump" ]]; then
+                if [[ "$key" == "alt-enter" ]]; then
                     if [[ -d "$target" ]]; then
-                        y "$target"
+                        r "$target"
                     else
-                        y "$(dirname "$target")"
+                        r --selectfile "$target"
                     fi
                 elif [[ -f "$target" ]]; then
                     nvim "$target"
                 elif [[ -d "$target" ]]; then
-                    y "$target"
+                    r "$target"
+                fi
+            fi
+            return
+        done
+    else
+        command fzf "$@"
+    fi
+}
+
+# ffd: 使用 fd 先按文件名搜索，再交给 fzf 选择
+# - ffd: 在 home 目录下进入 fzf 后搜索
+# - ffd bundle.mjs: 在 home 目录下用 fd 搜索 bundle.mjs
+# - ffd ~ bundle.mjs: 在 home 目录下用 fd 搜索 bundle.mjs
+# - ffd . bundle.mjs: 在当前目录下用 fd 搜索 bundle.mjs
+# - ffd /some/path bundle.mjs: 在指定目录下用 fd 搜索 bundle.mjs
+# - 选中文件用 nvim 打开，选中目录用 ranger 打开
+ffd() {
+    if [[ -t 0 ]]; then
+        local out query key target header copy_cmd base pattern
+        local -a search_cmd
+        copy_cmd="$(_fzf_copy_path_cmd)"
+        base="$HOME"
+        pattern=""
+
+        if [[ $# -gt 0 ]]; then
+            if [[ "$1" == "." ]]; then
+                base="."
+                shift
+            elif [[ "$1" == "~" ]]; then
+                base="$HOME"
+                shift
+            elif [[ "$1" == ~/* ]]; then
+                base="${HOME}/${1#~/}"
+                shift
+            elif [[ -d "$1" ]]; then
+                base="$1"
+                shift
+            fi
+        fi
+
+        if [[ ! -d "$base" ]]; then
+            echo "ffd: not a directory: $base" >&2
+            return 1
+        fi
+
+        if [[ $# -gt 0 ]]; then
+            pattern="$*"
+            query="$pattern"
+        else
+            query=""
+        fi
+
+        if command -v fd >/dev/null 2>&1 && fd --version >/dev/null 2>&1; then
+            if [[ -n "$pattern" ]]; then
+                search_cmd=(fd "$pattern" "$base")
+            else
+                search_cmd=(fd . "$base")
+            fi
+        elif command -v fdfind >/dev/null 2>&1 && fdfind --version >/dev/null 2>&1; then
+            if [[ -n "$pattern" ]]; then
+                search_cmd=(fdfind "$pattern" "$base")
+            else
+                search_cmd=(fdfind . "$base")
+            fi
+        else
+            echo "ffd: fd is required" >&2
+            return 1
+        fi
+
+        while true; do
+            header='Alt: Enter=ranger, J/K=move, U/D=half-page, G=top, C=copy path'
+
+            out=$("${search_cmd[@]}" 2>/dev/null | command fzf --print-query --expect=alt-enter \
+                --bind 'tab:down' \
+                --bind 'btab:up' \
+                --bind 'alt-j:down' \
+                --bind 'alt-k:up' \
+                --bind 'alt-d:half-page-down' \
+                --bind 'alt-u:half-page-up' \
+                --bind 'alt-g:first' \
+                --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- {})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
+                --header "$header" \
+                --query "$query" \
+                --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
+                --preview-window=right:40%) || return
+            query=$(printf '%s\n' "$out" | sed -n '1p')
+            key=$(printf '%s\n' "$out" | sed -n '2p')
+            target=$(printf '%s\n' "$out" | sed -n '3p')
+
+            if [[ -z "$target" ]]; then
+                target="$key"
+                key=""
+            fi
+
+            if [[ -n "$target" ]]; then
+                if [[ "$key" == "alt-enter" ]]; then
+                    if [[ -d "$target" ]]; then
+                        r "$target"
+                    else
+                        r --selectfile "$target"
+                    fi
+                elif [[ -f "$target" ]]; then
+                    nvim "$target"
+                elif [[ -d "$target" ]]; then
+                    r "$target"
                 fi
             fi
             return
@@ -249,11 +345,10 @@ ff() {
 # - 支持以单一完整参数（包含空格、中文标点等）作为精确搜索关键字
 # - 仅匹配含*整个*参数的行（整体匹配）
 # - 包含隐藏文件，并忽略 .gitignore / .ignore / 全局 ignore 规则
-# - 在结果列表按 Ctrl-Y 可在“打开文件”和“进入目录”模式间切换
-# - 在结果列表按 Ctrl-X 可复制当前选中路径且不退出
+# - 在结果列表按 Alt-Enter 可用 ranger 打开所在目录
+# - 在结果列表按 Alt-C 可复制当前选中路径且不退出
 rf() {
-    local initial_query out key query sel file line vim_search mode header copy_cmd
-    mode="open"
+    local initial_query out key query sel file line vim_search header copy_cmd
     copy_cmd="$(_fzf_copy_path_cmd)"
     if [[ $# -gt 0 ]]; then
         # 将所有参数拼接为一个完整字符串，允许混合各种空格和标点
@@ -265,11 +360,7 @@ rf() {
     query="$initial_query"
 
     while true; do
-        if [[ "$mode" == "open" ]]; then
-            header='Mode: OPEN  Enter: open  Ctrl-Y: jump-dir  Ctrl-X: copy path'
-        else
-            header='Mode: JUMP DIR  Enter: jump dir  Ctrl-Y: open  Ctrl-X: copy path'
-        fi
+        header='Enter: open  Alt-Enter: ranger  Alt-J/K: move  Alt-U/D: half-page  Alt-G: top  Alt-C: copy path'
 
         out=$(rg --hidden --no-ignore --glob '!.git' --glob '!.git/**' --line-number --no-heading --color=always \
             --colors 'path:fg:15' \
@@ -277,8 +368,11 @@ rf() {
             --colors 'column:fg:8' \
             --colors 'match:fg:15' \
             --colors 'match:bg:18' . | \
-            command fzf --ansi --print-query --expect=ctrl-y --bind "ctrl-x:execute-silent(zsh -c '$copy_cmd' -- {1})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
+            command fzf --ansi --print-query --expect=alt-enter --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- {1})+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" --query "$query" \
                 --bind 'tab:down' --bind 'btab:up' \
+                --bind 'alt-j:down' --bind 'alt-k:up' \
+                --bind 'alt-d:half-page-down' --bind 'alt-u:half-page-up' \
+                --bind 'alt-g:first' \
                 --delimiter ':' \
                 --prompt "RG (cwd: $(pwd))> " \
                 --header "$header" \
@@ -294,22 +388,13 @@ rf() {
         fi
         [[ -z "$sel" ]] && return
 
-        if [[ "$key" == "ctrl-y" ]]; then
-            if [[ "$mode" == "open" ]]; then
-                mode="jump"
-            else
-                mode="open"
-            fi
-            continue
-        fi
-
         file="${sel%%:*}"
         line="${sel#*:}"
         line="${line%%:*}"
 
         if [[ -n "$file" && -n "$line" ]]; then
-            if [[ "$mode" == "jump" ]]; then
-                y "$(dirname "$file")"
+            if [[ "$key" == "alt-enter" ]]; then
+                r --selectfile "$file"
             elif [[ -n "$query" ]]; then
                 vim_search="${query//\\/\\\\}"
                 vim_search="${vim_search//\"/\\\"}"

@@ -145,7 +145,7 @@ vi() {
     fi
 }
 
-# 设置编辑器环境变量（yazi 等工具会使用）
+# 设置编辑器环境变量（ranger 等工具会使用）
 # 优先使用 nvim，其次 vim，最后 vi
 if command -v nvim &> /dev/null; then
     export EDITOR=nvim
