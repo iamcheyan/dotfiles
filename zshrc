@@ -158,19 +158,9 @@ else
     export VISUAL=vi
 fi
 
-# 启动 shell 前自动同步 chezmoi 管理的 aliases，避免修改源文件后目标文件滞后
-if command -v chezmoi >/dev/null 2>&1 && [[ -d "$HOME/chezmoi" ]]; then
-    chezmoi apply "$HOME/.config/aliases" >/dev/null 2>&1
-fi
-
-# 加载别名配置 (如果目录存在且包含 .conf 文件则加载)
 # aliases
-for f in \
-  ~/dotfiles/aliases.conf \
-  ~/.config/aliases/*.conf(N-.r)
-do
-  source "$f"
-done
+[[ -f ~/dotfiles/aliases.conf ]] && source ~/dotfiles/aliases.conf
+[[ -f ~/chezmoi/dot_config/aliases.conf ]] && source ~/chezmoi/dot_config/aliases.conf
 
 # SSH 会话时在窗口标题前加 [SSH] 标记
 function _update_window_title() {
@@ -194,4 +184,4 @@ v() {
 
 
 # Added by Antigravity CLI installer
-export PATH="/home/tetsuya/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
