@@ -8,20 +8,6 @@ return {
         "<cmd>ToggleTerm direction=float<cr>",
         desc = "Terminal (float)",
       },
-      {
-        "<leader>E",
-        function()
-          local Terminal = require("toggleterm.terminal").Terminal
-          Terminal:new({
-            cmd = "ranger",
-            dir = vim.uv.cwd(),
-            direction = "float",
-            hidden = true,
-            close_on_exit = true,
-          }):toggle()
-        end,
-        desc = "Ranger (cwd)",
-      },
     },
     opts = {
       open_mapping = [[<C-\>]],
