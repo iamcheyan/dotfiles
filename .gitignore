@@ -1,34 +1,212 @@
-# 系统文件
+# ============================================
+# OS 系统文件
+# ============================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
 *.orig
-__pycache__/
-*.pyc
 
-# CLI 工具本地数据
-.grok/
-.antigravitycli/
-
-# 临时文件
+# ============================================
+# 编辑器 / IDE
+# ============================================
+# Vim / Neovim
 *.swp
 *.swo
+*.sw~
 *~
-.python-version
 .nvimlog
-.direnv/
+config/nvim/.nvimlog
+config/nvim/tmp/
+config/nvim/lazy-lock.json
+config/nvim/sbzr.nvim.im.db/
+config/nvim/local/sbzr.nvim.im
+.session
+.netrwhist
+tags
+tags.*
 
-# zsh 缓存
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Emacs
+*~
+\#*\#
+.#*
+*.elc
+auto-save-list/
+tramp
+
+# ============================================
+# 密钥 / 凭据 / 敏感数据
+# ============================================
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+age.key
+
+# SSH
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.pub
+known_hosts
+authorized_keys
+config/git-credentials
+
+# API Keys / Tokens
+*.credentials
+*.creds
+*.secret
+*.secrets
+*.token
+*.tokens
+pat.sh
+
+# 环境变量
+.env
+.env.*
+*.env.local
+*.local.env
+private_dot_env
+dot_env
+agents/*/.env
+dot_config/claude2kimi/private_dot_env
+
+# 允许提交的示例文件
+!.env.example
+!.env.sample
+!.env.template
+
+# ============================================
+# Shell / 终端
+# ============================================
+# zsh
 .zinit/
 .zcompdump*
 .zsh_history
-
-# Powerlevel10k 缓存
+.zsh_sessions/
 .p10k.zsh.backup
-
-# 字体缓存（从 GitHub 下载）
 .cache/fonts/
 
-# 子仓库配置
+# bash
+.bash_history
+.bash_sessions/
+
+# fish
+fish_variables/
+fishd.*
+
+# atuin
+config/atuin/history.db*
+config/atuin/server.db*
+
+# ============================================
+# 包管理器 / 运行时缓存
+# ============================================
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm
+.yarn/
+.yarnrc.yml
+.yarnrc.yaml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+venv/
+env/
+.conda/
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Ruby
+.bundle/
+vendor/bundle
+Gemfile.lock
+
+# Go
+vendor/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Rust
+target/
+Cargo.lock
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# ============================================
+# CLI 工具本地数据
+# ============================================
+.grok/
+.antigravitycli/
+.claude/projects/
+agents/claude-code/projects/
+
+# direnv
+.direnv/
+.envrc.local
+
+# mise / asdf
+.tool-versions.local
+.mise/local.toml
+
+# lazygit
+config/lazygit/state.yml
+
+# ============================================
+# Neovim 插件特定
+# ============================================
+config/nvim/lua/plugins/im-select.lua
+config/yazi/flavors/*
+config/sway/*
+
+# ============================================
+# 子模块 / 子仓库（本地 symlink）
+# ============================================
 aliases
 aliases/
 rime
@@ -42,50 +220,27 @@ aws/
 /rime
 /aliases
 
+# ============================================
+# 测试 / 调试
+# ============================================
 test
 test/
 /screen
-
-config/nvim/lua/plugins/im-select.lua
-config/nvim/tmp/*
-config/yazi/flavors/*
-config/sway/*
-config/nvim/sbzr.nvim.im.db/*
-config/nvim/local/sbzr.nvim.im
-
-# 环境变量文件
-# 默认拦截本地环境变量和凭据文件
-.env
-agents/*/.env
-.env.*
-*.env.local
-*.local.env
-*.credentials
-*.creds
-*.secret
-*.secrets
-*.token
-*.tokens
-private_dot_env
-dot_env
-env
-
-# 允许提交的示例文件
-!.env.example
-!.env.sample
-!.env.template
-
-# 具体已知本地敏感文件
-plugins/avante/.env
-config/nvim/.nvimlog
-config/nvim/tmp/
-config/nvim/sbzr.nvim.im.db/
-config/nvim/lazy-lock.json
-config/git-credentials
-pat.sh
 a.out
+*.log
+*.tmp
+*.bak
+*.cache
 
-# chezmoi
-age.key
-dot_config/claude2kimi/private_dot_env
-agents/claude-code/projects/
+# ============================================
+# Chezmoi
+# ============================================
+chezmoi/
+.dotfiles_state
+
+# ============================================
+# 安全：确保不泄露网络 / 连接信息
+# ============================================
+*.ovpn
+*.vpn
+.wireguard/
