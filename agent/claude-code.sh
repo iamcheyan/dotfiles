@@ -337,7 +337,7 @@ fi
 # Auto update only when --update flag is provided
 if $UPDATE_MODE; then
   echo "Checking for Claude Code updates..."
-  npm update -g @anthropic-ai/claude-code 2>/dev/null || true
+  npm i -g @anthropic-ai/claude-code@latest 2>/dev/null || true
 fi
 
 # Install specific version
