@@ -3,7 +3,8 @@
 #   cc                          # Run Claude Code with default Anthropic
 #   cc <provider>               # Run with provider from opencode.json (uses first model)
 #   cc <provider> <model>       # Run with specific model
-#   cc -s, --select             # Interactive model selection
+#   cc -s, --select             # Interactive model selection (provider models)
+#   cc -s --auth                # Interactive model selection (Claude native models)
 #   cc -v, --version            # Show current vs latest version
 #   cc --versions               # Show recent 10 versions
 #   cc -c                       # Continue the most recent conversation
@@ -18,24 +19,31 @@
 #   cc --effort <level>         # Set effort level (low/medium/high/xhigh/max)
 #   cc -w, --worktree [name]    # Create a git worktree for this session
 #   cc --permission-mode <mode> # Permission mode (acceptEdits/auto/bypassPermissions/default/dontAsk/plan)
-#   cc --model <model>          # Override model for this session
-#   cc --auth                   # Use logged-in account (skip API key)
+#   cc --auth                   # Use logged-in account with default Claude model
+#   cc --auth <model>           # Use logged-in account with specific Claude model
 #   cc --update                 # Check and install Claude Code updates
 #   cc -f                       # Force reinstall Claude Code
 #   cc -install <version>       # Install a specific version of Claude Code
+#
+# Auth mode vs Provider mode are completely separate:
+#   cc --auth                   # Logged-in account, default model (claude-sonnet-4-20250514)
+#   cc --auth claude-opus-4-6   # Logged-in account, specific Claude model
+#   cc mimo-anthropic           # API key from provider, provider's model
+#   cc mimo-anthropic mimo-v2.5 # API key from provider, specific model
 #
 # Examples:
 #   cc mimo-anthropic           # Uses mimo-v2.5-pro (first model)
 #   cc mimo-anthropic mimo-v2.5 # Uses specific model
 #   cc deepseek                 # Uses deepseek-v4-flash
 #   cc kimi kimi-k2.6           # Uses kimi-k2.6
-#   cc -s                       # Pick model from interactive list
+#   cc -s                       # Pick model from interactive list (provider models)
+#   cc -s --auth                # Pick Claude model from interactive list
 #   cc -c                       # Continue last conversation
 #   cc -r                       # Interactive session picker
 #   cc -r abc123-def456         # Resume specific session
 #   cc -p "fix the bug"         # Non-interactive print mode
-#   cc --auth                   # Use logged-in account (no API key)
-#   cc --auth mimo-anthropic    # Use logged-in account with provider's model
+#   cc --auth                   # Logged-in account, default Claude model
+#   cc --auth claude-opus-4-6   # Logged-in account, specific Claude model
 
 set -euo pipefail
 
@@ -121,9 +129,17 @@ AUTH_MODE=false
 INSTALL_VERSION=""
 
 if [ $# -gt 0 ]; then
-  # Build list of known providers from config
+  # First pass: detect flags only (no provider lookup yet)
+  for arg in "$@"; do
+    if [ "$arg" = "--auth" ]; then
+      AUTH_MODE=true
+      break
+    fi
+  done
+
+  # Build list of known providers from config (skip if auth mode)
   PROVIDERS=()
-  if [ -f "$CONFIG" ]; then
+  if ! $AUTH_MODE && [ -f "$CONFIG" ]; then
     while IFS= read -r line; do
       PROVIDERS+=("$line")
     done < <(node -e "
@@ -180,48 +196,54 @@ if [ $# -gt 0 ]; then
 
     # Non-flag arg: could be provider or model
     if [[ "$arg" != -* ]]; then
-      # Already found provider and model? Skip (shouldn't happen, but safe)
-      if [ -n "$PROVIDER" ] && [ -n "$MODEL" ]; then
-        IDX=$((IDX + 1))
-        continue
-      fi
-      # Check if this is a known provider
-      IS_PROVIDER=false
-      if [ ${#PROVIDERS[@]} -gt 0 ]; then
-        for p in "${PROVIDERS[@]}"; do
-          if [ "$arg" = "$p" ]; then
-            IS_PROVIDER=true
+      if $AUTH_MODE; then
+        # In auth mode, non-flag args are model names, not providers
+        if [ -z "$MODEL" ]; then
+          MODEL="$arg"
+          USED+=("$IDX")
+        fi
+      else
+        # Provider mode: check against known providers
+        if [ -n "$PROVIDER" ] && [ -n "$MODEL" ]; then
+          IDX=$((IDX + 1))
+          continue
+        fi
+        IS_PROVIDER=false
+        if [ ${#PROVIDERS[@]} -gt 0 ]; then
+          for p in "${PROVIDERS[@]}"; do
+            if [ "$arg" = "$p" ]; then
+              IS_PROVIDER=true
+              break
+            fi
+          done
+        fi
+        if $IS_PROVIDER && [ -z "$PROVIDER" ]; then
+          PROVIDER="$arg"
+          USED+=("$IDX")
+          # Peek ahead: next non-flag arg that isn't a known provider = model
+          JDX=$((IDX + 1))
+          while [ "$JDX" -lt "${#ARGS[@]}" ]; do
+            NEXT="${ARGS[$JDX]}"
+            if [[ "$NEXT" == -* ]] || [ "$NEXT" = "-s" ] || [ "$NEXT" = "--select" ]; then
+              JDX=$((JDX + 1))
+              continue
+            fi
+            NEXT_IS_PROVIDER=false
+            if [ ${#PROVIDERS[@]} -gt 0 ]; then
+              for p in "${PROVIDERS[@]}"; do
+                if [ "$NEXT" = "$p" ]; then
+                  NEXT_IS_PROVIDER=true
+                  break
+                fi
+              done
+            fi
+            if ! $NEXT_IS_PROVIDER; then
+              MODEL="$NEXT"
+              USED+=("$JDX")
+            fi
             break
-          fi
-        done
-      fi
-      if $IS_PROVIDER && [ -z "$PROVIDER" ]; then
-        PROVIDER="$arg"
-        USED+=("$IDX")
-        # Peek ahead: next non-flag arg that isn't a known provider = model
-        JDX=$((IDX + 1))
-        while [ "$JDX" -lt "${#ARGS[@]}" ]; do
-          NEXT="${ARGS[$JDX]}"
-          if [[ "$NEXT" == -* ]] || [ "$NEXT" = "-s" ] || [ "$NEXT" = "--select" ]; then
-            JDX=$((JDX + 1))
-            continue
-          fi
-          # Check if it's a known provider — if so, it's not the model
-          NEXT_IS_PROVIDER=false
-          if [ ${#PROVIDERS[@]} -gt 0 ]; then
-            for p in "${PROVIDERS[@]}"; do
-              if [ "$NEXT" = "$p" ]; then
-                NEXT_IS_PROVIDER=true
-                break
-              fi
-            done
-          fi
-          if ! $NEXT_IS_PROVIDER; then
-            MODEL="$NEXT"
-            USED+=("$JDX")
-          fi
-          break
-        done
+          done
+        fi
       fi
     fi
     IDX=$((IDX + 1))
@@ -259,33 +281,57 @@ if $SELECT_MODE; then
     LAST_QUERY=$(cat "$CC_QUERY" 2>/dev/null || echo "")
   fi
 
-  FZF_ARGS=(--delimiter $'\t' --with-nth 2
-    --header 'Select provider / model'
-    --height 90% --layout=reverse --border)
-  [ -n "$LAST_QUERY" ] && FZF_ARGS+=(--query "$LAST_QUERY")
+  if $AUTH_MODE; then
+    # Auth mode: show Claude native models only
+    FZF_ARGS=(--delimiter $'\t' --with-nth 2
+      --header 'Select Claude model (logged-in account)'
+      --height 90% --layout=reverse --border)
+    [ -n "$LAST_QUERY" ] && FZF_ARGS+=(--query "$LAST_QUERY")
 
-  RESULT=$(node -e "
-    const c = require('$CONFIG');
-    for (const [pk, p] of Object.entries(c.provider || {})) {
-      if (pk === 'mimo') continue;
-      const pn = p.name || pk;
-      for (const [mk, m] of Object.entries(p.models || {})) {
-        const mn = m.name || mk;
-        const ctx = m.limit?.context;
-        const s = ctx >= 1048576 ? (ctx/1048576).toFixed(0)+'M' : ctx >= 1024 ? (ctx/1024).toFixed(0)+'K' : ctx;
-        console.log(pk+'\\\\'+mk+'\\t'+pn+' / '+mn+' ('+s+')');
+    RESULT=$(printf '%s\n' \
+      'claude-sonnet-4-20250514\tClaude Sonnet 4 (default)' \
+      'claude-opus-4-20250514\tClaude Opus 4' \
+      'claude-haiku-4-20250514\tClaude Haiku 4' \
+      'claude-sonnet-4-6\tClaude Sonnet 4.6' \
+      'claude-opus-4-6\tClaude Opus 4.6' \
+      'claude-haiku-4-6\tClaude Haiku 4.6' \
+      | command fzf "${FZF_ARGS[@]}") || exit 1
+
+    MODEL=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
+    PROVIDER=""
+    echo "Selected: $MODEL (auth mode)"
+
+    # Save display name for next default query
+    printf '%s' "$RESULT" | cut -d$'\t' -f2 | sed 's|.*/ ||; s/ ([^)]*)$//' > "$CC_QUERY"
+  else
+    # Provider mode: show all provider models
+    FZF_ARGS=(--delimiter $'\t' --with-nth 2
+      --header 'Select provider / model'
+      --height 90% --layout=reverse --border)
+    [ -n "$LAST_QUERY" ] && FZF_ARGS+=(--query "$LAST_QUERY")
+
+    RESULT=$(node -e "
+      const c = require('$CONFIG');
+      for (const [pk, p] of Object.entries(c.provider || {})) {
+        if (pk === 'mimo') continue;
+        const pn = p.name || pk;
+        for (const [mk, m] of Object.entries(p.models || {})) {
+          const mn = m.name || mk;
+          const ctx = m.limit?.context;
+          const s = ctx >= 1048576 ? (ctx/1048576).toFixed(0)+'M' : ctx >= 1024 ? (ctx/1024).toFixed(0)+'K' : ctx;
+          console.log(pk+'\\\\'+mk+'\\t'+pn+' / '+mn+' ('+s+')');
+        }
       }
-    }
-  " 2>/dev/null | command fzf "${FZF_ARGS[@]}") || exit 1
+    " 2>/dev/null | command fzf "${FZF_ARGS[@]}") || exit 1
 
-  _key=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
-  PROVIDER=$(printf '%s' "$_key" | awk -F'\\' '{print $1}')
-  MODEL=$(printf '%s' "$_key" | awk -F'\\' '{print $2}')
+    _key=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
+    PROVIDER=$(printf '%s' "$_key" | awk -F'\\\\' '{print $1}')
+    MODEL=$(printf '%s' "$_key" | awk -F'\\\\' '{print $2}')
+    echo "Selected: $PROVIDER / $MODEL"
 
-  echo "Selected: $PROVIDER / $MODEL"
-
-  # Save display name for next default query
-  printf '%s' "$RESULT" | cut -d$'\t' -f2 | sed 's|.*/ ||; s/ ([^)]*)$//' > "$CC_QUERY"
+    # Save display name for next default query
+    printf '%s' "$RESULT" | cut -d$'\t' -f2 | sed 's|.*/ ||; s/ ([^)]*)$//' > "$CC_QUERY"
+  fi
 fi
 
 # Load last used model if no provider specified
@@ -311,13 +357,8 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
   BASE_URL=$(echo "$PROVIDER_CONFIG" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).baseURL")
   MODELS=$(echo "$PROVIDER_CONFIG" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).models")
 
-  if ! $AUTH_MODE; then
-    export ANTHROPIC_API_KEY="$API_KEY"
-    export ANTHROPIC_BASE_URL="$BASE_URL"
-  else
-    unset ANTHROPIC_API_KEY
-    unset ANTHROPIC_BASE_URL
-  fi
+  export ANTHROPIC_API_KEY="$API_KEY"
+  export ANTHROPIC_BASE_URL="$BASE_URL"
 
   if [ -n "$MODEL" ]; then
     export ANTHROPIC_MODEL="$MODEL"
@@ -328,10 +369,16 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
   fi
 fi
 
-# When --auth is used without a provider, ensure no API key leaks in
-if $AUTH_MODE && [ -z "$PROVIDER" ]; then
+# When --auth is used, completely ignore provider config — use logged-in account
+if $AUTH_MODE; then
   unset ANTHROPIC_API_KEY
   unset ANTHROPIC_BASE_URL
+  # If no model specified, use default Claude model
+  if [ -z "${ANTHROPIC_MODEL:-}" ]; then
+    export ANTHROPIC_MODEL="claude-sonnet-4-20250514"
+  fi
+  # In auth mode, non-flag args are treated as model name, not provider
+  # (provider lookup was already skipped above)
 fi
 
 # Auto update only when --update flag is provided
@@ -356,14 +403,27 @@ if [ -n "${ANTHROPIC_MODEL:-}" ]; then
   echo "Model: $ANTHROPIC_MODEL"
 fi
 
-# Save current model for next time
-if [ -n "${PROVIDER:-}" ]; then
+# Save current model for next time (only in provider mode)
+if [ -n "${PROVIDER:-}" ] && ! $AUTH_MODE; then
   echo "$PROVIDER" > "$CC_CONFIG"
   echo "${MODEL:-}" >> "$CC_CONFIG"
 fi
 
+# Debug: show auth state before launching (remove after verification)
+if $AUTH_MODE; then
+  echo "[cc] auth mode: ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:+SET}${ANTHROPIC_API_KEY:-unset}, MODEL=${ANTHROPIC_MODEL:-unset}"
+fi
+
+# Build claude command args
+CLAUDE_ARGS=(--dangerously-skip-permissions)
+
+# Provider mode: use --bare to skip keychain reads (avoids OAuth + API key conflict)
+if [ -n "${PROVIDER:-}" ] && ! $AUTH_MODE; then
+  CLAUDE_ARGS+=(--bare)
+fi
+
 if [ ${#EXTRA_ARGS[@]} -gt 0 ]; then
-  exec claude --dangerously-skip-permissions "${EXTRA_ARGS[@]}"
+  exec claude "${CLAUDE_ARGS[@]}" "${EXTRA_ARGS[@]}"
 else
-  exec claude --dangerously-skip-permissions
+  exec claude "${CLAUDE_ARGS[@]}"
 fi
