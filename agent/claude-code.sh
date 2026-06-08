@@ -19,6 +19,7 @@
 #   cc -w, --worktree [name]    # Create a git worktree for this session
 #   cc --permission-mode <mode> # Permission mode (acceptEdits/auto/bypassPermissions/default/dontAsk/plan)
 #   cc --model <model>          # Override model for this session
+#   cc --auth                   # Use logged-in account (skip API key)
 #   cc --update                 # Check and install Claude Code updates
 #   cc -f                       # Force reinstall Claude Code
 #   cc -install <version>       # Install a specific version of Claude Code
@@ -33,6 +34,8 @@
 #   cc -r                       # Interactive session picker
 #   cc -r abc123-def456         # Resume specific session
 #   cc -p "fix the bug"         # Non-interactive print mode
+#   cc --auth                   # Use logged-in account (no API key)
+#   cc --auth mimo-anthropic    # Use logged-in account with provider's model
 
 set -euo pipefail
 
@@ -114,6 +117,7 @@ MODEL=""
 EXTRA_ARGS=()
 SELECT_MODE=false
 UPDATE_MODE=false
+AUTH_MODE=false
 INSTALL_VERSION=""
 
 if [ $# -gt 0 ]; then
@@ -145,6 +149,14 @@ if [ $# -gt 0 ]; then
     # --update
     if [ "$arg" = "--update" ]; then
       UPDATE_MODE=true
+      USED+=("$IDX")
+      IDX=$((IDX + 1))
+      continue
+    fi
+
+    # --auth
+    if [ "$arg" = "--auth" ]; then
+      AUTH_MODE=true
       USED+=("$IDX")
       IDX=$((IDX + 1))
       continue
@@ -299,8 +311,13 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
   BASE_URL=$(echo "$PROVIDER_CONFIG" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).baseURL")
   MODELS=$(echo "$PROVIDER_CONFIG" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).models")
 
-  export ANTHROPIC_API_KEY="$API_KEY"
-  export ANTHROPIC_BASE_URL="$BASE_URL"
+  if ! $AUTH_MODE; then
+    export ANTHROPIC_API_KEY="$API_KEY"
+    export ANTHROPIC_BASE_URL="$BASE_URL"
+  else
+    unset ANTHROPIC_API_KEY
+    unset ANTHROPIC_BASE_URL
+  fi
 
   if [ -n "$MODEL" ]; then
     export ANTHROPIC_MODEL="$MODEL"
@@ -309,6 +326,12 @@ if [ -n "$PROVIDER" ] && [ -f "$CONFIG" ]; then
     DEFAULT_MODEL=$(echo "$MODELS" | node -pe "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'))[0]")
     export ANTHROPIC_MODEL="$DEFAULT_MODEL"
   fi
+fi
+
+# When --auth is used without a provider, ensure no API key leaks in
+if $AUTH_MODE && [ -z "$PROVIDER" ]; then
+  unset ANTHROPIC_API_KEY
+  unset ANTHROPIC_BASE_URL
 fi
 
 # Auto update only when --update flag is provided
