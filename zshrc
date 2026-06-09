@@ -48,6 +48,7 @@ source ~/dotfiles/plugins/completion/completion.zsh
 zinit light mroth/evalcache
 
 # fnm 懒加载 Node.js 版本管理
+eval "$(fnm env --use-on-cd)"
 # 首次调用 node/npm/npx/corepack/fnm 时才初始化 fnm 环境
 source "${HOME}/dotfiles/scripts/system/setup_fnm.sh"
 
