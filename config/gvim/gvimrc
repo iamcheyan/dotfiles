@@ -1,0 +1,96 @@
+" =========================
+" GVim UI
+" =========================
+
+" 隐藏菜单栏
+" set guioptions-=m
+
+" 隐藏工具栏
+set guioptions-=T
+
+" 隐藏左右滚动条
+set guioptions-=L
+set guioptions-=r
+
+" 隐藏底部滚动条
+set guioptions-=b
+
+" 开启鼠标
+set mouse=a
+
+" Linux 可删掉上面那行
+
+
+" =========================
+" 字体
+" =========================
+
+" Linux
+set guifont=MesloLGS\ Nerd\ Font\ Mono\ 12
+
+" Windows 示例
+" set guifont=Consolas:h12
+
+" Mac 示例
+" set guifont=Menlo:h14
+
+
+" =========================
+" 颜色
+" =========================
+
+syntax on
+set termguicolors
+set background=dark
+
+" 内置主题
+colorscheme desert
+
+" 也可以：
+" colorscheme habamax
+" colorscheme evening
+
+
+" =========================
+" 基础设置
+" =========================
+
+set number
+set relativenumber
+
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set smartindent
+
+set clipboard=unnamedplus
+
+set ignorecase
+set smartcase
+
+set cursorline
+
+set nowrap
+
+set splitright
+set splitbelow
+
+
+" =========================
+" 搜索高亮
+" =========================
+
+set hlsearch
+set incsearch
+
+
+" =========================
+" 更像现代编辑器
+" =========================
+
+set encoding=utf-8
+set showcmd
+set wildmenu
+set hidden
+
+filetype plugin indent on
