@@ -64,7 +64,9 @@ if $FORCE_REINSTALL; then
 fi
 
 # ── Auto-install if PI_ROOT doesn't exist ──────────────────────────────
-if $FORCE_REINSTALL || [[ ! -d "$PI_ROOT" ]]; then
+if $FORCE_REINSTALL || [[ ! -d "$PI_ROOT" ]] || \
+   [[ ! -x "$PI_ROOT/packages/coding-agent/dist/pi" && \
+      ! -x "$PI_ROOT/fork/dist/pi-linux-x64/bin/pi" ]]; then
   if $FORCE_REINSTALL; then
     echo "🔄 Reinstalling Pi..."
   else

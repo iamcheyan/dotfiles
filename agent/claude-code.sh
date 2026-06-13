@@ -275,42 +275,45 @@ if $SELECT_MODE; then
     exit 1
   fi
 
-  # Build last-used query for pre-selection (use display name for fuzzy match)
-  LAST_QUERY=""
-  if [ -f "$CC_QUERY" ]; then
-    LAST_QUERY=$(cat "$CC_QUERY" 2>/dev/null || echo "")
-  fi
-
   if $AUTH_MODE; then
     # Auth mode: show Claude native models only
-    FZF_ARGS=(--delimiter $'\t' --with-nth 2
-      --header 'Select Claude model (logged-in account)'
-      --height 90% --layout=reverse --border)
-    [ -n "$LAST_QUERY" ] && FZF_ARGS+=(--query "$LAST_QUERY")
+    declare -A AUTH_MODELS=(
+      ["Claude Sonnet 4 (default)"]="claude-sonnet-4-20250514"
+      ["Claude Opus 4"]="claude-opus-4-20250514"
+      ["Claude Haiku 4"]="claude-haiku-4-20250514"
+      ["Claude Sonnet 4.6"]="claude-sonnet-4-6"
+      ["Claude Opus 4.6"]="claude-opus-4-6"
+      ["Claude Haiku 4.6"]="claude-haiku-4-6"
+    )
+    AUTH_LABELS=(
+      "Claude Sonnet 4 (default)"
+      "Claude Opus 4"
+      "Claude Haiku 4"
+      "Claude Sonnet 4.6"
+      "Claude Opus 4.6"
+      "Claude Haiku 4.6"
+    )
 
-    RESULT=$(printf '%s\n' \
-      'claude-sonnet-4-20250514\tClaude Sonnet 4 (default)' \
-      'claude-opus-4-20250514\tClaude Opus 4' \
-      'claude-haiku-4-20250514\tClaude Haiku 4' \
-      'claude-sonnet-4-6\tClaude Sonnet 4.6' \
-      'claude-opus-4-6\tClaude Opus 4.6' \
-      'claude-haiku-4-6\tClaude Haiku 4.6' \
-      | command fzf "${FZF_ARGS[@]}") || exit 1
+    RESULT=$(printf '%s\n' "${AUTH_LABELS[@]}" \
+      | command fzf \
+        --header 'Select Claude model (logged-in account)' \
+        --height 90% --layout=reverse --border \
+    ) || exit 1
 
-    MODEL=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
+    MODEL="${AUTH_MODELS[$RESULT]}"
     PROVIDER=""
     echo "Selected: $MODEL (auth mode)"
 
     # Save display name for next default query
-    printf '%s' "$RESULT" | cut -d$'\t' -f2 | sed 's|.*/ ||; s/ ([^)]*)$//' > "$CC_QUERY"
+    printf '%s\n' "$RESULT" > "$CC_QUERY"
   else
     # Provider mode: show all provider models
-    FZF_ARGS=(--delimiter $'\t' --with-nth 2
-      --header 'Select provider / model'
-      --height 90% --layout=reverse --border)
-    [ -n "$LAST_QUERY" ] && FZF_ARGS+=(--query "$LAST_QUERY")
-
-    RESULT=$(node -e "
+    MODEL_LINES=()
+    declare -A MODEL_KEYS=()
+    while IFS=$'\t' read -r key label; do
+      MODEL_LINES+=("$label")
+      MODEL_KEYS["$label"]="$key"
+    done < <(node -e "
       const c = require('$CONFIG');
       for (const [pk, p] of Object.entries(c.provider || {})) {
         if (pk === 'mimo') continue;
@@ -322,15 +325,20 @@ if $SELECT_MODE; then
           console.log(pk+'\\\\'+mk+'\\t'+pn+' / '+mn+' ('+s+')');
         }
       }
-    " 2>/dev/null | command fzf "${FZF_ARGS[@]}") || exit 1
+    " 2>/dev/null)
 
-    _key=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
+    RESULT=$(printf '%s\n' "${MODEL_LINES[@]}" | command fzf \
+      --header 'Select provider / model' \
+      --height 90% --layout=reverse --border \
+    ) || exit 1
+
+    _key="${MODEL_KEYS[$RESULT]}"
     PROVIDER=$(printf '%s' "$_key" | awk -F'\\\\' '{print $1}')
     MODEL=$(printf '%s' "$_key" | awk -F'\\\\' '{print $2}')
     echo "Selected: $PROVIDER / $MODEL"
 
     # Save display name for next default query
-    printf '%s' "$RESULT" | cut -d$'\t' -f2 | sed 's|.*/ ||; s/ ([^)]*)$//' > "$CC_QUERY"
+    printf '%s\n' "$RESULT" > "$CC_QUERY"
   fi
 fi
 

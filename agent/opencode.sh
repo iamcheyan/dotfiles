@@ -178,6 +178,7 @@ if $SELECT_MODE; then
     --delimiter '\t' --with-nth 2 \
     --header 'Select provider / model' \
     --height 90% --layout=reverse --border \
+    --no-preview \
   ) || exit 1
 
   _key=$(printf '%s' "$RESULT" | cut -d$'\t' -f1)
