@@ -196,6 +196,5 @@ fpath=(~/.grok/completions/zsh $fpath)
 autoload -Uz compinit && compinit -C
 # <<< grok installer <<<
 
-
-# Added by Antigravity CLI installer
-export PATH="/home/tetsuya/.local/bin:$PATH"
+# bun completions
+[ -s "/Users/tetsuya/.bun/_bun" ] && source "/Users/tetsuya/.bun/_bun"
