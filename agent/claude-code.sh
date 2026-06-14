@@ -276,15 +276,7 @@ if $SELECT_MODE; then
   fi
 
   if $AUTH_MODE; then
-    # Auth mode: show Claude native models only
-    declare -A AUTH_MODELS=(
-      ["Claude Sonnet 4 (default)"]="claude-sonnet-4-20250514"
-      ["Claude Opus 4"]="claude-opus-4-20250514"
-      ["Claude Haiku 4"]="claude-haiku-4-20250514"
-      ["Claude Sonnet 4.6"]="claude-sonnet-4-6"
-      ["Claude Opus 4.6"]="claude-opus-4-6"
-      ["Claude Haiku 4.6"]="claude-haiku-4-6"
-    )
+    # Auth mode: show Claude native models only (bash 3.2 compatible)
     AUTH_LABELS=(
       "Claude Sonnet 4 (default)"
       "Claude Opus 4"
@@ -293,6 +285,14 @@ if $SELECT_MODE; then
       "Claude Opus 4.6"
       "Claude Haiku 4.6"
     )
+    AUTH_VALUES=(
+      "claude-sonnet-4-20250514"
+      "claude-opus-4-20250514"
+      "claude-haiku-4-20250514"
+      "claude-sonnet-4-6"
+      "claude-opus-4-6"
+      "claude-haiku-4-6"
+    )
 
     RESULT=$(printf '%s\n' "${AUTH_LABELS[@]}" \
       | command fzf \
@@ -300,7 +300,14 @@ if $SELECT_MODE; then
         --height 90% --layout=reverse --border \
     ) || exit 1
 
-    MODEL="${AUTH_MODELS[$RESULT]}"
+    # Look up value by matching label (bash 3.2 compatible)
+    MODEL=""
+    for _i in "${!AUTH_LABELS[@]}"; do
+      if [ "${AUTH_LABELS[$_i]}" = "$RESULT" ]; then
+        MODEL="${AUTH_VALUES[$_i]}"
+        break
+      fi
+    done
     PROVIDER=""
     echo "Selected: $MODEL (auth mode)"
 
@@ -309,10 +316,12 @@ if $SELECT_MODE; then
   else
     # Provider mode: show all provider models
     MODEL_LINES=()
-    declare -A MODEL_KEYS=()
+    MODEL_KEYS=()
+    _idx=0
     while IFS=$'\t' read -r key label; do
       MODEL_LINES+=("$label")
-      MODEL_KEYS["$label"]="$key"
+      MODEL_KEYS+=("$key")
+      _idx=$((_idx + 1))
     done < <(node -e "
       const c = require('$CONFIG');
       for (const [pk, p] of Object.entries(c.provider || {})) {
@@ -332,7 +341,14 @@ if $SELECT_MODE; then
       --height 90% --layout=reverse --border \
     ) || exit 1
 
-    _key="${MODEL_KEYS[$RESULT]}"
+    # Look up key by matching label (bash 3.2 compatible)
+    _key=""
+    for _i in "${!MODEL_LINES[@]}"; do
+      if [ "${MODEL_LINES[$_i]}" = "$RESULT" ]; then
+        _key="${MODEL_KEYS[$_i]}"
+        break
+      fi
+    done
     PROVIDER=$(printf '%s' "$_key" | awk -F'\\\\' '{print $1}')
     MODEL=$(printf '%s' "$_key" | awk -F'\\\\' '{print $2}')
     echo "Selected: $PROVIDER / $MODEL"
