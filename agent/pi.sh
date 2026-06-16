@@ -1,11 +1,80 @@
 #!/usr/bin/env bash
 # Usage:
-#   pi                          # Run Pi (auto-install if needed)
+#   pi                          # Continue last session
 #   pi <args>                   # Pass arguments to Pi
 #   pi --reinstall              # Clean install: remove old files, re-run init.sh, sync skills
 #
 # Pi is auto-installed to ~/Development/pi/ if not present.
 # Binary path is resolved from PI_REPO or ~/Development/pi/.
+#
+# ── Pi CLI Reference ────────────────────────────────────────────────────────
+#
+# Session:
+#   --continue, -c                Continue previous session
+#   --resume, -r                  Select a session to resume
+#   --session <path|id>           Use specific session file or partial UUID
+#   --session-id <id>             Use exact project session ID
+#   --session-dir <dir>           Directory for session storage
+#   --fork <path|id>              Fork session into a new one
+#   --no-session                  Don't save session (ephemeral)
+#   --name, -n <name>             Set session display name
+#
+# Model & Provider:
+#   --provider <name>             Provider name (default: google)
+#   --model <pattern>             Model pattern or ID (supports "provider/id" and ":<thinking>")
+#   --models <patterns>           Comma-separated model patterns for Ctrl+P cycling
+#   --api-key <key>               API key (defaults to env vars)
+#   --list-models [search]        List available models (with fuzzy search)
+#
+# Input / Output:
+#   --print, -p                   Non-interactive mode: process prompt and exit
+#   --mode <mode>                 Output mode: text (default), json, or rpc
+#   --export <file>               Export session to HTML and exit
+#   @files...                     Include files in initial message
+#
+# Prompt & Context:
+#   --system-prompt <text>        System prompt
+#   --append-system-prompt <text> Append text/file to system prompt (repeatable)
+#   --thinking <level>            off | minimal | low | medium | high | xhigh
+#
+# Tools:
+#   --no-tools, -nt               Disable all tools by default
+#   --no-builtin-tools, -nbt      Disable built-in tools (keep extension tools)
+#   --tools, -t <tools>           Comma-separated allowlist of tool names
+#   --exclude-tools, -xt <tools>  Comma-separated denylist of tool names
+#
+# Extensions & Skills:
+#   --extension, -e <path>        Load extension file (repeatable)
+#   --no-extensions, -ne          Disable extension discovery
+#   --skill <path>                Load skill file or directory (repeatable)
+#   --no-skills, -ns              Disable skills discovery
+#   --prompt-template <path>      Load prompt template (repeatable)
+#   --no-prompt-templates, -np    Disable prompt template discovery
+#   --theme <path>                Load theme file or directory (repeatable)
+#   --no-themes                   Disable theme discovery
+#
+# Approval & Safety:
+#   --approve, -a                 Trust project-local files for this run
+#   --no-approve, -na             Ignore project-local files for this run
+#   --no-context-files, -nc       Disable AGENTS.md and CLAUDE.md discovery
+#   --offline                     Disable startup network operations
+#
+# MCP:
+#   --mcp-config <value>          Path to MCP config file
+#
+# CLI Options:
+#   --verbose                     Force verbose startup
+#   --help, -h                    Show help
+#   --version, -v                 Show version
+#
+# Subcommands:
+#   install <source> [-l]         Install extension source
+#   remove <source> [-l]          Remove extension source
+#   update [source|self|pi]       Update pi and extensions
+#   list                          List installed extensions
+#   config                        Open TUI to enable/disable resources
+#
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
@@ -123,4 +192,8 @@ if [[ ! -x "$PI_BIN" ]]; then
   exit 1
 fi
 
-exec "$PI_BIN" "${PI_ARGS[@]}"
+if [ ${#PI_ARGS[@]} -eq 0 ]; then
+  exec "$PI_BIN" --continue
+else
+  exec "$PI_BIN" "${PI_ARGS[@]}"
+fi

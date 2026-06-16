@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage:
-#   oc                              # Launch opencode TUI (default: mimo/mimo-v2.5)
+#   oc                              # Continue last session (skip permissions)
 #   oc <provider>                   # Run with provider from opencode.json
 #   oc <provider> <model>           # Run with specific model
 #   oc -s, --select                 # Interactive model selection
@@ -11,13 +11,89 @@
 #   oc --dangerously-skip-permissions  # Auto-approve all permissions
 #
 # Examples:
-#   oc                              # TUI with mimo (free)
+#   oc                              # Continue last session
 #   oc zhipu                        # Use zhipu provider (glm-4-flash, free)
 #   oc deepseek                     # Use deepseek provider
 #   oc -m mimo/mimo-v2.5-pro        # Use specific model
 #   oc -p "explain this function"   # Non-interactive question
 #   oc -s                           # Pick model from interactive list
 #   oc -f                           # Force reinstall opencode
+#
+# ── OpenCode CLI Reference ───────────────────────────────────────────────────
+#
+# Session:
+#   -c, --continue                    Continue the last session
+#   -s, --session <id>                Session id to continue
+#   --fork                            Fork the session when continuing
+#
+# Model:
+#   -m, --model <provider/model>      Model to use
+#   --agent <name>                    Agent to use
+#
+# Prompt:
+#   --prompt <text>                   Prompt to use
+#   prompt..                          Positional prompt args (run mode)
+#
+# Permissions & Sandbox:
+#   --dangerously-skip-permissions    Auto-approve permissions not explicitly denied
+#
+# Input / Output:
+#   -f, --file <path>                 Attach file(s) to message (run mode)
+#   --format <fmt>                    default (formatted) or json (raw events)
+#   --thinking                        Show thinking blocks
+#   --variant <level>                 Model variant / reasoning effort
+#   --share                           Share the session
+#   --title <text>                    Title for the session
+#
+# Remote & Server:
+#   --attach <url>                    Attach to running opencode server
+#   --dir <path>                      Directory to run in (path on remote if attaching)
+#   --port <number>                   Port for local server
+#   -p, --password <pass>             Basic auth password
+#   -u, --username <user>             Basic auth username
+#
+# TUI:
+#   --replay                          Replay interactive session history on resume
+#   --replay-limit <n>                Cap visible replay to newest N messages
+#   -i, --interactive                 Direct interactive split-footer mode (run mode)
+#
+# Server & Web:
+#   serve                             Start headless server
+#   web                               Start server and open web interface
+#   attach <url>                      Attach to running server
+#
+# Subcommands:
+#   run [message..]                   Run with a message (non-TUI)
+#   models [provider]                 List available models
+#   providers / auth                  Manage providers and credentials
+#   session                           Manage sessions
+#   agent                             Manage agents
+#   mcp                               Manage MCP servers
+#   plugin <module>                   Install plugin
+#   upgrade [target]                  Upgrade to latest or specific version
+#   uninstall                         Uninstall and remove all files
+#   export [sessionID]                Export session data as JSON
+#   import <file>                     Import session data
+#   github                            Manage GitHub agent
+#   pr <number>                       Fetch PR branch and run opencode
+#   stats                             Show token usage and cost
+#   completion                        Generate shell completions
+#   debug                             Debugging and troubleshooting
+#   db                                Database tools
+#
+# Global Options:
+#   -v, --version                     Show version
+#   -h, --help                        Show help
+#   --pure                            Run without external plugins
+#   --print-logs                      Print logs to stderr
+#   --log-level <level>               DEBUG | INFO | WARN | ERROR
+#   --port <number>                   Port to listen on
+#   --hostname <host>                 Hostname to listen on
+#   --mdns                            Enable mDNS service discovery
+#   --mdns-domain <domain>            Custom mDNS domain (default: opencode.local)
+#   --cors <domains...>               Additional CORS domains
+#
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
@@ -213,6 +289,6 @@ if [ ${#EXTRA_ARGS[@]} -gt 0 ]; then
   CMD+=("${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}")
   exec "${CMD[@]}"
 else
-  # No args → launch interactive TUI
-  exec opencode
+  # No args → continue last session, skip permissions
+  exec opencode -c --dangerously-skip-permissions
 fi

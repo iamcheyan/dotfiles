@@ -15,6 +15,63 @@
 #   cx --profile work               # Use work account
 #   cx --save-profile personal      # Save current login as "personal"
 #   cx --list-profiles              # Show all saved profiles
+#
+# ── Codex CLI Reference ──────────────────────────────────────────────────────
+#
+# Subcommands:
+#   exec (e)            Run Codex non-interactively
+#   review              Non-interactive code review
+#   login               Manage login
+#   logout              Remove stored auth credentials
+#   mcp                 Manage external MCP servers
+#   plugin              Manage Codex plugins
+#   mcp-server          Run as MCP server (stdio)
+#   app-server          [experimental] Run the app server
+#   remote-control      [experimental] Manage app-server daemon
+#   completion          Generate shell completion scripts
+#   update              Update Codex to latest version
+#   doctor              Diagnose installation, config, auth, runtime
+#   sandbox             Run commands in a Codex sandbox
+#   debug               Debugging tools
+#   apply (a)           Apply latest agent diff via git apply
+#   resume              Resume previous session (--last to skip picker)
+#   fork                Fork previous session (--last to skip picker)
+#   archive             Archive a session by id or name
+#   delete              Permanently delete a session
+#   unarchive           Unarchive a session
+#   cloud               [experimental] Browse Codex Cloud tasks
+#   exec-server         [experimental] Run standalone exec-server
+#   features            Inspect feature flags
+#
+# Options (passed through to codex):
+#   -m, --model <MODEL>           Model to use
+#   -p, --profile <NAME>          Layer $CODEX_HOME/<name>.config.toml on top
+#   -c, --config <key=value>      Override config.toml value (dotted path, TOML)
+#   --enable <FEATURE>            Enable a feature flag (repeatable)
+#   --disable <FEATURE>           Disable a feature flag (repeatable)
+#   -i, --image <FILE>...         Attach image(s) to initial prompt
+#   -C, --cd <DIR>                Set agent working root directory
+#   --add-dir <DIR>               Additional writable directory
+#   --search                      Enable live web search
+#   --oss                         Use open-source provider
+#   --local-provider <PROVIDER>   lmstudio or ollama
+#   --remote <ADDR>               Connect to remote app server (ws/wss/unix)
+#   --remote-auth-token-env <VAR> Bearer token env var for remote
+#   --strict-config               Error on unrecognized config fields
+#   --no-alt-screen               Inline TUI mode (preserve scrollback)
+#   -V, --version                 Show version
+#   -h, --help                    Show help
+#
+# Sandbox & Approval:
+#   -s, --sandbox <MODE>          read-only | workspace-write | danger-full-access
+#   -a, --ask-for-approval <POLICY>
+#       untrusted   Only untrusted commands need approval
+#       on-request  Model decides when to ask (interactive default)
+#       never       Never ask for approval
+#   --dangerously-bypass-approvals-and-sandbox   Skip all prompts & sandbox
+#   --dangerously-bypass-hook-trust              Run hooks without trust check
+#
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
@@ -218,6 +275,10 @@ case "${1:-}" in
     ;;
 
   *)
-    exec codex "$@"
+    if [ $# -eq 0 ]; then
+      exec codex resume --last -a never
+    else
+      exec codex "$@"
+    fi
     ;;
 esac

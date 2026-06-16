@@ -568,6 +568,18 @@ install_fzf() {
     fi
 }
 
+# Initialize git submodules (e.g. VimQuest.nvim)
+init_git_submodules() {
+    local dotfiles_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
+    if [[ -f "$dotfiles_dir/.gitmodules" ]]; then
+        print_info "Initializing git submodules..."
+        git -C "$dotfiles_dir" submodule update --init --recursive
+        print_success "Git submodules initialized"
+    else
+        print_info "No .gitmodules found, skipping"
+    fi
+}
+
 # Use dotlink to create symlinks for config files
 run_dotlink() {
     local dotlink_script="${DOTFILES_DIR:-$HOME/dotfiles}/dotlink/dotlink"
@@ -1045,6 +1057,11 @@ EOF
     # 2. Install essential tools
     print_info "Step 3/13: Installing essential tools (git, curl, build-essential, etc.)"
     run_step "essential tools install" install_essentials
+    echo ""
+
+    # 2.5 Initialize git submodules
+    print_info "Step 3.5/13: Initializing git submodules"
+    run_step "git submodules" init_git_submodules
     echo ""
 
     # 3. Install zinit

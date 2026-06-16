@@ -1,16 +1,42 @@
 #!/usr/bin/env bash
 # Usage:
-#   gemini                        # Run Gemini CLI
-#   gemini -f                     # Force reinstall Gemini CLI
-#   gemini -s, --select           # Interactive account selection
-#   gemini --profile <email>      # Run with specific account
-#   gemini --list-profiles        # List all accounts
-#   gemini --switch <email>       # Switch active account
+#   agy                           # Continue last session (skip permissions)
+#   agy -f                        # Force reinstall Antigravity CLI
+#   agy -s, --select              # Interactive account selection
+#   agy --profile <email>         # Run with specific account
+#   agy --list-profiles           # List all accounts
+#   agy --switch <email>          # Switch active account
 #
 # Examples:
-#   gemini --profile iamcheyan@gmail.com   # Use specific account
-#   gemini --select                        # Interactive account selection
-#   gemini --list-profiles                 # Show all accounts
+#   agy --profile iamcheyan@gmail.com   # Use specific account
+#   agy --select                        # Interactive account selection
+#   agy --list-profiles                 # Show all accounts
+#
+# ── Antigravity CLI Reference ────────────────────────────────────────────────
+#
+# Options:
+#   --continue (-c)                   Continue the most recent conversation
+#   --conversation <ID>               Resume a previous conversation by ID
+#   --dangerously-skip-permissions    Auto-approve all tool permission requests
+#   --model <MODEL>                   Model for the current session
+#   --add-dir <DIR>                   Add a directory to workspace (repeatable)
+#   --print (-p)                      Run single prompt non-interactively
+#   --prompt                          Alias for --print
+#   --prompt-interactive (-i)         Run initial prompt interactively, then continue
+#   --print-timeout <DURATION>        Timeout for print mode (default 5m)
+#   --sandbox                         Run in sandbox with terminal restrictions
+#   --log-file <PATH>                 Override CLI log file path
+#
+# Subcommands:
+#   changelog    Show changelog and release notes
+#   help         Show help for subcommands
+#   install      Configure environment paths and shell settings
+#   models       List available models
+#   plugin       Manage plugins (install, uninstall, list, enable, disable)
+#   plugins      Alias for plugin
+#   update       Update CLI
+#
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
@@ -276,4 +302,9 @@ if $SELECT_MODE; then
 fi
 
 EXTRA_ARGS+=("--dangerously-skip-permissions")
-exec agy "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
+if [ ${#EXTRA_ARGS[@]} -eq 1 ]; then
+  # No user args: continue last session
+  exec agy --continue --dangerously-skip-permissions
+else
+  exec agy "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"
+fi

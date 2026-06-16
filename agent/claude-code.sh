@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage:
-#   cc                          # Run Claude Code with default Anthropic
+#   cc                          # Continue last session (skip permissions)
 #   cc <provider>               # Run with provider from opencode.json (uses first model)
 #   cc <provider> <model>       # Run with specific model
 #   cc -s, --select             # Interactive model selection (provider models)
@@ -44,6 +44,97 @@
 #   cc -p "fix the bug"         # Non-interactive print mode
 #   cc --auth                   # Logged-in account, default Claude model
 #   cc --auth claude-opus-4-6   # Logged-in account, specific Claude model
+#
+# ── Claude Code CLI Reference ────────────────────────────────────────────────
+#
+# Session:
+#   -c, --continue                    Continue most recent conversation
+#   -r, --resume [id|search]          Resume by session ID or interactive picker
+#   --session-id <uuid>               Use a specific session ID
+#   --fork-session                    Fork session when resuming (with --resume/-c)
+#   --from-pr [pr]                    Resume session linked to a PR
+#   -n, --name <name>                 Set session display name
+#   --no-session-persistence          Don't save sessions to disk (--print only)
+#
+# Model & Provider:
+#   --model <model>                   Model for the session (alias or full name)
+#   --fallback-model <model>          Fallback model(s) when primary unavailable (--print only)
+#   --effort <level>                  low | medium | high | xhigh | max
+#
+# Input / Output:
+#   -p, --print                       Non-interactive mode, print response and exit
+#   --input-format <format>           text | stream-json (--print only)
+#   --output-format <format>          text | json | stream-json (--print only)
+#   --json-schema <schema>            JSON Schema for structured output validation
+#   --include-partial-messages        Include partial message chunks (--print + stream-json)
+#   --replay-user-messages            Re-emit user messages on stdout (stream-json)
+#   --prompt-suggestions [bool]       Enable prompt suggestions
+#   --brief                           Enable SendUserMessage tool for agent comms
+#   --verbose                         Override verbose mode setting
+#
+# Permissions & Sandbox:
+#   --dangerously-skip-permissions    Bypass all permission checks
+#   --allow-dangerously-skip-permissions  Enable bypass as an option (not default)
+#   --permission-mode <mode>          acceptEdits | auto | bypassPermissions |
+#                                     default | dontAsk | plan
+#   --safe-mode                       Disable all customizations for troubleshooting
+#
+# Tools:
+#   --tools <tools...>                Specify available built-in tools ("" to disable)
+#   --allowedTools <tools...>         Allow specific tools (e.g. "Bash(git *) Edit")
+#   --disallowedTools <tools...>      Deny specific tools
+#
+# Context & Prompt:
+#   --system-prompt <prompt>          Override system prompt
+#   --append-system-prompt <prompt>   Append to default system prompt
+#   --add-dir <dirs...>               Additional directories for tool access
+#   --bare                            Minimal mode: skip hooks, LSP, keychain, etc.
+#
+# MCP & Plugins:
+#   --mcp-config <configs...>         Load MCP servers from JSON files/strings
+#   --strict-mcp-config               Only use MCP from --mcp-config
+#   --plugin-dir <path>               Load plugin from directory or .zip (repeatable)
+#   --plugin-url <url>                Fetch plugin .zip from URL (repeatable)
+#
+# Worktree & IDE:
+#   -w, --worktree [name]             Create git worktree for session
+#   --tmux                            Create tmux session for worktree
+#   --ide                             Auto-connect to IDE on startup
+#   --chrome                          Enable Claude in Chrome integration
+#   --no-chrome                       Disable Claude in Chrome integration
+#
+# Remote Control:
+#   --remote-control [name]           Start interactive session with Remote Control
+#   --remote-control-session-name-prefix <prefix>
+#
+# Debug & Dev:
+#   -d, --debug [filter]              Debug mode (e.g. "api,hooks", "!1p,!file")
+#   --debug-file <path>               Write debug logs to file
+#   --betas <betas...>                Beta headers for API requests
+#   --max-budget-usd <amount>         Max API spend (--print only)
+#   --exclude-dynamic-system-prompt-sections  Improve cross-user prompt-cache reuse
+#   --setting-sources <sources>       Setting sources to load (user,project,local)
+#   --settings <file-or-json>         Load additional settings
+#   --agent <agent>                   Agent for the session
+#   --agents <json>                   JSON defining custom agents
+#   --disable-slash-commands          Disable all skills
+#   --file <specs...>                 File resources to download at startup
+#   --include-hook-events             Include hook lifecycle events (stream-json)
+#
+# Subcommands:
+#   agents            Manage background agents
+#   auth              Manage authentication
+#   auto-mode         Inspect auto mode classifier config
+#   doctor            Check health of auto-updater
+#   install [target]  Install native build (stable/latest/specific version)
+#   mcp               Configure and manage MCP servers
+#   plugin|plugins    Manage plugins
+#   project           Manage project state
+#   setup-token       Set up long-lived auth token (Claude subscription)
+#   ultrareview       Run cloud-hosted multi-agent code review
+#   update|upgrade    Check and install updates
+#
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
@@ -449,5 +540,5 @@ fi
 if [ ${#EXTRA_ARGS[@]} -gt 0 ]; then
   exec claude "${CLAUDE_ARGS[@]}" "${EXTRA_ARGS[@]}"
 else
-  exec claude "${CLAUDE_ARGS[@]}"
+  exec claude "${CLAUDE_ARGS[@]}" -c
 fi

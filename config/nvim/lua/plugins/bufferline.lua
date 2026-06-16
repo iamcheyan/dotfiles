@@ -25,8 +25,8 @@ return {
           fg = "#7a7a7a",
         },
         tab_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#ffffff",
           bold = true,
         },
         tab_close = {
@@ -46,8 +46,8 @@ return {
           fg = "#a0a0a0",
         },
         buffer_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#ffffff",
           bold = true,
         },
         diagnostic = {
@@ -59,8 +59,8 @@ return {
           fg = "#a0a0a0",
         },
         diagnostic_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#ffffff",
           bold = true,
         },
         error = {
@@ -72,8 +72,8 @@ return {
           fg = "#d46b79",
         },
         error_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#c75c6a",
           bold = true,
         },
         error_diagnostic = {
@@ -85,8 +85,8 @@ return {
           fg = "#d46b79",
         },
         error_diagnostic_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#c75c6a",
           bold = true,
         },
         warning = {
@@ -98,8 +98,8 @@ return {
           fg = "#c8ab68",
         },
         warning_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#b89a58",
           bold = true,
         },
         warning_diagnostic = {
@@ -111,8 +111,8 @@ return {
           fg = "#c8ab68",
         },
         warning_diagnostic_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#b89a58",
           bold = true,
         },
         info = {
@@ -124,8 +124,8 @@ return {
           fg = "#80a1bb",
         },
         info_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#6f8fa8",
           bold = true,
         },
         info_diagnostic = {
@@ -137,8 +137,8 @@ return {
           fg = "#80a1bb",
         },
         info_diagnostic_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#6f8fa8",
           bold = true,
         },
         hint = {
@@ -150,8 +150,8 @@ return {
           fg = "#7fad8d",
         },
         hint_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#6d9a7b",
           bold = true,
         },
         hint_diagnostic = {
@@ -163,8 +163,8 @@ return {
           fg = "#7fad8d",
         },
         hint_diagnostic_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#6d9a7b",
           bold = true,
         },
         duplicate = {
@@ -178,8 +178,8 @@ return {
           italic = false,
         },
         duplicate_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#7f7f7f",
           italic = false,
         },
         numbers = {
@@ -191,8 +191,8 @@ return {
           fg = "#929292",
         },
         numbers_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#ffffff",
           bold = true,
         },
         close_button = {
@@ -204,8 +204,8 @@ return {
           fg = "#949494",
         },
         close_button_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#ffffff",
         },
         modified = {
           bg = "#1c1c1c",
@@ -216,8 +216,8 @@ return {
           fg = "#b3b3b3",
         },
         modified_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#8e8e8e",
         },
         separator = {
           bg = "#1c1c1c",
@@ -228,20 +228,20 @@ return {
           fg = "#262626",
         },
         separator_selected = {
-          bg = "#00ff00",
-          fg = "#00ff00",
+          bg = "#353535",
+          fg = "#2a2a2a",
         },
         tab_separator = {
           bg = "#1c1c1c",
           fg = "#1c1c1c",
         },
         tab_separator_selected = {
-          bg = "#00ff00",
-          fg = "#00ff00",
+          bg = "#353535",
+          fg = "#2a2a2a",
         },
         indicator_selected = {
-          bg = "#00ff00",
-          fg = "#00ff00",
+          bg = "#353535",
+          fg = "#353535",
         },
         indicator_visible = {
           bg = "#262626",
@@ -260,8 +260,8 @@ return {
           italic = false,
         },
         pick_selected = {
-          bg = "#00ff00",
-          fg = "#000000",
+          bg = "#353535",
+          fg = "#d0d0d0",
           bold = true,
           italic = false,
         },

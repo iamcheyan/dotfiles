@@ -102,9 +102,9 @@ login_gh() {
     print_info "将通过浏览器完成认证 (如在远程服务器上，请选择 'Login with a web browser')"
     echo ""
 
-    gh auth login --git-protocol https --web --hostname github.com || {
+    gh auth login --git-protocol https --web --hostname github.com -s admin:public_key || {
         print_warning "浏览器认证失败，尝试设备码方式..."
-        gh auth login --git-protocol https --hostname github.com
+        gh auth login --git-protocol https --hostname github.com -s admin:public_key
     }
 
     if gh auth status &>/dev/null; then
