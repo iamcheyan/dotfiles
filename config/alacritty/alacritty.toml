@@ -70,6 +70,7 @@ history = 10000
 bindings = [
   { key = "C",      mods = "Shift|Control", action = "Copy" },
   { key = "V",      mods = "Shift|Control", action = "Paste" },
+  { key = "V",      mods = "Control",       action = "Paste" },
   { key = "F11",    action = "ToggleFullscreen" },
   { key = "F",      mods = "Shift|Control", action = "ToggleSimpleFullscreen" },
   { key = "Plus",   mods = "Control", action = "IncreaseFontSize" },
