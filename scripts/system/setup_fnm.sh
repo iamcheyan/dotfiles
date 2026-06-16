@@ -36,7 +36,7 @@ __fnm_lazy_load() {
         return 1
     }
 
-    eval "$("$fnm_bin" env --shell zsh)"
+    eval "$("$fnm_bin" env --shell zsh --use-on-cd)"
 
     if ! "$fnm_bin" use default >/dev/null 2>&1; then
         local latest_local

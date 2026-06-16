@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # Usage:
-#   agy                          # Run Antigravity CLI
-#   agy -f                       # Force reinstall Antigravity
-#   agy -s, --select             # Interactive account selection
-#   agy --profile <email>        # Run with specific account
-#   agy --list-profiles          # List all accounts
-#   agy --switch <email>         # Switch active account
+#   gemini                        # Run Gemini CLI
+#   gemini -f                     # Force reinstall Gemini CLI
+#   gemini -s, --select           # Interactive account selection
+#   gemini --profile <email>      # Run with specific account
+#   gemini --list-profiles        # List all accounts
+#   gemini --switch <email>       # Switch active account
 #
 # Examples:
-#   agy --profile iamcheyan@gmail.com    # Use specific account
-#   agy --select                         # Interactive account selection
-#   agy --list-profiles                  # Show all accounts
+#   gemini --profile iamcheyan@gmail.com   # Use specific account
+#   gemini --select                        # Interactive account selection
+#   gemini --list-profiles                 # Show all accounts
 
 set -euo pipefail
 
@@ -42,6 +42,14 @@ if $FORCE_REINSTALL || ! command -v agy &>/dev/null; then
 fi
 
 ACCOUNTS_FILE="$HOME/.config/opencode/antigravity-accounts.json"
+
+require_accounts_file() {
+  if [ ! -f "$ACCOUNTS_FILE" ]; then
+    echo "Error: Accounts file not found at $ACCOUNTS_FILE" >&2
+    echo "Create it with: {\"activeIndex\":0,\"accounts\":[{\"email\":\"you@gmail.com\",\"refreshToken\":\"...\"}]}" >&2
+    exit 1
+  fi
+}
 AUTH_FILE="$HOME/.local/share/opencode/auth.json"
 GEMINI_ACCOUNTS="$HOME/.gemini/google_accounts.json"
 GEMINI_OAUTH="$HOME/.gemini/oauth_creds.json"
@@ -152,11 +160,6 @@ update_auth() {
   fi
 }
 
-if [ ! -f "$ACCOUNTS_FILE" ]; then
-  echo "Error: Accounts file not found at $ACCOUNTS_FILE" >&2
-  exit 1
-fi
-
 # Parse arguments
 SELECT_MODE=false
 LIST_PROFILES=false
@@ -194,6 +197,7 @@ done
 
 # Handle --list-profiles
 if $LIST_PROFILES; then
+  require_accounts_file
   echo "Available accounts:"
   jq -r '.accounts[] | "  - \(.email)"' "$ACCOUNTS_FILE"
   echo ""
@@ -206,6 +210,7 @@ fi
 
 # Handle --profile
 if [ -n "$PROFILE_EMAIL" ] || [ -n "$SWITCH_EMAIL" ]; then
+  require_accounts_file
   if [ -n "$SWITCH_EMAIL" ]; then
     PROFILE_EMAIL="$SWITCH_EMAIL"
   fi
@@ -234,6 +239,7 @@ fi
 
 # Handle interactive selection
 if $SELECT_MODE; then
+  require_accounts_file
   echo "Available accounts:"
   ACCOUNTS=()
   while IFS= read -r email; do
@@ -269,4 +275,5 @@ if $SELECT_MODE; then
   fi
 fi
 
+EXTRA_ARGS+=("--dangerously-skip-permissions")
 exec agy "${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}"

@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-
+# Auto-elevate to root if not already root
 if [[ "${EUID}" -ne 0 ]]; then
-  echo "Please run this script with sudo or as root." >&2
-  exit 1
+  echo "==> Re-running script with sudo to obtain root privileges..."
+  exec sudo env "SSH_PORT=${SSH_PORT:-22}" "$0" "$@"
 fi
+
+set -euo pipefail
 
 if [[ ! -f /etc/os-release ]]; then
   echo "Unsupported system: /etc/os-release not found." >&2
@@ -15,8 +16,21 @@ fi
 # shellcheck disable=SC1091
 source /etc/os-release
 
-if [[ "${ID:-}" != "ubuntu" ]]; then
-  echo "Warning: detected '${ID:-unknown}'. This script is intended for Ubuntu." >&2
+OS_ID="${ID:-unknown}"
+echo "==> Detected OS: ${OS_ID}"
+
+# Define package manager and ssh service name based on OS
+if [[ "${OS_ID}" =~ (ubuntu|debian|linuxmint) ]]; then
+  PKG_MANAGER="apt"
+  SSH_SERVICE="ssh"
+  SSH_PKG="openssh-server"
+elif [[ "${OS_ID}" =~ (fedora|rhel|centos) ]]; then
+  PKG_MANAGER="dnf"
+  SSH_SERVICE="sshd"
+  SSH_PKG="openssh-server"
+else
+  echo "Unsupported OS: ${OS_ID}. Only Debian/Ubuntu and Fedora/RHEL/CentOS are supported." >&2
+  exit 1
 fi
 
 SSH_PORT="${SSH_PORT:-22}"
@@ -33,11 +47,13 @@ if command -v systemctl >/dev/null 2>&1 && [[ -d /run/systemd/system ]]; then
   SYSTEMD_PRESENT="true"
 fi
 
-echo "==> Updating package index"
-apt-get update
-
-echo "==> Installing OpenSSH server"
-DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server
+echo "==> Installing ${SSH_PKG} via ${PKG_MANAGER}"
+if [[ "${PKG_MANAGER}" == "apt" ]]; then
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get install -y "${SSH_PKG}"
+elif [[ "${PKG_MANAGER}" == "dnf" ]]; then
+  dnf install -y "${SSH_PKG}"
+fi
 
 echo "==> Ensuring runtime directories exist"
 mkdir -p /run/sshd
@@ -45,24 +61,28 @@ mkdir -p /run/sshd
 echo "==> Ensuring SSH host keys exist"
 ssh-keygen -A
 
+# Configure port
 if grep -Eq '^[#[:space:]]*Port[[:space:]]+' "${SSHD_CONFIG}"; then
   sed -i "s/^[#[:space:]]*Port[[:space:]].*/Port ${SSH_PORT}/" "${SSHD_CONFIG}"
 else
   printf '\nPort %s\n' "${SSH_PORT}" >> "${SSHD_CONFIG}"
 fi
 
+# Configure PasswordAuthentication
 if grep -Eq '^[#[:space:]]*PasswordAuthentication[[:space:]]+' "${SSHD_CONFIG}"; then
   sed -i 's/^[#[:space:]]*PasswordAuthentication[[:space:]].*/PasswordAuthentication yes/' "${SSHD_CONFIG}"
 else
   printf 'PasswordAuthentication yes\n' >> "${SSHD_CONFIG}"
 fi
 
+# Configure PubkeyAuthentication
 if grep -Eq '^[#[:space:]]*PubkeyAuthentication[[:space:]]+' "${SSHD_CONFIG}"; then
   sed -i 's/^[#[:space:]]*PubkeyAuthentication[[:space:]].*/PubkeyAuthentication yes/' "${SSHD_CONFIG}"
 else
   printf 'PubkeyAuthentication yes\n' >> "${SSHD_CONFIG}"
 fi
 
+# Configure PermitRootLogin
 if grep -Eq '^[#[:space:]]*PermitRootLogin[[:space:]]+' "${SSHD_CONFIG}"; then
   sed -i 's/^[#[:space:]]*PermitRootLogin[[:space:]].*/PermitRootLogin prohibit-password/' "${SSHD_CONFIG}"
 else
@@ -80,9 +100,9 @@ start_sshd_without_systemd() {
 }
 
 if [[ "${SYSTEMD_PRESENT}" == "true" ]]; then
-  echo "==> Enabling and restarting ssh service with systemd"
-  systemctl enable ssh
-  systemctl restart ssh
+  echo "==> Enabling and restarting ${SSH_SERVICE} service with systemd"
+  systemctl enable "${SSH_SERVICE}"
+  systemctl restart "${SSH_SERVICE}"
 else
   echo "==> systemd not available, starting sshd directly"
   start_sshd_without_systemd
@@ -93,7 +113,9 @@ IP_LIST="$(hostname -I 2>/dev/null || true)"
 PRIMARY_IP="$(awk '{print $1}' <<<"${IP_LIST}")"
 
 echo
-echo "SSH server setup completed."
+echo "=================================================="
+echo "SSH server setup completed successfully!"
+echo "=================================================="
 echo "User: ${SUDO_USER_NAME}"
 echo "Port: ${SSH_PORT}"
 if [[ -n "${PRIMARY_IP}" ]]; then
@@ -110,7 +132,7 @@ echo
 echo "Suggested checks:"
 echo "  ss -tlnp | grep \":${SSH_PORT} \""
 if [[ "${SYSTEMD_PRESENT}" == "true" ]]; then
-  echo "  systemctl status ssh --no-pager"
+  echo "  systemctl status ${SSH_SERVICE} --no-pager"
 else
   echo "  ps -ef | grep [s]shd"
 fi
@@ -121,3 +143,4 @@ if [[ -n "${PRIMARY_IP}" ]]; then
 else
   echo "  ssh ${SUDO_USER_NAME}@<host-ip> -p ${SSH_PORT}"
 fi
+echo "=================================================="

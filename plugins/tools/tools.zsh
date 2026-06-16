@@ -147,6 +147,9 @@ zinit light direnv/direnv
 if [[ "$OSTYPE" == "darwin"* ]]; then
   zinit ice as"command" from"gh-r" bpick"*apple-darwin*.tar.gz" mv"atuin-*/atuin -> atuin" pick"atuin"
 else
-  zinit ice as"command" from"gh-r" bpick"atuin-x86_64-unknown-linux-gnu.tar.gz" mv"atuin-*/atuin -> atuin" pick"atuin"
+  # Linux (x86_64 or aarch64)
+  local atuin_arch="x86_64"
+  [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]] && atuin_arch="aarch64"
+  zinit ice as"command" from"gh-r" bpick"atuin-${atuin_arch}-unknown-linux-gnu.tar.gz" mv"atuin-*/atuin -> atuin" pick"atuin"
 fi
 zinit light atuinsh/atuin

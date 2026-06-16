@@ -199,7 +199,34 @@ repair_zinit_plugins() {
             rm -rf "$atuin_dir"
             print_success "Broken atuin plugin removed. It will be reinstalled on next zsh launch"
         else
-            print_success "atuin binary looks correct"
+            # Check for architecture mismatch (e.g. x86_64 binary on ARM64 host)
+            local current_arch
+            current_arch=$(uname -m)
+            local binary_info=""
+            if command_exists file; then
+                binary_info=$(file "$atuin_dir/atuin" 2>/dev/null)
+            fi
+
+            local architecture_mismatch=false
+            if [[ "$current_arch" == "aarch64" || "$current_arch" == "arm64" ]]; then
+                if [[ "$binary_info" == *"x86-64"* ]]; then
+                    architecture_mismatch=true
+                fi
+            elif [[ "$current_arch" == "x86_64" ]]; then
+                if [[ "$binary_info" == *"ARM"* || "$binary_info" == *"aarch64"* ]]; then
+                    architecture_mismatch=true
+                fi
+            fi
+
+            if [[ "$architecture_mismatch" == "true" ]]; then
+                print_warning "Detected atuin architecture mismatch (downloaded x86_64 on ARM64 or vice versa)"
+                print_info "Removing misconfigured atuin plugin and clearing evalcache..."
+                rm -rf "$atuin_dir"
+                rm -rf "$HOME/.zsh-evalcache"/* 2>/dev/null || true
+                print_success "Atuin plugin and evalcache cleared. Correct binary will be downloaded on next zsh launch"
+            else
+                print_success "atuin binary looks correct"
+            fi
         fi
     fi
     
@@ -839,6 +866,30 @@ install_docker() {
     fi
 }
 
+# Link rime config: dotfiles/rime -> ~/.local/share/fcitx5/rime
+link_rime_config() {
+    local rime_dir="$HOME/.local/share/fcitx5/rime"
+    local rime_link="${DOTFILES_DIR:-$HOME/dotfiles}/rime"
+
+    if [[ -L "$rime_link" ]]; then
+        print_success "rime symlink already exists: $rime_link -> $(readlink "$rime_link")"
+        return 0
+    fi
+
+    if [[ -d "$rime_link" ]]; then
+        print_warning "dotfiles/rime already exists as a real directory, skipping"
+        return 0
+    fi
+
+    if [[ ! -d "$rime_dir" ]]; then
+        print_warning "rime config directory not found: $rime_dir"
+        return 0
+    fi
+
+    ln -s "$rime_dir" "$rime_link"
+    print_success "Created rime symlink: $rime_link -> $rime_dir"
+}
+
 # Install additional tools (Zellij, Codex, Gemini, Opencode, Sbzr, Tree-sitter, etc.)
 install_extra_tools() {
     local install_dir="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install"
@@ -1033,7 +1084,12 @@ EOF
     run_step "dotlink" run_dotlink
     echo ""
 
-    # 8.5 Install ranger plugins if missing
+    # 8.5 Link rime config
+    print_info "Step 9.5/13: Linking rime config to dotfiles"
+    run_step "rime link" link_rime_config
+    echo ""
+
+    # 8.6 Install ranger plugins if missing
     print_info "Step 9.5/13: Checking ranger plugins"
     run_step "ranger_devicons install" install_ranger_devicons
     run_step "ranger_archives install" install_ranger_archives

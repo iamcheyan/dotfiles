@@ -47,8 +47,9 @@ source ~/dotfiles/plugins/completion/completion.zsh
 # evalcache: 缓存 init 脚本输出，减少 atuin/zoxide/direnv 这类 hook 的重复开销
 zinit light mroth/evalcache
 
-# fnm 懒加载 Node.js 版本管理
-eval "$(fnm env --use-on-cd)"
+if command -v fnm &> /dev/null; then
+  eval "$(fnm env --use-on-cd)"
+fi
 # 首次调用 node/npm/npx/corepack/fnm 时才初始化 fnm 环境
 source "${HOME}/dotfiles/scripts/system/setup_fnm.sh"
 
@@ -198,3 +199,7 @@ autoload -Uz compinit && compinit -C
 
 # bun completions
 [ -s "/Users/tetsuya/.bun/_bun" ] && source "/Users/tetsuya/.bun/_bun"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/tetsuya/.local/bin:$PATH"
