@@ -1,0 +1,60 @@
+name: Enforce commit identity
+
+on:
+  push:
+    branches:
+      - "**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: enforce-commit-identity-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  normalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize commit author and committer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          target_name="iamcheyan"
+          target_email="me@iamcheyan.com"
+          branch="${GITHUB_REF#refs/heads/}"
+
+          bad_count="$(
+            git log --format='%an%x00%ae%x00%cn%x00%ce' |
+              awk -v RS='\n' -v FS='\0' -v name="$target_name" -v email="$target_email" '
+                $1 != name || $2 != email || $3 != name || $4 != email { count++ }
+                END { print count + 0 }
+              '
+          )"
+
+          if [[ "$bad_count" == "0" ]]; then
+            echo "All commits already use ${target_name} <${target_email}>."
+            exit 0
+          fi
+
+          echo "Rewriting $bad_count commit(s) on ${branch}."
+          export FILTER_BRANCH_SQUELCH_WARNING=1
+          git filter-branch --force --env-filter "
+            export GIT_AUTHOR_NAME='${target_name}'
+            export GIT_AUTHOR_EMAIL='${target_email}'
+            export GIT_COMMITTER_NAME='${target_name}'
+            export GIT_COMMITTER_EMAIL='${target_email}'
+          " -- HEAD
+
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin "HEAD:refs/heads/${branch}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
