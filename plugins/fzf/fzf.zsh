@@ -132,6 +132,13 @@ _fzf_file_opts() {
         --preview-window=right:40%
 }
 
+# f
+# 弹出 fzf 文件列表
+# 用键盘搜索文件
+# 回车直接用 nvim 打开文件
+# 选中目录则进入 ranger
+# Alt+Enter 强制用 ranger 打开
+# 某个快捷键可以复制路径
 f() {
     local out query key target header copy_cmd
     local -a fzf_opts
