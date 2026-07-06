@@ -129,7 +129,6 @@ zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
 
 # 其他核心工具
 zi_cmd eza-community/eza eza
-zi_cmd bootandy/dust dust
 zi_cmd dalance/procs procs
 zi_cmd zellij-org/zellij zellij
 
