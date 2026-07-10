@@ -974,6 +974,26 @@ install_extra_tools() {
         print_success "herdr is already installed"
     fi
 
+    # Tmux Plugins (TPM)
+    if command_exists tmux; then
+        print_info "Checking and installing tmux plugins (TPM)..."
+        local tpm_dir="$HOME/.tmux/plugins/tpm"
+        if [[ ! -d "$tpm_dir" ]]; then
+            print_info "Cloning Tmux Plugin Manager (TPM)..."
+            git clone --depth 1 https://github.com/tmux-plugins/tpm "$tpm_dir"
+        fi
+        
+        # Start a detached tmux session if not running to allow script-based plugin installation
+        print_info "Installing configured tmux plugins..."
+        tmux new-session -d -s tpm-install 2>/dev/null || true
+        tmux source-file "$HOME/.tmux.conf" 2>/dev/null || true
+        bash "$tpm_dir/bin/install_plugins" >/dev/null 2>&1 || true
+        tmux kill-session -t tpm-install 2>/dev/null || true
+        print_success "Tmux plugins installation completed"
+    else
+        print_warning "tmux is not installed, skipping tmux plugins installation"
+    fi
+
     # Hunk - terminal diff viewer
     if ! command_exists hunk; then
         print_info "Installing Hunk..."
