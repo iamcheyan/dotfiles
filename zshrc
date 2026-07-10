@@ -120,14 +120,7 @@ if command -v zoxide > /dev/null; then
   alias zr='z -r'      # 移除目录
 fi
 
-# direnv: 进入目录时自动加载/卸载环境变量
-# 这里初始化 shell hook，并用 evalcache 缓存其输出
-# if command -v direnv >/dev/null 2>&1; then
-#   _evalcache direnv hook zsh
-# fi
 
-# superfile: 文件管理器的 shell 集成；存在本地配置时才加载
-# [[ -f ~/dotfiles/plugins/spf/superfile.zsh ]] && source ~/dotfiles/plugins/spf/superfile.zsh
 
 # local.zsh: 机器本地专用配置，不同机器可以放不同逻辑
 [[ -f ~/dotfiles/plugins/local/local.zsh ]] && source ~/dotfiles/plugins/local/local.zsh
