@@ -42,7 +42,7 @@
 
 | 组件 | 作用 | 加载方式 | 加载时机 |
 | --- | --- | --- | --- |
-| `romkatv/powerlevel10k` | 高性能提示符主题，显示目录、Git 状态、环境信息等 | `zinit light`，随后 `source ~/.p10k.zsh` | 同步加载 |
+| `starship/starship` | 跨平台现代化提示符主题，极具定制性并显示丰富的环境/Git 状态信息 | `zinit light` 并 `eval "$(starship init zsh)"` | 同步加载 |
 | `mroth/evalcache` | 缓存 `atuin init zsh`、`zoxide init zsh`、`direnv hook zsh` 的输出，减少重复初始化成本 | `zinit light` | 同步加载 |
 | `jeffreytse/zsh-vi-mode` | 为 Zsh 提供 Vim 模式编辑、模式切换和按键绑定 | `zinit light` | 同步加载 |
 | `zsh-users/zsh-history-substring-search` | 用上下键按当前输入内容搜索历史命令 | `zinit light` | 同步加载 |
@@ -161,5 +161,5 @@
 - `hlissner/zsh-autopair`
 - `jeffreytse/zsh-vi-mode`
 - `Aloxaf/fzf-tab`
-- `romkatv/powerlevel10k` 的 `vcs` 段和右侧环境段
+- `starship` 的 Git 状态和各种环境段的异步查询开销
 - `direnv`、`pyenv`、`atuin` 在提示符或目录切换时带来的额外开销

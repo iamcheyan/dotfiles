@@ -39,13 +39,13 @@ bash init.sh --repair     # 修复损坏的 zinit 插件
 zsh
 ```
 
-首次启动会自动安装 Powerlevel10k 主题和所有插件。
+首次启动会自动安装 Starship 主题和所有插件。
 
 ## 核心组件
 
 | 组件 | 说明 |
 |------|------|
-| **Shell** | Zsh + Powerlevel10k |
+| **Shell** | Zsh + Starship |
 | **插件管理** | Zinit（异步加载，极速启动） |
 | **Vim 模式** | zsh-vi-mode |
 | **历史搜索** | Atuin（Ctrl+R） |

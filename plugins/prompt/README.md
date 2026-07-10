@@ -1,147 +1,66 @@
-# Powerlevel10k 提示符配置
+# Starship 提示符配置
 
 ## 简介
 
-此文件负责配置 Powerlevel10k (p10k) 主题，这是一个高度可定制的 Zsh 提示符主题，提供快速启动和丰富的配置选项。
+此文件负责配置 Starship，这是一个极速、极具定制性且适用于任何 Shell 的现代化提示符。
 
-**官方仓库**: https://github.com/romkatv/powerlevel10k
+**官方网站**: https://starship.rs
 
 ## 文件位置
 
 - **配置文件**: `~/dotfiles/plugins/prompt/prompt.zsh`
-- **加载位置**: 在 `~/.zshrc` 中，在 zinit 初始化之后、其他插件之前加载
+- **Starship 配置**: `~/.config/starship.toml` (Starship 的默认配置路径)
+- **加载位置**: 在 `~/.zshrc` 中加载，并用 `zinit` 下载二进制文件：
+  ```zsh
+  source ~/dotfiles/plugins/prompt/prompt.zsh
+  ```
 
-## 功能
+## 功能与安装方式
 
-### 安装 Powerlevel10k
-
-通过 Zinit 安装 Powerlevel10k：
-
-```zsh
-zinit ice depth=1
-zinit light romkatv/powerlevel10k
-```
-
-### 加载用户配置
-
-如果存在用户自定义的 p10k 配置文件，会自动加载：
+在 `prompt.zsh` 中，我们根据当前的操作系统类型和架构，自适应地下载对应平台的 Starship 编译二进制包，并通过 `zinit` 加载和注入环境变量：
 
 ```zsh
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+zinit ice as"command" from"gh-r" bpick"${_starship_bpick}" pick"starship" sbin"starship"
+zinit light starship/starship
 ```
 
-## 使用说明
+### 初始化 Starship
 
-### 配置提示符
-
-运行配置向导来自定义提示符：
-
-```bash
-p10k configure
-```
-
-配置向导会引导您完成：
-- 提示符样式选择
-- 颜色方案
-- 显示的元素（Git 状态、时间、路径等）
-- 各种显示选项
-
-### 手动编辑配置
-
-编辑 `~/.p10k.zsh` 文件来自定义提示符：
-
-```bash
-nvim ~/.p10k.zsh
-```
-
-### Instant Prompt
-
-Powerlevel10k 支持 Instant Prompt，可以在 Zsh 初始化完成前显示提示符，提供更快的启动体验。
-
-Instant Prompt 配置在 `~/.zshrc` 的开头：
+当 starship 可执行文件在 PATH 中可用时，在 Zsh 中进行初始化：
 
 ```zsh
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
 fi
 ```
 
-## 常用配置
+## 自定义与配置
 
-### 显示 Git 状态
+您可以通过编辑 `~/.config/starship.toml` 文件来更改提示符的外观和显示段（例如目录、Git 状态、Node.js/Python 版本、执行时长等）：
 
-在 `~/.p10k.zsh` 中配置 Git 状态显示：
-
-```zsh
-typeset -g POWERLEVEL9K_VCS_BRANCH_ICON='\uF126 '
-typeset -g POWERLEVEL9K_VCS_GIT_ICON='\uF1D3 '
+```bash
+nvim ~/.config/starship.toml
 ```
 
-### 自定义路径显示
+### 常用命令
 
-```zsh
-# 缩短路径显示
-typeset -g POWERLEVEL9K_SHORTEN_STRATEGY=truncate_to_unique
-typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=1
-```
-
-### 显示时间
-
-```zsh
-# 在右侧显示时间
-typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(time)
-```
+- **查看当前配置状态**:
+  ```bash
+  starship explain
+  ```
+- **查看版本**:
+  ```bash
+  starship --version
+  ```
 
 ## 故障排除
 
-### 提示符不显示
-
-1. **检查插件是否加载**:
-   ```bash
-   zinit list | grep powerlevel10k
-   ```
-
-2. **重新加载配置**:
-   ```bash
-   source ~/.zshrc
-   ```
-
-3. **检查配置文件**:
-   ```bash
-   ls -la ~/.p10k.zsh
-   ```
-
-### Instant Prompt 警告
-
-如果看到 Instant Prompt 警告，可以：
-
-1. **设置为 quiet 模式**（已在配置中）:
-   ```zsh
-   typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
-   ```
-
-2. **禁用 Instant Prompt**:
-   ```zsh
-   typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
-   ```
-
-### 字体问题
-
-如果提示符显示异常字符，需要安装 Nerd Fonts：
-
-```bash
-# 使用字体安装脚本
-install:font
-```
+1. **终端显示乱码字符**:
+   Starship 默认需要使用带图标的 [Nerd Fonts](https://www.nerdfonts.com/)，如果字符显示异常，请确保您的终端字体设置为了 `JetBrainsMono Nerd Font` 或其他支持 Nerd Fonts 的字体。
+2. **命令找不到**:
+   请检查 Zinit 安装目录下的 Starship 是否下载完整，可运行 `zinit status starship/starship` 进行排查。
 
 ## 相关文件
 
-- **Zinit 配置**: `~/dotfiles/plugins/zinit/zinit.zsh`
-- **用户配置**: `~/.p10k.zsh` - Powerlevel10k 用户配置文件
-
-## 参考资源
-
-- [Powerlevel10k GitHub](https://github.com/romkatv/powerlevel10k)
-- [Powerlevel10k 配置指南](https://github.com/romkatv/powerlevel10k#configuration-wizard)
-
+- **Zsh 提示符引导逻辑**: `~/dotfiles/plugins/prompt/prompt.zsh`
+- **Zinit 核心逻辑**: `~/dotfiles/plugins/zinit/zinit.zsh`
