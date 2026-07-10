@@ -51,18 +51,19 @@
 | `zsh-users/zsh-autosuggestions` | 根据历史记录和补全结果显示灰色命令建议 | `zinit light` | 异步加载，来自本地片段 |
 | `zdharma-continuum/fast-syntax-highlighting` | 输入时高亮命令、参数、路径和错误语法 | `zinit light` | 异步加载，来自本地片段 |
 | `hlissner/zsh-autopair` | 自动补全括号、引号等成对字符 | `zinit light` | 异步加载，来自本地片段 |
-| `OMZP::sudo` | 输入两次 `Esc` 后自动给上一条命令加 `sudo` | `zinit snippet` | 异步加载 |
-| `OMZP::git` | 提供一组 Git 别名和辅助函数 | `zinit snippet` | 异步加载 |
+| `OMZP::sudo` | 输入两次 `Esc` 后自动给上一条命令加 `sudo` | `zinit snippet` (已注释禁用) | - |
+| `OMZP::git` | 提供一组 Git 别名 and 辅助函数 | `zinit snippet` (已注释禁用) | - |
 | `1mykull/zshcp` | 剪贴板辅助功能，供路径/文件复制类功能使用 | `zinit light` | 异步加载 |
-| `OMZP::copypath` | 复制文件或目录路径到剪贴板 | `zinit snippet` | 异步加载 |
-| `OMZP::copyfile` | 复制文件内容到剪贴板 | `zinit snippet` | 异步加载 |
+| `OMZP::copypath` | 复制文件或目录路径到剪贴板 | `zinit snippet` (已注释禁用) | - |
+| `OMZP::copyfile` | 复制文件内容到剪贴板 | `zinit snippet` (已注释禁用) | - |
 | `MichaelAquilina/zsh-you-should-use` | 当你输入了已有别名的原始命令时给出提示 | `zinit light` | 异步加载 |
-| `le0me55i/zsh-extract` | 用一个命令解压多种常见压缩格式 | `zinit light` | 异步加载 |
-| `paulirish/git-open` | 快速在浏览器打开当前仓库、分支、提交或文件对应的远程页面 | `zinit light` | 异步加载 |
-| `OMZP::colored-man-pages` | 为 `man` 页增加颜色 | `zinit snippet` | 异步加载 |
-| `Tarrasch/zsh-bd` | 通过目录名快速跳回上级目录 | `zinit light` | 异步加载 |
-| `zdharma-continuum/zsh-navigation-tools` | 一组基于终端 UI 的导航工具 | `zinit light` | 异步加载 |
+| `le0me55i/zsh-extract` | 用一个命令解压多种常见压缩格式 | `zinit light` (已注释禁用) | - |
+| `paulirish/git-open` | 快速在浏览器打开当前仓库、分支、提交或文件对应的远程页面 | `zinit light` (已注释禁用) | - |
+| `OMZP::colored-man-pages` | 为 `man` 页增加颜色 | `zinit snippet` (已注释禁用) | - |
+| `Tarrasch/zsh-bd` | 通过目录名快速跳回上级目录 | `zinit light` (已注释禁用) | - |
+| `zdharma-continuum/zsh-navigation-tools` | 一组基于终端 UI 的导航工具 | `zinit light` | 同步加载 |
 | `junegunn/fzf` shell snippets | 提供 `fzf` 的官方补全和按键绑定脚本 | `zinit snippet` 加载远程 `completion.zsh` 与 `key-bindings.zsh`，并在本地 `fzf.zsh` 中兼容系统安装版 | 同步注册补全；本地功能配置异步加载 |
+
 
 ## 3. 通过 hook 或 init 接入的命令行组件
 
@@ -90,6 +91,7 @@
 | `duf` | 以更友好的形式查看磁盘使用情况 | `zinit light` + `as"command"` |
 | `lazygit` | Git TUI | `zinit light` + `as"command"` |
 | `delta` | Git diff 高亮查看器 | `zinit light` + `as"command"` |
+| `gitui` | 终端 Git 交互界面工具 | `zinit light` + `as"command"` |
 | `gh` | GitHub CLI | `zinit light` + `as"command"` |
 | `jq` | JSON 处理工具 | `zinit light` + `as"command"` |
 | `yq` | YAML/JSON/XML 处理工具 | `zinit light` + `as"command"` |

@@ -1,6 +1,6 @@
 # Neovim Installed Plugins
 
-此列表基于 `lazy-lock.json` 自动生成。更新时间: 2026-05-14
+此列表基于 `lazy-lock.json` 与本地插件配置整理。更新时间: 2026-07-11
 
 ## 核心框架与管理 (Core & Management)
 
@@ -8,7 +8,7 @@
 |------|------|
 | **LazyVim** | Neovim 核心配置框架，提供开箱即用的体验。 |
 | **lazy.nvim** | 现代化的插件管理器，负责下载、更新和加载所有插件。 |
-| **snacks.nvim** | 提升 Neovim 体验的工具集 (界面、通知、大文件处理等)。 |
+| **snacks.nvim** | 提升 Neovim 体验 of 工具集 (界面、通知、大文件处理等)。 |
 | **persistence.nvim** | 会话管理，可自动保存和恢复之前的编辑状态。 |
 
 ## 主题与外观 (Theme & Aesthetics)
@@ -17,10 +17,8 @@
 |------|------|
 | **tokyonight.nvim** | 现代化的暗色主题 (当前使用的主题)。 |
 | **catppuccin** | 柔和的护眼主题 (可切换)。 |
-| **vim-colorschemes** | 主题合集，包含多种配色方案。 |
-| **lualine.nvim** | 高性能、高颜值的底部状态栏。 |
-| **bufferline.nvim** | 类似 IDE 的顶部标签栏/Buffer 栏。 |
 | **heirline.nvim** | 可高度自定义的状态栏 (LazyVim 内置)。 |
+| **bufferline.nvim** | 类似 IDE 的顶部标签栏/Buffer 栏。 |
 | **nvim-web-devicons** | 文件图标支持。 |
 
 ## 代码智能与语言支持 (LSP & Languages)
@@ -63,13 +61,12 @@
 | **plenary.nvim** | Lua 实用函数库 (Telescope 等插件的依赖)。 |
 | **flash.nvim** | 极速光标跳转插件 (类似 Easymotion/Sneak)。 |
 | **nvim-hlslens** | 搜索结果高亮和 lenses 显示。 |
-| **yazi.nvim** | 在 Neovim 浮窗里打开 Yazi 文件管理器。 |
+| **rnvimr** | 在 Neovim 浮窗里打开 Ranger 文件管理器。 |
 | **oil.nvim** | 把目录当成可编辑 buffer 的文件管理器。 |
-| **nvim-tree.lua** | 经典的目录树文件浏览器。 |
 | **trouble.nvim** | 漂亮的诊断、引用和快速修复列表。 |
 | **todo-comments.nvim** | 高亮并列出代码中的 TODO, FIXME, HACK 等注释。 |
 | **grug-far.nvim** | 全局搜索和替换工具 (基于 ripgrep)。 |
-| **nvim-spectre** | 高级搜索和替换工具。 |
+| **nvim-spectre** | 高级搜索 and 替换工具。 |
 | **aerial.nvim** | 代码结构大纲/符号导航。 |
 | **muren.nvim** | 多光标编辑工具。 |
 
@@ -78,34 +75,33 @@
 | 插件 | 说明 |
 |------|------|
 | **toggleterm.nvim** | 可开关的浮动终端，适合用快捷键呼出临时命令行。 |
-| **neovim-project** | 项目管理工具。 |
-| **neovim-session-manager** | 会话管理器。 |
+| **auto-session** | 自动保存和恢复编辑器会话，跨终端标签管理。 |
 
 ## Git 集成 (Git Integration)
 
 | 插件 | 说明 |
 |------|------|
 | **gitsigns.nvim** | 在行号旁显示 Git 增删改状态。 |
-| **vim-gitgutter** | Git 变更标记 (行号旁显示 +/-/~)。 |
+| **diffview.nvim** | 强大的 Git diff 视图与历史查看工具。 |
 
-## 输入法 (Input Method)
+## 教育与学习 (Education & Learning)
 
 | 插件 | 说明 |
 |------|------|
-| **ZFVimIM** | 中文输入法支持。 |
-| **VimTeacher** | Vim 学习插件。 |
+| **VimQuest.nvim** | 英语单词拼写与记忆小游戏插件 (本地加载)。 |
 
 ## 实用工具 (Utilities)
 
 | 插件 | 说明 |
 |------|------|
-| **bookmarks.nvim** | 书签管理。 |
-| **ccc.nvim** | 颜色拾取器。 |
-| **glow.nvim** | Markdown 预览工具。 |
+| **yanky.nvim** | 剪贴板历史记录与粘贴增强插件。 |
+| **substitute.nvim** | 快速替换文本内容的实用工具。 |
+| **sqlite.lua** | SQLite3 数据库的 Lua 绑定，供 yanky 持久化使用。 |
+| **ccc.nvim** | 颜色拾取器与高亮预览。 |
 | **vim-visual-multi** | 多光标编辑 (类似 VSCode 多光标)。 |
 | **nui.nvim** | UI 组件库 (被多个插件依赖)。 |
 | **which-key.nvim** | 按下按键时显示快捷键提示菜单。 |
 
 ## 插件总数
 
-当前安装插件数量: **52** 个核心插件 (不含依赖)
+当前安装插件数量: **48** 个核心插件 (含 1 个本地插件，不含纯库依赖)

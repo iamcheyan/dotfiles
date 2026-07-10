@@ -128,14 +128,15 @@ cx --list       # 列出所有配置的账户
 | **oil** | 文件浏览器（轻量） |
 | **persistence** | 会话持久化 |
 | **python** | Python 开发支持 |
+| **rnvimr** | Ranger 终端文件管理器浮窗集成 |
 | **snacks** | LazyVim 核心功能集 |
 | **spectre** | 全局搜索替换 |
 | **telescope** | 模糊搜索 |
 | **toggleterm** | 终端集成 |
 | **vim-visual-multi** | 多光标编辑 |
+| **vimquest** | 英语单词拼写与记忆小游戏插件 |
 | **which-key** | 快捷键提示 |
 | **yanky-substitute** | 复制/粘贴增强 |
-| **yazi** | 终端文件管理器 |
 
 ## 目录结构
 
