@@ -95,7 +95,12 @@ if $FORCE_REINSTALL || ! command -v grok &>/dev/null; then
 fi
 
 if [ $# -eq 0 ]; then
-  exec grok --yolo --continue
+  # Check if there is any session for the current directory
+  if command grok sessions list 2>/dev/null | grep -F "$PWD" >/dev/null; then
+    exec grok --yolo --continue
+  else
+    exec grok --yolo
+  fi
 else
   exec grok "$@"
 fi
