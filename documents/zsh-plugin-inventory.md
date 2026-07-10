@@ -123,8 +123,11 @@
 | `plugins/completion/completion.zsh` | 初始化 `compinit`、配置 `fzf-tab`、补全缓存、PATH 整理 | `source` |
 | `plugins/fzf/fzf.zsh` | 配置 `FZF_DEFAULT_COMMAND`、`FZF_DEFAULT_OPTS`，定义 `ff`、`rf`、`zd`、`zc`、`y` 等函数 | `source` |
 | `plugins/local/local.zsh` | 本机专用配置，目前包含字体安装提示逻辑 | `source`，条件加载 |
+| `plugins/wdiff/wdiff.zsh` | `wdiff`/`widff` 文本/路径交互差异比对工具（配合 Neovim 且支持 FZF 历史检索） | `source`，条件加载 |
+| `plugins/termscp/termscp.zsh` | 定义 `tscp` (termscp 别名) 及 `termscp-lab` 系列快捷连接函数 | `source`，条件加载 |
+| `plugins/omnyssh/omnyssh.zsh` | 定义 `ossh`/`omnyssh` 启动函数、omny 自动安装与配置链接逻辑 | `source`，条件加载 |
 | `aliases.conf` | 命令别名 | `source` |
-| `fnm` | `fnm` 惰性加载入口 | 在 `plugins/system/setup_fnm.sh` 中定义函数 |
+| `fnm` | `fnm` 惰性加载入口 | 在 `scripts/system/setup_fnm.sh` 中定义函数 |
 | `vi()` | 优先使用 `nvim` 的包装函数 | 在 `zshrc` 中定义函数 |
 | `zvm_after_init()` | 给 `zsh-vi-mode` 设置历史搜索按键绑定 | 在 `zshrc` 中定义函数，供插件回调 |
 
@@ -141,12 +144,16 @@
 - `zinit light zsh-users/zsh-history-substring-search`
 - `_evalcache atuin init zsh`
 - `_evalcache zoxide init zsh`
-- `_evalcache direnv hook zsh`
+- `_evalcache direnv hook zsh` (已注释禁用)
+- `source ~/dotfiles/plugins/local/local.zsh` (条件同步加载)
+- `source ~/dotfiles/plugins/wdiff/wdiff.zsh` (条件同步加载)
+- `source ~/dotfiles/plugins/termscp/termscp.zsh` (条件同步加载)
+- `source ~/dotfiles/plugins/omnyssh/omnyssh.zsh` (条件同步加载)
 
 ### 异步加载
 
-- `zinit snippet ~/dotfiles/plugins/plugins/plugins.zsh` with `wait"0"`
-- 这两个片段内部声明的 `zinit light` / `zinit snippet` 组件也随之延后生效
+- `source ~/dotfiles/plugins/plugins/plugins.zsh` (内部包含 `zinit light` 异步延后生效插件)
+- `source ~/dotfiles/plugins/fzf/fzf.zsh` (FZF 快捷键与包装函数加载)
 
 ### 惰性加载
 
