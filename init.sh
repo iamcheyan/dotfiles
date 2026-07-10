@@ -84,6 +84,8 @@ detect_os() {
             fi
         elif command_exists pacman; then
             OS="arch"
+        elif command_exists xbps-install; then
+            OS="void"
         else
             OS="linux"
         fi
@@ -130,6 +132,14 @@ install_zsh() {
         arch)
             if command_exists sudo; then
                 sudo pacman -S --noconfirm zsh
+            else
+                print_error "sudo privileges are required to install zsh"
+                return 1
+            fi
+            ;;
+        void)
+            if command_exists sudo; then
+                sudo xbps-install -Sy zsh
             else
                 print_error "sudo privileges are required to install zsh"
                 return 1
@@ -274,6 +284,7 @@ install_essentials() {
     local debian_packages="build-essential ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot htop"
     local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot htop"
     local arch_packages="base-devel ripgrep fd bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot htop"
+    local void_packages="base-devel ripgrep fd-find bat lsd zoxide translate-shell glow mdcat yt-dlp tealdeer gping jq httpie broot htop"
     local brew_packages="ripgrep fd bat lsd zoxide translate-shell glow mdcat viu yt-dlp tealdeer gping jq httpie broot htop"
 
     if [[ "$MINIMAL" == "true" ]]; then
@@ -342,6 +353,13 @@ install_essentials() {
     elif [[ "$OS" == "arch" ]]; then
         if command_exists sudo; then
              sudo pacman -S --noconfirm $common_packages $arch_packages
+        else
+            print_error "sudo privileges are required to install essential tools"
+            return 1
+        fi
+    elif [[ "$OS" == "void" ]]; then
+        if command_exists sudo; then
+            sudo xbps-install -Sy $common_packages $void_packages
         else
             print_error "sudo privileges are required to install essential tools"
             return 1
@@ -542,6 +560,14 @@ install_fzf() {
                 return 1
             fi
             ;;
+        void)
+            if command_exists sudo; then
+                sudo xbps-install -Sy fzf
+            else
+                print_error "sudo privileges are required to install fzf"
+                return 1
+            fi
+            ;;
         macos)
             if command_exists brew; then
                 brew install fzf
@@ -555,6 +581,7 @@ install_fzf() {
             print_info "Ubuntu/Debian: sudo apt-get install fzf"
             print_info "Fedora/RHEL: sudo dnf install fzf"
             print_info "Arch Linux: sudo pacman -S fzf"
+            print_info "Void Linux: sudo xbps-install -Sy fzf"
             print_info "macOS: brew install fzf"
             return 1
             ;;
@@ -855,6 +882,9 @@ install_docker() {
         arch)
             sudo pacman -S --noconfirm docker docker-buildx docker-compose
             ;;
+        void)
+            sudo xbps-install -Sy docker docker-compose
+            ;;
         *)
             print_warning "Unsupported Linux distribution for automatic Docker install: $os"
             return 0
@@ -863,6 +893,9 @@ install_docker() {
 
     if command_exists systemctl; then
         sudo systemctl enable --now docker || true
+    elif [[ -d /etc/sv/docker ]]; then
+        # Void Linux uses runit
+        sudo ln -sf /etc/sv/docker /var/service/ || true
     fi
 
     if getent group docker >/dev/null 2>&1; then
