@@ -64,35 +64,16 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1                    # 异步获取建议
 # zsh-autopair: 自动补全括号、引号等
 zinit light hlissner/zsh-autopair
 
-# zsh-navigation-tools: 交互式导航工具集，需要同步注册到 fpath/autoload
-# 否则 ncd / nkill / nhistory 在新 shell 里可能在异步加载完成前不可用
-zinit light zdharma-continuum/zsh-navigation-tools
-typeset -g ZNT_PLUGIN_DIR="${HOME}/.zinit/plugins/zdharma-continuum---zsh-navigation-tools"
-if [[ -d "$ZNT_PLUGIN_DIR" ]]; then
-  fpath+=("$ZNT_PLUGIN_DIR")
-  source "$ZNT_PLUGIN_DIR/zsh-navigation-tools.plugin.zsh"
-fi
-
 # zsh-vi-mode: 为命令行编辑提供 Vim 模式和模式切换
 # 必须在 autosuggestions 之前加载，避免按键绑定冲突
 zinit ice lucid
 zinit light jeffreytse/zsh-vi-mode
 
-# zsh-history-substring-search: 根据当前已输入前缀，用上下键搜索历史
-# 这里作为 atuin 上下键搜索不可用时的回退方案
-zinit ice lucid
-zinit light zsh-users/zsh-history-substring-search
-
 # 配置 zsh-vi-mode
 export ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT  # 每次新行开始默认进入插入模式
 function zvm_after_init() {
-  if [[ -n "$widgets[atuin-up-search-viins]" ]]; then
-    zvm_bindkey viins '^[[A' atuin-up-search
-    zvm_bindkey viins '^[OA' atuin-up-search
-  else
-    zvm_bindkey viins '^[[A' history-substring-search-up
-    zvm_bindkey viins '^[[B' history-substring-search-down
-  fi
+  zvm_bindkey viins '^[[A' atuin-up-search
+  zvm_bindkey viins '^[OA' atuin-up-search
 }
 
 # 其他增强插件集合：autosuggestions、语法高亮、autopair 等

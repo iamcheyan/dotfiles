@@ -45,7 +45,6 @@
 | `starship/starship` | 跨平台现代化提示符主题，极具定制性并显示丰富的环境/Git 状态信息 | `zinit light` 并 `eval "$(starship init zsh)"` | 同步加载 |
 | `mroth/evalcache` | 缓存 `atuin init zsh`、`zoxide init zsh`、`direnv hook zsh` 的输出，减少重复初始化成本 | `zinit light` | 同步加载 |
 | `jeffreytse/zsh-vi-mode` | 为 Zsh 提供 Vim 模式编辑、模式切换和按键绑定 | `zinit light` | 同步加载 |
-| `zsh-users/zsh-history-substring-search` | 用上下键按当前输入内容搜索历史命令 | `zinit light` | 同步加载 |
 | `zsh-users/zsh-completions` | 补充大量额外补全定义 | `zinit light` with `blockf` | 同步加载 |
 | `Aloxaf/fzf-tab` | 用 `fzf` 接管 Tab 补全选择界面，并支持预览和分组 | `zinit light` | 同步加载，位于 `compinit` 之后 |
 | `zsh-users/zsh-autosuggestions` | 根据历史记录和补全结果显示灰色命令建议 | `zinit light` | 异步加载，来自本地片段 |
@@ -54,7 +53,6 @@
 | `1mykull/zshcp` | 剪贴板辅助功能，供路径/文件复制类功能使用 | `zinit light` | 异步加载 |
 | `MichaelAquilina/zsh-you-should-use` | 当你输入了已有别名的原始命令时给出提示 | `zinit light` | 异步加载 |
 | `le0me55i/zsh-extract` | 用一个命令解压多种常见压缩格式 | `zinit light` | 异步加载 |
-| `zdharma-continuum/zsh-navigation-tools` | 一组基于终端 UI 的导航工具 | `zinit light` | 同步加载 |
 | `junegunn/fzf` shell snippets | 提供 `fzf` 的官方补全和按键绑定脚本 | `zinit snippet` 加载远程 `completion.zsh` 与 `key-bindings.zsh`，并在本地 `fzf.zsh` 中兼容系统安装版 | 同步注册补全；本地功能配置异步加载 |
 
 
@@ -134,7 +132,6 @@
 - `source ~/dotfiles/plugins/completion/completion.zsh`
 - `zinit light mroth/evalcache`
 - `zinit light jeffreytse/zsh-vi-mode`
-- `zinit light zsh-users/zsh-history-substring-search`
 - `_evalcache atuin init zsh`
 - `_evalcache zoxide init zsh`
 - `source ~/dotfiles/plugins/local/local.zsh` (条件同步加载)
