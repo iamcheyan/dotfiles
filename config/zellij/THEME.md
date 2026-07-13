@@ -23,7 +23,7 @@
 
 ## 配色分组
 
-### 状态栏 (zellij-cb)
+### 状态栏 (内置 tab-bar)
 
 | 元素 | 前景色 | 背景色 |
 |------|--------|--------|
@@ -88,6 +88,5 @@
 |------|------|
 | `config.kdl` | 主配置：theme_dir、keybindings、plugins |
 | `themes/tmux-color.kdl` | 主题定义：所有色值 |
-| `layouts/default.kdl` | 布局：zellij-cb 状态栏 |
-| `plugins/zellij-cb/` | 状态栏插件 (fork) |
+| `layouts/default.kdl` | 布局：内置 tab-bar 状态栏 |
 | `THEME.md` | 本文件 |
