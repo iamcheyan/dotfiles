@@ -75,7 +75,7 @@ zsh
 
 ### cc 脚本（Claude Code 启动器）
 
-Claude Code 的封装脚本，支持多 provider/model 切换、会话恢复、非交互模式等。详见 [CC.md](CC.md)。
+Claude Code 的封装脚本，支持多 provider/model 切换、会话恢复、非交互模式等。
 
 ```bash
 cc                          # 启动 Claude Code

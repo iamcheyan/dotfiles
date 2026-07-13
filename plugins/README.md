@@ -14,8 +14,6 @@
 5. completion.zsh → 补全和 PATH 设置
 6. plugins.zsh    → Zsh 功能插件
 7. fzf.zsh        → fzf 配置和函数
-8. spf/superfile.zsh → superfile 自动安装（退出后切换目录）
-9. local.zsh      → 机器特定配置
 ```
 
 ## 文件详细说明
@@ -252,75 +250,6 @@ y ~/Documents        # 从指定目录启动 yazi
 - `Alt+C` - 切换目录
 - `Ctrl+R` - 搜索命令历史
 
-### 7. superfile.zsh - superfile 自动安装
-
-**作用：**
-- 提供 `spf` 函数，自动安装 superfile（如果不存在）
-- 退出后自动切换到 superfile 最后的目录（类似 yazi）
-- 创建别名以支持拼写容错
-
-**调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/spf/superfile.zsh` 加载
-
-**提供的功能：**
-- `spf` 函数 - 自动安装并执行 superfile，退出后切换目录
-- `superfile` 别名 - 指向 `spf`
-- `superfiles` 别名 - 拼写容错
-
-**使用方式：**
-```bash
-spf                    # 从当前目录启动 superfile
-spf ~/Documents        # 从指定目录启动 superfile
-superfile              # 同上
-superfiles             # 同上（拼写容错）
-
-# 在 superfile 中浏览文件后退出
-# 终端会自动切换到 superfile 退出时的目录
-```
-
-**工作原理：**
-1. 检查 `~/.local/bin/spf` 是否存在
-2. 检查系统 PATH 中是否有 `spf`
-3. 如果都不存在，自动下载并安装到 `~/.local/bin/`
-4. 执行 superfile
-5. 退出后读取 `~/.local/state/superfile/lastdir` 文件
-6. 自动切换到 superfile 退出时的目录
-
-**退出后切换目录：**
-- Linux: `~/.local/state/superfile/lastdir`
-- macOS: `~/Library/Application Support/superfile/lastdir`
-- 自动创建目录并读取最后目录路径
-
-### 8. local.zsh - 机器特定配置
-
-**作用：**
-- 存放机器特定的配置
-- 提供字体安装功能
-
-**调用方式：**
-- 在 `~/.zshrc` 中通过 `source ~/dotfiles/plugins/local/local.zsh` 加载
-- 最后加载，可以覆盖之前的配置
-
-**提供的功能：**
-
-#### `install:font` 函数 - 字体安装
-- 安装 Meslo 和 Noto Serif 字体
-- 首次启动时自动询问是否安装
-
-**使用方式：**
-```bash
-install:font              # 安装所有字体（Meslo + Noto）
-install:font --meslo       # 只安装 Meslo
-install:font --noto        # 只安装 Noto Serif
-install:font --all         # 安装所有字体
-install:font --force       # 强制重新安装
-```
-
-**自动安装逻辑：**
-- 首次启动 zsh 时，如果检测到 Meslo 字体未安装，会询问用户
-- 只在交互式 shell 中询问
-- 创建标记文件避免重复询问
-
 ## 调用流程
 
 ```
@@ -340,13 +269,9 @@ install:font --force       # 强制重新安装
     ↓
 6. fzf.zsh        → 配置 fzf 和自定义函数
     ↓
-7. spf/superfile.zsh → 配置 superfile 自动安装（退出后切换目录）
+7. aliases.conf   → 加载别名配置
     ↓
-8. local.zsh      → 加载机器特定配置（字体安装询问等）
-    ↓
-9. aliases.conf   → 加载别名配置
-    ↓
-10. ~/.p10k.zsh   → 加载 Powerlevel10k 用户配置
+8. ~/.p10k.zsh   → 加载 Powerlevel10k 用户配置
     ↓
 完成，提示符显示
 ```
@@ -371,13 +296,6 @@ rf [关键字]           # 内容搜索
 zd                     # 目录跳转
 zc                     # 命令历史
 y [目录]               # Yazi 文件管理器（退出后自动切换目录）
-```
-
-### 自动安装工具
-```bash
-spf [目录]            # superfile（自动安装，退出后切换目录）
-y [目录]              # Yazi 文件管理器（退出后切换目录）
-install:font          # 字体安装
 ```
 
 ## 完整插件列表
@@ -466,12 +384,10 @@ install:font          # 字体安装
 1. **首次使用**：工具会在首次使用时自动下载，可能需要等待几秒钟
 2. **PATH 设置**：所有工具都通过 `completion.zsh` 自动添加到 PATH
 3. **加载顺序**：不要随意更改加载顺序，某些配置有依赖关系
-   - `zinit.zsh` → `prompt.zsh` → `tools.zsh` → `completion.zsh` → `plugins.zsh` → `fzf.zsh` → `local.zsh`
+   - `zinit.zsh` → `prompt.zsh` → `tools.zsh` → `completion.zsh` → `plugins.zsh` → `fzf.zsh`
    - `fzf-tab` 必须在 `compinit` 之后、`zsh-autosuggestions` 之前加载
    - `zsh-vi-mode` 必须在 `zsh-autosuggestions` 之前加载
    - `zsh-syntax-highlighting` 必须最后加载
-4. **机器特定配置**：`local.zsh` 是唯一应该手动编辑的文件（如果需要）
-5. **字体安装**：首次启动时会询问，也可以随时使用 `install:font` 命令
 
 ## 故障排除
 

@@ -481,45 +481,6 @@ install_fnm() {
     ensure_fnm_node
 }
 
-# Install direnv
-install_direnv() {
-    local direnv_bin="$HOME/.local/bin/direnv"
-    
-    if [[ -x "$direnv_bin" ]]; then
-        print_success "direnv is already installed: $($direnv_bin --version)"
-        return 0
-    fi
-
-    print_info "Installing direnv..."
-
-    local os_type="linux"
-    [[ "$OSTYPE" == "darwin"* ]] && os_type="darwin"
-
-    local arch
-    if [[ "$(uname -m)" == "x86_64" ]]; then
-        arch="amd64"
-    elif [[ "$(uname -m)" == "aarch64" ]] || [[ "$(uname -m)" == "arm64" ]]; then
-        arch="arm64"
-    else
-        print_error "Unsupported architecture: $(uname -m)"
-        return 1
-    fi
-
-    local version=$(curl -sL https://api.github.com/repos/direnv/direnv/releases/latest 2>/dev/null | grep '"tag_name"' | sed 's/.*v\([0-9.]*\).*/\1/')
-    if [[ -z "$version" ]]; then
-        version="2.35.0"
-    fi
-
-    mkdir -p "$HOME/.local/bin"
-    if curl -sL "https://github.com/direnv/direnv/releases/download/v${version}/direnv.${os_type}-${arch}" -o "$direnv_bin"; then
-        chmod +x "$direnv_bin"
-        print_success "direnv installed successfully: v$($direnv_bin --version)"
-    else
-        print_error "Failed to install direnv"
-        return 1
-    fi
-}
-
 # Install fzf
 install_fzf() {
     if command_exists fzf; then
@@ -911,30 +872,6 @@ install_docker() {
     fi
 }
 
-# Link rime config: dotfiles/rime -> ~/.local/share/fcitx5/rime
-link_rime_config() {
-    local rime_dir="$HOME/.local/share/fcitx5/rime"
-    local rime_link="${DOTFILES_DIR:-$HOME/dotfiles}/rime"
-
-    if [[ -L "$rime_link" ]]; then
-        print_success "rime symlink already exists: $rime_link -> $(readlink "$rime_link")"
-        return 0
-    fi
-
-    if [[ -d "$rime_link" ]]; then
-        print_warning "dotfiles/rime already exists as a real directory, skipping"
-        return 0
-    fi
-
-    if [[ ! -d "$rime_dir" ]]; then
-        print_warning "rime config directory not found: $rime_dir"
-        return 0
-    fi
-
-    ln -s "$rime_dir" "$rime_link"
-    print_success "Created rime symlink: $rime_link -> $rime_dir"
-}
-
 # Install additional tools (Zellij, Codex, Gemini, Opencode, Sbzr, Tree-sitter, etc.)
 install_extra_tools() {
     local install_dir="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install"
@@ -954,15 +891,6 @@ install_extra_tools() {
         [[ -f "$install_dir/install_zellij.sh" ]] && bash "$install_dir/install_zellij.sh"
     else
         print_success "Zellij is already installed"
-    fi
-
-    # Configure Zellij plugin permissions automatically
-    local fix_perms_script="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/utils/fix-zellij-permissions.sh"
-    if [[ -f "$fix_perms_script" ]]; then
-        print_info "Configuring Zellij plugin permissions..."
-        chmod +x "$fix_perms_script"
-        bash "$fix_perms_script"
-        print_success "Zellij plugin permissions configured"
     fi
 
     # herdr - local AI coding assistant
@@ -992,44 +920,6 @@ install_extra_tools() {
         print_success "Tmux plugins installation completed"
     else
         print_warning "tmux is not installed, skipping tmux plugins installation"
-    fi
-
-    # Hunk - terminal diff viewer
-    if ! command_exists hunk; then
-        print_info "Installing Hunk..."
-        if command_exists npm; then
-            local npm_bin
-            npm_bin="$(command -v npm)"
-            if [[ "$npm_bin" == "$HOME/.fnm/"* || "$npm_bin" == "$HOME/.local/share/fnm/"* ]]; then
-                npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
-            elif [[ "$OSTYPE" == "linux-gnu"* ]] && command_exists sudo; then
-                sudo npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
-            else
-                npm i -g hunkdiff && print_success "Hunk installed via npm" || print_warning "Failed to install Hunk via npm"
-            fi
-        elif command_exists brew; then
-            brew install modem-dev/tap/hunk && print_success "Hunk installed via brew" || print_warning "Failed to install Hunk via brew"
-        else
-            print_warning "npm or brew not found; cannot install Hunk"
-        fi
-    else
-        print_success "Hunk is already installed"
-    fi
-
-    # Sbzr (rime config clone disabled — managed manually)
-    # if ! command_exists sbzr; then
-    #     print_info "Installing Sbzr..."
-    #     [[ -f "$install_dir/install_sbzr.sh" ]] && bash "$install_dir/install_sbzr.sh"
-    # else
-    #     print_success "Sbzr is already installed"
-    # fi
-
-    # Firefox theme (Linux only)
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        if command_exists firefox || command_exists firefox-developer-edition; then
-            print_info "Linux environment detected. Configuring Firefox theme..."
-            [[ -f "$install_dir/firefox_theme_install.sh" ]] && bash "$install_dir/firefox_theme_install.sh"
-        fi
     fi
 }
 
@@ -1096,29 +986,29 @@ EOF
     }
 
     # Detect and configure the dotfiles directory
-    print_info "Step 1/13: Detecting the dotfiles repository location"
+    print_info "Step 1/12: Detecting the dotfiles repository location"
     if ! detect_dotfiles_dir; then
         exit 1
     fi
     echo ""
 
     # 1. Install zsh
-    print_info "Step 2/13: Checking and installing zsh"
+    print_info "Step 2/12: Checking and installing zsh"
     run_step "zsh install" install_zsh
     echo ""
 
     # 2. Install essential tools
-    print_info "Step 3/13: Installing essential tools (git, curl, build-essential, etc.)"
+    print_info "Step 3/12: Installing essential tools (git, curl, build-essential, etc.)"
     run_step "essential tools install" install_essentials
     echo ""
 
     # 2.5 Initialize git submodules
-    print_info "Step 3.5/13: Initializing git submodules"
+    print_info "Step 3.5/12: Initializing git submodules"
     run_step "git submodules" init_git_submodules
     echo ""
 
     # 3. Install zinit
-    print_info "Step 4/13: Checking and installing zinit"
+    print_info "Step 4/12: Checking and installing zinit"
     run_step "zinit install" install_zinit
     echo ""
 
@@ -1130,66 +1020,56 @@ EOF
     fi
 
     # 4. Install pyenv
-    print_info "Step 5/13: Checking and installing pyenv"
+    print_info "Step 5/12: Checking and installing pyenv"
     run_step "pyenv install" install_pyenv
     echo ""
 
     # 5. Install fnm
-    print_info "Step 6/13: Checking and installing fnm"
+    print_info "Step 6/12: Checking and installing fnm"
     run_step "fnm install" install_fnm
     echo ""
 
-    # 6. Install fzf
-    print_info "Step 7/13: Checking and installing fzf"
+    # 7. Install fzf
+    print_info "Step 7/12: Checking and installing fzf"
     run_step "fzf install" install_fzf
     echo ""
 
-    # 7. Install direnv
-    print_info "Step 8/13: Checking and installing direnv"
-    run_step "direnv install" install_direnv
-    echo ""
-
     # 8. Create config file symlinks with dotlink
-    print_info "Step 9/13: Creating config file symlinks with dotlink"
+    print_info "Step 8/12: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
     echo ""
 
-    # 8.5 Link rime config
-    print_info "Step 9.5/13: Linking rime config to dotfiles"
-    run_step "rime link" link_rime_config
-    echo ""
-
-    # 8.6 Install ranger plugins if missing
-    print_info "Step 9.5/13: Checking ranger plugins"
+    # 8.5 Install ranger plugins if missing
+    print_info "Step 8.5/12: Checking ranger plugins"
     run_step "ranger_devicons install" install_ranger_devicons
     run_step "ranger_archives install" install_ranger_archives
     echo ""
 
     # 9. Create the .zshrc symlink
-    print_info "Step 10/13: Creating the .zshrc symlink"
+    print_info "Step 9/12: Creating the .zshrc symlink"
     run_step "zshrc link" create_zshrc_link
     echo ""
 
     # 10. Install Neovim
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 11/13: Installing Neovim"
+        print_info "Step 10/12: Installing Neovim"
         run_step "neovim install" install_neovim
     else
-        print_info "Step 11/13: Skipping Neovim (minimal mode)"
+        print_info "Step 10/12: Skipping Neovim (minimal mode)"
     fi
     echo ""
 
     # 11. Install fonts
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 12/13: Installing fonts"
+        print_info "Step 11/12: Installing fonts"
         run_step "fonts install" install_fonts
     else
-        print_info "Step 12/13: Skipping fonts (minimal mode)"
+        print_info "Step 11/12: Skipping fonts (minimal mode)"
     fi
     echo ""
 
     # 12. Install additional tools
-    print_info "Step 13/13: Checking and installing additional tools (Zellij, Codex, etc.)"
+    print_info "Step 12/12: Checking and installing additional tools (Zellij, Codex, etc.)"
     run_step "extra tools install" install_extra_tools
     echo ""
 
