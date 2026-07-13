@@ -446,15 +446,9 @@ LazyVim 的 `<leader>` 键默认是 **空格键 (Space)**
 
 选择 `ui` 类别，然后选择您喜欢的主题插件。
 
-或者直接安装主题插件，例如：
-
-```vim
-:Lazy install tokyonight.nvim
-```
-
 ### 内置主题
 
-LazyVim 默认使用 `tokyonight` 主题。您可以在 `lua/config/` 目录中自定义主题。
+当前使用 `oceanblack` 主题。您可以在 `lua/config/colorscheme.lua` 中自定义主题。
 
 ## 自定义配置
 

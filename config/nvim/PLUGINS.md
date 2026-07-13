@@ -9,13 +9,11 @@
 | **LazyVim** | Neovim 核心配置框架，提供开箱即用的体验。 |
 | **lazy.nvim** | 现代化的插件管理器，负责下载、更新和加载所有插件。 |
 | **snacks.nvim** | 提升 Neovim 体验 of 工具集 (界面、通知、大文件处理等)。 |
-| **persistence.nvim** | 会话管理，可自动保存和恢复之前的编辑状态。 |
 
 ## 主题与外观 (Theme & Aesthetics)
 
 | 插件 | 说明 |
 |------|------|
-| **tokyonight.nvim** | 现代化的暗色主题 (当前使用的主题)。 |
 | **catppuccin** | 柔和的护眼主题 (可切换)。 |
 | **heirline.nvim** | 可高度自定义的状态栏 (LazyVim 内置)。 |
 | **bufferline.nvim** | 类似 IDE 的顶部标签栏/Buffer 栏。 |
@@ -66,9 +64,7 @@
 | **trouble.nvim** | 漂亮的诊断、引用和快速修复列表。 |
 | **todo-comments.nvim** | 高亮并列出代码中的 TODO, FIXME, HACK 等注释。 |
 | **grug-far.nvim** | 全局搜索和替换工具 (基于 ripgrep)。 |
-| **nvim-spectre** | 高级搜索 and 替换工具。 |
 | **aerial.nvim** | 代码结构大纲/符号导航。 |
-| **muren.nvim** | 多光标编辑工具。 |
 
 ## 终端与集成 (Terminal & Integration)
 

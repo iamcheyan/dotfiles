@@ -1,8 +1,7 @@
 return {
   {
     "rmagatti/auto-session",
-    lazy = true,
-    event = "VimEnter",
+    lazy = false,
 
     ---enables autocomplete for opts
     ---@module "auto-session"
@@ -16,7 +15,7 @@ return {
       auto_restore_last_session = false,
 
       -- 不自动保存的目录
-      suppressed_dirs = { "~/", "~/Projects", "~/Downloads", "/", "~/.cache/vimquest/*" },
+      suppressed_dirs = { "/", "~/.cache/*" },
 
       -- 忽略 dashboard 等文件类型
       bypass_save_filetypes = { "alpha", "dashboard", "snacks_dashboard" },

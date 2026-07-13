@@ -1,10 +1,4 @@
 return {
-  -- 禁用 nvim-tree
-  {
-    "nvim-tree/nvim-tree.lua",
-    enabled = false,
-  },
-
   -- 配置 neo-tree
   {
     "nvim-neo-tree/neo-tree.nvim",

@@ -1,7 +1,7 @@
 return {
   dir = vim.fn.stdpath("config"),
   name = "VimQuest.nvim",
-  lazy = false,
+  cmd = { "VimQuestStart", "VimQuestStop", "VimQuestNext", "VimQuestPrev", "VimQuestNextRound" },
   config = function()
     require("vimquest").setup()
   end,
