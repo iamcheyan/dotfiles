@@ -25,5 +25,5 @@ push_repo() {
   fi
 }
 
-push_repo /Users/tetsuya/dotfiles
-push_repo /Users/tetsuya/chezmoi
+push_repo $HOME/dotfiles
+push_repo $HOME/chezmoi

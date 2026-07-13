@@ -51,7 +51,7 @@ if command -v fnm &> /dev/null; then
   eval "$(fnm env --use-on-cd)"
 fi
 # 首次调用 node/npm/npx/corepack/fnm 时才初始化 fnm 环境
-source "${HOME}/dotfiles/scripts/system/setup_fnm.sh"
+source "${HOME}/dotfiles/scripts/setup/setup_fnm.sh"
 
 # zsh-autosuggestions: 根据历史记录提供自动建议
 zinit light zsh-users/zsh-autosuggestions
