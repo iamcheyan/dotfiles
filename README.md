@@ -21,7 +21,7 @@ bash init.sh --repair     # 修复损坏的 zinit 插件
 
 初始化脚本会自动完成以下操作：
 - 安装 Zsh 并设置为默认 Shell
-- 安装所有必备工具（git, curl, ripgrep, fd, bat, lsd, zoxide 等）
+- 安装所有必备工具（git, curl, ripgrep, fd, bat, eza, zoxide 等）
 - 安装 zinit 插件管理器
 - 安装 pyenv（Python 版本管理）
 - 安装 fnm（Fast Node Manager）
@@ -30,7 +30,7 @@ bash init.sh --repair     # 修复损坏的 zinit 插件
 - 创建配置文件符号链接
 - 安装 Neovim + lazy.nvim 自管配置
 - 安装 Nerd Font 字体
-- 初始化 Yazi 文件管理器配置
+- 初始化 Ranger 文件管理器配置
 - 安装 Zellij、Codex、Opencode 等额外工具
 
 ### 第三步：启动 Zsh
@@ -50,7 +50,7 @@ zsh
 | **Vim 模式** | zsh-vi-mode |
 | **历史搜索** | Atuin（Ctrl+R） |
 | **编辑器** | Neovim（lazy.nvim，自管配置） |
-| **文件管理** | Yazi |
+| **文件管理** | Ranger（`r` 函数，见 aliases.conf） |
 | **终端多路复用** | Zellij |
 | **终端模拟器** | Kitty / Ghostty |
 
@@ -63,7 +63,6 @@ zsh
 | `ls` | eza | 带颜色和图标的目录列表 |
 | `cat` | bat | 带语法高亮的文件查看 |
 | `find` | fd | 更快的文件查找 |
-| `du` | dust | 更直观的磁盘使用分析 |
 | `grep` | ripgrep | 极速文本搜索 |
 | `top` | btop | 美化的系统监控 |
 | `ps` | procs | 更友好的进程查看 |
@@ -153,20 +152,25 @@ dotfiles/
 │   └── dotlinkrc         # 链接配置
 ├── plugins/              # Zinit 插件配置
 │   ├── zinit/            # Zinit 管理器
-│   ├── prompt/           # Powerlevel10k 主题
-│   ├── tools/            # CLI 工具
-│   ├── completion/       # 补全配置
-│   ├── yazi/             # Yazi 集成
-│   ├── fzf/              # fzf 配置
+│   ├── prompt/           # Starship 提示符主题
+│   ├── tools/            # CLI 工具（基于 as"command" from"gh-r"）
+│   ├── completion/       # 补全配置（zsh-completions + fzf-tab）
+│   ├── plugins/          # Zsh 功能插件（plugins.zsh）
+│   ├── fzf/              # fzf 配置与函数
 │   ├── zellij/           # Zellij 集成
-│   └── zsh-vi-mode/      # Vim 模式
-├── config/               # 应用配置
+│   ├── yazi/             # Yazi 主题更新脚本
+│   └── sshfs/            # vifm-sshfs 脚本
+├── config/               # 应用配置（指向 ~/.config 下各应用）
 │   ├── nvim/             # Neovim (lazy.nvim self-managed)
-│   ├── yazi/             # Yazi
+│   ├── ranger/           # Ranger 文件管理器
+│   ├── yazi/             # Yazi 配置（yazi 二进制未通过 zinit 安装）
+│   ├── atuin/            # Atuin 历史搜索
+│   ├── starship/         # Starship 提示符配置
 │   ├── kitty/            # Kitty 终端
 │   ├── ghostty/          # Ghostty 终端
 │   ├── zellij/           # Zellij
-│   └── atuin/            # Atuin 历史搜索
+│   ├── tmux/             # Tmux
+│   └── p10k/             # 遗留的 Powerlevel10k 配置（当前未使用，提示符已改用 Starship）
 ├── scripts/              # 自动化脚本
 │   ├── install/          # 安装脚本
 │   ├── dev/              # 开发工具

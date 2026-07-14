@@ -2,12 +2,12 @@
 
 ## 简介
 
-此文件负责通过 Zinit 管理各种 CLI 工具，从 GitHub Releases 自动下载和安装二进制工具。所有工具都通过统一的 `zi_cmd` 辅助函数安装，确保配置简洁且易于维护。
+此文件负责通过 Zinit 管理各种 CLI 工具，从 GitHub Releases 自动下载和安装二进制工具（`as"command" from"gh-r"`）。所有工具都通过统一的 `zi_cmd` 辅助函数安装，确保配置简洁且易于维护。
 
 ## 文件位置
 
 - **配置文件**: `~/dotfiles/plugins/tools/tools.zsh`
-- **加载位置**: 在 `~/.zshrc` 中，在 prompt 之后、completion 之前加载
+- **加载位置**: 在 `~/.zshrc` 中，于 `prompt.zsh` 之后、`completion.zsh` 之前加载
 
 ## 功能
 
@@ -30,47 +30,60 @@ zi_cmd() {
 
 #### 系统监控
 
-- **btop**: 系统资源监控工具
-- **bottom (btm)**: 系统监控工具
-- **duf**: 磁盘使用情况查看器
+- **btop**: 系统资源监控工具 (`aristocratos/btop`)
+- **bottom (btm)**: 系统监控工具 (`ClementTsang/bottom`)
+- **duf**: 磁盘使用情况查看器 (`muesli/duf`)
 
 #### Git / 开发工具
 
-- **lazygit**: Git 的终端 UI
-- **delta**: Git diff 查看器
-- **gitui**: Git 的高速终端 UI
-- **gh**: GitHub CLI
+- **lazygit**: Git 的终端 UI (`jesseduffield/lazygit`)
+- **delta**: Git diff 查看器 (`dandavison/delta`)
+- **gitui**: Git 的高速终端 UI (`gitui-org/gitui`)
+- **gh**: GitHub CLI (`cli/cli`)
 
 #### 文本处理
 
-- **jq**: JSON 处理工具
-- **yq**: YAML 处理工具
-- **sd**: 字符串替换工具
-- **choose**: 文本选择工具
-- **glow**: Markdown 渲染器
+- **jq**: JSON 处理工具 (`jqlang/jq`)
+- **yq**: YAML 处理工具 (`mikefarah/yq`)
+- **sd**: 字符串替换工具 (`chmln/sd`)
+- **choose**: 文本选择工具 (`theryangeary/choose`)
+- **glow**: Markdown 渲染器 (`charmbracelet/glow`)
+- **tealdeer (tldr)**: 高性能 tldr 客户端 (`tealdeer-rs/tealdeer`)
 
 #### 网络工具
 
-- **xh**: HTTP 客户端（curl 的替代品）
-- **HTTPie**: 面向 API 调试的 HTTP 客户端，适合替代一部分 Postman / curl 场景
+- **xh**: HTTP 客户端（curl 的替代品）(`ducaale/xh`)
+- **gping**: 带图表的 ping 工具 (`orf/gping`)
 
 #### 文件工具
 
-- **bat**: 带语法高亮的 cat 替代品
-- **broot**: 交互式目录树导航器，适合快速找目录并 `cd` 过去
-- **fd**: 快速文件查找工具
-- **ripgrep (rg)**: 快速文本搜索工具
-- **zoxide**: 智能目录跳转工具
-- **yazi**: 终端文件管理器
-- **eza**: ls 的现代化替代品
-- **dust**: du 的现代化替代品
-- **procs**: ps 的现代化替代品
-- **zellij**: 终端多路复用器
+- **bat**: 带语法高亮的 cat 替代品 (`sharkdp/bat`)
+- **broot**: 交互式目录树导航器，支持 `br` 返回 shell 后自动 `cd` (`Canop/broot`)
+- **fd**: 快速文件查找工具 (`sharkdp/fd`)
+- **ripgrep (rg)**: 快速文本搜索工具 (`BurntSushi/ripgrep`)
+- **zoxide**: 智能目录跳转工具 (`ajeetdsouza/zoxide`)
+- **eza**: ls 的现代化替代品 (`eza-community/eza`)
+- **procs**: ps 的现代化替代品 (`dalance/procs`)
+- **zellij**: 终端多路复用器 (`zellij-org/zellij`)
 
-#### 其他工具
+#### 环境与历史工具
 
-- **fzf**: 模糊查找工具（包含补全和键绑定）
-- **atuin**: 命令历史管理工具
+- **direnv**: 目录级环境变量管理 (`direnv/direnv`)
+- **atuin**: 命令历史搜索与管理 (`atuinsh/atuin`)
+
+#### fzf（特殊）
+
+- **fzf**: 模糊查找工具。二进制由**系统包管理器**安装（PATH 中包含 `~/.fzf/bin`），`tools.zsh` 仅通过 Zinit snippet 加载官方的补全与键绑定：
+
+```zsh
+# 补全
+zinit ice as"completion"
+zinit snippet https://github.com/junegunn/fzf/raw/master/shell/completion.zsh
+
+# 键绑定
+zinit ice as"completion"
+zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
+```
 
 ## 特殊处理
 
@@ -88,43 +101,30 @@ zinit ice as"command" from"gh-r" mv"ripgrep-*/rg -> rg" pick"rg" sbin"rg"
 zinit light BurntSushi/ripgrep
 ```
 
-### yazi
+### gitui
 
-使用 musl 版本（静态链接，不依赖系统 GLIBC）：
+根据操作系统与架构选择不同的 release 资源（macOS / Linux aarch64 / x86_64 / armv7 等）。
 
-```zsh
-zinit ice as"command" from"gh-r" bpick"*linux-musl.zip" mv"yazi-*/yazi -> yazi"
-zinit light sxyazi/yazi
-```
+### tealdeer
 
-### fzf
-
-需要特殊处理：二进制 + 补全 + 键绑定：
+使用 musl 静态版本，并重命名为 `tldr`：
 
 ```zsh
-# 二进制
-zinit ice from"gh-r" as"command" bpick"*linux_arm64.tar.gz"
-zinit light junegunn/fzf
-
-# 补全
-zinit ice as"completion"
-zinit snippet https://github.com/junegunn/fzf/raw/master/shell/completion.zsh
-
-# 键绑定
-zinit ice as"completion"
-zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
+zinit ice as"command" from"gh-r" bpick"tealdeer-linux-*-musl" mv"tealdeer* -> tldr" pick"tldr"
+zinit light tealdeer-rs/tealdeer
 ```
 
 ### atuin
 
-根据操作系统选择不同的安装方式：
+只下载二进制，不再在 `tools.zsh` 内自动初始化；初始化在 `~/.zshrc` 中通过 `_evalcache atuin init zsh` 完成。
+
+### direnv
+
+GitHub release 为单一二进制，使用 `sbin` 直接安装到 `$ZPFX/bin`：
 
 ```zsh
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS 版本
-else
-  # Linux 版本
-fi
+zinit ice as"command" from"gh-r" sbin"direnv"
+zinit light direnv/direnv
 ```
 
 ## 使用说明
@@ -191,6 +191,12 @@ zinit delete owner/repo
 - **sd**: `sd` - 字符串替换（比 sed 更快）
 - **choose**: `choose` - 文本选择工具
 - **glow**: `glow` - Markdown 渲染器
+- **tealdeer**: `tldr` - 高性能 tldr 客户端
+
+### 网络工具
+
+- **xh**: `xh` - 面向 API 调试的 HTTP 客户端
+- **gping**: `gping` - 带实时图表的 ping
 
 ### 文件工具
 
@@ -199,17 +205,18 @@ zinit delete owner/repo
 - **fd**: `fd` - 快速文件查找
 - **ripgrep**: `rg` - 快速文本搜索
 - **zoxide**: `z` - 智能目录跳转
-- **yazi**: `yazi` - 终端文件管理器
 - **eza**: `eza` - ls 的现代化替代品
-- **dust**: `dust` - du 的现代化替代品
 - **procs**: `procs` - ps 的现代化替代品
+- **zellij**: `zellij` - 终端多路复用器
+
+### 环境与历史工具
+
+- **direnv**: `direnv` - 目录级环境变量
+- **atuin**: `atuin` - 命令历史搜索与管理
 
 ### 其他工具
 
-- **fzf**: `fzf` - 模糊查找
-- **atuin**: `atuin` - 命令历史管理
-- **zellij**: `zellij` - 终端多路复用器
-- **HTTPie**: `http` - 更适合人工调试 API 的 HTTP 客户端
+- **fzf**: `fzf` - 模糊查找（二进制由系统安装，仅补全/键绑定由此文件加载）
 
 ## 注意事项
 
@@ -221,12 +228,12 @@ zinit delete owner/repo
 - **htop**: `sudo apt install htop`
 - **glances**: `pip install glances`
 - **tig**: `sudo apt install tig`
-- **tealdeer**: `sudo apt install tealdeer`
 - **dog**: `sudo apt install dog`
+- **fzf**: 由系统包管理器安装（此文件只加载其补全与键绑定）
 
 ### 架构兼容性
 
-某些工具可能不支持所有架构（如 arm64），已在注释中说明。
+某些工具可能不支持所有架构（如 arm64），已在注释中按 `uname -m` 选择对应 release。
 
 ## 相关文件
 

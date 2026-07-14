@@ -22,13 +22,23 @@
 
 ```zsh
 autoload -Uz compinit
-compinit -C
+compinit -C -u -d "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump"
 ```
 
 - `autoload -Uz compinit`: 自动加载 compinit 函数
 - `compinit -C`: 初始化补全系统（`-C` 选项跳过安全检查，加快启动速度）
+- `-u`: 忽略不安全的目录所有权检查
 
-### 2. fzf-tab 插件
+### 2. zsh-completions 插件
+
+提供额外的补全定义集（必须在 `compinit` 之前用 `blockf` 加载）：
+
+```zsh
+zinit ice blockf
+zinit light zsh-users/zsh-completions
+```
+
+### 3. fzf-tab 插件
 
 用 fzf 替换 Zsh 的默认补全选择菜单：
 
@@ -36,7 +46,7 @@ compinit -C
 zinit light Aloxaf/fzf-tab
 ```
 
-### 3. fzf-tab 配置
+### 4. fzf-tab 配置
 
 包含以下配置：
 
@@ -46,7 +56,7 @@ zinit light Aloxaf/fzf-tab
 - **目录预览**: 使用 `eza` 或 `ls` 预览目录内容
 - **分组切换**: 使用 `<` 和 `>` 切换分组
 
-### 4. PATH 管理
+### 5. PATH 管理
 
 自动添加以下目录到 PATH（如果存在且未添加）：
 
@@ -57,13 +67,17 @@ zinit light Aloxaf/fzf-tab
 - `$ZPFX/bin`: Zinit 管理的工具
 - Zinit 插件目录中的可执行文件
 
-### 5. zoxide 初始化
+### 6. zoxide 初始化（在 zshrc 中通过 evalcache 完成）
+
+> 注意：zoxide 的初始化**不在** `completion.zsh` 中，而是在 `~/.zshrc` 末尾通过 `evalcache` 缓存执行：
 
 ```zsh
-eval "$(zoxide init zsh)"
+if command -v zoxide >/dev/null; then
+  _evalcache zoxide init zsh
+fi
 ```
 
-初始化 zoxide，启用智能目录跳转功能。
+`_evalcache` 来自 `mroth/evalcache` 插件，用于缓存 `zoxide init zsh` 这类 hook 脚本的输出，减少每次启动 shell 的开销。
 
 ## 使用说明
 
