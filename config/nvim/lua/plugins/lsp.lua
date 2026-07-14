@@ -107,9 +107,10 @@ return {
 
         -- LSP folds
         if client.supports_method("textDocument/foldingRange", { bufnr = buf }) then
-          if vim.wo[buf].foldmethod == "manual" then
-            vim.wo[buf].foldmethod = "expr"
-            vim.wo[buf].foldexpr = "v:lua.vim.lsp.foldexpr()"
+          local win = vim.api.nvim_get_current_win()
+          if vim.wo[win].foldmethod == "manual" then
+            vim.wo[win].foldmethod = "expr"
+            vim.wo[win].foldexpr = "v:lua.vim.lsp.foldexpr()"
           end
         end
 

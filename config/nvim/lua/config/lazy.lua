@@ -15,6 +15,13 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Register the LazyVim "LazyFile" pseudo-event so plugin specs using
+-- `event = "LazyFile"` keep working after `import = "lazyvim.plugins"` was
+-- removed. Mirrors LazyVim's `lazyvim.util.plugin` registration exactly.
+local Event = require("lazy.core.handler.event")
+Event.mappings.LazyFile = { id = "LazyFile", event = { "BufReadPost", "BufNewFile", "BufWritePre" } }
+Event.mappings["User LazyFile"] = Event.mappings.LazyFile
+
 local function ensure_lockfile(path)
   local dir = vim.fn.fnamemodify(path, ":p:h")
   vim.fn.mkdir(dir, "p")
