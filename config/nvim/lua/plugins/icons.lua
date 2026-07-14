@@ -1,11 +1,5 @@
 return {
-  -- 1. 禁用 mini.icons，防止它拦截图标请求或进行错误的 ASCII 回退
-  {
-    "nvim-mini/mini.icons",
-    enabled = false,
-  },
-
-  -- 2. 启用经典的 nvim-web-devicons
+  -- 启用经典的 nvim-web-devicons
   {
     "nvim-tree/nvim-web-devicons",
     opts = {

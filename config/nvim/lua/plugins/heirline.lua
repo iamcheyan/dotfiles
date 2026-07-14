@@ -1,9 +1,5 @@
 return {
   {
-    "nvim-lualine/lualine.nvim",
-    enabled = false,
-  },
-  {
     "rebelot/heirline.nvim",
     lazy = true,
     event = "VeryLazy",
