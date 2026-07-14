@@ -38,8 +38,23 @@ end
 
 require("lazy").setup({
   spec = {
-    -- keep LazyVim only as the options/keymaps/autocmds framework; plugins are now owned explicitly
-    { "LazyVim/LazyVim", opts = { diagnostics = { enabled = false } } },
+    -- Keep LazyVim only as the options/keymaps/autocmds framework.
+    -- The old `import = "lazyvim.plugins"` used to load lazyvim/plugins/init.lua,
+    -- whose top-level `require("lazyvim.config").init()` set up options/mapleader
+    -- and loaded lua/config/{options,keymaps,autocmds}.lua. Trigger that
+    -- explicitly here so removing the import doesn't drop the framework.
+    {
+      "LazyVim/LazyVim",
+      priority = 10000,
+      lazy = false,
+      init = function()
+        require("lazyvim.config").init()
+      end,
+      opts = { diagnostics = { enabled = false } },
+      config = function(_, opts)
+        require("lazyvim.config").setup(opts)
+      end,
+    },
     -- import/override with your plugins
     { import = "plugins" },
   },
