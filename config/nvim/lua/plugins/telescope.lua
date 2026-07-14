@@ -7,13 +7,9 @@ return {
     },
     cmd = "Telescope",
     version = false,
-    -- NOTE: find/grep/buffer keymaps are provided by config/keymaps-lazyvim.lua
-    -- (wired to the snacks picker) to stay consistent with the old LazyVim
-    -- defaults. Only the git pickers that have no snacks equivalent remain here.
-    keys = {
-      { "<leader>gf", "<cmd>Telescope git_files<cr>", desc = "Git Files (root dir)" },
-      { "<leader>gG", "<cmd>Telescope git_commits<cr>", desc = "Git Commits (cwd)" },
-    },
+    -- NOTE: find/grep/buffer/git keymaps are provided by
+    -- config/keymaps-lazyvim.lua (wired to the snacks picker / git pickers) to
+    -- stay consistent with the old LazyVim defaults.
     opts = function()
       local telescope = require("telescope")
       local actions = require("telescope.actions")
