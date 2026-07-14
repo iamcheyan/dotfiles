@@ -88,11 +88,10 @@ require("lazy").setup({
   },
 })
 
--- Load keymaps and autocmds (previously done by LazyVim's config.setup() at the
--- VeryLazy event). Our keymaps/autocmds have no top-level plugin requires, so
--- loading them right after setup is safe and does not depend on the UI firing.
-require("config.keymaps")
-require("config.autocmds")
 -- LazyVim's default <leader> keymaps (find/buffers/git/windows/UI/quit...),
 -- ported to our plugins (snacks picker, gitsigns, vim builtins).
 require("config.keymaps-lazyvim")
+-- Load personal keymaps last so they intentionally override compatibility
+-- mappings when the same lhs is used.
+require("config.keymaps")
+require("config.autocmds")

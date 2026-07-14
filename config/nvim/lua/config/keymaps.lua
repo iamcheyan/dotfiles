@@ -1,6 +1,5 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
+-- Personal keymaps. Loaded after keymaps-lazyvim.lua so these mappings win
+-- when they intentionally reuse the same lhs.
 
 -- Terminal keybindings
 vim.keymap.set("n", "<leader>tr", function()
@@ -10,10 +9,6 @@ end, { desc = "Terminal Right" })
 vim.keymap.set("n", "<leader>tb", function()
   vim.cmd("split | terminal")
 end, { desc = "Terminal Bottom" })
-
--- Muren (Multiple Replacements) keybindings
--- vim.keymap.set("n", "<leader>rr", "<cmd>MurenToggle<cr>", { desc = "Muren: Toggle UI" })
--- vim.keymap.set("n", "<leader>rR", "<cmd>MurenUnique<cr>", { desc = "Muren: Open with unique matches" })
 
 vim.keymap.set("n", "<leader>cf", function()
   vim.fn.setreg("+", vim.fn.expand("%"))
@@ -112,13 +107,13 @@ vim.keymap.set("n", "<2-LeftMouse>", function()
   end
 end, { desc = "双击颜色弹出 ccc 取色器" })
 
--- 添加到 LazyVim 默认的 <leader><tab> 菜单中
+-- 添加到 <leader><tab> 菜单中
 -- <leader><tab><tab> - 列出所有 Tab Pages 并选择切换（类似 buffer 切换）
 vim.keymap.set("n", "<leader><tab><tab>", function()
   local tabs = vim.api.nvim_list_tabpages()
   local current_tab = vim.api.nvim_get_current_tabpage()
   local items = {}
-  
+
   for i, tab in ipairs(tabs) do
     local windows = vim.api.nvim_tabpage_list_wins(tab)
     local buf_names = {}
@@ -133,7 +128,7 @@ vim.keymap.set("n", "<leader><tab><tab>", function()
     local marker = tab == current_tab and "● " or "  "
     table.insert(items, string.format("%s%d: %s", marker, i, label))
   end
-  
+
   vim.ui.select(items, {
     prompt = "Select Tab Page:",
   }, function(_, idx)
@@ -143,7 +138,7 @@ vim.keymap.set("n", "<leader><tab><tab>", function()
   end)
 end, { desc = "List and switch Tab Pages" })
 
--- 覆盖 LazyVim 默认的 <leader><tab><tab>（原本是新建 Tab），改用 n
+-- <leader><tab><tab> 用于 tab 列表；新建 Tab 改用 n
 vim.keymap.set("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
 
 -- Click a diagnostics sign line to open its message float.

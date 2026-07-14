@@ -29,6 +29,47 @@ local ensure_installed = {
   "yaml",
 }
 
+local treesitter_filetypes = {
+  bash = true,
+  c = true,
+  diff = true,
+  html = true,
+  javascript = true,
+  javascriptreact = true,
+  jsdoc = true,
+  json = true,
+  lua = true,
+  luadoc = true,
+  markdown = true,
+  python = true,
+  query = true,
+  regex = true,
+  sh = true,
+  toml = true,
+  tsx = true,
+  typescript = true,
+  typescriptreact = true,
+  vim = true,
+  vimdoc = true,
+  xml = true,
+  yaml = true,
+  zsh = true,
+}
+
+local function enable_treesitter(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  local ft = vim.bo[bufnr].filetype
+  if not treesitter_filetypes[ft] then
+    return
+  end
+
+  if pcall(vim.treesitter.start, bufnr) then
+    vim.wo[0][0].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    vim.wo[0][0].foldmethod = "expr"
+    vim.bo[bufnr].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  end
+end
+
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -54,14 +95,17 @@ return {
     event = { "LazyFile", "VeryLazy" },
     cmd = { "TSUpdate", "TSInstall", "TSLog", "TSUninstall" },
     opts = {
-      ensure_installed = ensure_installed,
-      highlight = { enable = true },
-      indent = { enable = true },
-      folds = { enable = true },
+      install_dir = vim.fn.stdpath("data") .. "/site",
     },
     config = function(_, opts)
-      opts.ensure_installed = ensure_installed
       require("nvim-treesitter").setup(opts)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = vim.tbl_keys(treesitter_filetypes),
+        callback = function(args)
+          enable_treesitter(args.buf)
+        end,
+      })
+      enable_treesitter()
     end,
   },
 

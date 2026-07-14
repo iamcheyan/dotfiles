@@ -1,6 +1,6 @@
 # dotfiles
 
-基于 Zsh + Zinit + LazyVim 的终端配置方案，追求极致的启动速度与沉浸式开发体验。
+基于 Zsh + Zinit + 自管 Neovim/lazy.nvim 的终端配置方案，追求快速启动与可控的开发体验。
 
 ## 快速开始
 
@@ -28,7 +28,7 @@ bash init.sh --repair     # 修复损坏的 zinit 插件
 - 安装 fzf（模糊搜索）
 - 安装 direnv（目录级环境变量）
 - 创建配置文件符号链接
-- 安装 Neovim + LazyVim
+- 安装 Neovim + lazy.nvim 自管配置
 - 安装 Nerd Font 字体
 - 初始化 Yazi 文件管理器配置
 - 安装 Zellij、Codex、Opencode 等额外工具
@@ -49,7 +49,7 @@ zsh
 | **插件管理** | Zinit（异步加载，极速启动） |
 | **Vim 模式** | zsh-vi-mode |
 | **历史搜索** | Atuin（Ctrl+R） |
-| **编辑器** | Neovim（LazyVim） |
+| **编辑器** | Neovim（lazy.nvim，自管配置） |
 | **文件管理** | Yazi |
 | **终端多路复用** | Zellij |
 | **终端模拟器** | Kitty / Ghostty |
@@ -104,39 +104,41 @@ cx --list       # 列出所有配置的账户
 
 所有 Agent 通过统一的 API 接入，使用独立的 Node.js 版本隔离运行。
 
-## LazyVim 插件列表
+## Neovim 插件列表
 
-我们基于 LazyVim 搭建了 Neovim 配置，安装了以下插件：
+Neovim 配置现在直接基于 `lazy.nvim`，不再导入 LazyVim 发行版。保留的 LazyVim 风格快捷键已经迁移到本仓库的本地配置中。
 
 | 插件 | 功能 |
 |------|------|
 | **aerial** | 代码大纲/导航（类似 VS Code 面包屑） |
 | **auto-session** | 自动保存/恢复会话 |
+| **blink.cmp** | 自动补全 |
 | **bufferline** | 顶部标签栏 |
 | **ccc** | 颜色预览/编辑器 |
-| **colorscheme** | 配色方案 |
+| **diffview** | Git diff 与文件历史 |
 | **dashboard** | 启动页面 |
 | **dev-visual** | 开发可视化工具 |
 | **disable-diagnostics** | 禁用诊断显示 |
+| **fidget** | LSP 进度提示 |
 | **flash** | 快速跳转（类似 Hop/Sneak） |
+| **gitsigns** | Git 增删改标记和 hunk 操作 |
+| **grug-far** | 全局搜索替换 |
 | **heirline** | 状态栏/窗口栏 |
+| **hlslens** | 搜索结果高亮和数量提示 |
 | **icons** | 图标支持 |
+| **indent-blankline** | 缩进引导线 |
 | **lsp-keymaps** | LSP 快捷键 |
-| **muren** | 多重替换 |
+| **mason / mason-lspconfig** | LSP server 和 CLI 工具安装 |
+| **mini.ai / mini.pairs** | 文本对象和成对符号 |
 | **neo-tree** | 文件浏览器 |
-| **noice** | 命令行/通知美化（已禁用） |
 | **oil** | 文件浏览器（轻量） |
-| **persistence** | 会话持久化 |
-| **python** | Python 开发支持 |
-| **rnvimr** | Ranger 终端文件管理器浮窗集成 |
-| **snacks** | LazyVim 核心功能集 |
-| **spectre** | 全局搜索替换 |
+| **snacks** | picker、dashboard、terminal、toggle 等 UI 工具 |
 | **telescope** | 模糊搜索 |
-| **toggleterm** | 终端集成 |
+| **treesitter / treesitter-textobjects** | 语法高亮、折叠、缩进和语法对象 |
 | **vim-visual-multi** | 多光标编辑 |
 | **vimquest** | 英语单词拼写与记忆小游戏插件 |
 | **which-key** | 快捷键提示 |
-| **yanky-substitute** | 复制/粘贴增强 |
+| **yanky** | 复制/粘贴增强 |
 
 ## 目录结构
 
@@ -159,7 +161,7 @@ dotfiles/
 │   ├── zellij/           # Zellij 集成
 │   └── zsh-vi-mode/      # Vim 模式
 ├── config/               # 应用配置
-│   ├── nvim/             # Neovim (LazyVim)
+│   ├── nvim/             # Neovim (lazy.nvim self-managed)
 │   ├── yazi/             # Yazi
 │   ├── kitty/            # Kitty 终端
 │   ├── ghostty/          # Ghostty 终端

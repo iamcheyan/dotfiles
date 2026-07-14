@@ -1,103 +1,79 @@
-# Neovim Installed Plugins
+# Neovim Plugins
 
-此列表基于 `lazy-lock.json` 与本地插件配置整理。更新时间: 2026-07-11
+此列表按当前 `lua/plugins/*.lua` 配置整理。更新时间: 2026-07-14。
 
-## 核心框架与管理 (Core & Management)
+## Core
 
-| 插件 | 说明 |
-|------|------|
-| **LazyVim** | Neovim 核心配置框架，提供开箱即用的体验。 |
-| **lazy.nvim** | 现代化的插件管理器，负责下载、更新和加载所有插件。 |
-| **snacks.nvim** | 提升 Neovim 体验 of 工具集 (界面、通知、大文件处理等)。 |
+| Plugin | Purpose |
+| --- | --- |
+| `lazy.nvim` | Plugin manager and bootstrap runtime. |
+| `snacks.nvim` | Picker, dashboard, terminal, buffer delete, git helpers, toggles, notifications. |
+| `which-key.nvim` | Keymap discovery UI. |
 
-## 主题与外观 (Theme & Aesthetics)
+## UI
 
-| 插件 | 说明 |
-|------|------|
-| **catppuccin** | 柔和的护眼主题 (可切换)。 |
-| **heirline.nvim** | 可高度自定义的状态栏 (LazyVim 内置)。 |
-| **bufferline.nvim** | 类似 IDE 的顶部标签栏/Buffer 栏。 |
-| **nvim-web-devicons** | 文件图标支持。 |
+| Plugin | Purpose |
+| --- | --- |
+| `heirline.nvim` | Custom winbar/status UI. |
+| `bufferline.nvim` | Buffer line. |
+| `nvim-web-devicons` | File icons. |
+| `dashboard` via `snacks.nvim` | Startup dashboard. |
 
-## 代码智能与语言支持 (LSP & Languages)
+## LSP And Completion
 
-| 插件 | 说明 |
-|------|------|
-| **nvim-lspconfig** | 配置 LSP (Language Server Protocol) 的官方插件。 |
-| **mason.nvim** | 便携式包管理器，用于安装 LSP server、DAP server、Linter 和 Formatter。 |
-| **mason-lspconfig.nvim** | 连接 Mason 和 lspconfig，自动配置安装好的 LSP。 |
-| **conform.nvim** | 轻量级且强大的代码格式化工具 (Formatter)。 |
-| **nvim-lint** | 异步代码检查工具 (Linter)。 |
-| **lazydev.nvim** | 专为 Neovim Lua 配置开发提供的 LSP 支持 (基于 LuaLS)。 |
-| **ts-comments.nvim** | 增强 TypeScript/TSX 的注释支持。 |
-| **fidget.nvim** | LSP 服务器加载状态提示。 |
+| Plugin | Purpose |
+| --- | --- |
+| `nvim-lspconfig` | Server definitions used by native `vim.lsp.config()`. |
+| `mason.nvim` | Installs LSP servers and CLI tools. |
+| `mason-lspconfig.nvim` | Bridges Mason package names to LSP config names. |
+| `blink.cmp` | Completion engine. |
+| `fidget.nvim` | LSP progress notifications. |
 
-## 语法高亮与解析 (Syntax & Treesitter)
+## Treesitter And Editing
 
-| 插件 | 说明 |
-|------|------|
-| **nvim-treesitter** | 基于 Treesitter 的语法高亮、缩进和折叠引擎。 |
-| **nvim-treesitter-textobjects** | 基于语法的文本对象选择 (如按函数、类选择)。 |
-| **nvim-ts-autotag** | 自动闭合 HTML/XML 标签。 |
-| **mini.ai** | 增强的文本对象选择 (如 `va)` 选择圆括号内容)。 |
-| **mini.pairs** | 自动补全成对的符号 (括号、引号)。 |
-| **indent-blankline.nvim** | 显示缩进引导线。 |
+| Plugin | Purpose |
+| --- | --- |
+| `nvim-treesitter` | Parser installation and queries; features are enabled by local FileType autocmds. |
+| `nvim-treesitter-textobjects` | Function/class/parameter movement. |
+| `mini.ai` | Text objects. |
+| `mini.pairs` | Pair insertion. |
+| `indent-blankline.nvim` | Indent guides. |
 
-## 自动补全 (Autocompletion)
+## Navigation And Search
 
-| 插件 | 说明 |
-|------|------|
-| **blink.cmp** | 新一代高性能自动补全引擎 (取代了 nvim-cmp)。 |
-| **friendly-snippets** | 丰富的代码片段集合 (支持多种语言)。 |
+| Plugin | Purpose |
+| --- | --- |
+| `telescope.nvim` | Telescope commands and yank history picker integration. |
+| `telescope-fzf-native.nvim` | Native fzf sorter for Telescope. |
+| `plenary.nvim` | Telescope dependency. |
+| `flash.nvim` | Fast jump/search motions. |
+| `nvim-hlslens` | Search result lens/highlight integration. |
+| `neo-tree.nvim` | Tree file explorer. |
+| `oil.nvim` | Directory-as-buffer file editing. |
+| `grug-far.nvim` | Project and file search/replace. |
+| `aerial.nvim` | Symbol outline. |
 
-## 导航与搜索 (Navigation & Search)
+## Git
 
-| 插件 | 说明 |
-|------|------|
-| **telescope.nvim** | 强大的模糊搜索器 (搜索文件、grep、git 等)。 |
-| **telescope-fzf-native.nvim** | Telescope 的 FZF 排序器，提升搜索性能。 |
-| **plenary.nvim** | Lua 实用函数库 (Telescope 等插件的依赖)。 |
-| **flash.nvim** | 极速光标跳转插件 (类似 Easymotion/Sneak)。 |
-| **nvim-hlslens** | 搜索结果高亮和 lenses 显示。 |
-| **rnvimr** | 在 Neovim 浮窗里打开 Ranger 文件管理器。 |
-| **oil.nvim** | 把目录当成可编辑 buffer 的文件管理器。 |
-| **trouble.nvim** | 漂亮的诊断、引用和快速修复列表。 |
-| **todo-comments.nvim** | 高亮并列出代码中的 TODO, FIXME, HACK 等注释。 |
-| **grug-far.nvim** | 全局搜索和替换工具 (基于 ripgrep)。 |
-| **aerial.nvim** | 代码结构大纲/符号导航。 |
+| Plugin | Purpose |
+| --- | --- |
+| `gitsigns.nvim` | Git signs, hunk actions, blame, and diff helpers. |
+| `diffview.nvim` | Git diff and file history views. |
 
-## 终端与集成 (Terminal & Integration)
+## Sessions And Tools
 
-| 插件 | 说明 |
-|------|------|
-| **toggleterm.nvim** | 可开关的浮动终端，适合用快捷键呼出临时命令行。 |
-| **auto-session** | 自动保存和恢复编辑器会话，跨终端标签管理。 |
+| Plugin | Purpose |
+| --- | --- |
+| `auto-session` | Session save and restore. |
+| `yanky.nvim` | Yank history and enhanced paste. |
+| `sqlite.lua` | Persistent yank history storage. |
+| `ccc.nvim` | Color picker. |
+| `vim-visual-multi` | Multiple cursors. |
+| `nui.nvim` | UI component dependency. |
+| `VimQuest.nvim` | Local learning/game plugin loaded from this config. |
 
-## Git 集成 (Git Integration)
+## Local Policy
 
-| 插件 | 说明 |
-|------|------|
-| **gitsigns.nvim** | 在行号旁显示 Git 增删改状态。 |
-| **diffview.nvim** | 强大的 Git diff 视图与历史查看工具。 |
-
-## 教育与学习 (Education & Learning)
-
-| 插件 | 说明 |
-|------|------|
-| **VimQuest.nvim** | 英语单词拼写与记忆小游戏插件 (本地加载)。 |
-
-## 实用工具 (Utilities)
-
-| 插件 | 说明 |
-|------|------|
-| **yanky.nvim** | 剪贴板历史记录与粘贴增强插件。 |
-| **substitute.nvim** | 快速替换文本内容的实用工具。 |
-| **sqlite.lua** | SQLite3 数据库的 Lua 绑定，供 yanky 持久化使用。 |
-| **ccc.nvim** | 颜色拾取器与高亮预览。 |
-| **vim-visual-multi** | 多光标编辑 (类似 VSCode 多光标)。 |
-| **nui.nvim** | UI 组件库 (被多个插件依赖)。 |
-| **which-key.nvim** | 按下按键时显示快捷键提示菜单。 |
-
-## 插件总数
-
-当前安装插件数量: **48** 个核心插件 (含 1 个本地插件，不含纯库依赖)
+- No `LazyVim/LazyVim` import is used.
+- LazyVim-style keymaps that are still wanted live in `lua/config/keymaps-lazyvim.lua`.
+- Personal keymaps live in `lua/config/keymaps.lua` and load last.

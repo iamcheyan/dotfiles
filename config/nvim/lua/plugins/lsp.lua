@@ -28,8 +28,6 @@ return {
       automatic_enable = false,
     },
     config = function(_, opts)
-      local lspconfig = require("lspconfig")
-
       -- on_attach: register LSP keymaps (previously from LazyVim lsp/keymaps.lua)
       -- and silence diagnostics per-buffer (consistent with prior python.lua behavior).
       local on_attach = function(client, bufnr)
@@ -106,12 +104,12 @@ return {
         end, "Organize Imports")
 
         -- inlay hints (LazyVim parity)
-        if client.supports_method("textDocument/inlayHint", { bufnr = buf }) then
-          vim.lsp.inlay_hint.enable(true, { bufnr = buf })
+        if client.supports_method("textDocument/inlayHint", { bufnr = bufnr }) then
+          vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
 
         -- LSP folds
-        if client.supports_method("textDocument/foldingRange", { bufnr = buf }) then
+        if client.supports_method("textDocument/foldingRange", { bufnr = bufnr }) then
           local win = vim.api.nvim_get_current_win()
           if vim.wo[win].foldmethod == "manual" then
             vim.wo[win].foldmethod = "expr"
@@ -120,10 +118,10 @@ return {
         end
 
         -- code lens
-        if client.supports_method("textDocument/codeLens", { bufnr = buf }) then
+        if client.supports_method("textDocument/codeLens", { bufnr = bufnr }) then
           vim.lsp.codelens.refresh()
           vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-            buffer = buf,
+            buffer = bufnr,
             callback = vim.lsp.codelens.refresh,
           })
         end

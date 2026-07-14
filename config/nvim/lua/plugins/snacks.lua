@@ -10,13 +10,7 @@ return {
       { "<leader>E", false },
     },
     config = function(_, opts)
-      local notify = vim.notify
       require("snacks").setup(opts)
-      -- HACK: restore vim.notify after snacks setup and let noice.nvim take over.
-      -- Needed so early notifications show up in noice history.
-      if pcall(require, "noice") then
-        vim.notify = notify
-      end
 
       -- Work around an upstream grep transform crash when rg outputs a non-NUL line.
       local proc = require("snacks.picker.source.proc")

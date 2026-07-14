@@ -209,6 +209,7 @@ config/sway/*
 # ============================================
 aliases
 aliases/
+TWM/
 rime
 rime/
 chezmoi
