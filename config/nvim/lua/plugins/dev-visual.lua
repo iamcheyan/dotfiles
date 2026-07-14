@@ -150,7 +150,7 @@ return {
       {
         "n",
         function()
-          vim.cmd("normal! n")
+          pcall(vim.cmd, "normal! n")
           require("hlslens").start()
         end,
         desc = "Next Search Result",
@@ -158,7 +158,7 @@ return {
       {
         "N",
         function()
-          vim.cmd("normal! N")
+          pcall(vim.cmd, "normal! N")
           require("hlslens").start()
         end,
         desc = "Prev Search Result",
@@ -166,7 +166,7 @@ return {
       {
         "*",
         function()
-          vim.cmd("normal! *")
+          pcall(vim.cmd, "normal! *")
           require("hlslens").start()
         end,
         desc = "Search Word Forward",
@@ -174,7 +174,7 @@ return {
       {
         "#",
         function()
-          vim.cmd("normal! #")
+          pcall(vim.cmd, "normal! #")
           require("hlslens").start()
         end,
         desc = "Search Word Backward",
@@ -182,7 +182,7 @@ return {
       {
         "g*",
         function()
-          vim.cmd("normal! g*")
+          pcall(vim.cmd, "normal! g*")
           require("hlslens").start()
         end,
         desc = "Search Partial Word Forward",
@@ -190,7 +190,7 @@ return {
       {
         "g#",
         function()
-          vim.cmd("normal! g#")
+          pcall(vim.cmd, "normal! g#")
           require("hlslens").start()
         end,
         desc = "Search Partial Word Backward",
