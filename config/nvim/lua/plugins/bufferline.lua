@@ -271,7 +271,7 @@ return {
         },
       },
       options = {
-        style_preset = require("bufferline").style_preset.no_italic,
+        style_preset = nil, -- resolved in config (no_italic preset)
         mode = "buffers",
         diagnostics = false,
         themable = false,
@@ -300,5 +300,12 @@ return {
         left_mouse_command = "buffer %d",
       },
     },
+    config = function(_, opts)
+      local ok, bl = pcall(require, "bufferline")
+      if ok and not opts.style_preset then
+        opts.style_preset = bl.style_preset.no_italic
+      end
+      require("bufferline").setup(opts)
+    end,
   },
 }

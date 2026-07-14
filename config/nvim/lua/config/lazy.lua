@@ -31,8 +31,8 @@ end
 
 require("lazy").setup({
   spec = {
-    -- add LazyVim and import its plugins
-    { "LazyVim/LazyVim", import = "lazyvim.plugins", opts = { diagnostics = { enabled = false } } },
+    -- keep LazyVim only as the options/keymaps/autocmds framework; plugins are now owned explicitly
+    { "LazyVim/LazyVim", opts = { diagnostics = { enabled = false } } },
     -- import/override with your plugins
     { import = "plugins" },
   },

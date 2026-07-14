@@ -1,3 +1,14 @@
+local function project_root()
+  local buf = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({ bufnr = buf })
+  for _, c in ipairs(clients) do
+    if c.config.root_dir then
+      return c.config.root_dir
+    end
+  end
+  return vim.fs.root(buf, { ".git", "lua" }) or vim.uv.cwd()
+end
+
 return {
   -- 配置 neo-tree
   {
@@ -13,7 +24,7 @@ return {
       {
         "<leader>fe",
         function()
-          require("neo-tree.command").execute({ toggle = true, dir = require("lazyvim.util.root")() })
+          require("neo-tree.command").execute({ toggle = true, dir = project_root() })
         end,
         desc = "Explorer NeoTree (Root Dir)",
       },
