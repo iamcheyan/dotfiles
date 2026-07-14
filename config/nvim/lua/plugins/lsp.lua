@@ -12,18 +12,20 @@ return {
     opts = {
       ensure_installed = { "stylua", "shfmt" },
     },
-    -- No custom `config`: LazyVim's mason spec owns registry refresh/install.
+    config = function(_, opts)
+      require("mason").setup(opts)
+    end,
   },
 
-  -- mason-lspconfig: bridge mason <-> lspconfig and auto-enable installed servers.
-  -- We host the explicit server setups here so we do NOT replace LazyVim's
-  -- nvim-lspconfig spec (which also wires keymaps / inlay hints / folds / diagnostics).
+  -- mason-lspconfig: bridge mason <-> lspconfig and install the servers below.
+  -- Fully self-contained: keymaps, inlay hints, code lens and LSP folds are all
+  -- wired in our on_attach (no LazyVim lsp spec needed).
   {
     "mason-org/mason-lspconfig.nvim",
     dependencies = { "mason.nvim", "neovim/nvim-lspconfig" },
     opts = {
       ensure_installed = { "basedpyright", "lua_ls" },
-      automatic_enable = { exclude = {} },
+      automatic_enable = false,
     },
     config = function(_, opts)
       local lspconfig = require("lspconfig")
@@ -97,6 +99,28 @@ return {
         set("<leader>co", function()
           vim.lsp.buf.code_action({ context = { only = { "source.organizeImports" } }, apply = true })
         end, "Organize Imports")
+
+        -- inlay hints (LazyVim parity)
+        if client.supports_method("textDocument/inlayHint", { bufnr = buf }) then
+          vim.lsp.inlay_hint.enable(true, { bufnr = buf })
+        end
+
+        -- LSP folds
+        if client.supports_method("textDocument/foldingRange", { bufnr = buf }) then
+          if vim.wo[buf].foldmethod == "manual" then
+            vim.wo[buf].foldmethod = "expr"
+            vim.wo[buf].foldexpr = "v:lua.vim.lsp.foldexpr()"
+          end
+        end
+
+        -- code lens
+        if client.supports_method("textDocument/codeLens", { bufnr = buf }) then
+          vim.lsp.codelens.refresh()
+          vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+            buffer = buf,
+            callback = vim.lsp.codelens.refresh,
+          })
+        end
 
         -- NOTE: `gr` is intentionally NOT bound here. It is removed on LspAttach by
         -- plugins/lsp-keymaps.lua to avoid conflicting with substitute.nvim.
