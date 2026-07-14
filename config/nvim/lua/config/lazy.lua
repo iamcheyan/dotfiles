@@ -15,6 +15,11 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- We intentionally removed `import = "lazyvim.plugins"` (every plugin spec is
+-- now owned explicitly). LazyVim's import-order sanity check expects that
+-- import to be present and first, so disable it.
+vim.g.lazyvim_check_order = false
+
 -- Register the LazyVim "LazyFile" pseudo-event so plugin specs using
 -- `event = "LazyFile"` keep working after `import = "lazyvim.plugins"` was
 -- removed. Mirrors LazyVim's `lazyvim.util.plugin` registration exactly.
