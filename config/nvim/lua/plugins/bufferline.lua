@@ -302,8 +302,9 @@ return {
     },
     config = function(_, opts)
       local ok, bl = pcall(require, "bufferline")
-      if ok and not opts.style_preset then
-        opts.style_preset = bl.style_preset.no_italic
+      if ok and not (opts.options and opts.options.style_preset) then
+        opts.options = opts.options or {}
+        opts.options.style_preset = bl.style_preset.no_italic
       end
       require("bufferline").setup(opts)
     end,
