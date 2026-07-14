@@ -5,6 +5,7 @@ return {
     opts_extend = { "spec" },
     opts = {
       preset = "helix",
+      win = { border = "single" },
       defaults = {},
       spec = {
         {

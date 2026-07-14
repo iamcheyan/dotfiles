@@ -160,7 +160,7 @@ vim.keymap.set("n", "<LeftMouse>", function()
       vim.diagnostic.open_float(nil, {
         focus = false,
         scope = "line",
-        border = "rounded",
+        border = "single",
         source = "if_many",
       })
     end

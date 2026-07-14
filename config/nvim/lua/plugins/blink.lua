@@ -111,6 +111,10 @@ return {
         kind_icons = kind_icons,
       },
 
+      window = {
+        border = "single",
+      },
+
       completion = {
         accept = {
           -- experimental auto-brackets support
