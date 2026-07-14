@@ -41,7 +41,7 @@ install:font --force      # 强制重新安装
 ```bash
 install:nvim                    # 安装最新版本
 install:nvim --force            # 强制重新安装
-install:nvim --version 0.9.5   # 安装指定版本
+install:nvim --version 0.11.4   # 安装指定版本
 ```
 
 **别名：**
@@ -50,13 +50,13 @@ install:nvim --version 0.9.5   # 安装指定版本
 **特点：**
 - 自动检测操作系统和架构
 - 自动获取最新版本号
-- 安装到 `~/.local/bin/nvim`
+- 安装到 `~/.local/nvim`
 - 支持版本检查和缓存
 - 彩色输出和进度提示
 
 **安装位置：**
-- Linux/macOS: `~/.local/bin/nvim`
-- 确保 `~/.local/bin` 在 PATH 中
+- Linux/macOS: `~/.local/nvim/bin/nvim`
+- 确保 `~/.local/nvim/bin` 在 PATH 中
 
 **支持的平台：**
 - Linux: x86_64, aarch64
@@ -176,39 +176,7 @@ install:fzf --completion       # 只安装补全文件
 
 ---
 
-### 6. `install_rime.sh` - Rime 输入法配置安装脚本
-
-**功能：**
-- 从 GitHub 克隆 Rime 输入法配置仓库
-- 克隆到 `~/dotfiles/rime`
-
-**用法：**
-```bash
-install:rime           # 安装 Rime 配置
-install:rime --force   # 强制重新克隆
-```
-
-**别名：**
-- `install:rime` - 通过 `aliases.conf` 定义
-
-**特点：**
-- 检查目录是否已存在
-- 支持 `--force` 参数强制重新克隆
-- 交互式确认删除现有配置
-
-**安装位置：**
-- `~/dotfiles/rime`
-
-**后续步骤：**
-安装后需要使用 `dotlink` 创建符号链接到：
-- Linux (fcitx5): `~/.local/share/fcitx5/rime`
-- Linux (ibus): `~/.config/ibus/rime`
-- macOS: `~/Library/Rime`
-- Windows: `%APPDATA%\Rime`
-
----
-
-### 7. `install_httpie.sh` - HTTPie 安装脚本
+### 6. `install_httpie.sh` - HTTPie 安装脚本
 
 **功能：**
 - 安装 `HTTPie` 命令行客户端（`http`）
@@ -229,34 +197,6 @@ install:httpie --method pip
 - 优先走官方推荐的包管理器方式
 - 回退方案适合无 root 的用户环境
 
----
-
-### 8. `install_broot.sh` - broot 安装脚本
-
-**功能：**
-- 安装 `broot` 交互式目录浏览工具
-- 支持系统包管理器、GitHub Releases 二进制包、`cargo` 编译三种方式
-- 安装完成后自动生成 `br` shell function
-
-**用法：**
-```bash
-install:broot
-install:broot --force
-install:broot --method auto
-install:broot --method package
-install:broot --method binary
-install:broot --method cargo
-```
-
-**特点：**
-- 支持 Linux / macOS
-- `auto` 默认按 `package -> binary -> cargo` 依次尝试
-- 二进制安装会按当前平台选择 release 包内对应目录，例如 `x86_64-unknown-linux-gnu-glibc2.28/broot`
-- 安装后自动执行 `config/broot/init.sh`
-- `br` 可用于退出 broot 后自动 `cd` 到目标目录
-
----
-
 ## 使用方式
 
 ### 通过别名（推荐）
@@ -269,9 +209,7 @@ install:nvim        # 安装 Neovim
 install:fnm         # 安装 fnm
 install:treesitter  # 安装 tree-sitter-cli
 install:fzf         # 安装 fzf
-install:rime        # 安装 Rime 配置
 install:httpie      # 安装 HTTPie
-install:broot       # 安装 broot
 ```
 
 ### 直接运行脚本
@@ -282,9 +220,7 @@ bash ~/dotfiles/scripts/install/install_nvim.sh
 bash ~/dotfiles/scripts/install/install_fnm.sh
 bash ~/dotfiles/scripts/install/install_treesitter.sh
 bash ~/dotfiles/scripts/install/install_fzf.sh
-bash ~/dotfiles/scripts/install/install_rime.sh
 bash ~/dotfiles/scripts/install/install_httpie.sh
-bash ~/dotfiles/scripts/install/install_broot.sh
 ```
 
 ---
@@ -307,13 +243,12 @@ bash ~/dotfiles/scripts/install/install_broot.sh
 ### 通用依赖
 - `bash` - 所有脚本都需要
 - `curl` 或 `wget` - 用于下载文件
-- `git` - 用于克隆仓库（`install_fzf.sh`, `install_rime.sh`）
+- `git` - 用于克隆仓库（`install_fzf.sh`）
 
 ### 特定依赖
 - `install_font.sh`: `tar`, `unzip`, `fc-cache` (Linux)
 - `install_nvim.sh`: `tar`
 - `install_fzf.sh`: `git` (必需), `make` 和 `go` (可选，用于编译)
-- `install_rime.sh`: `git`
 
 ---
 
@@ -326,7 +261,7 @@ bash ~/dotfiles/scripts/install/install_broot.sh
 
 ### Neovim 安装失败
 - 检查网络连接
-- 确保 `~/.local/bin` 目录存在且可写
+- 确保 `~/.local/nvim` 目录存在且可写
 - 验证系统架构是否支持
 
 ### fzf 安装失败
@@ -335,12 +270,5 @@ bash ~/dotfiles/scripts/install/install_broot.sh
 - 如果二进制文件未编译，可能需要安装 Go 和 make
 - 检查 `~/.fzf` 目录权限
 - 确保 `~/.fzf/bin` 在 PATH 中
-
-### Rime 配置克隆失败
-- 检查网络连接
-- 确保 Git 已安装
-- 检查 `~/dotfiles/rime` 目录权限
-
----
 
 **最后更新**: 2025-01-XX

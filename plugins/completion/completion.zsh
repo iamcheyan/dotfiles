@@ -113,6 +113,7 @@ done
 # 清理 PATH 中的重复条目（可选函数）
 clean_path() {
     local -A seen
+    local original_path="$PATH"
     local new_path=""
     local path
     local count=0

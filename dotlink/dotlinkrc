@@ -23,7 +23,6 @@ $HOME/dotfiles/config/herdr/config.toml:$HOME/.config/herdr/config.toml				 #her
 $HOME/dotfiles/config/ranger:$HOME/.config/ranger
 
 # vim
-$HOME/dotfiles/config/vim/vimrc:$HOME/.vimrc	# Vim 配置文件
 $HOME/dotfiles/config/gvim/gvimrc:$HOME/.gvimrc	# gvim 配置文件
 $HOME/dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件
 

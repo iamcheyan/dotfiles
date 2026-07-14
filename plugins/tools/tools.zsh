@@ -9,11 +9,6 @@ install:httpie() {
   bash "$HOME/dotfiles/scripts/install/install_httpie.sh" "$@"
 }
 
-unalias install:broot 2>/dev/null || true
-install:broot() {
-  bash "$HOME/dotfiles/scripts/install/install_broot.sh" "$@"
-}
-
 # pyenv + pyenv-virtualenv
 export PYENV_ROOT="$HOME/.pyenv"
 if [ -d "$PYENV_ROOT" ]; then

@@ -314,6 +314,18 @@ install_nvim_macos() {
     fi
 }
 
+readonly NVIM_MIN_MAJOR=0
+readonly NVIM_MIN_MINOR=11
+readonly NVIM_MIN_VERSION="${NVIM_MIN_MAJOR}.${NVIM_MIN_MINOR}.0"
+
+nvim_version_supported() {
+    local version="$1"
+    local major=$(echo "$version" | cut -d. -f1)
+    local minor=$(echo "$version" | cut -d. -f2)
+
+    [[ $major -gt $NVIM_MIN_MAJOR ]] || [[ $major -eq $NVIM_MIN_MAJOR && $minor -ge $NVIM_MIN_MINOR ]]
+}
+
 # 检查是否已安装
 check_installed() {
     local version="$1"
@@ -322,14 +334,11 @@ check_installed() {
         # 使用 TERM=dumb 和过滤控制序列
         local installed_version=$(TERM=dumb nvim --version 2>&1 | grep -vE '^\[' | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//')
         
-        # 检查版本是否符合最低要求（0.9.0）
+        # 当前配置使用 Neovim 0.11+ 的原生 LSP API。
         if [[ -n "$installed_version" ]]; then
-            local major=$(echo "$installed_version" | cut -d. -f1)
-            local minor=$(echo "$installed_version" | cut -d. -f2)
-            
-            if [[ $major -lt 0 ]] || [[ $major -eq 0 && $minor -lt 9 ]]; then
+            if ! nvim_version_supported "$installed_version"; then
                 print_warning "检测到已安装版本: ${installed_version}"
-                print_error "LazyVim 需要 Neovim 0.9.0 或更高版本！"
+                print_error "当前 Neovim 配置需要 Neovim ${NVIM_MIN_VERSION} 或更高版本！"
                 print_info "当前版本太旧，建议升级到最新版本"
                 return 1
             fi
@@ -379,7 +388,7 @@ main() {
     echo "  Neovim 安装脚本"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    print_info "注意: LazyVim 需要 Neovim 0.9.0 或更高版本"
+    print_info "注意: 当前 Neovim 配置需要 Neovim ${NVIM_MIN_VERSION} 或更高版本"
     echo ""
     
     # 检测系统
@@ -466,11 +475,9 @@ main() {
                 # 使用 TERM=dumb 和过滤控制序列
                 local installed_version=$(TERM=dumb "$nvim_path" --version 2>&1 | grep -vE '^\[' | head -n 1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/^v//' || echo "")
                 if [[ -n "$installed_version" ]]; then
-                    local major=$(echo "$installed_version" | cut -d. -f1)
-                    local minor=$(echo "$installed_version" | cut -d. -f2)
-                    if [[ $major -lt 0 ]] || [[ $major -eq 0 && $minor -lt 9 ]]; then
+                    if ! nvim_version_supported "$installed_version"; then
                         print_warning "检测到旧版本: ${installed_version}"
-                        print_error "LazyVim 需要 Neovim 0.9.0 或更高版本！"
+                        print_error "当前 Neovim 配置需要 Neovim ${NVIM_MIN_VERSION} 或更高版本！"
                     else
                         print_success "版本检查通过: ${installed_version}"
                     fi
@@ -499,4 +506,3 @@ main() {
 
 # 运行主函数
 main "$@"
-

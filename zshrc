@@ -47,9 +47,6 @@ source ~/dotfiles/plugins/completion/completion.zsh
 # evalcache: 缓存 init 脚本输出，减少 atuin/zoxide/direnv 这类 hook 的重复开销
 zinit light mroth/evalcache
 
-if command -v fnm &> /dev/null; then
-  eval "$(fnm env --use-on-cd)"
-fi
 # 首次调用 node/npm/npx/corepack/fnm 时才初始化 fnm 环境
 source "${HOME}/dotfiles/scripts/setup/setup_fnm.sh"
 
@@ -151,12 +148,8 @@ v() {
   fi
 }
 
-
-# Added by Antigravity CLI installer
-export PATH="$HOME/.local/bin:$PATH"
-
 # mimocode
-export PATH=/home/tetsuya/.mimocode/bin:$PATH
+export PATH="$HOME/.mimocode/bin:$PATH"
 
 # >>> grok installer >>>
 export PATH="$HOME/.grok/bin:$PATH"
@@ -165,8 +158,4 @@ autoload -Uz compinit && compinit -C
 # <<< grok installer <<<
 
 # bun completions
-[ -s "/Users/tetsuya/.bun/_bun" ] && source "/Users/tetsuya/.bun/_bun"
-
-
-# Added by Antigravity CLI installer
-export PATH="/home/tetsuya/.local/bin:$PATH"
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
