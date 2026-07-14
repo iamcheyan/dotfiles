@@ -53,6 +53,19 @@ return {
         map("n", "<leader>ghd", gs.diffthis, "Diff This")
         map("n", "<leader>ghD", function() gs.diffthis("~") end, "Diff This ~")
         map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", "GitSigns Select Hunk")
+
+        -- LazyVim-style <leader>g* shortcuts (without the "h")
+        map({ "n", "x" }, "<leader>gs", ":Gitsigns stage_hunk<CR>", "Stage Hunk")
+        map({ "n", "x" }, "<leader>gr", ":Gitsigns reset_hunk<CR>", "Reset Hunk")
+        map("n", "<leader>gS", gs.stage_buffer, "Stage Buffer")
+        map("n", "<leader>gR", gs.reset_buffer, "Reset Buffer")
+        map("n", "<leader>gu", gs.undo_stage_hunk, "Undo Stage Hunk")
+        map("n", "<leader>gp", gs.preview_hunk, "Preview Hunk")
+        map("n", "<leader>gb", function() gs.blame_line({ full = true }) end, "Blame Line")
+        map("n", "<leader>gB", function() gs.blame() end, "Blame Buffer")
+        map("n", "<leader>gd", gs.diffthis, "Diff This")
+        map("n", "<leader>gD", function() gs.diffthis("~") end, "Diff This ~")
+        map({ "n", "v" }, "<leader>gy", ":Gitsigns yank_hunk<CR>", "Yank Hunk")
       end,
     },
   },

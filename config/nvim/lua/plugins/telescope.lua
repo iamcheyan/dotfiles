@@ -7,19 +7,12 @@ return {
     },
     cmd = "Telescope",
     version = false,
+    -- NOTE: find/grep/buffer keymaps are provided by config/keymaps-lazyvim.lua
+    -- (wired to the snacks picker) to stay consistent with the old LazyVim
+    -- defaults. Only the git pickers that have no snacks equivalent remain here.
     keys = {
-      { "<leader>,", "<cmd>Telescope buffers show_all_buffers=true<cr>", desc = "Switch Buffer" },
-      { "<leader>/", "<cmd>Telescope live_grep<cr>", desc = "Grep (root dir)" },
-      { "<leader>:", "<cmd>Telescope command_history<cr>", desc = "Command History" },
-      { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent" },
-      { "<leader>fR", "<cmd>Telescope resume<cr>", desc = "Resume last search" },
-      { "<leader>fc", "<cmd>Telescope grep_string<cr>", desc = "Word under cursor" },
-      { "<leader>fw", "<cmd>Telescope live_grep<cr>", desc = "Grep (root dir)" },
-      { "<leader>fW", "<cmd>Telescope live_grep<cr>", desc = "Grep (cwd)" },
-      { "<leader>fA", "<cmd>Telescope find_files<cr>", desc = "Find Files (cwd)" },
       { "<leader>gf", "<cmd>Telescope git_files<cr>", desc = "Git Files (root dir)" },
       { "<leader>gG", "<cmd>Telescope git_commits<cr>", desc = "Git Commits (cwd)" },
-      { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "Git Status" },
     },
     opts = function()
       local telescope = require("telescope")

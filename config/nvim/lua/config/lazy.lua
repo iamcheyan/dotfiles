@@ -93,3 +93,6 @@ require("lazy").setup({
 -- loading them right after setup is safe and does not depend on the UI firing.
 require("config.keymaps")
 require("config.autocmds")
+-- LazyVim's default <leader> keymaps (find/buffers/git/windows/UI/quit...),
+-- ported to our plugins (snacks picker, gitsigns, vim builtins).
+require("config.keymaps-lazyvim")
