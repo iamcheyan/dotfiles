@@ -87,3 +87,33 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.expandtab = false
   end,
 })
+
+-- ── Colorscheme (previously applied via LazyVim opts.colorscheme) ──
+-- `oceanblack` is a local colors file (colors/oceanblack.vim), no plugin needed.
+pcall(vim.cmd.colorscheme, "oceanblack")
+
+-- ── Baseline options previously provided by LazyVim (lazyvim.config.options) ──
+-- Re-declared here so removing LazyVim does not silently revert them to Neovim
+-- defaults. Intentional user overrides (tabstop=4, expandtab=false, laststatus=0,
+-- showmode=true, smoothscroll=false, cursorcolumn=true) are left untouched.
+vim.opt.undofile = true -- persistent undo
+vim.opt.undolevels = 10000
+vim.opt.updatetime = 200 -- faster CursorHold / swap write
+vim.opt.timeoutlen = 300 -- snappier which-key
+vim.opt.scrolloff = 4 -- keep context above/below cursor
+vim.opt.sidescrolloff = 8
+vim.opt.conceallevel = 2 -- hide *markdown* markup, keep markers
+vim.opt.foldmethod = "indent" -- matches prior LazyVim behavior
+vim.opt.foldlevel = 99 -- start with folds open
+vim.opt.foldtext = ""
+vim.opt.grepprg = "rg --vimgrep" -- :grep uses ripgrep
+vim.opt.grepformat = "%f:%l:%c:%m"
+vim.opt.smartindent = true
+vim.opt.shiftround = true -- round indent to shiftwidth
+vim.opt.wrap = false -- do not wrap long lines
+vim.opt.autowrite = true -- auto-write on :next / :make etc.
+vim.opt.confirm = true -- confirm unsaved changes
+vim.opt.formatoptions = "jcroqlnt" -- sensible comment/format behavior
+vim.opt.inccommand = "nosplit" -- incremental substitute preview
+vim.opt.shortmess:append({ W = true, I = true, c = true, C = true })
+vim.opt.jumpoptions = "view"

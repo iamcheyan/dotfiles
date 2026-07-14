@@ -41,6 +41,11 @@ return {
         end
         client.handlers["textDocument/publishDiagnostics"] = function() end
 
+        -- LSP-powered 'gq' formatting (replaces LazyVim's formatexpr).
+        if client.server_capabilities.documentFormattingProvider then
+          vim.bo[bufnr].formatexpr = "v:lua.vim.lsp.formatexpr()"
+        end
+
         local caps = client.server_capabilities or {}
         local set = function(lhs, rhs, desc, mode)
           vim.keymap.set(mode or "n", lhs, rhs, { buffer = bufnr, noremap = true, silent = true, desc = desc })
@@ -127,8 +132,13 @@ return {
         -- plugins/lsp-keymaps.lua to avoid conflicting with substitute.nvim.
       end
 
+      -- Register + enable servers via the native LSP API (Nvim 0.11+).
+      -- The legacy `lspconfig.<srv>.setup()` path is deprecated and now throws
+      -- on Neovim >= 0.11, so we use vim.lsp.config() + vim.lsp.enable().
+      require("mason-lspconfig").setup(opts)
+
       -- lua_ls (Neovim Lua)
-      lspconfig.lua_ls.setup({
+      vim.lsp.config("lua_ls", {
         on_attach = on_attach,
         settings = {
           Lua = {
@@ -147,9 +157,10 @@ return {
           },
         },
       })
+      vim.lsp.enable("lua_ls")
 
       -- basedpyright (Python)
-      lspconfig.basedpyright.setup({
+      vim.lsp.config("basedpyright", {
         on_attach = on_attach,
         settings = {
           basedpyright = {
@@ -164,9 +175,7 @@ return {
           },
         },
       })
-
-      -- Finally enable the installed servers (idempotent with LazyVim's own call).
-      require("mason-lspconfig").setup(opts)
+      vim.lsp.enable("basedpyright")
     end,
   },
 }

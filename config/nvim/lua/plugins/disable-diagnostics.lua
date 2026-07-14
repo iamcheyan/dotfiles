@@ -30,17 +30,4 @@ return {
 			})
 		end,
 	},
-
-	-- 确保 LazyVim 的额外诊断也被禁用
-	{
-		"LazyVim/LazyVim",
-		opts = {
-			diagnostics = {
-				enabled = false,
-				virtual_text = false,
-				signs = false,
-				underline = false,
-			},
-		},
-	},
 }

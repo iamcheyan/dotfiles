@@ -6,6 +6,9 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+-- Load our options early (previously done by LazyVim's config.init()).
+require("config.options")
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -22,14 +25,8 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- We intentionally removed `import = "lazyvim.plugins"` (every plugin spec is
--- now owned explicitly). LazyVim's import-order sanity check expects that
--- import to be present and first, so disable it.
-vim.g.lazyvim_check_order = false
-
--- Register the LazyVim "LazyFile" pseudo-event so plugin specs using
--- `event = "LazyFile"` keep working after `import = "lazyvim.plugins"` was
--- removed. Mirrors LazyVim's `lazyvim.util.plugin` registration exactly.
+-- Register the "LazyFile" pseudo-event so plugin specs using
+-- `event = "LazyFile"` keep working. Mirrors LazyVim's original registration.
 local Event = require("lazy.core.handler.event")
 Event.mappings.LazyFile = { id = "LazyFile", event = { "BufReadPost", "BufNewFile", "BufWritePre" } }
 Event.mappings["User LazyFile"] = Event.mappings.LazyFile
@@ -50,23 +47,6 @@ end
 
 require("lazy").setup({
   spec = {
-    -- Keep LazyVim only as the options/keymaps/autocmds framework.
-    -- The old `import = "lazyvim.plugins"` used to load lazyvim/plugins/init.lua,
-    -- whose top-level `require("lazyvim.config").init()` set up options/mapleader
-    -- and loaded lua/config/{options,keymaps,autocmds}.lua. Trigger that
-    -- explicitly here so removing the import doesn't drop the framework.
-    {
-      "LazyVim/LazyVim",
-      priority = 10000,
-      lazy = false,
-      init = function()
-        require("lazyvim.config").init()
-      end,
-      opts = { diagnostics = { enabled = false } },
-      config = function(_, opts)
-        require("lazyvim.config").setup(opts)
-      end,
-    },
     -- import/override with your plugins
     { import = "plugins" },
   },
@@ -107,3 +87,9 @@ require("lazy").setup({
     border = "single",
   },
 })
+
+-- Load keymaps and autocmds (previously done by LazyVim's config.setup() at the
+-- VeryLazy event). Our keymaps/autocmds have no top-level plugin requires, so
+-- loading them right after setup is safe and does not depend on the UI firing.
+require("config.keymaps")
+require("config.autocmds")
