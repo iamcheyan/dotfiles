@@ -159,3 +159,16 @@ autoload -Uz compinit && compinit -C
 
 # bun completions
 [[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
+# npm global packages (user-level prefix)
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+# pi wrapper (points at user-installed pi-coding-agent, not /usr/bin/pi)
+export PATH="$HOME/.pi/bin:$PATH"
+
+# fnm
+FNM_PATH="/home/tetsuya/.fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell zsh)"
+fi
