@@ -13,6 +13,8 @@ grok      # Grok
 pi        # Pi
 mimo      # MiMo Code
 oc        # OpenCode
+copilot   # GitHub Copilot
+kiro      # Kiro CLI
 ```
 
 ## 可用 Agent
@@ -26,6 +28,8 @@ oc        # OpenCode
 | `pi` | `pi.sh` | `pi` | `pi --continue` |
 | `mimo` | `mimo.sh` | `mimo` | `mimo -c --dangerously-skip-permissions` |
 | `oc` | `opencode.sh` | `opencode` | `opencode -c --dangerously-skip-permissions` |
+| `copilot` | `copilot.sh` | `copilot` | `copilot` |
+| `kiro` | `kiro.sh` | `kiro-cli` | `kiro-cli` |
 
 ## 通用功能
 
@@ -42,6 +46,8 @@ agy -f
 grok -f
 mimo -f
 oc -f
+copilot -f
+kiro -f
 ```
 
 ### 传参透传
@@ -151,6 +157,20 @@ oc -v                           # 查看版本
 oc -f                           # 强制重装
 ```
 
+### copilot — GitHub Copilot
+
+```bash
+copilot                         # 运行 Copilot
+copilot -f                      # 强制重装
+```
+
+### kiro — Kiro CLI
+
+```bash
+kiro                            # 运行 Kiro CLI
+kiro -f                         # 强制重装
+```
+
 ---
 
 ## 完整 CLI 参考
@@ -165,12 +185,15 @@ head -70 ~/.local/bin/grok     # Grok 参考
 head -80 ~/.local/bin/pi       # Pi 参考
 head -42 ~/.local/bin/mimo     # MiMo 参考
 head -100 ~/.local/bin/oc      # OpenCode 参考
+head -30 $HOME/dotfiles/agent/copilot.sh  # Copilot 参考
+head -20 $HOME/dotfiles/agent/kiro.sh     # Kiro 参考
 ```
 
 ## 配置文件
 
 | 文件 | 用途 |
 |------|------|
+| `~/dotfiles/aliases.conf` | 所有别名定义（chezmoi 管理） |
 | `~/.config/opencode/opencode.json` | Provider / 模型配置（cc, oc 共用） |
 | `~/.codex/auth.json` | Codex 认证 |
 | `~/.codex/profiles/*.json` | Codex 多账号 profile |
