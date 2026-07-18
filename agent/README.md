@@ -10,6 +10,7 @@ cx        # Codex
 cc        # Claude Code
 agy       # Antigravity (Gemini)
 grok      # Grok
+aq        # Agent quota/status snapshot
 pi        # Pi
 mimo      # MiMo Code
 oc        # OpenCode
@@ -25,6 +26,7 @@ kiro      # Kiro CLI
 | `cc` | `claude-code.sh` | `claude` | `claude --dangerously-skip-permissions -c` |
 | `agy` | `antigravity.sh` | `agy` | `agy --continue --dangerously-skip-permissions` |
 | `grok` | `grok.sh` | `grok` | `grok --yolo --continue` |
+| `aq` | `agent-quota.sh` | `codex` / `agy` / `grok` | show quota/status snapshot |
 | `pi` | `pi.sh` | `pi` | `pi --continue` |
 | `mimo` | `mimo.sh` | `mimo` | `mimo -c --dangerously-skip-permissions` |
 | `oc` | `opencode.sh` | `opencode` | `opencode -c --dangerously-skip-permissions` |
@@ -115,12 +117,21 @@ agy -f                          # 强制重装
 
 ```bash
 grok                            # 恢复上次会话（yolo 模式）
-grok -i                         # 初始化配置
+grok setup                      # 初始化配置
 grok -u                         # 更新
 grok -v                         # 查看版本
-grok --set-default grok-4       # 设置默认模型
-grok --model grok-4 "review"    # 指定模型
+grok models                     # 列出可用模型
+grok --model grok-4.5 "review"  # 指定模型
 ```
+
+### aq — Agent quota/status
+
+```bash
+aq                              # 查看 Codex / AGY(Gemini) / Grok 状态
+aq --json                       # 输出 Codex app-server 原始 JSON
+```
+
+`aq` 会实时调用 Codex app-server 的 `account/rateLimits/read` 和 `account/usage/read`，显示限额使用百分比、重置时间、reset credits 和 token 使用摘要。AGY/Gemini 与 Grok 当前 CLI 没有公开稳定的 quota 子命令，脚本会展示已登录账号、可用模型，并明确标出限额接口不可用。
 
 ### pi — Pi
 
@@ -182,6 +193,7 @@ head -70 ~/.local/bin/cx       # Codex 参考
 head -120 ~/.local/bin/cc      # Claude Code 参考
 head -40 ~/.local/bin/agy      # Antigravity 参考
 head -70 ~/.local/bin/grok     # Grok 参考
+head -80 $HOME/dotfiles/agent/agent-quota.sh  # Agent quota/status
 head -80 ~/.local/bin/pi       # Pi 参考
 head -42 ~/.local/bin/mimo     # MiMo 参考
 head -100 ~/.local/bin/oc      # OpenCode 参考
