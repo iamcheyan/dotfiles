@@ -560,31 +560,18 @@ agy_bucket() {
   fi
 }
 
-# Refresh Google OAuth token using refresh_token from antigravity CLI.
-# Prints new access_token on success, empty on failure.
+# Return a valid Google OAuth access_token from the antigravity token file,
+# refreshing it first if expired. Prints the token on stdout, empty on failure.
+#
+# NOTE: The antigravity CLI has since moved off this Google-OAuth flow (it now
+# authenticates via its own backend), so the token stored at
+# ~/.gemini/antigravity-cli/antigravity-oauth-token is no longer refreshed by
+# `agy` itself. If it has expired and you have no local .env with a working
+# OAuth client, AGY quota simply can't be fetched — re-run the antigravity
+# login to regenerate it.
 agy_refresh_token() {
   local token_file="$HOME/.gemini/antigravity-cli/antigravity-oauth-token"
   [ -f "$token_file" ] || return 1
-
-  # Load OAuth client credentials (same source as antigravity.sh)
-  local agy_cid="" agy_csec=""
-  local env_file="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.env"
-  if [ -f "$env_file" ]; then
-    agy_cid=$(grep -E "^ANTIGRAVITY_CLIENT_ID=" "$env_file" | cut -d'=' -f2- | sed 's/["'"'"']//g' | tr -d '\r')
-    agy_csec=$(grep -E "^ANTIGRAVITY_CLIENT_SECRET=" "$env_file" | cut -d'=' -f2- | sed 's/["'"'"']//g' | tr -d '\r')
-  fi
-  # Fallback: extract Antigravity's public OAuth client from the agy CLI binary
-  # (the client id/secret ship embedded in the distributed binary, so they are
-  # not secrets — but we avoid hardcoding them here).
-  if [ -z "$agy_cid" ] || [ -z "$agy_csec" ]; then
-    local agy_bin
-    agy_bin="$(command -v agy || true)"
-    [ -z "$agy_bin" ] && agy_bin="$(readlink -f "$HOME/.local/bin/agy" 2>/dev/null || true)"
-    if [ -n "$agy_bin" ] && [ -f "$agy_bin" ]; then
-      [ -z "$agy_cid" ] && agy_cid=$(grep -aoE '[0-9]{12}-[a-z0-9]+\.apps\.googleusercontent\.com' "$agy_bin" 2>/dev/null | head -1)
-      [ -z "$agy_csec" ] && agy_csec=$(grep -aoE 'GOCSPX-[A-Za-z0-9_-]{20,}' "$agy_bin" 2>/dev/null | head -1)
-    fi
-  fi
 
   local refresh_token access_token expiry
   refresh_token=$(jq -r '.token.refresh_token // empty' "$token_file" 2>/dev/null)
@@ -602,8 +589,26 @@ agy_refresh_token() {
     fi
   fi
 
-  # Token expired or missing — refresh using refresh_token
+  # Token expired — try to refresh, but only if a working OAuth client is
+  # supplied via a local .env (same file antigravity.sh reads). We deliberately
+  # do NOT hardcode or scrape the client credentials: the embedded ones in the
+  # agy binary no longer work against Google's token endpoint.
   [ -n "$refresh_token" ] || return 1
+  local agy_cid="" agy_csec=""
+  local env_file="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.env"
+  if [ -f "$env_file" ]; then
+    agy_cid=$(grep -E "^ANTIGRAVITY_CLIENT_ID=" "$env_file" | cut -d'=' -f2- | sed 's/["'"'"']//g' | tr -d '\r')
+    agy_csec=$(grep -E "^ANTIGRAVITY_CLIENT_SECRET=" "$env_file" | cut -d'=' -f2- | sed 's/["'"'"']//g' | tr -d '\r')
+  fi
+  [ -n "$agy_cid" ] && [ -n "$agy_csec" ] || return 1
+
+  local resp new_at new_exp new_rt
+  resp=$(curl -sS -m 15 -X POST 'https://oauth2.googleapis.com/token' \
+    -H 'Content-Type: application/x-www-form-urlencoded' \
+    --data-urlencode "grant_type=refresh_token" \
+    --data-urlencode "refresh_token=$refresh_token" \
+    --data-urlencode "client_id=$agy_cid" \
+    --data-urlencode "client_secret=$agy_csec" 2>/dev/null)
 
   local resp new_at new_exp new_rt
   resp=$(curl -sS -m 15 -X POST 'https://oauth2.googleapis.com/token' \
@@ -726,7 +731,10 @@ show_agy() {
   local access_token
   access_token=$(agy_refresh_token 2>/dev/null || true)
   if [ -z "$access_token" ]; then
-    line "status: ${RED}no valid token (run 'agy' to re-authenticate)${RESET}"
+    line "status: ${DIM}no valid Google OAuth token${RESET}"
+    line "  ${DIM}antigravity has moved off this OAuth flow, so the token at${RESET}"
+    line "  ${DIM}~/.gemini/antigravity-cli/antigravity-oauth-token is no longer refreshed.${RESET}"
+    line "  ${DIM}Re-run the antigravity login (or place a working OAuth client in agent/.env)${RESET}"
     return
   fi
 
