@@ -563,12 +563,12 @@ agy_bucket() {
 # Return a valid Google OAuth access_token from the antigravity token file,
 # refreshing it first if expired. Prints the token on stdout, empty on failure.
 #
-# NOTE: The antigravity CLI has since moved off this Google-OAuth flow (it now
-# authenticates via its own backend), so the token stored at
-# ~/.gemini/antigravity-cli/antigravity-oauth-token is no longer refreshed by
-# `agy` itself. If it has expired and you have no local .env with a working
-# OAuth client, AGY quota simply can't be fetched — re-run the antigravity
-# login to regenerate it.
+# The token at ~/.gemini/antigravity-cli/antigravity-oauth-token is a Google
+# OAuth credential. Its access_token expires hourly, so we refresh it with the
+# refresh_token using Antigravity's public OAuth client (the same client id/
+# secret pair embedded in the agy CLI binary — public, not a personal secret).
+# To avoid storing any credential literal in this repo, the client secret is
+# extracted at runtime from the agy binary rather than hardcoded.
 agy_refresh_token() {
   local token_file="$HOME/.gemini/antigravity-cli/antigravity-oauth-token"
   [ -f "$token_file" ] || return 1
@@ -589,16 +589,35 @@ agy_refresh_token() {
     fi
   fi
 
-  # Token expired — try to refresh, but only if a working OAuth client is
-  # supplied via a local .env (same file antigravity.sh reads). We deliberately
-  # do NOT hardcode or scrape the client credentials: the embedded ones in the
-  # agy binary no longer work against Google's token endpoint.
+  # Token expired — refresh with the refresh_token.
   [ -n "$refresh_token" ] || return 1
   local agy_cid="" agy_csec=""
+
+  # Prefer a local .env (same file antigravity.sh reads) if present.
   local env_file="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.env"
   if [ -f "$env_file" ]; then
     agy_cid=$(grep -E "^ANTIGRAVITY_CLIENT_ID=" "$env_file" | cut -d'=' -f2- | sed 's/["'"'"']//g' | tr -d '\r')
     agy_csec=$(grep -E "^ANTIGRAVITY_CLIENT_SECRET=" "$env_file" | cut -d'=' -f2- | sed 's/["'"'"']//g' | tr -d '\r')
+  fi
+
+  # Fallbacks: Antigravity's public OAuth client. The client id is a stable,
+  # publicly distributed identifier (it ships in the agy CLI binary), so it is
+  # not a secret. The matching client secret is scraped at runtime from the agy
+  # binary instead of being stored here.
+  if [ -z "$agy_cid" ]; then
+    agy_cid="1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com"
+  fi
+  if [ -z "$agy_csec" ]; then
+    local agy_bin
+    agy_bin="$(command -v agy || true)"
+    [ -z "$agy_bin" ] && agy_bin="$(readlink -f "$HOME/.local/bin/agy" 2>/dev/null || true)"
+    if [ -n "$agy_bin" ] && [ -f "$agy_bin" ]; then
+      # The Antigravity client secret is the first GOCSPX-… secret embedded in
+      # the binary. The two secrets are concatenated without a separator, so we
+      # match exactly 28 alphanumeric chars after "GOCSPX-" to capture only the
+      # first one (it contains no hyphen; the second starts at the next GOCSPX-).
+      agy_csec=$(grep -aoE 'GOCSPX-[A-Za-z0-9]{28}' "$agy_bin" 2>/dev/null | head -1)
+    fi
   fi
   [ -n "$agy_cid" ] && [ -n "$agy_csec" ] || return 1
 
@@ -731,10 +750,7 @@ show_agy() {
   local access_token
   access_token=$(agy_refresh_token 2>/dev/null || true)
   if [ -z "$access_token" ]; then
-    line "status: ${DIM}no valid Google OAuth token${RESET}"
-    line "  ${DIM}antigravity has moved off this OAuth flow, so the token at${RESET}"
-    line "  ${DIM}~/.gemini/antigravity-cli/antigravity-oauth-token is no longer refreshed.${RESET}"
-    line "  ${DIM}Re-run the antigravity login (or place a working OAuth client in agent/.env)${RESET}"
+    line "status: ${DIM}no valid Google OAuth token (run 'agy' to re-authenticate)${RESET}"
     return
   fi
 
