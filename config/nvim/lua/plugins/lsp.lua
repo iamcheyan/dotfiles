@@ -104,12 +104,12 @@ return {
         end, "Organize Imports")
 
         -- inlay hints (LazyVim parity)
-        if client.supports_method("textDocument/inlayHint", { bufnr = bufnr }) then
+        if client:supports_method("textDocument/inlayHint", { bufnr = bufnr }) then
           vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
         end
 
         -- LSP folds
-        if client.supports_method("textDocument/foldingRange", { bufnr = bufnr }) then
+        if client:supports_method("textDocument/foldingRange", { bufnr = bufnr }) then
           local win = vim.api.nvim_get_current_win()
           if vim.wo[win].foldmethod == "manual" then
             vim.wo[win].foldmethod = "expr"
@@ -118,12 +118,8 @@ return {
         end
 
         -- code lens
-        if client.supports_method("textDocument/codeLens", { bufnr = bufnr }) then
-          vim.lsp.codelens.refresh()
-          vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-            buffer = bufnr,
-            callback = vim.lsp.codelens.refresh,
-          })
+        if client:supports_method("textDocument/codeLens", { bufnr = bufnr }) then
+          vim.lsp.codelens.enable(true, { bufnr = bufnr })
         end
 
         -- NOTE: `gr` is intentionally NOT bound here. It is removed on LspAttach by

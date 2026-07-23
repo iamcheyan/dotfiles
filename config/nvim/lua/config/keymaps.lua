@@ -37,6 +37,14 @@ vim.keymap.set("n", "<leader>fo", function()
   vim.lsp.buf.format({ async = true })
 end, { desc = "format this file" })
 
+vim.keymap.set("n", "<leader>fu", function()
+  local file = vim.fn.expand("%:p")
+  if file ~= "" then
+    vim.fn.system({ "dos2unix", file })
+    vim.notify("dos2unix: " .. vim.fn.fnamemodify(file, ":t"))
+  end
+end, { desc = "dos2unix current file" })
+
 vim.keymap.set("n", "<leader>aa", "ggVG", { desc = "CLRT A" })
 vim.keymap.set("n", "<leader>ac", function()
   vim.api.nvim_buf_set_lines(0, 0, -1, false, { "" })

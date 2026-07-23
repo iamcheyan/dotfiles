@@ -50,3 +50,4 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 set_cmdline_highlights()
 set_gitsigns_highlights()
+
