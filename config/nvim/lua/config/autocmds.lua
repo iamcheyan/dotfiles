@@ -51,15 +51,3 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 set_cmdline_highlights()
 set_gitsigns_highlights()
 
--- Linux で dos2unix がインストールされている場合、保存時に dos2unix を実行
-if vim.fn.has("linux") == 1 and vim.fn.executable("dos2unix") == 1 then
-  vim.api.nvim_create_autocmd("BufWritePost", {
-    pattern = "*",
-    callback = function()
-      local file = vim.fn.expand("%:p")
-      if file ~= "" then
-        vim.fn.system({ "dos2unix", file })
-      end
-    end,
-  })
-end
