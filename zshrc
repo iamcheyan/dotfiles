@@ -172,3 +172,6 @@ if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "$(fnm env --shell zsh)"
 fi
+
+# Pi
+export PATH="/home/hkaku/.fnm/node-versions/v22.22.3/installation/bin:$PATH"
