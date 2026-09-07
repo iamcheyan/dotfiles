@@ -4,6 +4,14 @@
 
 export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
 
+# Homebrew's Apple Silicon prefix is not guaranteed to be present when a
+# non-login zsh or a Bash child process inherits an older PATH. Add it here so
+# fnm/npm-backed wrappers (Codex, etc.) can resolve the real executables too.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    [[ -d /opt/homebrew/bin ]] && path=(/opt/homebrew/bin $path)
+    [[ -d /opt/homebrew/sbin ]] && path=(/opt/homebrew/sbin $path)
+fi
+
 if [[ -d "$FNM_DIR" ]]; then
     path=("$FNM_DIR" "$FNM_DIR/bin" $path)
     export PATH
