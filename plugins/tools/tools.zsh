@@ -9,18 +9,6 @@ install:httpie() {
   bash "$HOME/dotfiles/scripts/install/install_httpie.sh" "$@"
 }
 
-# pyenv + pyenv-virtualenv
-export PYENV_ROOT="$HOME/.pyenv"
-if [ -d "$PYENV_ROOT" ]; then
-  export PATH="$PYENV_ROOT/bin:$PATH"
-  if command -v pyenv >/dev/null 2>&1; then
-    eval "$(pyenv init -)"
-    if [[ -x "$PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init" ]]; then
-      eval "$($PYENV_ROOT/plugins/pyenv-virtualenv/bin/pyenv-virtualenv-init -)"
-    fi
-  fi
-fi
-
 # 系统监控
 zi_cmd aristocratos/btop btop
 zi_cmd ClementTsang/bottom btm

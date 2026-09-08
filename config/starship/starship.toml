@@ -36,7 +36,7 @@ stashed = "[*${count}](bold blue)"
 
 [python]
 symbol = " "
-format = '[$symbol${pyenv_prefix}(${version} )(\($virtualenv\) )](bold yellow)'
+format = '[$symbol(${version} )(\($virtualenv\) )](bold yellow)'
 detect_files = ["requirements.txt", "pyproject.toml", "setup.py", ".python-version", "Pipfile"]
 detect_folders = [".venv", "venv"]
 

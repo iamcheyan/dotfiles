@@ -42,7 +42,7 @@ if [[ -t 1 ]]; then
   source "$dotfiles_root/plugins/prompt/prompt.zsh"
 fi
 
-# 核心工具集合：通过 zinit 安装命令行工具，并初始化 pyenv/direnv/atuin 等 shell 集成
+# 核心工具集合：通过 zinit 安装命令行工具，并初始化 direnv/atuin 等 shell 集成
 source "$dotfiles_root/plugins/tools/tools.zsh"
 
 # zsh-completions 必须在 compinit 前加载

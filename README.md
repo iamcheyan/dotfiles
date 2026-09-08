@@ -77,7 +77,7 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > **初始化脚本会自动完成**：
 > 1. 安装 Zsh 并设为系统默认 Shell。
 > 2. 安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）。
-> 3. 安装配置 `zinit`、`Starship`、`Atuin`、`pyenv`、`fnm`。
+> 3. 安装配置 `zinit`、`Starship`、`Atuin`、`fnm`。
 > 4. 安装并拉取 Neovim 插件与 Treesitter 解析器。
 > 5. 安装 Docker（支持的 Linux 发行版）与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。

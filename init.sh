@@ -408,42 +408,6 @@ install_essentials() {
     print_success "Essential tools installation/check completed"
 }
 
-# Install pyenv
-install_pyenv() {
-    if [[ "$(detect_os)" == "nixos" ]]; then
-        print_info "NixOS detected; manage Python environments with Nix or development shells. Skipping pyenv installation."
-        return 0
-    fi
-    local pyenv_dir="$HOME/.pyenv"
-    
-    if [[ -d "$pyenv_dir" ]]; then
-        print_success "pyenv is already installed: $pyenv_dir"
-        return 0
-    fi
-
-    print_info "Installing pyenv..."
-
-    if ! command_exists git; then
-        print_error "git is required to install pyenv"
-        return 1
-    fi
-
-    git clone https://github.com/pyenv/pyenv.git "$pyenv_dir"
-    if [[ $? -eq 0 ]]; then
-        print_success "pyenv installed successfully: $pyenv_dir"
-        
-        # Install the pyenv-virtualenv plugin
-        if [[ ! -d "$pyenv_dir/plugins/pyenv-virtualenv" ]]; then
-            print_info "Installing pyenv-virtualenv..."
-            git clone https://github.com/pyenv/pyenv-virtualenv.git "$pyenv_dir/plugins/pyenv-virtualenv"
-            print_success "pyenv-virtualenv installed successfully"
-        fi
-    else
-        print_error "Failed to install pyenv"
-        return 1
-    fi
-}
-
 # Install fnm
 load_fnm_env() {
     export FNM_DIR="${FNM_DIR:-$HOME/.fnm}"
@@ -1025,29 +989,29 @@ EOF
     }
 
     # Detect and configure the dotfiles directory
-    print_info "Step 1/12: Detecting the dotfiles repository location"
+    print_info "Step 1/11: Detecting the dotfiles repository location"
     if ! detect_dotfiles_dir; then
         exit 1
     fi
     echo ""
 
     # 1. Install zsh
-    print_info "Step 2/12: Checking and installing zsh"
+    print_info "Step 2/11: Checking and installing zsh"
     run_step "zsh install" install_zsh
     echo ""
 
     # 2. Install essential tools
-    print_info "Step 3/12: Installing essential tools (git, curl, build-essential, etc.)"
+    print_info "Step 3/11: Installing essential tools (git, curl, build-essential, etc.)"
     run_step "essential tools install" install_essentials
     echo ""
 
     # 2.5 Initialize git submodules
-    print_info "Step 3.5/12: Initializing git submodules"
+    print_info "Step 3.5/11: Initializing git submodules"
     run_step "git submodules" init_git_submodules
     echo ""
 
     # 3. Install zinit
-    print_info "Step 4/12: Checking and installing zinit"
+    print_info "Step 4/11: Checking and installing zinit"
     run_step "zinit install" install_zinit
     echo ""
 
@@ -1058,57 +1022,52 @@ EOF
         echo ""
     fi
 
-    # 4. Install pyenv
-    print_info "Step 5/12: Checking and installing pyenv"
-    run_step "pyenv install" install_pyenv
-    echo ""
-
     # 5. Install fnm
-    print_info "Step 6/12: Checking and installing fnm"
+    print_info "Step 5/11: Checking and installing fnm"
     run_step "fnm install" install_fnm
     echo ""
 
     # 7. Install fzf
-    print_info "Step 7/12: Checking and installing fzf"
+    print_info "Step 6/11: Checking and installing fzf"
     run_step "fzf install" install_fzf
     echo ""
 
     # 8. Create config file symlinks with dotlink
-    print_info "Step 8/12: Creating config file symlinks with dotlink"
+    print_info "Step 7/11: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
     echo ""
 
     # 8.5 Install ranger plugins if missing
-    print_info "Step 8.5/12: Checking ranger plugins"
+    print_info "Step 7.5/11: Checking ranger plugins"
     run_step "ranger_devicons install" install_ranger_devicons
     run_step "ranger_archives install" install_ranger_archives
     echo ""
 
     # 9. Create the .zshrc symlink
-    print_info "Step 9/12: Creating the .zshrc symlink"
+    print_info "Step 8/11: Creating the .zshrc symlink"
     run_step "zshrc link" create_zshrc_link
     echo ""
 
     # 10. Install Neovim
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 10/12: Installing Neovim"
+        print_info "Step 9/11: Installing Neovim"
         run_step "neovim install" install_neovim
     else
-        print_info "Step 10/12: Skipping Neovim (minimal mode)"
+        print_info "Step 9/11: Skipping Neovim (minimal mode)"
     fi
     echo ""
 
     # 11. Install fonts
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 11/12: Installing fonts"
+        print_info "Step 10/11: Installing fonts"
         run_step "fonts install" install_fonts
     else
-        print_info "Step 11/12: Skipping fonts (minimal mode)"
+        print_info "Step 10/11: Skipping fonts (minimal mode)"
     fi
     echo ""
 
     # 12. Install additional tools
-    print_info "Step 12/12: Installing additional tools (Docker, Zellij)"
+    print_info "Step 11/11: Installing additional tools (Docker, Zellij)"
     run_step "extra tools install" install_extra_tools
     echo ""
 
