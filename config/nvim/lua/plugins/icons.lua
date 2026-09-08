@@ -26,6 +26,11 @@ return {
           color = "#428850",
           name = "Zsh",
         },
+        toml = {
+          icon = "",
+          color = "#9c4221",
+          name = "TOML",
+        },
       },
     },
   },
