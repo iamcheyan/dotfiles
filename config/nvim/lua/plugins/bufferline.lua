@@ -293,7 +293,7 @@ return {
           reveal = { "close" },
         },
         enforce_regular_tabs = false,
-        buffer_close_icon = "󰅖",
+        buffer_close_icon = "",
         modified_icon = "",
         close_command = "bdelete! %d",
         right_mouse_command = "bdelete! %d",

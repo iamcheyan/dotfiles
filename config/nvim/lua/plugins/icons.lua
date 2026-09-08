@@ -27,7 +27,7 @@ return {
           name = "Zsh",
         },
         toml = {
-          icon = "",
+          icon = "",
           color = "#9c4221",
           name = "TOML",
         },
