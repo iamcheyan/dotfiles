@@ -23,6 +23,8 @@ $HOME/dotfiles/config/ranger:$HOME/.config/ranger
 $HOME/dotfiles/config/gvim/gvimrc:$HOME/.gvimrc	# gvim 配置文件
 $HOME/dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件
 
+$HOME/dotfiles/config/tmux/tmux.conf:$HOME/.config/tmux/tmux.conf	# Tmux 通用主配置
+
 # vifm
 $HOME/dotfiles/config/vifm/vifmrc:$HOME/.config/vifm/vifmrc
 $HOME/dotfiles/config/vifm/colors:$HOME/.config/vifm/colors

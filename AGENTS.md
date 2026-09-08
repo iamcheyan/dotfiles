@@ -11,7 +11,8 @@
 - Neovim 配置与公开插件
 - Ranger、Vifm、Ghostty、Starship 等通用工具配置
 - `dotlink` 软链接工具与跨平台初始化脚本
-- 通用安装、维护和文档脚本
+- `config/tmux/tmux.conf`：Tmux 通用主配置
+- `local/`：用户自定义的本地覆盖配置
 
 本机共有三个主要配置仓库：`~/nixos-config` 是 NixOS 系统层，`~/chezmoi`
 是用户级私人编排层，本仓库是公开基础层。需要 `nixos-rebuild`、涉及 `/etc`、
