@@ -162,12 +162,8 @@ install_zsh() {
             fi
             ;;
         nixos)
-            if command_exists nix; then
-                print_info "NixOS detected; install zsh with nix profile..."
-                nix profile install nixpkgs#zsh || true
-            else
-                print_warning "NixOS detected but nix is unavailable; install Nix before running this bootstrap"
-            fi
+            print_info "NixOS detected; zsh is managed by nixos-config. Add or enable it there, then rebuild the system."
+            return 0
             ;;
         *)
             print_warning "Could not detect the operating system automatically. Please install zsh manually"
@@ -318,17 +314,7 @@ install_essentials() {
 
     OS=$(detect_os)
     if [[ "$OS" == "nixos" ]]; then
-        if ! command_exists nix; then
-            print_warning "NixOS detected but nix is unavailable; skipping package installation"
-            return 0
-        fi
-        local nix_packages=(git curl wget unzip ffmpeg tmux ripgrep fd fzf jq neovim ranger atuin)
-        print_info "NixOS detected; installing public CLI tools with nix profile..."
-        for pkg in "${nix_packages[@]}"; do
-            if ! command_exists "$pkg"; then
-                nix profile install "nixpkgs#$pkg" || print_warning "Could not install nix package: $pkg"
-            fi
-        done
+        print_info "NixOS detected; essential packages are managed by nixos-config. Rebuild the system after changing its package modules."
         return 0
     elif [[ "$OS" == "debian" ]]; then
         if command_exists sudo; then
@@ -509,12 +495,8 @@ install_fresh() {
             ;;
         linux-gnu*)
             if [[ "$(detect_os)" == "nixos" ]]; then
-                if command_exists nix; then
-                    nix profile install github:sinelaw/fresh
-                else
-                    print_warning "Nix is required to install Fresh on NixOS"
-                    return 1
-                fi
+                print_info "NixOS detected; Fresh is managed by nixos-config. Rebuild the system to install it."
+                return 0
             elif command_exists curl; then
                 curl -fsSL https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
             else
@@ -539,7 +521,7 @@ install_fresh() {
 # Install fzf
 install_fzf() {
     if [[ "$(detect_os)" == "nixos" ]]; then
-        print_info "NixOS detected; manage fzf with nix profile. Skipping duplicate installation."
+        print_info "NixOS detected; fzf is managed by nixos-config. Rebuild the system to install it."
         return 0
     fi
     if command_exists fzf; then
@@ -597,8 +579,8 @@ install_fzf() {
             fi
             ;;
         nixos)
-            print_info "NixOS detected; install fzf with nix profile instead of the dotfiles bootstrap."
-            return 1
+            print_info "NixOS detected; fzf is managed by nixos-config. Rebuild the system to install it."
+            return 0
             ;;
         *)
             print_warning "Could not detect the operating system automatically. Please install fzf manually"
@@ -805,7 +787,7 @@ detect_dotfiles_dir() {
 # Install Neovim
 install_neovim() {
     if [[ "$(detect_os)" == "nixos" ]]; then
-        print_info "NixOS detected; manage Neovim with nix profile. Skipping duplicate installation."
+        print_info "NixOS detected; Neovim is managed by nixos-config. Rebuild the system to install it."
         return 0
     fi
     local install_script="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install/install_nvim.sh"
@@ -819,6 +801,10 @@ install_neovim() {
 
 # Install fonts
 install_fonts() {
+    if [[ "$(detect_os)" == "nixos" ]]; then
+        print_info "NixOS detected; fonts are managed by nixos-config. Rebuild the system to install them."
+        return 0
+    fi
     local install_script="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install/install_font.sh"
     if [[ -f "$install_script" ]]; then
         print_info "Installing fonts..."
@@ -950,7 +936,7 @@ install_extra_tools() {
     print_info "Checking and installing additional tools..."
 
     if [[ "$(detect_os)" == "nixos" ]]; then
-        print_info "NixOS detected; manage Docker, Zellij, and Herdr with Nix or user-selected tools. Skipping additional tool installation."
+        print_info "NixOS detected; Docker, Zellij, and Herdr are not installed by this bootstrap. Manage system packages and services through nixos-config."
         return 0
     fi
 
