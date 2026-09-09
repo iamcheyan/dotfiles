@@ -82,6 +82,10 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 5. 安装 Docker（支持的 Linux 发行版）与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
 
+### Fresh Terminal IDE
+
+`init.sh` 会按平台安装 [Fresh](https://github.com/sinelaw/fresh)：Linux/WSL 使用官方 universal installer，NixOS 使用 Nix flake，macOS 使用 Homebrew，Windows（Git Bash/MSYS/Cygwin）使用 winget。安装后可用 `fr` 启动。
+
 ### 第三步：应用软链接并进入环境
 
 ```bash

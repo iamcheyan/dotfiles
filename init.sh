@@ -482,6 +482,60 @@ install_fnm() {
     ensure_fnm_node
 }
 
+# Install Fresh Terminal IDE
+install_fresh() {
+    if command_exists fresh; then
+        print_success "Fresh is already installed: $(fresh --version 2>/dev/null | head -n 1)"
+        return 0
+    fi
+
+    print_info "Installing Fresh Terminal IDE..."
+    case "$OSTYPE" in
+        msys*|cygwin*|win32*)
+            if command_exists winget; then
+                winget install --id sinelaw.fresh-editor --exact --accept-package-agreements --accept-source-agreements
+            else
+                print_warning "Windows winget is required to install Fresh Terminal IDE"
+                return 1
+            fi
+            ;;
+        darwin*)
+            if command_exists brew; then
+                brew install fresh-editor
+            else
+                print_warning "On macOS, install Homebrew first or install Fresh manually"
+                return 1
+            fi
+            ;;
+        linux-gnu*)
+            if [[ "$(detect_os)" == "nixos" ]]; then
+                if command_exists nix; then
+                    nix profile install github:sinelaw/fresh
+                else
+                    print_warning "Nix is required to install Fresh on NixOS"
+                    return 1
+                fi
+            elif command_exists curl; then
+                curl -fsSL https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
+            else
+                print_error "curl is required to install Fresh Terminal IDE on Linux"
+                return 1
+            fi
+            ;;
+        *)
+            print_warning "Unsupported platform for automatic Fresh installation; install it manually"
+            return 1
+            ;;
+    esac
+
+    if command_exists fresh || [[ -x "$HOME/.local/bin/fresh" ]]; then
+        print_success "Fresh Terminal IDE installed"
+    else
+        print_error "Fresh Terminal IDE installation failed"
+        return 1
+    fi
+}
+
 # Install fzf
 install_fzf() {
     if [[ "$(detect_os)" == "nixos" ]]; then
@@ -1027,47 +1081,52 @@ EOF
     run_step "fnm install" install_fnm
     echo ""
 
+    # 6. Install Fresh Terminal IDE
+    print_info "Step 6/12: Checking and installing Fresh Terminal IDE"
+    run_step "Fresh install" install_fresh
+    echo ""
+
     # 7. Install fzf
-    print_info "Step 6/11: Checking and installing fzf"
+    print_info "Step 7/12: Checking and installing fzf"
     run_step "fzf install" install_fzf
     echo ""
 
     # 8. Create config file symlinks with dotlink
-    print_info "Step 7/11: Creating config file symlinks with dotlink"
+    print_info "Step 8/12: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
     echo ""
 
     # 8.5 Install ranger plugins if missing
-    print_info "Step 7.5/11: Checking ranger plugins"
+    print_info "Step 8.5/12: Checking ranger plugins"
     run_step "ranger_devicons install" install_ranger_devicons
     run_step "ranger_archives install" install_ranger_archives
     echo ""
 
     # 9. Create the .zshrc symlink
-    print_info "Step 8/11: Creating the .zshrc symlink"
+    print_info "Step 9/12: Creating the .zshrc symlink"
     run_step "zshrc link" create_zshrc_link
     echo ""
 
     # 10. Install Neovim
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 9/11: Installing Neovim"
+        print_info "Step 10/12: Installing Neovim"
         run_step "neovim install" install_neovim
     else
-        print_info "Step 9/11: Skipping Neovim (minimal mode)"
+        print_info "Step 10/12: Skipping Neovim (minimal mode)"
     fi
     echo ""
 
     # 11. Install fonts
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 10/11: Installing fonts"
+        print_info "Step 11/12: Installing fonts"
         run_step "fonts install" install_fonts
     else
-        print_info "Step 10/11: Skipping fonts (minimal mode)"
+        print_info "Step 11/12: Skipping fonts (minimal mode)"
     fi
     echo ""
 
     # 12. Install additional tools
-    print_info "Step 11/11: Installing additional tools (Docker, Zellij)"
+    print_info "Step 12/12: Installing additional tools (Docker, Zellij)"
     run_step "extra tools install" install_extra_tools
     echo ""
 
