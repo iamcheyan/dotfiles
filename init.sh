@@ -273,16 +273,6 @@ repair_zinit_plugins() {
             print_success "broot binary looks correct"
         fi
         
-        # Regenerate br shell function if needed
-        local broot_launcher="${XDG_CONFIG_HOME:-$HOME/.config}/broot/launcher/br"
-        local broot_init_script="$HOME/dotfiles/config/broot/init.sh"
-        if [[ -f "$broot_dir/broot" ]] && [[ -f "$broot_init_script" ]]; then
-            if [[ ! -f "$broot_launcher" ]]; then
-                print_info "Regenerating br shell function..."
-                bash "$broot_init_script" >/dev/null 2>&1 || true
-                print_success "br shell function regenerated"
-            fi
-        fi
     fi
     
     # Add more plugin repairs here as needed

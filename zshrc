@@ -144,3 +144,9 @@ fpath=(~/.grok/completions/zsh $fpath)
 autoload -Uz compinit && compinit -C
 # <<< grok installer <<<
 alias ssh="/usr/bin/ssh"
+
+# broot: br is a shell function, not an executable alias. Generate it from
+# the installed broot binary so new shells (including tmux panes) get it.
+if command -v broot >/dev/null 2>&1; then
+    eval "$(broot --print-shell-function zsh)"
+fi
