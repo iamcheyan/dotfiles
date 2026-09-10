@@ -1,7 +1,7 @@
 # 🚀 Dotfiles — 现代化终端开发环境一键配置
 
 > 基于 **Zsh + 自管 Neovim (lazy.nvim) + 本地 AI 工具 (Herdr)** 的全套极速、开箱即用终端配置方案。
-> 纯公开、零外部强依赖，一行命令跨平台全自动交付！
+> 纯公开、可独立使用；非 NixOS 平台支持一行命令跨平台初始化，NixOS 系统包由 `~/nixos-config` 管理。
 
 ## 🗺️ 配置仓库边界
 
@@ -14,10 +14,10 @@
 
 ## 🌟 核心卖点
 
-### 1. ⚡ 一键全自动初始化（One-Click Setup）
+### 1. ⚡ 一键初始化（One-Click Setup）
 * **跨平台全自动适配**：原生支持 **Debian / Ubuntu / Arch Linux / Fedora / Void / NixOS / macOS**。
 * **NixOS 软件包边界**：检测到 NixOS 时，`init.sh` 不执行任何 Nix 软件包安装，只提示用户通过 `~/nixos-config` 的包模块声明并重建系统；用户目录配置和插件仍由本仓库部署。
-* **一行命令搞定一切**：自动安装并配置所需工具链（`eza`、`bat`、`fd`、`ripgrep`、`zoxide`、`fzf`、`jq`、`btop` 等）、Nerd Font 字体、Zsh 插件与软链接，无需手动折腾。
+* **一行命令完成初始化**：在支持的非 NixOS 平台自动安装所需工具链（`eza`、`bat`、`fd`、`ripgrep`、`zoxide`、`fzf`、`jq`、`btop` 等）、Nerd Font 字体、Zsh 插件与软链接；NixOS 的系统软件包和字体由 `~/nixos-config` 管理。
 
 ### 2. 🐚 极速现代化 Zsh 终端体验
 * **Zinit 异步加载**：零延迟秒开，告别臃肿缓慢的 oh-my-zsh。
@@ -43,7 +43,8 @@
   * `Telescope` + `Snacks`：极速模糊搜索文件、文本与符号。
   * `Neo-tree` + `Oil.nvim`：支持双模式文件树管理（侧边栏文件树 + Buffer 自由编辑重构目录）。
   * `Flash.nvim`：键盘任意位置双键直达跳转。
-  * `Gitsigns` + `Diffview`：行级 Git 变动高亮与完整文件历史对比。
+  * `Gitsigns` + `hunk-review.nvim`：行级 Git 变动高亮与 Agent 代码审查。
+    详细用法见 [`config/nvim/HUNK-REVIEW.md`](config/nvim/HUNK-REVIEW.md)。
   * `Auto-session`：根据工作目录（cwd）全自动保存和恢复编辑现场。
   * `Yanky.nvim`：支持持久化剪贴板历史与循环粘贴。
   * `Vimquest`：内置英语单词拼写练习扩展。
@@ -66,25 +67,25 @@ git clone https://github.com/iamcheyan/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ```
 
-### 第二步：运行全自动初始化脚本
+### 第二步：运行初始化脚本
 
 ```bash
-bash init.sh              # 推荐：完整全自动安装
+bash init.sh              # 推荐：完整初始化（NixOS 系统包由 nixos-config 管理）
 bash init.sh --minimal    # 轻量安装（跳过字体等大型组件）
 bash init.sh --repair     # 修复损坏的插件缓存
 ```
 
 > **初始化脚本会自动完成**：
-> 1. 安装 Zsh 并设为系统默认 Shell。
-> 2. 安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）。
-> 3. 安装配置 `zinit`、`Starship`、`Atuin`、`fnm`。
-> 4. 安装并拉取 Neovim 插件与 Treesitter 解析器。
-> 5. 安装 Docker（支持的 Linux 发行版）与 Herdr 本地 AI 助手。
+> 1. 按平台检查或安装 Zsh，并在用户确认后设为默认 Shell。
+> 2. 在非 NixOS 平台安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）；NixOS 由 `~/nixos-config` 管理。
+> 3. 安装配置 `zinit`、`Starship`、`Atuin`；非 NixOS 平台额外配置 `fnm`。
+> 4. 在非 NixOS 平台安装 Neovim；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
+> 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
 
 ### Fresh Terminal IDE
 
-`init.sh` 会按平台安装 [Fresh](https://github.com/sinelaw/fresh)：Linux/WSL 使用官方 universal installer，NixOS 使用 Nix flake，macOS 使用 Homebrew，Windows（Git Bash/MSYS/Cygwin）使用 winget。安装后可用 `fr` 启动。
+`init.sh` 会按平台安装 [Fresh](https://github.com/sinelaw/fresh)：Linux/WSL 使用官方 universal installer，macOS 使用 Homebrew，Windows（Git Bash/MSYS/Cygwin）使用 winget。NixOS 不执行独立安装，由 `~/nixos-config` 的 `fresh-editor` 包管理；安装后可用 `fr` 启动。
 
 ### 第三步：应用软链接并进入环境
 
@@ -166,7 +167,7 @@ export PROJECTS_DIR="$HOME/projects"
 dotfiles/
 ├── zshrc                  # Zsh 主入口配置
 ├── aliases.conf           # 通用别名与实用函数
-├── init.sh                # 跨平台一键全自动初始化脚本
+├── init.sh                # 跨平台初始化脚本
 ├── dotlink/               # 自研轻量符号链接管理器
 ├── config/                # 应用配置集合
 │   ├── nvim/              # Neovim lazy.nvim 配置
