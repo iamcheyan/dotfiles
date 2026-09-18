@@ -150,3 +150,9 @@ alias ssh="/usr/bin/ssh"
 if command -v broot >/dev/null 2>&1; then
     eval "$(broot --print-shell-function zsh)"
 fi
+
+# Added by Antigravity CLI installer
+export PATH="$HOME/.local/bin:$PATH"
+
+# bun completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"

@@ -1,0 +1,1 @@
+/home/tetsuya/.local/state/omarchy/current/theme/neovim.lua
