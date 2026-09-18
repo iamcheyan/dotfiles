@@ -28,6 +28,10 @@ local function set(group, spec)
 end
 
 function M.apply()
+  if vim.g.colors_name ~= "oceanblack" and vim.g.colors_name ~= "oceanblack256" then
+    return
+  end
+
   -- Editor and separators.
   set("Normal", { fg = colors.white, bg = colors.black })
   set("NormalFloat", { fg = colors.white, bg = colors.black })
@@ -126,6 +130,10 @@ function M.apply()
 end
 
 function M.apply_cobol()
+  if vim.g.colors_name ~= "oceanblack" and vim.g.colors_name ~= "oceanblack256" then
+    return
+  end
+
   -- Neovim ships COBOL syntax recognition, but most colorschemes do not style
   -- its cobol* groups.  Keep these colors local to COBOL buffers.
   set("cobolDivisionName", { fg = colors.yellow, bg = colors.black, bold = true })

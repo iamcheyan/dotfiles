@@ -111,10 +111,9 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- ── Colorscheme (previously applied via LazyVim opts.colorscheme) ──
--- `oceanblack` is a local colors file (colors/oceanblack.vim), no plugin needed.
-pcall(vim.cmd.colorscheme, "oceanblack")
-require("config.fresh_ui")
+-- ── Colorscheme ──
+-- Primary theme is loaded via plugins/cyberdream.lua (priority = 1000).
+-- `oceanblack` remains available locally as colors/oceanblack.vim with config.fresh_ui.
 
 -- ── Baseline options previously provided by LazyVim (lazyvim.config.options) ──
 -- Re-declared here so removing LazyVim does not silently revert them to Neovim
