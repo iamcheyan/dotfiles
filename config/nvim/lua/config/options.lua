@@ -34,6 +34,29 @@ vim.opt.smartcase = true
 -- 告诉 Neovim 自动尝试这些编码
 vim.opt.fileencodings = "ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,default,latin1"
 
+-- Neovim's default detector is case-sensitive for extensions.  COBOL sources
+-- commonly use uppercase .COB/.CBL, so normalize all common extensions to the
+-- same filetype and let the COBOL-only palette apply automatically.
+vim.filetype.add({
+  extension = {
+    cob = "cobol",
+    cbl = "cobol",
+    cobol = "cobol",
+  },
+  pattern = {
+    ["*.COB"] = "cobol",
+    ["*.CBL"] = "cobol",
+    ["*.COBOL"] = "cobol",
+  },
+})
+
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.COB", "*.CBL", "*.COBOL" },
+  callback = function()
+    vim.bo.filetype = "cobol"
+  end,
+})
+
 -- 禁用诊断图标和诊断功能
 vim.opt.signcolumn = "yes"
 
@@ -64,8 +87,8 @@ vim.api.nvim_create_autocmd({ "VimEnter", "WinEnter", "BufWinEnter" }, {
 
 -- 去掉窗口分隔线
 vim.opt.fillchars = {
-  vert = " ",      -- 垂直分隔线（侧栏和编辑区之间）
-  horiz = " ",     -- 水平分隔线
+  vert = "│",      -- Fresh 风格的垂直分隔线
+  horiz = "─",     -- Fresh 风格的水平分隔线
 }
 vim.opt.list = true
 vim.opt.listchars = {
@@ -91,6 +114,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- ── Colorscheme (previously applied via LazyVim opts.colorscheme) ──
 -- `oceanblack` is a local colors file (colors/oceanblack.vim), no plugin needed.
 pcall(vim.cmd.colorscheme, "oceanblack")
+require("config.fresh_ui")
 
 -- ── Baseline options previously provided by LazyVim (lazyvim.config.options) ──
 -- Re-declared here so removing LazyVim does not silently revert them to Neovim
