@@ -19,7 +19,8 @@ return {
               filetype = "snacks_layout_box",
             },
           },
-          separator_style = "thin",
+          -- Remove separator character between tabs for a seamless, compact layout
+          separator_style = { "", "" },
           indicator = {
             style = "none",
           },
