@@ -134,6 +134,7 @@ fish_variables/
 fishd.*
 
 # atuin
+config/atuin/atuin-receipt.json
 config/atuin/history.db*
 config/atuin/server.db*
 
