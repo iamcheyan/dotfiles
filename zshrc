@@ -156,3 +156,4 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+. "$HOME/.atuin/bin/env"
