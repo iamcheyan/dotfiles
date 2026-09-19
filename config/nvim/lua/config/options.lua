@@ -89,6 +89,7 @@ vim.api.nvim_create_autocmd({ "VimEnter", "WinEnter", "BufWinEnter" }, {
 vim.opt.fillchars = {
   vert = "│",      -- Fresh 风格的垂直分隔线
   horiz = "─",     -- Fresh 风格的水平分隔线
+  eob = "~",       -- Make the end-of-buffer area explicit
 }
 vim.opt.list = true
 vim.opt.listchars = {
