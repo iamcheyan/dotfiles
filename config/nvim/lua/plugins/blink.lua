@@ -111,10 +111,6 @@ return {
         kind_icons = kind_icons,
       },
 
-      window = {
-        border = "single",
-      },
-
       completion = {
         accept = {
           -- experimental auto-brackets support
@@ -123,6 +119,7 @@ return {
           },
         },
         menu = {
+          border = "single",
           draw = {
             treesitter = { "lsp" },
           },
@@ -130,6 +127,9 @@ return {
         documentation = {
           auto_show = true,
           auto_show_delay_ms = 200,
+          window = {
+            border = "single",
+          },
         },
         ghost_text = {
           enabled = vim.g.ai_cmp,
