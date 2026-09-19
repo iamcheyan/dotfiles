@@ -121,7 +121,7 @@ function M.load()
   set("Normal", { fg = p.fg, bg = p.bg })
   set("NormalNC", { fg = p.fg, bg = p.bg })
   set("NormalFloat", { fg = p.fg, bg = p.popup_bg })
-  set("FloatBorder", { fg = p.popup_border_fg, bg = p.popup_bg })
+  set("FloatBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
   set("FloatTitle", { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = true })
   set("FloatFooter", { fg = p.menu_disabled_fg, bg = p.popup_bg })
 
@@ -167,7 +167,7 @@ function M.load()
   -----------------------------------------------------------------------------
   set("Pmenu", { fg = p.menu_dropdown_fg, bg = p.menu_dropdown_bg })
   set("PmenuSel", { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg, bold = true })
-  set("PmenuBorder", { fg = p.popup_border_fg, bg = p.menu_dropdown_bg })
+  set("PmenuBorder", { fg = p.split_separator_fg, bg = p.menu_dropdown_bg })
   set("PmenuSbar", { bg = p.scrollbar_track_fg })
   set("PmenuThumb", { bg = p.scrollbar_thumb_fg })
   set("WildMenu", { fg = p.menu_active_fg, bg = p.menu_active_bg, bold = true })
@@ -379,7 +379,7 @@ function M.load()
 
   set("BufferLineIndicatorSelected", { fg = p.tab_active_bg, bg = p.tab_active_bg })
   set("BufferLineIndicatorVisible", { fg = p.current_line_bg, bg = p.current_line_bg })
-  set("BufferLineOffsetSeparator", { fg = p.popup_border_fg, bg = p.tab_inactive_bg })
+  set("BufferLineOffsetSeparator", { fg = p.split_separator_fg, bg = p.tab_inactive_bg })
 
   -- Sync dynamic devicon highlights with surrounding buffer state
   for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
@@ -407,7 +407,7 @@ function M.load()
   -----------------------------------------------------------------------------
   set("NeoTreeNormal", { fg = p.fg, bg = p.bg })
   set("NeoTreeNormalNC", { fg = p.fg, bg = p.bg })
-  set("NeoTreeWinSeparator", { fg = p.popup_border_fg, bg = p.bg })
+  set("NeoTreeWinSeparator", { fg = p.split_separator_fg, bg = p.bg })
   set("NeoTreeRootName", { fg = p.popup_border_fg, bg = p.bg, bold = true })
   set("NeoTreeDirectoryName", { fg = p.fg, bg = p.bg })
   set("NeoTreeDirectoryIcon", { fg = p.popup_border_fg, bg = p.bg })
@@ -434,15 +434,15 @@ function M.load()
   -- 11. Snacks Picker & Telescope & WhichKey
   -----------------------------------------------------------------------------
   set("SnacksPicker", { fg = p.fg, bg = p.popup_bg })
-  set("SnacksPickerBorder", { fg = p.popup_border_fg, bg = p.popup_bg })
+  set("SnacksPickerBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
   set("SnacksPickerMatch", { fg = p.func, bold = true })
   set("SnacksPickerSelected", { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg, bold = true })
   set("SnacksPickerTitle", { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = true })
 
   set("TelescopeNormal", { fg = p.fg, bg = p.popup_bg })
-  set("TelescopeBorder", { fg = p.popup_border_fg, bg = p.popup_bg })
+  set("TelescopeBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
   set("TelescopePromptNormal", { fg = p.prompt_fg, bg = p.prompt_bg })
-  set("TelescopePromptBorder", { fg = p.popup_border_fg, bg = p.prompt_bg })
+  set("TelescopePromptBorder", { fg = p.split_separator_fg, bg = p.prompt_bg })
   set("TelescopeSelection", { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg, bold = true })
   set("TelescopeMatching", { fg = p.func, bold = true })
   set("TelescopeTitle", { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = true })
@@ -451,18 +451,23 @@ function M.load()
   set("WhichKeyGroup", { fg = p.keyword })
   set("WhichKeyDesc", { fg = p.fg })
   set("WhichKeySeparator", { fg = p.split_separator_fg })
-  set("WhichKeyBorder", { fg = p.popup_border_fg, bg = p.popup_bg })
+  set("WhichKeyBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
+
+  set("LazyNormal", { fg = p.fg, bg = p.popup_bg })
+  set("LazyBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
+  set("MasonNormal", { fg = p.fg, bg = p.popup_bg })
+  set("MasonBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
 
   -----------------------------------------------------------------------------
   -- 12. Completion (Blink.cmp & Nvim-cmp)
   -----------------------------------------------------------------------------
   set("BlinkCmpMenu", { fg = p.menu_dropdown_fg, bg = p.menu_dropdown_bg })
-  set("BlinkCmpMenuBorder", { fg = p.popup_border_fg, bg = p.menu_dropdown_bg })
+  set("BlinkCmpMenuBorder", { fg = p.split_separator_fg, bg = p.menu_dropdown_bg })
   set("BlinkCmpMenuSelection", { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg, bold = true })
   set("BlinkCmpLabel", { fg = p.menu_dropdown_fg })
   set("BlinkCmpLabelMatch", { fg = p.func, bold = true })
   set("BlinkCmpDoc", { fg = p.fg, bg = p.popup_bg })
-  set("BlinkCmpDocBorder", { fg = p.popup_border_fg, bg = p.popup_bg })
+  set("BlinkCmpDocBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
 
   set("CmpItemAbbr", { fg = p.menu_dropdown_fg })
   set("CmpItemAbbrMatch", { fg = p.func, bold = true })
@@ -549,7 +554,7 @@ function M.bufferline_highlights()
     numbers_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
     indicator_selected = { fg = p.tab_active_bg, bg = p.tab_active_bg },
     indicator_visible = { fg = p.current_line_bg, bg = p.current_line_bg },
-    offset_separator = { fg = p.popup_border_fg, bg = p.tab_inactive_bg },
+    offset_separator = { fg = p.split_separator_fg, bg = p.tab_inactive_bg },
   }
 end
 
