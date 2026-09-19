@@ -3,24 +3,24 @@ return {
     "akinsho/bufferline.nvim",
     enabled = vim.env.WDIFF_NVIM ~= "1",
     opts = function()
-      local is_hcp = vim.g.colors_name == "high-contrast-plus"
-      local is_ocean = vim.g.colors_name == "oceanblack" or vim.g.colors_name == "oceanblack256"
-      local hls = nil
-      if is_hcp then
-        hls = require("theme.high-contrast-plus").bufferline_highlights()
-      elseif is_ocean then
-        hls = require("config.fresh_ui").bufferline_highlights()
+      -- Neovim's tabline click protocol only resolves global functions.
+      _G.__bufferline_new_buffer = function(_, _, button)
+        if button == "l" then
+          vim.cmd("enew")
+        end
       end
 
       return {
-        highlights = hls,
+        highlights = require("config.ui_highlights").bufferline_highlights(),
         options = {
           style_preset = nil, -- resolved in config (no_italic preset)
           mode = "buffers",
           diagnostics = false,
           themable = true,
-          -- Allow colorful filetype icons when supported by the theme
-          color_icons = true,
+          -- Icons inherit the active/inactive tab text color. Keeping the
+          -- filetype glyph while disabling per-filetype icon colors prevents
+          -- selected icons from turning white or retaining stale colors.
+          color_icons = false,
           show_tab_indicators = false,
           offsets = {
             {
@@ -44,6 +44,17 @@ return {
           close_command = "bdelete! %d",
           right_mouse_command = "bdelete! %d",
           left_mouse_command = "buffer %d",
+          custom_areas = {
+            right = function()
+              return {
+                {
+                  -- Keep the click marker inside the highlighted plus area.
+                  text = " %@v:lua.__bufferline_new_buffer@+%T ",
+                  link = "BufferLineNewBuffer",
+                },
+              }
+            end,
+          },
         },
       }
     end,
@@ -57,11 +68,7 @@ return {
 
       -- bufferline creates its DevIcon groups during setup.
       vim.defer_fn(function()
-        if vim.g.colors_name == "high-contrast-plus" then
-          require("theme.high-contrast-plus").sync_bufferline_devicons()
-        elseif vim.g.colors_name == "oceanblack" or vim.g.colors_name == "oceanblack256" then
-          require("config.fresh_ui").apply()
-        end
+        require("config.ui_highlights").apply()
       end, 0)
     end,
   },

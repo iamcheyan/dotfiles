@@ -29,6 +29,7 @@ M.palette = {
   tab_active_bg           = "#ffff00", -- ui.tab_active_bg: [255, 255, 0]
   tab_inactive_fg         = "#ffffff", -- ui.tab_inactive_fg: [255, 255, 255]
   tab_inactive_bg         = "#000000", -- ui.tab_inactive_bg: [0, 0, 0]
+  tab_inactive_surface_bg = "#242424", -- dedicated inactive-tab surface
   tab_separator_bg        = "#1e1e23", -- ui.tab_separator_bg: [30, 30, 35]
   tab_close_hover_fg      = "#f92672", -- ui.tab_close_hover_fg: [249, 38, 114]
   tab_hover_bg            = "#323237", -- ui.tab_hover_bg: [50, 50, 55]
@@ -352,53 +353,26 @@ function M.load()
   set("@markup.list", { fg = p.keyword })
 
   -----------------------------------------------------------------------------
-  -- 7. Bufferline (Tabs) - Exact Fresh Styling
+  -- 7. Standard tab surfaces
+  --
+  -- Components such as bufferline consume these standard groups through the
+  -- theme-agnostic UI adapter.  The theme owns the semantic colors; it does
+  -- not own any plugin-specific BufferLine* groups.
   -----------------------------------------------------------------------------
-  set("BufferLineFill", { fg = p.inactive_cursor, bg = p.tab_inactive_bg })
-  set("BufferLineBackground", { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg })
-  set("BufferLineBuffer", { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg })
-  set("BufferLineBufferVisible", { fg = p.tab_inactive_fg, bg = p.current_line_bg })
-  set("BufferLineBufferSelected", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
-
-  set("BufferLineTab", { fg = p.inactive_cursor, bg = p.tab_inactive_bg })
-  set("BufferLineTabSelected", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
-  set("BufferLineTabSeparator", { fg = p.tab_separator_bg, bg = p.tab_inactive_bg })
-  set("BufferLineTabSeparatorSelected", { fg = p.tab_active_bg, bg = p.tab_active_bg })
-
-  set("BufferLineSeparator", { fg = p.tab_separator_bg, bg = p.tab_inactive_bg })
-  set("BufferLineSeparatorVisible", { fg = p.tab_separator_bg, bg = p.current_line_bg })
-  set("BufferLineSeparatorSelected", { fg = p.tab_active_bg, bg = p.tab_active_bg })
-
-  set("BufferLineModified", { fg = p.tab_active_bg, bg = p.tab_inactive_bg })
-  set("BufferLineModifiedVisible", { fg = p.tab_active_bg, bg = p.current_line_bg })
-  set("BufferLineModifiedSelected", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
-
-  set("BufferLineCloseButton", { fg = p.inactive_cursor, bg = p.tab_inactive_bg })
-  set("BufferLineCloseButtonVisible", { fg = p.inactive_cursor, bg = p.current_line_bg })
-  set("BufferLineCloseButtonSelected", { fg = p.tab_active_fg, bg = p.tab_active_bg })
-
-  set("BufferLineIndicatorSelected", { fg = p.tab_active_bg, bg = p.tab_active_bg })
-  set("BufferLineIndicatorVisible", { fg = p.current_line_bg, bg = p.current_line_bg })
-  set("BufferLineOffsetSeparator", { fg = p.split_separator_fg, bg = p.tab_inactive_bg })
-
-  -- Sync dynamic devicon highlights with surrounding buffer state
-  for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
-    if group:match("Selected$") then
-      set(group, { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
-    elseif group:match("Visible$") then
-      set(group, { fg = p.tab_inactive_fg, bg = p.current_line_bg })
-    else
-      set(group, { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg })
-    end
-  end
+  -- Standard surfaces consumed by the theme-agnostic UI adapter:
+  -- inactive tabs, the bufferline fill, the path bar, and the active tab
+  -- remain visually distinct without exposing BufferLine-specific groups.
+  set("TabLine", { fg = p.inactive_cursor, bg = p.tab_inactive_surface_bg })
+  set("TabLineFill", { fg = p.inactive_cursor, bg = p.tab_inactive_surface_bg })
+  set("TabLineSel", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
 
   -----------------------------------------------------------------------------
   -- 8. Heirline / Statusline / WinBar
   -----------------------------------------------------------------------------
   set("StatusLine", { fg = p.status_bar_fg, bg = p.status_bar_bg })
   set("StatusLineNC", { fg = p.inactive_cursor, bg = p.status_bar_bg })
-  set("WinBar", { fg = p.fg, bg = p.bg })
-  set("WinBarNC", { fg = p.inactive_cursor, bg = p.bg })
+  set("WinBar", { fg = p.fg, bg = p.tab_hover_bg })
+  set("WinBarNC", { fg = p.inactive_cursor, bg = p.tab_hover_bg })
   set("MsgArea", { fg = p.fg, bg = p.menu_dropdown_bg })
   set("Cmdline", { fg = p.fg, bg = p.menu_dropdown_bg })
 
@@ -419,16 +393,6 @@ function M.load()
   set("NeoTreeGitAdded", { fg = p.string, bg = p.bg })
   set("NeoTreeGitDeleted", { fg = p.diag_error_fg, bg = p.bg })
   set("NeoTreeCursorLine", { bg = p.current_line_bg })
-
-  -----------------------------------------------------------------------------
-  -- 10. Scrollbar (nvim-scrollbar)
-  -----------------------------------------------------------------------------
-  set("ScrollbarHandle", { fg = p.scrollbar_thumb_fg, bg = p.scrollbar_thumb_fg })
-  set("ScrollbarSearch", { fg = p.search_match_fg, bg = p.search_match_bg })
-  set("ScrollbarError", { fg = p.status_err_fg, bg = p.status_err_bg })
-  set("ScrollbarWarn", { fg = p.status_warn_fg, bg = p.status_warn_bg })
-  set("ScrollbarInfo", { fg = p.status_palette_fg, bg = p.diag_info_fg })
-  set("ScrollbarHint", { fg = p.bg, bg = p.diag_hint_fg })
 
   -----------------------------------------------------------------------------
   -- 11. Snacks Picker & Telescope & WhichKey
@@ -526,65 +490,6 @@ function M.load()
     bold = true,
   })
 
-  M.sync_bufferline_devicons()
-  vim.defer_fn(M.sync_bufferline_devicons, 50)
-  vim.defer_fn(M.sync_bufferline_devicons, 200)
 end
-
-function M.bufferline_highlights()
-  local p = M.palette
-  return {
-    fill = { fg = p.inactive_cursor, bg = p.tab_inactive_bg },
-    background = { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg },
-    buffer = { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg },
-    buffer_visible = { fg = p.tab_inactive_fg, bg = p.current_line_bg },
-    buffer_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
-    tab = { fg = p.inactive_cursor, bg = p.tab_inactive_bg },
-    tab_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
-    separator = { fg = p.tab_separator_bg, bg = p.tab_inactive_bg },
-    separator_visible = { fg = p.tab_separator_bg, bg = p.current_line_bg },
-    separator_selected = { fg = p.tab_active_bg, bg = p.tab_active_bg },
-    modified = { fg = p.tab_active_bg, bg = p.tab_inactive_bg },
-    modified_visible = { fg = p.tab_active_bg, bg = p.current_line_bg },
-    modified_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
-    close_button = { fg = p.inactive_cursor, bg = p.tab_inactive_bg },
-    close_button_visible = { fg = p.inactive_cursor, bg = p.current_line_bg },
-    close_button_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg },
-    numbers = { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg },
-    numbers_visible = { fg = p.tab_inactive_fg, bg = p.current_line_bg },
-    numbers_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
-    indicator_selected = { fg = p.tab_active_bg, bg = p.tab_active_bg },
-    indicator_visible = { fg = p.current_line_bg, bg = p.current_line_bg },
-    offset_separator = { fg = p.split_separator_fg, bg = p.tab_inactive_bg },
-  }
-end
-
-function M.sync_bufferline_devicons()
-  if vim.g.colors_name ~= "high-contrast-plus" then
-    return
-  end
-  local p = M.palette
-  for _, grp in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
-    local cur = vim.api.nvim_get_hl(0, { name = grp })
-    if grp:match("Selected$") then
-      vim.api.nvim_set_hl(0, grp, { fg = cur.fg, bg = p.tab_active_bg, bold = cur.bold })
-    elseif grp:match("Visible$") then
-      vim.api.nvim_set_hl(0, grp, { fg = cur.fg, bg = p.current_line_bg })
-    else
-      vim.api.nvim_set_hl(0, grp, { fg = cur.fg, bg = p.tab_inactive_bg })
-    end
-  end
-end
-
--- Ensure devicons generated dynamically by bufferline stay in sync with tab state
-local group = vim.api.nvim_create_augroup("HighContrastPlusDevIcons", { clear = true })
-vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "TabEnter" }, {
-  group = group,
-  callback = function()
-    if vim.g.colors_name == "high-contrast-plus" then
-      M.sync_bufferline_devicons()
-    end
-  end,
-})
 
 return M

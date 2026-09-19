@@ -18,8 +18,8 @@ local function set_cmdline_highlights()
   vim.api.nvim_set_hl(0, "Cmdline", { bg = bg, fg = fg })
   vim.api.nvim_set_hl(0, "CmdLine", { bg = bg, fg = fg })
   vim.api.nvim_set_hl(0, "CmdLinePrompt", { bg = bg, fg = "#f0f0f0", bold = true })
-  vim.api.nvim_set_hl(0, "WinSeparator", { fg = bg, bg = "NONE" })
-  vim.api.nvim_set_hl(0, "VertSplit", { fg = bg, bg = "NONE" })
+  -- WinSeparator and VertSplit stay theme-owned.  Overriding either field
+  -- here would erase the active theme's UI surface semantics.
 end
 
 -- gitsigns line highlight 颜色配置
@@ -50,4 +50,3 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 set_cmdline_highlights()
 set_gitsigns_highlights()
-
