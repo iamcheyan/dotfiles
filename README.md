@@ -47,6 +47,8 @@
     详细用法见 [`config/nvim/HUNK-REVIEW.md`](config/nvim/HUNK-REVIEW.md)。
   * `Auto-session`：根据工作目录（cwd）全自动保存和恢复编辑现场。
   * `Yanky.nvim`：支持持久化剪贴板历史与循环粘贴。
+  * `鼠标划选自动复制`：支持普通模式与插入模式下鼠标划选自动同步系统剪贴板（含 Linux 原生与 WSL 跨平台支持）。
+    详细用法见 [`config/nvim/MOUSE-AND-CLIPBOARD.md`](config/nvim/MOUSE-AND-CLIPBOARD.md)。
   * `Vimquest`：内置英语单词拼写练习扩展。
 
 ### 4. 🤖 本地 AI 工具与终端复用生态
