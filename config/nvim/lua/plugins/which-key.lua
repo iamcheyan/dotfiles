@@ -88,6 +88,11 @@ return {
       View.show = function()
         orig_show()
         if View.view and View.view.win and vim.api.nvim_win_is_valid(View.view.win) then
+          local vcfg = vim.api.nvim_win_get_config(View.view.win)
+          vcfg.height = vcfg.height + 1
+          vcfg.row = vcfg.row - 1
+          vim.api.nvim_win_set_config(View.view.win, vcfg)
+
           local node = State.state and State.state.node
           local trail = View.trail(node)
           local title_parts = {}
@@ -104,6 +109,12 @@ return {
             title_str = "Leader"
           end
           vim.wo[View.view.win].winbar = "%#WhichKeyTitle#%=" .. title_str .. "%="
+
+          if View.footer and View.footer.win and vim.api.nvim_win_is_valid(View.footer.win) then
+            local fcfg = vim.api.nvim_win_get_config(View.footer.win)
+            fcfg.row = vcfg.height - 2
+            vim.api.nvim_win_set_config(View.footer.win, fcfg)
+          end
           vim.cmd("redraw")
         end
       end
