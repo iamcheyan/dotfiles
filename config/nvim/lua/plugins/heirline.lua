@@ -188,12 +188,23 @@ return {
         ["Trouble"] = true,
         ["snacks_layout_box"] = true,
         ["qf"] = true,
+        ["csv"] = true,
+        ["tsv"] = true,
+        ["text"] = true,
+        ["txt"] = true,
+        ["plaintex"] = true,
+        ["log"] = true,
+        ["gitcommit"] = true,
+        ["gitrebase"] = true,
+        ["diff"] = true,
+        ["checkhealth"] = true,
+        ["man"] = true,
       }
 
 
       local ContextlineWinbar = {
         condition = function()
-          if vim.bo.buftype ~= "" or hidden_filetypes[vim.bo.filetype] then
+          if vim.bo.buftype ~= "" or vim.bo.filetype == "" or hidden_filetypes[vim.bo.filetype] then
             return false
           end
           local ok, cl = pcall(require, "contextline")
@@ -218,7 +229,7 @@ return {
             local buf = args.buf or 0
             local ft = vim.bo[buf].filetype
             local bt = vim.bo[buf].buftype
-            if hidden_filetypes[ft] or bt ~= "" then
+            if bt ~= "" or ft == "" or hidden_filetypes[ft] then
               return true
             end
             return false
