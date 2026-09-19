@@ -5,11 +5,23 @@ return {
     opts_extend = { "spec" },
     opts = {
       preset = "helix",
-      win = { border = "single" },
+      win = {
+        border = "single",
+        title = true,
+        title_pos = "center",
+      },
+      icons = {
+        breadcrumb = "»",
+        group = "",
+        keys = {
+          Space = "SPC ",
+        },
+      },
       defaults = {},
       spec = {
         {
           mode = { "n", "x" },
+          { "<leader>", group = "Leader" },
           { "<leader><tab>", group = "tabs" },
           { "<leader>c", group = "code" },
           { "<leader>d", group = "debug" },
@@ -41,6 +53,7 @@ return {
               return require("which-key.extras").expand.win()
             end,
           },
+          { "<c-w>", group = "windows" },
           { "gx", desc = "Open with system app" },
         },
       },
