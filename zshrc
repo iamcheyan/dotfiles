@@ -143,12 +143,9 @@ export PATH="$HOME/.grok/bin:$PATH"
 fpath=(~/.grok/completions/zsh $fpath)
 autoload -Uz compinit && compinit -C
 # <<< grok installer <<<
-# macOS keeps the system SSH client at /usr/bin/ssh.  Do not force this path
-# on NixOS, where the client is provided through the system profile instead.
+# Let ssh resolve through PATH. NixOS provides it through the system profile;
+# macOS already puts its system client in PATH, so no alias is needed.
 unalias ssh 2>/dev/null
-if [[ "$OSTYPE" == darwin* ]] && [[ -x /usr/bin/ssh ]]; then
-    alias ssh="/usr/bin/ssh"
-fi
 
 # broot: br is a shell function, not an executable alias. Generate it from
 # the installed broot binary so new shells (including tmux panes) get it.
