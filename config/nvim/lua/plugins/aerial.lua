@@ -19,10 +19,6 @@ return {
       link_tree_to_window = true,
       backends = {
         ["_"] = { "treesitter", "lsp", "markdown", "asciidoc", "man" },
-        cobol = { "cobol" },
-      },
-      cobol = {
-        update_delay = 300,
       },
     },
   },
