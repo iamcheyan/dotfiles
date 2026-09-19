@@ -5,19 +5,10 @@ return {
     opts_extend = { "spec" },
     opts = {
       preset = "helix",
+      show_keys = false,
       win = {
-        border = {
-          { " ", "WhichKeyTitle" },
-          { " ", "WhichKeyTitle" },
-          { " ", "WhichKeyTitle" },
-          { "│", "WhichKeyBorder" },
-          { "┘", "WhichKeyBorder" },
-          { "─", "WhichKeyBorder" },
-          { "└", "WhichKeyBorder" },
-          { "│", "WhichKeyBorder" },
-        },
-        title = true,
-        title_pos = "center",
+        border = "single",
+        title = false,
       },
       icons = {
         breadcrumb = "»",
@@ -89,6 +80,32 @@ return {
       wk.setup(opts)
       if not vim.tbl_isempty(opts.defaults) then
         wk.register(opts.defaults)
+      end
+
+      local View = require("which-key.view")
+      local State = require("which-key.state")
+      local orig_show = View.show
+      View.show = function()
+        orig_show()
+        if View.view and View.view.win and vim.api.nvim_win_is_valid(View.view.win) then
+          local node = State.state and State.state.node
+          local trail = View.trail(node)
+          local title_parts = {}
+          if trail then
+            for _, seg in ipairs(trail) do
+              local t = seg[1]:gsub("^%s+", ""):gsub("%s+$", "")
+              if t ~= "" then
+                table.insert(title_parts, t)
+              end
+            end
+          end
+          local title_str = table.concat(title_parts, " ")
+          if title_str == "" then
+            title_str = "Leader"
+          end
+          vim.wo[View.view.win].winbar = "%#WhichKeyTitle#%=" .. title_str .. "%="
+          vim.cmd("redraw")
+        end
       end
     end,
   },
