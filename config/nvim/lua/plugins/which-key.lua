@@ -6,7 +6,16 @@ return {
     opts = {
       preset = "helix",
       win = {
-        border = "single",
+        border = {
+          { " ", "WhichKeyTitle" },
+          { " ", "WhichKeyTitle" },
+          { " ", "WhichKeyTitle" },
+          { "│", "WhichKeyBorder" },
+          { "┘", "WhichKeyBorder" },
+          { "─", "WhichKeyBorder" },
+          { "└", "WhichKeyBorder" },
+          { "│", "WhichKeyBorder" },
+        },
         title = true,
         title_pos = "center",
       },
@@ -75,6 +84,7 @@ return {
       },
     },
     config = function(_, opts)
+      vim.api.nvim_set_hl(0, "WhichKeyTitle", { default = true, link = "FloatTitle" })
       local wk = require("which-key")
       wk.setup(opts)
       if not vim.tbl_isempty(opts.defaults) then
