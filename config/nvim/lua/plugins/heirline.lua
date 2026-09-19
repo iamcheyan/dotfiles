@@ -191,18 +191,24 @@ return {
       }
 
 
-      local ContextlineStatus = {
+      local ContextlineWinbar = {
         condition = function()
-          if vim.bo.buftype ~= "" then
+          if vim.bo.buftype ~= "" or hidden_filetypes[vim.bo.filetype] then
             return false
           end
           local ok, cl = pcall(require, "contextline")
-          return ok and cl.get_info() ~= nil
+          if not ok then
+            return false
+          end
+          return cl.get_info() ~= nil
         end,
-        provider = function()
-          local ok, cl = pcall(require, "contextline")
-          return ok and cl.get({ separator = "  " }) or ""
-        end,
+        pad,
+        {
+          provider = function()
+            local ok, cl = pcall(require, "contextline")
+            return ok and cl.get({ separator = "  " }) or ""
+          end,
+        },
         update = { "CursorMoved", "CursorMovedI", "BufEnter" },
       }
 
@@ -218,10 +224,8 @@ return {
             return false
           end,
         },
-        winbar = {
-          condition = function()
-            return vim.bo.buftype == "" and not hidden_filetypes[vim.bo.filetype]
-          end,
+        winbar = ContextlineWinbar,
+        statusline = {
           pad,
           GitBranch,
           gap,
@@ -236,12 +240,7 @@ return {
           RemainingPercent,
           gap,
           Mode,
-          -- gap,
-          -- Clock,
           pad,
-        },
-        statusline = {
-          ContextlineStatus,
         },
       }
     end,
