@@ -158,7 +158,10 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-. "$HOME/.atuin/bin/env"
+# Atuin is optional; only load its shell integration when installed.
+if [[ -r "$HOME/.atuin/bin/env" ]]; then
+    source "$HOME/.atuin/bin/env"
+fi
 
 
 # Added by Antigravity CLI installer
