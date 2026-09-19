@@ -197,6 +197,14 @@ return {
         return statusline.get_info()
       end
 
+      local function batch_info()
+        local ok, statusline = pcall(require, "batch.statusline")
+        if not ok then
+          return nil
+        end
+        return statusline.get_info()
+      end
+
       local CobolSeparator = { provider = " | ", hl = "Comment" }
       local CobolStatus = {
         condition = function()
@@ -281,6 +289,56 @@ return {
         },
       }
 
+      local BatchSeparator = { provider = " | ", hl = "Comment" }
+      local BatchStatus = {
+        condition = function()
+          if vim.bo.buftype ~= "" then
+            return false
+          end
+          if not vim.tbl_contains({ "dosbatch", "batch" }, vim.bo.filetype) then
+            return false
+          end
+          return batch_info() ~= nil
+        end,
+        {
+          provider = function()
+            local info = batch_info()
+            return info and info.format or "BATCH"
+          end,
+          hl = "Type",
+        },
+        BatchSeparator,
+        {
+          provider = function()
+            local info = batch_info()
+            return info and ("LABEL > " .. info.label) or ""
+          end,
+          hl = "Identifier",
+        },
+        BatchSeparator,
+        {
+          provider = function()
+            local info = batch_info()
+            return info and ("LINE " .. info.line) or ""
+          end,
+          hl = "Number",
+        },
+        {
+          condition = function()
+            local info = batch_info()
+            return info and info.target ~= nil
+          end,
+          BatchSeparator,
+          {
+            provider = function()
+              local info = batch_info()
+              return info and (info.target_kind .. " :" .. info.target) or ""
+            end,
+            hl = "Keyword",
+          },
+        },
+      }
+
       return {
         winbar = {
           condition = function()
@@ -306,6 +364,7 @@ return {
         },
         statusline = {
           CobolStatus,
+          BatchStatus,
         },
       }
     end,
