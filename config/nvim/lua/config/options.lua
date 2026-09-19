@@ -112,8 +112,8 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- ── Colorscheme ──
--- Primary theme is loaded via plugins/cyberdream.lua (priority = 1000).
--- `oceanblack` remains available locally as colors/oceanblack.vim with config.fresh_ui.
+-- Primary theme: high-contrast-plus (exact 1:1 port of Fresh editor theme)
+pcall(vim.cmd.colorscheme, "high-contrast-plus")
 
 -- ── Baseline options previously provided by LazyVim (lazyvim.config.options) ──
 -- Re-declared here so removing LazyVim does not silently revert them to Neovim
