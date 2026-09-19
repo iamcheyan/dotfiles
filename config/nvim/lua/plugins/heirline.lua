@@ -143,20 +143,6 @@ return {
         end,
       }
 
-      local CobolContext = {
-        condition = function()
-          if not vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
-            return false
-          end
-          local ok = pcall(require, "cobol.statusline")
-          return ok
-        end,
-        provider = function()
-          local statusline = require("cobol.statusline")
-          return statusline.get({ show_breadcrumb = false })
-        end,
-      }
-
       local Encoding = {
         provider = function()
           local enc = vim.bo.fileencoding ~= "" and vim.bo.fileencoding or vim.o.encoding
@@ -228,27 +214,17 @@ return {
         },
         statusline = {
           condition = function()
-            return vim.bo.buftype == "" and not hidden_filetypes[vim.bo.filetype]
+            if vim.bo.buftype ~= "" then
+              return false
+            end
+            if not vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
+              return false
+            end
+            return pcall(require, "cobol.statusline")
           end,
-          pad,
-          Mode,
-          gap,
-          GitBranch,
-          gap,
-          FileName,
-          Align,
-          Venv,
-          gap,
-          Encoding,
-          gap,
-          LspName,
-          gap,
-          CobolContext,
-          gap,
-          RemainingPercent,
-          gap,
-          Clock,
-          pad,
+          provider = function()
+            return require("cobol.statusline").get()
+          end,
         },
       }
     end,
