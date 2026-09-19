@@ -452,7 +452,7 @@ function M.load()
   set("WhichKeyDesc", { fg = p.fg })
   set("WhichKeySeparator", { fg = p.split_separator_fg })
   set("WhichKeyBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
-  set("WhichKeyTitle", { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = true })
+  set("WhichKeyTitle", { fg = p.func, bold = true })
 
   set("LazyNormal", { fg = p.fg, bg = p.popup_bg })
   set("LazyBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
