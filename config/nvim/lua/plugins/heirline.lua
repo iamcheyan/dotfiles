@@ -220,7 +220,9 @@ return {
             return ok and cl.get({ separator = "  " }) or ""
           end,
         },
-        update = { "CursorMoved", "CursorMovedI", "BufEnter" },
+        -- Do not cache only on CursorMoved: opening the hierarchy menu must
+        -- redraw the active chip on the first click, before any cursor move.
+        update = { "CursorMoved", "CursorMovedI", "BufEnter", "WinEnter", "WinLeave" },
       }
 
       return {
