@@ -5,15 +5,27 @@ return {
     dependencies = { "folke/which-key.nvim" },
     opts = function()
       local ai = require("mini.ai")
+      local treesitter_spec = function(captures)
+        local spec = ai.gen_spec.treesitter(captures)
+        return function(ai_type)
+          -- COBOL currently has no Treesitter parser in this configuration.
+          -- Keep mini.ai's Treesitter objects available for other languages,
+          -- but make them a no-op instead of raising an error in COBOL buffers.
+          if vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
+            return {}
+          end
+          return spec(ai_type)
+        end
+      end
       return {
         n_lines = 500,
         custom_textobjects = {
-          o = ai.gen_spec.treesitter({ -- code block
+          o = treesitter_spec({ -- code block
             a = { "@block.outer", "@conditional.outer", "@loop.outer" },
             i = { "@block.inner", "@conditional.inner", "@loop.inner" },
           }),
-          f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }), -- function
-          c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }), -- class
+          f = treesitter_spec({ a = "@function.outer", i = "@function.inner" }), -- function
+          c = treesitter_spec({ a = "@class.outer", i = "@class.inner" }), -- class
           t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" }, -- tags
           d = { "%f[%d]%d+" }, -- digits
           e = { -- Word with case
