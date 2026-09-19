@@ -25,6 +25,11 @@ vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.showmode = true
 vim.opt.laststatus = 3
+-- Keep the command line hidden when idle; it temporarily overlays the
+-- bottom statusline while entering commands or searches.
+if vim.fn.exists("&cmdheight") == 1 then
+  vim.opt.cmdheight = 0
+end
 vim.opt.statusline = " "
 vim.opt.incsearch = true
 vim.opt.hlsearch = true
