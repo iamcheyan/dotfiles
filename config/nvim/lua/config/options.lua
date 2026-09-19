@@ -24,7 +24,7 @@ vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.termguicolors = true
 vim.opt.showmode = true
-vim.opt.laststatus = 0
+vim.opt.laststatus = 3
 vim.opt.statusline = " "
 vim.opt.incsearch = true
 vim.opt.hlsearch = true
@@ -75,16 +75,6 @@ if vim.version().minor >= 10 then
 end
 vim.opt.showtabline = 0 -- 隐藏顶部的 Tab Page 标签栏（通过 leader+tab 管理）
 
--- Keep the custom top winbar, but prevent Neovim's bottom statusline from
--- reappearing with the current file path if a later plugin toggles it.
-vim.api.nvim_create_autocmd({ "VimEnter", "WinEnter", "BufWinEnter" }, {
-  callback = function()
-    if vim.o.laststatus ~= 0 then
-      vim.o.laststatus = 0
-    end
-  end,
-})
-
 -- 去掉窗口分隔线
 vim.opt.fillchars = {
   vert = "│",      -- Fresh 风格的垂直分隔线
@@ -118,7 +108,7 @@ pcall(vim.cmd.colorscheme, "high-contrast-plus")
 
 -- ── Baseline options previously provided by LazyVim (lazyvim.config.options) ──
 -- Re-declared here so removing LazyVim does not silently revert them to Neovim
--- defaults. Intentional user overrides (tabstop=4, expandtab=false, laststatus=0,
+-- defaults. Intentional user overrides (tabstop=4, expandtab=false, laststatus=3,
 -- showmode=true, smoothscroll=false, cursorcolumn=true) are left untouched.
 vim.opt.undofile = true -- persistent undo
 vim.opt.undolevels = 10000
