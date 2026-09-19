@@ -519,6 +519,66 @@ function M.load()
     sp = p.diag_error_fg,
     bold = true,
   })
+
+  M.sync_bufferline_devicons()
+  vim.defer_fn(M.sync_bufferline_devicons, 50)
+  vim.defer_fn(M.sync_bufferline_devicons, 200)
 end
+
+function M.bufferline_highlights()
+  local p = M.palette
+  return {
+    fill = { fg = p.inactive_cursor, bg = p.tab_inactive_bg },
+    background = { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg },
+    buffer = { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg },
+    buffer_visible = { fg = p.tab_inactive_fg, bg = p.current_line_bg },
+    buffer_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
+    tab = { fg = p.inactive_cursor, bg = p.tab_inactive_bg },
+    tab_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
+    separator = { fg = p.tab_separator_bg, bg = p.tab_inactive_bg },
+    separator_visible = { fg = p.tab_separator_bg, bg = p.current_line_bg },
+    separator_selected = { fg = p.tab_active_bg, bg = p.tab_active_bg },
+    modified = { fg = p.tab_active_bg, bg = p.tab_inactive_bg },
+    modified_visible = { fg = p.tab_active_bg, bg = p.current_line_bg },
+    modified_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
+    close_button = { fg = p.inactive_cursor, bg = p.tab_inactive_bg },
+    close_button_visible = { fg = p.inactive_cursor, bg = p.current_line_bg },
+    close_button_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg },
+    numbers = { fg = p.tab_inactive_fg, bg = p.tab_inactive_bg },
+    numbers_visible = { fg = p.tab_inactive_fg, bg = p.current_line_bg },
+    numbers_selected = { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true },
+    indicator_selected = { fg = p.tab_active_bg, bg = p.tab_active_bg },
+    indicator_visible = { fg = p.current_line_bg, bg = p.current_line_bg },
+    offset_separator = { fg = p.popup_border_fg, bg = p.tab_inactive_bg },
+  }
+end
+
+function M.sync_bufferline_devicons()
+  if vim.g.colors_name ~= "high-contrast-plus" then
+    return
+  end
+  local p = M.palette
+  for _, grp in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
+    local cur = vim.api.nvim_get_hl(0, { name = grp })
+    if grp:match("Selected$") then
+      vim.api.nvim_set_hl(0, grp, { fg = cur.fg, bg = p.tab_active_bg, bold = cur.bold })
+    elseif grp:match("Visible$") then
+      vim.api.nvim_set_hl(0, grp, { fg = cur.fg, bg = p.current_line_bg })
+    else
+      vim.api.nvim_set_hl(0, grp, { fg = cur.fg, bg = p.tab_inactive_bg })
+    end
+  end
+end
+
+-- Ensure devicons generated dynamically by bufferline stay in sync with tab state
+local group = vim.api.nvim_create_augroup("HighContrastPlusDevIcons", { clear = true })
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "TabEnter" }, {
+  group = group,
+  callback = function()
+    if vim.g.colors_name == "high-contrast-plus" then
+      M.sync_bufferline_devicons()
+    end
+  end,
+})
 
 return M

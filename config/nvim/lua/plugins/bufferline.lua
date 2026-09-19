@@ -3,16 +3,24 @@ return {
     "akinsho/bufferline.nvim",
     enabled = vim.env.WDIFF_NVIM ~= "1",
     opts = function()
+      local is_hcp = vim.g.colors_name == "high-contrast-plus"
       local is_ocean = vim.g.colors_name == "oceanblack" or vim.g.colors_name == "oceanblack256"
+      local hls = nil
+      if is_hcp then
+        hls = require("theme.high-contrast-plus").bufferline_highlights()
+      elseif is_ocean then
+        hls = require("config.fresh_ui").bufferline_highlights()
+      end
+
       return {
-        highlights = is_ocean and require("config.fresh_ui").bufferline_highlights() or nil,
+        highlights = hls,
         options = {
           style_preset = nil, -- resolved in config (no_italic preset)
           mode = "buffers",
           diagnostics = false,
           themable = true,
           -- Allow colorful filetype icons when supported by the theme
-          color_icons = not is_ocean,
+          color_icons = true,
           show_tab_indicators = false,
           offsets = {
             {
@@ -48,12 +56,13 @@ return {
       bufferline.setup(opts)
 
       -- bufferline creates its DevIcon groups during setup.
-      local is_ocean = vim.g.colors_name == "oceanblack" or vim.g.colors_name == "oceanblack256"
-      if is_ocean then
-        vim.defer_fn(function()
+      vim.defer_fn(function()
+        if vim.g.colors_name == "high-contrast-plus" then
+          require("theme.high-contrast-plus").sync_bufferline_devicons()
+        elseif vim.g.colors_name == "oceanblack" or vim.g.colors_name == "oceanblack256" then
           require("config.fresh_ui").apply()
-        end, 0)
-      end
+        end
+      end, 0)
     end,
   },
 }
