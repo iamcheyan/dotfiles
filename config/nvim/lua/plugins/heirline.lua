@@ -223,7 +223,7 @@ return {
             return pcall(require, "cobol.statusline")
           end,
           provider = function()
-            return require("cobol.statusline").get()
+            return require("cobol.statusline").get({ highlight = true })
           end,
         },
       }
