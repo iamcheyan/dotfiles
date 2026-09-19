@@ -352,15 +352,14 @@ return {
           if vim.bo.buftype ~= "" then
             return false
           end
-          if vim.tbl_contains({ "cobol", "cbl", "cob", "dosbatch", "batch" }, vim.bo.filetype) then
-            return false
-          end
-          return contextline_info() ~= nil
+          local ok, cl = pcall(require, "contextline")
+          return ok and cl.get_info() ~= nil
         end,
         provider = function()
-          return require("contextline").get()
+          local ok, cl = pcall(require, "contextline")
+          return ok and cl.get({ separator = "  " }) or ""
         end,
-        hl = "Comment",
+        update = { "CursorMoved", "CursorMovedI", "BufEnter" },
       }
 
       return {
@@ -387,8 +386,6 @@ return {
           pad,
         },
         statusline = {
-          CobolStatus,
-          BatchStatus,
           ContextlineStatus,
         },
       }
