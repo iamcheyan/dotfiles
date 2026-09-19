@@ -189,6 +189,98 @@ return {
         ["qf"] = true,
       }
 
+      local function cobol_info()
+        local ok, statusline = pcall(require, "cobol.statusline")
+        if not ok then
+          return nil
+        end
+        return statusline.get_info()
+      end
+
+      local CobolSeparator = { provider = " | ", hl = "Comment" }
+      local CobolStatus = {
+        condition = function()
+          if vim.bo.buftype ~= "" then
+            return false
+          end
+          if not vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
+            return false
+          end
+          return cobol_info() ~= nil
+        end,
+        {
+          provider = function()
+            local info = cobol_info()
+            return info and ("COBOL " .. info.format) or ""
+          end,
+          hl = "CobolStatusFormat",
+        },
+        CobolSeparator,
+        {
+          provider = function()
+            local info = cobol_info()
+            return info and info.area or ""
+          end,
+          hl = "CobolStatusArea",
+        },
+        {
+          condition = function()
+            local info = cobol_info()
+            return info and info.breadcrumb and info.breadcrumb ~= ""
+          end,
+          CobolSeparator,
+          {
+            provider = function()
+              local info = cobol_info()
+              return info and info.breadcrumb or ""
+            end,
+            hl = "CobolStatusField",
+          },
+        },
+        {
+          condition = function()
+            local info = cobol_info()
+            return info and info.field ~= nil
+          end,
+          CobolSeparator,
+          {
+            provider = function()
+              local info = cobol_info()
+              return info and info.field.name or ""
+            end,
+            hl = "CobolStatusField",
+          },
+          {
+            provider = function()
+              local info = cobol_info()
+              return info and info.field and info.field.pic and (" PIC " .. info.field.pic) or ""
+            end,
+            hl = "CobolStatusPic",
+          },
+          {
+            provider = function()
+              local info = cobol_info()
+              return info and info.field and (" " .. info.field.bytes .. " B") or ""
+            end,
+            hl = "CobolStatusSize",
+          },
+        },
+        {
+          condition = function()
+            local info = cobol_info()
+            return info and info.record and info.record.total_bytes ~= nil
+          end,
+          CobolSeparator,
+          {
+            provider = function()
+              local info = cobol_info()
+              return info and info.record and ("RECORD " .. info.record.total_bytes .. " B") or ""
+            end,
+            hl = "CobolStatusRecord",
+          },
+        },
+      }
+
       return {
         winbar = {
           condition = function()
@@ -213,18 +305,7 @@ return {
           pad,
         },
         statusline = {
-          condition = function()
-            if vim.bo.buftype ~= "" then
-              return false
-            end
-            if not vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
-              return false
-            end
-            return pcall(require, "cobol.statusline")
-          end,
-          provider = function()
-            return require("cobol.statusline").get({ highlight = true })
-          end,
+          CobolStatus,
         },
       }
     end,
