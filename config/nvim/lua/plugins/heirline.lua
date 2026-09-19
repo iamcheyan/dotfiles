@@ -143,6 +143,20 @@ return {
         end,
       }
 
+      local CobolContext = {
+        condition = function()
+          if not vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
+            return false
+          end
+          local ok = pcall(require, "cobol.statusline")
+          return ok
+        end,
+        provider = function()
+          local statusline = require("cobol.statusline")
+          return statusline.get({ show_breadcrumb = false })
+        end,
+      }
+
       local Encoding = {
         provider = function()
           local enc = vim.bo.fileencoding ~= "" and vim.bo.fileencoding or vim.o.encoding
@@ -204,6 +218,8 @@ return {
           Encoding, 
           gap,
           LspName,
+          gap,
+          CobolContext,
           gap,
           RemainingPercent,
           gap,
