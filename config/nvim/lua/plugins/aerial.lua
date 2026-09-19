@@ -1,6 +1,7 @@
 return {
   {
     "stevearc/aerial.nvim",
+    cmd = { "AerialToggle", "AerialOpen", "AerialInfo" },
     keys = {
       { "<leader>cs", "<cmd>AerialToggle!<cr>", desc = "Aerial (Symbols)" },
     },
@@ -16,6 +17,13 @@ return {
       manage_folds = true,
       link_tree_to_folds = true,
       link_tree_to_window = true,
+      backends = {
+        ["_"] = { "treesitter", "lsp", "markdown", "asciidoc", "man" },
+        cobol = { "cobol" },
+      },
+      cobol = {
+        update_delay = 300,
+      },
     },
   },
 }
