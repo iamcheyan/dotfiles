@@ -205,6 +205,14 @@ return {
         return statusline.get_info()
       end
 
+      local function contextline_info()
+        local ok, contextline = pcall(require, "contextline")
+        if not ok then
+          return nil
+        end
+        return contextline.get_info()
+      end
+
       local CobolSeparator = { provider = " | ", hl = "Comment" }
       local CobolStatus = {
         condition = function()
@@ -339,6 +347,22 @@ return {
         },
       }
 
+      local ContextlineStatus = {
+        condition = function()
+          if vim.bo.buftype ~= "" then
+            return false
+          end
+          if vim.tbl_contains({ "cobol", "cbl", "cob", "dosbatch", "batch" }, vim.bo.filetype) then
+            return false
+          end
+          return contextline_info() ~= nil
+        end,
+        provider = function()
+          return require("contextline").get()
+        end,
+        hl = "Comment",
+      }
+
       return {
         winbar = {
           condition = function()
@@ -365,6 +389,7 @@ return {
         statusline = {
           CobolStatus,
           BatchStatus,
+          ContextlineStatus,
         },
       }
     end,
