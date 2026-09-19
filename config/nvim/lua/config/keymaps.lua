@@ -149,28 +149,5 @@ end, { desc = "List and switch Tab Pages" })
 -- <leader><tab><tab> 用于 tab 列表；新建 Tab 改用 n
 vim.keymap.set("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
 
--- Click a diagnostics sign line to open its message float.
-vim.keymap.set("n", "<LeftMouse>", function()
-  local m = vim.fn.getmousepos()
-  -- Keep default single-click behavior for tabline/statusline, etc.
-  if not (m.winid and m.winid ~= 0 and m.line and m.line > 0) then
-    vim.api.nvim_feedkeys(vim.keycode("<LeftMouse>"), "n", false)
-    return
-  end
-
-  if m.winid and m.winid ~= 0 then
-    vim.api.nvim_set_current_win(m.winid)
-  end
-  if m.line and m.line > 0 then
-    vim.api.nvim_win_set_cursor(0, { m.line, math.max((m.column or 1) - 1, 0) })
-    local diags = vim.diagnostic.get(0, { lnum = m.line - 1 })
-    if #diags > 0 then
-      vim.diagnostic.open_float(nil, {
-        focus = false,
-        scope = "line",
-        border = "single",
-        source = "if_many",
-      })
-    end
-  end
-end, { desc = "Mouse click line; show diagnostics float when present" })
+-- 鼠标选中文本自动复制到系统剪贴板 (Copy on select)
+vim.keymap.set({ "x", "s" }, "<LeftRelease>", '"+ygv', { desc = "Auto-copy selection to clipboard", silent = true })
