@@ -181,6 +181,7 @@ return {
       local hidden_filetypes = {
         ["neo-tree"] = true,
         ["NvimTree"] = true,
+        ["aerial"] = true,
         ["help"] = true,
         ["lazy"] = true,
         ["mason"] = true,
@@ -206,6 +207,17 @@ return {
       }
 
       return {
+        opts = {
+          disable_winbar_cb = function(args)
+            local buf = args.buf or 0
+            local ft = vim.bo[buf].filetype
+            local bt = vim.bo[buf].buftype
+            if hidden_filetypes[ft] or bt ~= "" then
+              return true
+            end
+            return false
+          end,
+        },
         winbar = {
           condition = function()
             return vim.bo.buftype == "" and not hidden_filetypes[vim.bo.filetype]
