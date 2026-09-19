@@ -219,8 +219,6 @@ return {
           gap,
           LspName,
           gap,
-          CobolContext,
-          gap,
           RemainingPercent,
           gap,
           Mode,
@@ -228,10 +226,34 @@ return {
           -- Clock,
           pad,
         },
+        statusline = {
+          condition = function()
+            return vim.bo.buftype == "" and not hidden_filetypes[vim.bo.filetype]
+          end,
+          pad,
+          Mode,
+          gap,
+          GitBranch,
+          gap,
+          FileName,
+          Align,
+          Venv,
+          gap,
+          Encoding,
+          gap,
+          LspName,
+          gap,
+          CobolContext,
+          gap,
+          RemainingPercent,
+          gap,
+          Clock,
+          pad,
+        },
       }
     end,
     config = function(_, opts)
-      vim.o.laststatus = 0
+      vim.o.laststatus = 3
       require("heirline").setup(opts)
       if not vim.g.heirline_clock_timer_started then
         local timer = vim.uv.new_timer()
