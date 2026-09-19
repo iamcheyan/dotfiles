@@ -19,7 +19,17 @@ return {
       link_tree_to_window = true,
       backends = {
         ["_"] = { "treesitter", "lsp", "markdown", "asciidoc", "man" },
+        cobol = { "cobol" },
+        cbl = { "cobol" },
+        cob = { "cobol" },
+        dosbatch = { "batch" },
+        batch = { "batch" },
+        sh = { "treesitter", "lsp" },
       },
     },
+    config = function(_, opts)
+      pcall(vim.treesitter.language.register, "bash", { "sh", "bash", "zsh" })
+      require("aerial").setup(opts)
+    end,
   },
 }
