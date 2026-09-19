@@ -4,12 +4,7 @@ return {
     event = "VeryLazy",
     opts_extend = { "spec" },
     opts = {
-      preset = "helix",
-      show_keys = false,
-      win = {
-        border = "single",
-        title = false,
-      },
+      preset = "classic",
       icons = {
         breadcrumb = "»",
         group = "",
@@ -75,37 +70,10 @@ return {
       },
     },
     config = function(_, opts)
-      vim.api.nvim_set_hl(0, "WhichKeyTitle", { default = true, link = "FloatTitle" })
       local wk = require("which-key")
       wk.setup(opts)
       if not vim.tbl_isempty(opts.defaults) then
         wk.register(opts.defaults)
-      end
-
-      local View = require("which-key.view")
-      local State = require("which-key.state")
-      local orig_show = View.show
-      View.show = function()
-        orig_show()
-        if View.view and View.view.win and vim.api.nvim_win_is_valid(View.view.win) then
-          local node = State.state and State.state.node
-          local trail = View.trail(node)
-          local title_parts = {}
-          if trail then
-            for _, seg in ipairs(trail) do
-              local t = seg[1]:gsub("^%s+", ""):gsub("%s+$", "")
-              if t ~= "" then
-                table.insert(title_parts, t)
-              end
-            end
-          end
-          local title_str = table.concat(title_parts, " ")
-          if title_str == "" then
-            title_str = "Leader"
-          end
-          vim.wo[View.view.win].winbar = "%#WhichKeyTitle#%=" .. title_str .. "%="
-          vim.cmd("redraw")
-        end
       end
     end,
   },
