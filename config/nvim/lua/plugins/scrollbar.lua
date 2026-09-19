@@ -8,7 +8,10 @@ return {
       -- from CursorColumn. ui_highlights owns the actual colors.
       set_highlights = false,
       handle = {
-        highlight = "TabLineSel",
+        -- A blank cell with an opaque background becomes a wide-looking block
+        -- when a buffer line is hard-wrapped. Use a narrow glyph instead.
+        text = "▏",
+        highlight = "ScrollbarHandle",
         blend = 0,
       },
       handlers = {

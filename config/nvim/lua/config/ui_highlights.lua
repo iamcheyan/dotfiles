@@ -130,10 +130,12 @@ function M.apply()
 
   -- nvim-scrollbar: the viewport handle follows the active tab color; the
   -- non-handle marks use the tab-bar surface as a quiet gray rail/track.
-  set(0, "ScrollbarHandle", { fg = p.active_bg, bg = p.active_bg })
-  set(0, "ScrollbarCursorHandle", { fg = p.active_bg, bg = p.active_bg })
+  -- Keep the viewport handle narrow and transparent. An opaque blank cell
+  -- becomes a black block at the right edge when a line is hard-wrapped.
+  set(0, "ScrollbarHandle", { fg = p.active_bg, bg = "NONE" })
+  set(0, "ScrollbarCursorHandle", { fg = p.active_bg, bg = "NONE" })
   set(0, "ScrollbarMisc", { fg = p.surface_fg, bg = p.fill_bg })
-  set(0, "ScrollbarMiscHandle", { fg = p.active_bg, bg = p.active_bg })
+  set(0, "ScrollbarMiscHandle", { fg = p.active_bg, bg = "NONE" })
   local mark_groups = {
     Search = "Search",
     Error = "DiagnosticError",
@@ -144,7 +146,7 @@ function M.apply()
   for mark, source in pairs(mark_groups) do
     local h = get(source)
     set(0, "Scrollbar" .. mark, { fg = h.fg or p.surface_fg, bg = h.bg or p.fill_bg })
-    set(0, "Scrollbar" .. mark .. "Handle", { fg = p.active_bg, bg = p.active_bg })
+    set(0, "Scrollbar" .. mark .. "Handle", { fg = p.active_bg, bg = "NONE" })
   end
 
   for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
