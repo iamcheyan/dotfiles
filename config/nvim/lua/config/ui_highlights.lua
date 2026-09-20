@@ -44,7 +44,7 @@ local function tab_palette()
   local normal_fg = normal.fg
   local normal_bg = normal.bg
   local surface_bg = preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
-  local fill_bg = preferred_bg("TabLineFill", "Normal")
+  local fill_bg = preferred_bg("TabLineFill", "TabLine", "StatusLine", "Normal")
   local surface_fg = pick_fg("TabLine", "StatusLine", "Normal")
   local active = get("TabLineSel")
   local active_bg = active.bg or get("Visual").bg or surface_bg
@@ -163,6 +163,17 @@ end
 vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()
     vim.schedule(M.apply)
+  end,
+})
+
+-- bufferline dynamically creates BufferLineDevIcon* groups the first time a
+-- new filetype is opened in a tab.  Those groups are built from bufferline's
+-- internally-stored highlight table (frozen at setup time), so their bg may
+-- not match the current theme.  Re-applying 100 ms after BufEnter gives
+-- bufferline time to create the group before we overwrite it.
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "TabEnter" }, {
+  callback = function()
+    vim.defer_fn(M.apply, 100)
   end,
 })
 
