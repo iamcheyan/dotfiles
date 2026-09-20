@@ -65,11 +65,23 @@ return {
         confirm = { border = "single" },
       },
       picker = {
-        -- 3. 针对 Picker 的每一个子窗进行硬拦截
-        win = {
-          input = { border = "single" },
-          list = { border = "single" },
-          preview = { border = "single" },
+        layout = {
+          layout = {
+            box = "horizontal",
+            width = 0.85,
+            min_width = 120,
+            height = 0.8,
+            border = "single",
+            title = "{title} {live} {flags}",
+            title_pos = "center",
+            {
+              box = "vertical",
+              border = "none",
+              { win = "input", height = 1, border = "bottom" },
+              { win = "list", border = "none" },
+            },
+            { win = "preview", title = "{preview}", border = "left", width = 0.55 },
+          },
         },
         sources = {
           files = {
