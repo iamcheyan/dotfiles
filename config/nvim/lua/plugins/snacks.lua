@@ -72,15 +72,13 @@ return {
             min_width = 120,
             height = 0.8,
             border = "single",
-            title = "{title} {live} {flags}",
-            title_pos = "center",
             {
               box = "vertical",
               border = "none",
               { win = "input", height = 1, border = "bottom" },
               { win = "list", border = "none" },
             },
-            { win = "preview", title = "{preview}", border = "left", width = 0.55 },
+            { win = "preview", border = "left", width = 0.55 },
           },
         },
         sources = {
