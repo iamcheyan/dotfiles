@@ -33,6 +33,8 @@ map("n", "<leader>fG", function() Snacks.picker.pick("grep") end, { desc = "Grep
 map("n", "<leader>fw", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Grep Word (cwd)" })
 map("n", "<leader>fW", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Grep Word (Root)" })
 map("n", "<leader>fc", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Word under Cursor" })
+map("n", "<leader>sg", function() Snacks.picker.pick("grep") end, { desc = "Grep (Root Dir)" })
+map("n", "<leader>sw", function() Snacks.picker.pick("grep", { search = vim.fn.expand("<cword>") }) end, { desc = "Grep Word (Root Dir)" })
 map("n", "<leader>fh", function() Snacks.picker.pick("help") end, { desc = "Help Pages" })
 map("n", "<leader>fS", function() Snacks.picker.pick("treesitter") end, { desc = "Treesitter Symbols" })
 map("n", "<leader>/", function() Snacks.picker.pick("grep") end, { desc = "Grep" })
