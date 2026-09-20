@@ -30,7 +30,7 @@ return {
           end
           curWidth = curWidth + chunkWidth
         end
-        table.insert(newVirtText, { suffix, "UfoFoldBadge" })
+        table.insert(newVirtText, { suffix, "MoreMsg" })
         return newVirtText
       end,
     },
@@ -41,18 +41,17 @@ return {
       vim.o.foldlevelstart = 99
       vim.o.foldenable = true
 
-      -- 设置醒目的折叠胶囊徽标样式：深灰背景 + 泛白粗体文字
-      local function set_ufo_hl()
-        vim.api.nvim_set_hl(0, "UfoFoldBadge", {
+      -- 当某一行被折叠时，整行使用高对比度背景色（深灰 #24242a），字泛白，让整行折叠状态一目了然
+      local function set_fold_hl()
+        vim.api.nvim_set_hl(0, "Folded", {
           fg = "#f0f0f4",
-          bg = "#26262b",
-          bold = true,
+          bg = "#24242a",
         })
       end
-      set_ufo_hl()
+      set_fold_hl()
       vim.api.nvim_create_autocmd("ColorScheme", {
         group = vim.api.nvim_create_augroup("ufo_fold_hl", { clear = true }),
-        callback = set_ufo_hl,
+        callback = set_fold_hl,
       })
 
       vim.keymap.set("n", "zR", function()
