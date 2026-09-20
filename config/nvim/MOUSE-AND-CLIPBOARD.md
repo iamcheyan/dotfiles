@@ -27,10 +27,24 @@
 vim.keymap.set({ "x", "s" }, "<LeftRelease>", '"+ygv', { desc = "Auto-copy selection to clipboard", silent = true })
 ```
 
-同时结合 [`config/nvim/lua/config/options.lua`](lua/config/options.lua) 中的剪贴板配置：
+同时结合 [`config/nvim/lua/config/options.lua`](lua/config/options.lua) 中的多设备剪贴板自适应配置：
 ```lua
 vim.opt.clipboard = "unnamedplus" -- 默认 yank 操作与系统剪贴板 (+) 深度同步
 vim.opt.mouse = "a"              -- 全局开启所有模式的鼠标支持
+
+-- 多设备跨平台智能剪贴板适配 (本地原生工具优先，无独立 GUI 时自动退回终端 OSC 52)
+if vim.env.WAYLAND_DISPLAY and vim.env.WAYLAND_DISPLAY ~= "" and vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1 then
+  vim.g.clipboard = "wl-copy"
+elseif vim.fn.has("mac") == 1 and vim.fn.executable("pbcopy") == 1 then
+  vim.g.clipboard = "pbcopy"
+elseif vim.fn.executable("win32yank.exe") == 1 then
+  vim.g.clipboard = "win32yank"
+elseif vim.env.DISPLAY and vim.env.DISPLAY ~= "" and vim.fn.executable("xclip") == 1 then
+  vim.g.clipboard = "xclip"
+else
+  -- 无原生 GUI 显示服务时（如 SSH 远程会话、tmux 或容器），优雅降级到终端 OSC 52
+  vim.g.clipboard = "osc52"
+end
 ```
 
 ### 工作流程
@@ -104,6 +118,16 @@ Neovim 在 WSL 下支持多种剪贴板通信协议，推荐优先级如下：
    * 下载后将 `win32yank.exe` 放入 WSL 的 `/usr/local/bin/` 或系统 PATH 中，并赋予可执行权限（`chmod +x`），Neovim 会优先调用它，复制无感秒同步。
 3. **clip.exe（系统默认兜底）**：
    * 若无上述工具，Neovim 会自动调用 Windows 自带的 `clip.exe`。功能正常，但若划选数万行超大文本时，偶尔可能感受到底层跨子系统进程创建的微小开销。
+
+### 4.3 Kitty 终端免弹窗配置 (OSC 52 读写授权)
+
+在 Kitty 终端中，默认对通过 OSC 52 **读取**剪贴板的行为设置了安全确认弹窗（`read-clipboard-ask`，提示 `"A program running in this window wants to read from the system clipboard..."`）。
+
+为避免在 SSH/远程或终端降级环境下粘贴时反复弹出确认框，Kitty 配置（`~/.config/kitty/kitty.conf`）已启用：
+```conf
+clipboard_control write-clipboard write-primary read-clipboard read-primary
+```
+这样不仅保障了远程与跨设备会话下的无感粘贴，配合 Neovim 的“本地工具优先、无环境自动降级 OSC 52”策略，完美兼顾了速度与全场景兼容性。
 
 ---
 
