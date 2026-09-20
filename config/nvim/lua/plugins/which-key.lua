@@ -75,7 +75,7 @@ return {
       },
     },
     config = function(_, opts)
-      vim.api.nvim_set_hl(0, "WhichKeyTitle", { default = true, link = "FloatTitle" })
+      vim.api.nvim_set_hl(0, "WhichKeyTitle", { default = true, fg = "#eed49f", bold = true, bg = "NONE" })
       local wk = require("which-key")
       wk.setup(opts)
       if not vim.tbl_isempty(opts.defaults) then
@@ -92,6 +92,12 @@ return {
           vcfg.height = vcfg.height + 1
           vcfg.row = vcfg.row - 1
           vim.api.nvim_win_set_config(View.view.win, vcfg)
+
+          local cur_winhl = vim.wo[View.view.win].winhighlight
+          if not cur_winhl:find("WinBar:") then
+            vim.wo[View.view.win].winhighlight = (cur_winhl ~= "" and (cur_winhl .. ",") or "")
+              .. "WinBar:NormalFloat,WinBarNC:NormalFloat"
+          end
 
           local node = State.state and State.state.node
           local trail = View.trail(node)
