@@ -134,7 +134,8 @@ pcall(vim.cmd.colorscheme, "high-contrast-plus")
 -- showmode=true, smoothscroll=false, cursorcolumn=true) are left untouched.
 vim.opt.undofile = true -- persistent undo
 vim.opt.undolevels = 10000
-vim.opt.updatetime = 200 -- faster CursorHold / swap write
+vim.opt.swapfile = false -- disable swap files (prevents E325 ATTENTION and lockups in async plugins like diffview)
+vim.opt.updatetime = 200 -- faster CursorHold
 vim.opt.timeoutlen = 300 -- snappier which-key
 vim.opt.scrolloff = 4 -- keep context above/below cursor
 vim.opt.sidescrolloff = 8

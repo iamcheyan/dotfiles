@@ -16,6 +16,14 @@ return {
           layout = "diff2_horizontal",
         },
       },
+      hooks = {
+        diff_buf_read = function(bufnr)
+          vim.opt_local.swapfile = false
+        end,
+        diff_buf_win_enter = function(bufnr, winid, ctx)
+          vim.opt_local.swapfile = false
+        end,
+      },
     },
   },
 }

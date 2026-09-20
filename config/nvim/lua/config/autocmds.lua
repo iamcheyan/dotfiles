@@ -50,3 +50,11 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 
 set_cmdline_highlights()
 set_gitsigns_highlights()
+
+-- 遇到残留交换文件时自动选择继续编辑 (Edit anyway)，防止 Diffview 等异步协程弹窗中断报错
+vim.api.nvim_create_autocmd("SwapExists", {
+  group = vim.api.nvim_create_augroup("HandleSwapExists", { clear = true }),
+  callback = function()
+    vim.v.swapchoice = "e"
+  end,
+})
