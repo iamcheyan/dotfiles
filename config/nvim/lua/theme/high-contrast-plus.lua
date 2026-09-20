@@ -491,6 +491,13 @@ function M.load()
     bold = true,
   })
 
+  -----------------------------------------------------------------------------
+  -- 14. Satellite Scrollbar
+  -----------------------------------------------------------------------------
+  set("SatelliteBackground", { bg = "#25252a" }) -- 传统 UI 滚动条淡灰色背景轨道
+  set("SatelliteBar", { bg = p.tab_active_bg })  -- 滚动条滑块（高亮黄色）
+  set("SatelliteCursor", { fg = p.fg })
+
 end
 
 return M

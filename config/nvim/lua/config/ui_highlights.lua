@@ -128,8 +128,10 @@ function M.apply()
   set(0, "BufferLineCloseButtonSelected", { fg = p.active_fg, bg = p.active_bg })
   set(0, "BufferLineOffsetSeparator", { fg = p.separator_fg, bg = p.surface_bg })
 
-  -- nvim-scrollbar: the viewport handle follows the active tab color; the
-  -- non-handle marks use the tab-bar surface as a quiet gray rail/track.
+  -- Scrollbar (Satellite & nvim-scrollbar):
+  set(0, "SatelliteBackground", { bg = "#25252a" })
+  set(0, "SatelliteBar", { bg = p.active_bg })
+
   set(0, "ScrollbarHandle", { fg = p.active_bg, bg = p.active_bg })
   set(0, "ScrollbarCursorHandle", { fg = p.active_bg, bg = p.active_bg })
   set(0, "ScrollbarMisc", { fg = p.surface_fg, bg = p.fill_bg })

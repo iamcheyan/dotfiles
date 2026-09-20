@@ -1,18 +1,11 @@
 return {
   {
-    "petertriho/nvim-scrollbar",
+    "lewis6991/satellite.nvim",
     event = { "BufReadPost", "BufNewFile" },
     opts = {
-      show_in_active_only = false,
-      -- Use semantic theme groups instead of deriving a low-contrast color
-      -- from CursorColumn. ui_highlights owns the actual colors.
-      set_highlights = false,
-      excluded_buftypes = {
-        "terminal",
-        "nofile",
-        "quickfix",
-        "prompt",
-      },
+      current_only = false,
+      winblend = 0,
+      zindex = 40,
       excluded_filetypes = {
         "contextline_menu",
         "dropbar_menu",
@@ -26,14 +19,29 @@ return {
         "TelescopePrompt",
         "neo-tree",
         "aerial",
-      },
-      handle = {
-        highlight = "TabLineSel",
-        blend = 0,
+        "help",
+        "lazy",
+        "mason",
       },
       handlers = {
-        diagnostic = true,
-        gitsigns = true,
+        cursor = {
+          enable = true,
+          overlap = true,
+          priority = 100,
+        },
+        search = {
+          enable = true,
+        },
+        diagnostic = {
+          enable = true,
+        },
+        gitsigns = {
+          enable = true,
+        },
+        marks = {
+          enable = true,
+          show_builtins = false,
+        },
       },
     },
   },
