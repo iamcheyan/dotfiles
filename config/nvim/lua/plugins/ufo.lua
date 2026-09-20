@@ -57,7 +57,7 @@ return {
       end, { desc = "Fold more" })
 
       vim.keymap.set("n", "zp", function()
-        local winid = require("ufo").peekFoldedLines.underCursor()
+        local winid = require("ufo").peekFoldedLinesUnderCursor()
         if not winid then
           vim.lsp.buf.hover()
         end
