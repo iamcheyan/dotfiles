@@ -28,7 +28,9 @@ M.palette = {
   tab_active_fg           = "#000000", -- ui.tab_active_fg: [0, 0, 0]
   tab_active_bg           = "#ffff00", -- ui.tab_active_bg: [255, 255, 0]
   tab_inactive_fg         = "#ffffff", -- ui.tab_inactive_fg: [255, 255, 255]
-  tab_inactive_bg         = "#000000", -- ui.tab_inactive_bg: [0, 0, 0]
+  -- Keep inactive buffer tabs on a visible UI surface instead of the editor's
+  -- black background.  The old value leaked black strips around bufferline.
+  tab_inactive_bg         = "#242424", -- dedicated inactive-tab surface
   tab_inactive_surface_bg = "#242424", -- dedicated inactive-tab surface
   tab_separator_bg        = "#1e1e23", -- ui.tab_separator_bg: [30, 30, 35]
   tab_close_hover_fg      = "#f92672", -- ui.tab_close_hover_fg: [249, 38, 114]

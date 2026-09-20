@@ -1057,6 +1057,13 @@ return {
             if bt ~= "" or ft == "" or hidden_filetypes[ft] then
               return true
             end
+            -- Heirline can keep the winbar row allocated even when the
+            -- context component's condition returns false.  Disable the
+            -- entire winbar when there is no actual context to display.
+            local ok, cl = pcall(require, "contextline")
+            if not ok or cl.get_info({ bufnr = buf, winid = args.win or 0 }) == nil then
+              return true
+            end
             return false
           end,
         },
@@ -1084,6 +1091,41 @@ return {
     config = function(_, opts)
       vim.o.laststatus = 3
       require("heirline").setup(opts)
+
+      -- Heirline's built-in winbar setup listens to FileType, but a window
+      -- can retain the previous buffer's local winbar across BufEnter. Keep
+      -- the context winbar synchronized when switching between buffers.
+      local heirline_winbar = "%{%v:lua.require'heirline'.eval_winbar()%}"
+      vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+        group = vim.api.nvim_create_augroup("HeirlineContextWinbarSync", { clear = true }),
+        callback = function(args)
+          local win = vim.api.nvim_get_current_win()
+          local buf = args.buf or vim.api.nvim_win_get_buf(win)
+          local ft = vim.bo[buf].filetype
+          local bt = vim.bo[buf].buftype
+          local hidden = {
+            ["neo-tree"] = true, ["NvimTree"] = true, ["aerial"] = true,
+            ["help"] = true, ["lazy"] = true, ["mason"] = true,
+            ["Trouble"] = true, ["snacks_layout_box"] = true, ["qf"] = true,
+            ["csv"] = true, ["tsv"] = true, ["text"] = true, ["txt"] = true,
+            ["plaintex"] = true, ["log"] = true, ["gitcommit"] = true,
+            ["gitrebase"] = true, ["diff"] = true, ["checkhealth"] = true,
+            ["man"] = true,
+          }
+          local ok, cl = pcall(require, "contextline")
+          local has_context = bt == "" and ft ~= "" and not hidden[ft]
+            and ok and cl.get_info({ bufnr = buf, winid = win }) ~= nil
+          local current = vim.wo[win].winbar
+          if has_context then
+            if current == nil or current == "" or current == heirline_winbar then
+              vim.wo[win].winbar = heirline_winbar
+            end
+          elseif current == heirline_winbar then
+            vim.wo[win].winbar = ""
+          end
+        end,
+        desc = "Sync context winbar when changing buffers",
+      })
 
       -- 解决切换主题后状态栏失去颜色的问题：
       -- 当执行 :colorscheme 时，Vim 会清空所有高亮组 (hi clear)。

@@ -39,6 +39,11 @@ vim.opt.cursorline = true
 vim.opt.cursorcolumn = true
 vim.opt.splitbelow = true
 vim.opt.splitright = true
+-- Keep sidebar splits from being equalized or stolen down to 1 column.
+-- Vim's default winwidth=20 is why a restored file-tree can collapse to icons.
+vim.opt.equalalways = false
+vim.opt.winwidth = 1
+vim.opt.winminwidth = 1
 vim.opt.termguicolors = true
 vim.opt.showmode = true
 vim.opt.laststatus = 3

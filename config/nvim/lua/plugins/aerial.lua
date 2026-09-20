@@ -10,6 +10,7 @@ return {
         default_direction = "left",
         placement = "window",
         width = 30,
+        min_width = 24,
         max_width = { 120, 0.4 },
         resize_to_content = true,
       },
