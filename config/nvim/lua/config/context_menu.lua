@@ -282,7 +282,7 @@ function M.open_buffer(id)
   _ctx = { kind = "buffer", buffer_id = id }
   install_popup(buffer_entries)
   vim.schedule(function()
-    local ok, err = pcall(vim.cmd, "popup PopUp")
+    local ok, err = pcall(vim.cmd, "popup! PopUp")
     if not ok then notify(tostring(err), vim.log.levels.ERROR) end
   end)
 end
@@ -292,7 +292,7 @@ function M.open_neo(state)
   _ctx = { kind = "neo", neo_state = state }
   install_popup(neo_entries)
   vim.schedule(function()
-    local ok, err = pcall(vim.cmd, "popup PopUp")
+    local ok, err = pcall(vim.cmd, "popup! PopUp")
     if not ok then notify(tostring(err), vim.log.levels.ERROR) end
   end)
 end
