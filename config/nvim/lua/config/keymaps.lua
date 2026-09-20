@@ -151,3 +151,23 @@ vim.keymap.set("n", "<leader><tab>n", "<cmd>tabnew<cr>", { desc = "New Tab" })
 
 -- 鼠标选中文本自动复制到系统剪贴板 (Copy on select)
 vim.keymap.set({ "x", "s" }, "<LeftRelease>", '"+ygv', { desc = "Auto-copy selection to clipboard", silent = true })
+
+-- =======================================================================
+-- 现代编辑器操作流 (AI 协作 / 网页交互友好，兼顾 Vim 模态特性)
+-- =======================================================================
+
+-- 1. Ctrl + A: 全选整个文件 (Normal / Visual / Insert 模式均生效)
+vim.keymap.set({ "n", "x" }, "<C-a>", "ggVG", { desc = "Select all lines" })
+vim.keymap.set("i", "<C-a>", "<Esc>ggVG", { desc = "Select all lines" })
+-- 若偶尔需要给光标处数字加 1，保留备用快捷键
+vim.keymap.set("n", "<leader>a", "<C-a>", { desc = "Increment number" })
+
+-- 2. Ctrl + C: 仅在可视模式下生效，复制选区到系统剪贴板 (普通模式保留原生中断/取消)
+vim.keymap.set("x", "<C-c>", '"+y', { desc = "Copy selection to system clipboard" })
+
+-- 3. 覆盖粘贴绝不冲掉剪贴板 (从 AI 复制之后，在 Vim 选中文本直接粘贴覆盖，剪贴板内容不变)
+vim.keymap.set("x", "p", 'P', { desc = "Paste over selection without clobbering clipboard" })
+vim.keymap.set("x", "<C-v>", 'P', { desc = "Paste over selection from clipboard" })
+
+-- 4. 插入模式下 Ctrl + V: 从系统剪贴板原样粘贴 (保留缩进格式，避免自动缩进导致阶梯错位)
+vim.keymap.set("i", "<C-v>", "<C-r><C-o>+", { desc = "Paste from system clipboard verbatim" })
