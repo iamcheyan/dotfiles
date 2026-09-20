@@ -33,6 +33,14 @@ return {
         table.insert(newVirtText, { suffix, "MoreMsg" })
         return newVirtText
       end,
+      preview = {
+        win_config = {
+          border = "rounded",
+          winblend = 0,
+          winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder",
+          maxheight = 20,
+        },
+      },
     },
     config = function(_, opts)
       vim.o.foldcolumn = "1"
