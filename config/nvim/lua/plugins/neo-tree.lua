@@ -145,6 +145,18 @@ return {
           ["l"] = "open",
           ["h"] = "close_node",
           ["<space>"] = "none",
+          ["<RightMouse>"] = function(state)
+            local mouse = vim.fn.getmousepos()
+            -- Only act when the click lands inside this neo-tree window.
+            if not mouse.winid or mouse.winid ~= state.winid then return end
+            -- Move cursor to the clicked row so get_node() returns the right item.
+            if mouse.line > 0 then
+              pcall(vim.api.nvim_win_set_cursor, state.winid, { mouse.line, 0 })
+            end
+            if state.tree:get_node() then
+              require("config.context_menu").open_neo(state)
+            end
+          end,
         },
       },
     },

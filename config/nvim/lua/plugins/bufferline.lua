@@ -10,6 +10,7 @@ return {
         end
       end
 
+      -- The native PopUp menu is installed by config.context_menu.
       return {
         highlights = require("config.ui_highlights").bufferline_highlights(),
         options = {
@@ -42,7 +43,9 @@ return {
           buffer_close_icon = "",
           modified_icon = "",
           close_command = "bdelete! %d",
-          right_mouse_command = "bdelete! %d",
+          right_mouse_command = function(buffer_id)
+            require("config.context_menu").open_buffer(buffer_id)
+          end,
           left_mouse_command = "buffer %d",
           custom_areas = {
             right = function()
