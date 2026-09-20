@@ -193,6 +193,7 @@ function M.load()
   set("GitSignsAdd", { fg = p.string })
   set("GitSignsChange", { fg = p.func })
   set("GitSignsDelete", { fg = p.diag_error_fg })
+  set("GitSignsCurrentLineBlame", { fg = "#5a5a64", italic = true })
 
   -----------------------------------------------------------------------------
   -- 4. Diagnostics & Spell
@@ -497,6 +498,34 @@ function M.load()
   set("SatelliteBackground", { bg = "#25252a" }) -- 传统 UI 滚动条淡灰色背景轨道
   set("SatelliteBar", { bg = p.tab_active_bg })  -- 滚动条滑块（高亮黄色）
   set("SatelliteCursor", { fg = p.fg })
+
+  -----------------------------------------------------------------------------
+  -- 15. Rainbow Delimiters
+  -----------------------------------------------------------------------------
+  set("RainbowDelimiterYellow", { fg = p.func })
+  set("RainbowDelimiterCyan",   { fg = p.keyword })
+  set("RainbowDelimiterBlue",   { fg = "#569cd6" })
+  set("RainbowDelimiterOrange", { fg = p.type })
+  set("RainbowDelimiterGreen",  { fg = p.string })
+  set("RainbowDelimiterViolet", { fg = "#c586c0" })
+  set("RainbowDelimiterRed",    { fg = p.diag_error_fg })
+
+  -----------------------------------------------------------------------------
+  -- 16. Diffview
+  -----------------------------------------------------------------------------
+  set("DiffviewFilePanelTitle",   { fg = p.keyword, bold = true })
+  set("DiffviewFilePanelCounter", { fg = p.func, bold = true })
+  set("DiffviewFilePanelFileName",{ fg = p.fg })
+  set("DiffviewNormal",           { fg = p.fg, bg = p.bg })
+  set("DiffviewPrimary",          { fg = p.keyword })
+  set("DiffviewSecondary",        { fg = p.comment })
+
+  -----------------------------------------------------------------------------
+  -- 17. nvim-ufo (Code Folding)
+  -----------------------------------------------------------------------------
+  set("UfoFoldedEllipsis", { fg = p.func, bold = true })
+  set("UfoPreviewThumb",   { bg = p.tab_active_bg })
+  set("UfoPreviewWinSpec", { bg = p.current_line_bg })
 
 end
 
