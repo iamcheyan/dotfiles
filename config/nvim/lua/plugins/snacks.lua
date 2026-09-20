@@ -81,9 +81,18 @@ return {
             { win = "preview", border = "left", width = 0.55 },
           },
         },
+        win = {
+          input = {
+            keys = {
+              ["<a-h>"] = { "toggle_hidden", mode = { "i", "n" } },
+              ["<c-h>"] = { "toggle_hidden", mode = { "i", "n" } },
+              ["<a-i>"] = { "toggle_ignored", mode = { "i", "n" } },
+            },
+          },
+        },
         sources = {
           files = {
-            hidden = true,
+            hidden = false,
           },
           grep = {
             args = { "--no-messages" },
