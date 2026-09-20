@@ -297,35 +297,35 @@ return {
             trigger_press(self)
             open_statusline_menu("mode", {
               {
-                icon = "⌨️",
+                icon = "󰌌",
                 label = "Show All Keymaps (:WhichKey)",
                 action = function()
                   pcall(function() require("which-key").show() end)
                 end,
               },
               {
-                icon = "🔍",
+                icon = "󰍉",
                 label = "Find Files (<leader><space>)",
                 action = function()
                   pcall(function() require("snacks").picker.files() end)
                 end,
               },
               {
-                icon = "🔎",
+                icon = "󰊄",
                 label = "Search Text in Project (<leader>sg)",
                 action = function()
                   pcall(function() require("snacks").picker.grep() end)
                 end,
               },
               {
-                icon = "📁",
+                icon = "󰙅",
                 label = "Project Explorer (<leader>e)",
                 action = function()
                   pcall(function() require("neo-tree.command").execute({ toggle = true }) end)
                 end,
               },
               {
-                icon = "⚡",
+                icon = "󱐋",
                 label = "Plugin Manager (:Lazy)",
                 action = function()
                   vim.cmd("Lazy")
@@ -373,28 +373,28 @@ return {
             trigger_press(self)
             open_statusline_menu("git", {
               {
-                icon = "",
+                icon = "󰊢",
                 label = "Open Diffview Workspace (<leader>gd)",
                 action = function()
                   vim.cmd("DiffviewOpen")
                 end,
               },
               {
-                icon = "",
+                icon = "󰋚",
                 label = "Current File Diff History (<leader>gD)",
                 action = function()
                   vim.cmd("DiffviewFileHistory %")
                 end,
               },
               {
-                icon = "",
+                icon = "󰜘",
                 label = "Branch Commit History (<leader>gV)",
                 action = function()
                   vim.cmd("DiffviewFileHistory")
                 end,
               },
               {
-                icon = "🚀",
+                icon = "",
                 label = "Open Lazygit Terminal (<leader>gg)",
                 action = function()
                   pcall(function() require("snacks").lazygit() end)
@@ -402,21 +402,21 @@ return {
               },
               { separator = true },
               {
-                icon = "👁️",
+                icon = "󰈈",
                 label = "Toggle Line Blame (<leader>ub)",
                 action = function()
                   pcall(function() require("gitsigns").toggle_current_line_blame() end)
                 end,
               },
               {
-                icon = "🔍",
+                icon = "󰍉",
                 label = "Preview Hunk at Cursor (<leader>gp)",
                 action = function()
                   pcall(function() require("gitsigns").preview_hunk() end)
                 end,
               },
               {
-                icon = "↩️",
+                icon = "󰜺",
                 label = "Reset Hunk at Cursor (<leader>gr)",
                 action = function()
                   pcall(function() require("gitsigns").reset_hunk() end)
@@ -536,7 +536,7 @@ return {
 
             open_statusline_menu("file", {
               {
-                icon = "📋",
+                icon = "󰅍",
                 label = "Copy Relative Path",
                 action = function()
                   vim.fn.setreg("+", rel_path)
@@ -544,7 +544,7 @@ return {
                 end,
               },
               {
-                icon = "📋",
+                icon = "󰅎",
                 label = "Copy Absolute Path",
                 action = function()
                   vim.fn.setreg("+", path)
@@ -552,7 +552,7 @@ return {
                 end,
               },
               {
-                icon = "📋",
+                icon = "󰈤",
                 label = "Copy Filename Only",
                 action = function()
                   vim.fn.setreg("+", fname)
@@ -561,14 +561,14 @@ return {
               },
               { separator = true },
               {
-                icon = "📂",
+                icon = "󰉖",
                 label = "Open Directory in Oil (-)",
                 action = function()
                   vim.cmd("Oil")
                 end,
               },
               {
-                icon = "🌳",
+                icon = "󰙅",
                 label = "Reveal in Neo-tree (<leader>e)",
                 action = function()
                   pcall(function()
@@ -577,14 +577,14 @@ return {
                 end,
               },
               {
-                icon = "📜",
+                icon = "󰋚",
                 label = "View File History (Diffview)",
                 action = function()
                   vim.cmd("DiffviewFileHistory %")
                 end,
               },
               {
-                icon = "✏️",
+                icon = "󰑕",
                 label = "Rename File (Snacks)",
                 action = function()
                   pcall(function()
@@ -693,14 +693,14 @@ return {
                 end,
               },
               {
-                icon = "📦",
+                icon = "󰏓",
                 label = "Package Manager (:Mason)",
                 action = function()
                   vim.cmd("Mason")
                 end,
               },
               {
-                icon = "📑",
+                icon = "󰘦",
                 label = "Document Symbols (<leader>cs)",
                 action = function()
                   vim.cmd("AerialToggle!")
@@ -708,14 +708,14 @@ return {
               },
               { separator = true },
               {
-                icon = "💡",
+                icon = "󰌵",
                 label = "Code Actions (<leader>ca)",
                 action = function()
                   pcall(vim.lsp.buf.code_action)
                 end,
               },
               {
-                icon = "✨",
+                icon = "󰉿",
                 label = "Format Buffer (<leader>F)",
                 action = function()
                   pcall(function()
@@ -724,7 +724,7 @@ return {
                 end,
               },
               {
-                icon = "🔄",
+                icon = "󰑓",
                 label = "Restart LSP Server (:LspRestart)",
                 action = function()
                   vim.cmd("LspRestart")
@@ -925,7 +925,7 @@ return {
             trigger_press(self)
             open_statusline_menu("nav", {
               {
-                icon = "🔢",
+                icon = "󰎤",
                 label = "Go to Line Number...",
                 action = function()
                   vim.ui.input({ prompt = "Enter line number: " }, function(input)
@@ -936,21 +936,21 @@ return {
                 end,
               },
               {
-                icon = "⬆️",
+                icon = "󰜲",
                 label = "Jump to Top of File (gg)",
                 action = function()
                   vim.cmd("normal! gg")
                 end,
               },
               {
-                icon = "⬇️",
+                icon = "󰜮",
                 label = "Jump to Bottom of File (G)",
                 action = function()
                   vim.cmd("normal! G")
                 end,
               },
               {
-                icon = "🎯",
+                icon = "󰆤",
                 label = "Center Screen on Cursor (zz)",
                 action = function()
                   vim.cmd("normal! zz")
