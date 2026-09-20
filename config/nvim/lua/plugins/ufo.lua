@@ -30,7 +30,7 @@ return {
           end
           curWidth = curWidth + chunkWidth
         end
-        table.insert(newVirtText, { suffix, "MoreMsg" })
+        table.insert(newVirtText, { suffix, "UfoFoldBadge" })
         return newVirtText
       end,
     },
@@ -40,6 +40,20 @@ return {
       vim.o.foldlevel = 99
       vim.o.foldlevelstart = 99
       vim.o.foldenable = true
+
+      -- 设置醒目的折叠胶囊徽标样式：深灰背景 + 泛白粗体文字
+      local function set_ufo_hl()
+        vim.api.nvim_set_hl(0, "UfoFoldBadge", {
+          fg = "#f0f0f4",
+          bg = "#26262b",
+          bold = true,
+        })
+      end
+      set_ufo_hl()
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("ufo_fold_hl", { clear = true }),
+        callback = set_ufo_hl,
+      })
 
       vim.keymap.set("n", "zR", function()
         require("ufo").openAllFolds()
