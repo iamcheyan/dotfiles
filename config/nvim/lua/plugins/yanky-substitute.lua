@@ -16,10 +16,6 @@ return {
         select = {
           action = nil, -- 默认动作
         },
-        telescope = {
-          use_default_mappings = true,
-          mappings = nil,
-        },
       },
       system_clipboard = {
         sync_with_ring = true,
@@ -48,9 +44,14 @@ return {
       { "[p", "<Plug>(YankyCycleForward)", desc = "Cycle forward through yank history (next)" },
       { "]p", "<Plug>(YankyCycleBackward)", desc = "Cycle backward through yank history (previous)" },
 
-      -- 使用 Telescope 浏览历史
-      { "<leader>fy", "<cmd>Telescope yank_history<cr>", desc = "Yank History (Telescope)" },
-
+      -- 使用 Snacks Picker 浏览剪贴板历史
+      {
+        "<leader>fy",
+        function()
+          require("yanky.sources.snacks").pick()
+        end,
+        desc = "Yank History (Snacks Picker)",
+      },
     },
   }
 }
