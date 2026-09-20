@@ -59,59 +59,141 @@ return {
         return nil
       end
 
+      local mode_colors = {
+        n = "#50fa7b",       -- Normal: Green
+        no = "#50fa7b",
+        nov = "#50fa7b",
+        noV = "#50fa7b",
+        ["no\22"] = "#50fa7b",
+        niI = "#50fa7b",
+        niR = "#50fa7b",
+        niV = "#50fa7b",
+        nt = "#50fa7b",
+        i = "#8be9fd",       -- Insert: Cyan
+        ic = "#8be9fd",
+        ix = "#8be9fd",
+        v = "#ff79c6",       -- Visual: Pink
+        vs = "#ff79c6",
+        V = "#ff79c6",       -- V-Line: Pink
+        Vs = "#ff79c6",
+        ["\22"] = "#bd93f9", -- V-Block: Purple
+        ["\22s"] = "#bd93f9",
+        s = "#ffb86c",       -- Select: Orange
+        S = "#ffb86c",
+        ["\19"] = "#ffb86c",
+        R = "#ff5555",       -- Replace: Red
+        Rc = "#ff5555",
+        Rx = "#ff5555",
+        Rv = "#ff5555",
+        Rvc = "#ff5555",
+        Rvx = "#ff5555",
+        c = "#ffff00",       -- Command: Yellow
+        cv = "#ffff00",
+        r = "#ff5555",
+        rm = "#ff5555",
+        ["r?"] = "#ffff00",
+        ["!"] = "#ff5555",
+        t = "#50fa7b",
+      }
+
       local Mode = {
-        provider = function()
-          local mode = vim.fn.mode(1)
-          return " " .. (mode_names[mode] or mode)
+        init = function(self)
+          self.mode = vim.fn.mode(1)
         end,
-        hl = { bold = true },
+        {
+          provider = " ",
+          hl = function(self)
+            local c = mode_colors[self.mode] or mode_colors[self.mode:sub(1, 1)] or "#ffffff"
+            return { fg = c, bold = true }
+          end,
+        },
+        {
+          provider = function(self)
+            return (mode_names[self.mode] or self.mode)
+          end,
+          hl = function(self)
+            local c = mode_colors[self.mode] or mode_colors[self.mode:sub(1, 1)] or "#ffffff"
+            return { fg = c, bold = true }
+          end,
+        },
       }
 
       local GitBranch = {
-        provider = function()
-          local gs = vim.b.gitsigns_status_dict
-          local head = gs and gs.head or ""
-          if head == "" then
-            return " -"
-          end
-          local added = gs.added or 0
-          local changed = gs.changed or 0
-          local removed = gs.removed or 0
-          return string.format(" %s +%d ~%d -%d", head, added, changed, removed)
+        init = function(self)
+          self.gs = vim.b.gitsigns_status_dict
         end,
+        {
+          provider = function(self)
+            local head = self.gs and self.gs.head or ""
+            return " " .. (head == "" and "-" or head)
+          end,
+          hl = function(self)
+            local head = self.gs and self.gs.head or ""
+            if head ~= "" then
+              return { fg = "#ff79c6", bold = true }
+            end
+            return { fg = "#7f7f7f" }
+          end,
+        },
+        {
+          provider = function(self)
+            local count = (self.gs and self.gs.added) or 0
+            return " +" .. count
+          end,
+          hl = { fg = "#50fa7b" },
+        },
+        {
+          provider = function(self)
+            local count = (self.gs and self.gs.changed) or 0
+            return " ~" .. count
+          end,
+          hl = { fg = "#ffff00" },
+        },
+        {
+          provider = function(self)
+            local count = (self.gs and self.gs.removed) or 0
+            return " -" .. count
+          end,
+          hl = { fg = "#ff5555" },
+        },
       }
 
       local FileName = {
-        provider = function(self)
+        init = function(self)
           local name = vim.api.nvim_buf_get_name(0)
           local path = name == "" and "[No Name]" or vim.fn.fnamemodify(name, ":p")
           self.current_path = path
+
           local icon = "󰈔"
+          local icon_color = "#8be9fd"
           if name ~= "" then
             local devicons = require("nvim-web-devicons")
             local fname = vim.fn.fnamemodify(name, ":t")
             local ext = vim.fn.fnamemodify(name, ":e")
-            icon = devicons.get_icon(fname, ext, { default = true }) or icon
+            local ic, col = devicons.get_icon_color(fname, ext, { default = true })
+            if ic then
+              icon = ic
+            end
+            if col then
+              icon_color = col
+            end
+            self.dir = vim.fn.fnamemodify(path, ":h") .. "/"
+            self.file = fname
+          else
+            self.dir = ""
+            self.file = "[No Name]"
           end
+          self.icon = icon
+          self.icon_color = icon_color
 
-          local flags = {}
-          if vim.bo.modified then
-            table.insert(flags, "[+]")
-          end
-          if vim.bo.readonly or not vim.bo.modifiable then
-            table.insert(flags, "[RO]")
-          end
-          if
+          self.is_modified = vim.bo.modified
+          self.is_readonly = vim.bo.readonly or not vim.bo.modifiable
+          self.is_new = (
             name ~= ""
             and vim.bo.buftype == ""
             and vim.fn.filereadable(name) == 0
             and vim.fn.isdirectory(name) == 0
-          then
-            table.insert(flags, "[New]")
-          end
-
-          local suffix = #flags > 0 and (" " .. table.concat(flags, " ")) or ""
-          return string.format("%s %s%s", icon, path, suffix)
+          )
         end,
         on_click = {
           callback = function(self, _, nclicks, button)
@@ -127,48 +209,127 @@ return {
           end,
           name = "heirline_copy_filepath",
         },
+        {
+          provider = function(self)
+            return self.icon .. " "
+          end,
+          hl = function(self)
+            return { fg = self.icon_color }
+          end,
+        },
+        {
+          provider = function(self)
+            return self.dir
+          end,
+          hl = { fg = "#a0a0a0" },
+        },
+        {
+          provider = function(self)
+            return self.file
+          end,
+          hl = { fg = "#ffffff", bold = true },
+        },
+        {
+          condition = function(self)
+            return self.is_modified
+          end,
+          provider = " [+]",
+          hl = { fg = "#ffff00", bold = true },
+        },
+        {
+          condition = function(self)
+            return self.is_readonly
+          end,
+          provider = " [RO]",
+          hl = { fg = "#ff5555", bold = true },
+        },
+        {
+          condition = function(self)
+            return self.is_new
+          end,
+          provider = " [New]",
+          hl = { fg = "#50fa7b", bold = true },
+        },
       }
 
       local LspName = {
-        provider = function()
+        init = function(self)
           local clients = vim.lsp.get_clients({ bufnr = 0 })
           if #clients == 0 then
-            return "󰒋 None"
+            self.lsp_name = "None"
+            self.active = false
+          else
+            local name = clients[1].name or "Unknown"
+            if name == "basedpyright" or name == "pyright" then
+              name = "Pyright"
+            end
+            self.lsp_name = name
+            self.active = true
           end
-          local name = clients[1].name or "Unknown"
-          if name == "basedpyright" or name == "pyright" then
-            name = "Pyright"
-          end
-          return "󰒋 " .. name
         end,
+        {
+          provider = "󰒋 ",
+          hl = function(self)
+            return { fg = self.active and "#50fa7b" or "#7f7f7f" }
+          end,
+        },
+        {
+          provider = function(self)
+            return self.lsp_name
+          end,
+          hl = function(self)
+            return { fg = self.active and "#50fa7b" or "#7f7f7f", bold = self.active }
+          end,
+        },
       }
 
       local Encoding = {
-        provider = function()
-          local enc = vim.bo.fileencoding ~= "" and vim.bo.fileencoding or vim.o.encoding
-          return "󰉿 " .. string.upper(enc)
-        end,
+        {
+          provider = "󰉿 ",
+          hl = { fg = "#8be9fd" },
+        },
+        {
+          provider = function()
+            local enc = vim.bo.fileencoding ~= "" and vim.bo.fileencoding or vim.o.encoding
+            return string.upper(enc)
+          end,
+          hl = { fg = "#8be9fd", bold = true },
+        },
       }
 
       local Venv = {
         condition = function()
           return get_venv_name() ~= nil
         end,
-        provider = function()
-          return "󱔎 " .. get_venv_name()
-        end,
+        {
+          provider = "󱔎 ",
+          hl = { fg = "#ffff00" },
+        },
+        {
+          provider = function()
+            return get_venv_name()
+          end,
+          hl = { fg = "#50fa7b", bold = true },
+        },
       }
 
       local RemainingPercent = {
-        provider = function()
-          local total = vim.fn.line("$")
-          if total <= 1 then
-            return "󰦨 0%"
-          end
-          local current = vim.fn.line(".")
-          local remain = math.floor(((total - current) / total) * 100 + 0.5)
-          return "󰦨 " .. remain .. "%"
-        end,
+        {
+          provider = "󰦨 ",
+          hl = { fg = "#bd93f9" },
+        },
+        {
+          provider = function()
+            local total = vim.fn.line("$")
+            if total <= 1 then
+              return "0%"
+            end
+            local current = vim.fn.line(".")
+            local remain = math.floor(((total - current) / total) * 100 + 0.5)
+            return remain .. "%"
+          end,
+          hl = { fg = "#bd93f9", bold = true },
+        },
       }
 
       local Clock = {

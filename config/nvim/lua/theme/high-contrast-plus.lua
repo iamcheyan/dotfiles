@@ -72,6 +72,7 @@ M.palette = {
 
   -- Separators & Scrollbar
   split_separator_fg      = "#8c8c8c", -- ui.split_separator_fg: [140, 140, 140]
+  win_separator_fg        = "#333338", -- 窗口与侧边栏垂直分割线调暗淡，柔和低调不抢眼
   split_separator_hover   = "#ffff00", -- ui.split_separator_hover_fg: [255, 255, 0]
   scrollbar_track_fg      = "#505050", -- ui.scrollbar_track_fg: [80, 80, 80]
   scrollbar_thumb_fg      = "#ffff00", -- ui.scrollbar_thumb_fg: [255, 255, 0]
@@ -152,8 +153,8 @@ function M.load()
   set("IncSearch", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
   set("CurSearch", { fg = p.tab_active_fg, bg = p.tab_active_bg, bold = true })
 
-  set("WinSeparator", { fg = p.split_separator_fg, bg = p.bg })
-  set("VertSplit", { fg = p.split_separator_fg, bg = p.bg })
+  set("WinSeparator", { fg = p.win_separator_fg, bg = p.bg })
+  set("VertSplit", { fg = p.win_separator_fg, bg = p.bg })
 
   set("Whitespace", { fg = p.whitespace })
   set("NonText", { fg = p.whitespace })
@@ -381,7 +382,7 @@ function M.load()
   -----------------------------------------------------------------------------
   set("NeoTreeNormal", { fg = p.fg, bg = p.bg })
   set("NeoTreeNormalNC", { fg = p.fg, bg = p.bg })
-  set("NeoTreeWinSeparator", { fg = p.split_separator_fg, bg = p.bg })
+  set("NeoTreeWinSeparator", { fg = p.win_separator_fg, bg = p.bg })
   set("NeoTreeRootName", { fg = p.popup_border_fg, bg = p.bg, bold = true })
   set("NeoTreeDirectoryName", { fg = p.fg, bg = p.bg })
   set("NeoTreeDirectoryIcon", { fg = p.popup_border_fg, bg = p.bg })
