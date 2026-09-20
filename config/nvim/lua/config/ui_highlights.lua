@@ -97,6 +97,12 @@ function M.bufferline_highlights()
     indicator_selected = { fg = p.active_bg, bg = p.active_bg },
     indicator_visible = { fg = p.visible_bg, bg = p.visible_bg },
     offset_separator = { fg = p.separator_fg, bg = p.surface_bg },
+    -- Duplicate prefix (directory shown when two files share the same name).
+    -- bufferline defaults bg to Normal.bg (black), which leaks as a dark
+    -- strip inside the active tab.  Match the surrounding tab surface.
+    duplicate_selected = { fg = p.active_fg, bg = p.active_bg, italic = true },
+    duplicate_visible  = { fg = p.visible_fg, bg = p.visible_bg, italic = true },
+    duplicate          = { fg = p.surface_fg, bg = p.surface_bg, italic = true },
   }
 end
 
@@ -127,6 +133,12 @@ function M.apply()
   set(0, "BufferLineCloseButtonVisible", { fg = p.visible_fg, bg = p.visible_bg })
   set(0, "BufferLineCloseButtonSelected", { fg = p.active_fg, bg = p.active_bg })
   set(0, "BufferLineOffsetSeparator", { fg = p.separator_fg, bg = p.surface_bg })
+  -- Duplicate prefix: directory shown in tab when two buffers share the same
+  -- filename.  bufferline's default bg is Normal.bg (black); override it so
+  -- the prefix blends with its surrounding tab surface.
+  set(0, "BufferLineDuplicateSelected", { fg = p.active_fg,  bg = p.active_bg,  italic = true })
+  set(0, "BufferLineDuplicateVisible",  { fg = p.visible_fg, bg = p.visible_bg, italic = true })
+  set(0, "BufferLineDuplicate",         { fg = p.surface_fg, bg = p.surface_bg, italic = true })
 
   -- Scrollbar (Satellite & nvim-scrollbar):
   set(0, "SatelliteBackground", { bg = "#25252a" })
