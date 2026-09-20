@@ -96,13 +96,174 @@ return {
         t = "#50fa7b",
       }
 
+      local function trigger_press(self)
+        self._pressed = true
+        pcall(vim.cmd, "redrawstatus")
+        vim.defer_fn(function()
+          self._pressed = false
+          pcall(vim.cmd, "redrawstatus")
+        end, 180)
+      end
+
+      local function open_statusline_menu(title, items, preferred_col)
+        if _G._statusline_menu_win and vim.api.nvim_win_is_valid(_G._statusline_menu_win) then
+          pcall(vim.api.nvim_win_close, _G._statusline_menu_win, true)
+          _G._statusline_menu_win = nil
+          _G._statusline_menu_buf = nil
+        end
+
+        local display_lines = {}
+        local actions = {}
+        local max_len = vim.fn.strdisplaywidth(title) + 6
+
+        for _, item in ipairs(items) do
+          if item.separator then
+            table.insert(display_lines, "  ──────────────────────────────")
+            table.insert(actions, false)
+          else
+            local line = string.format("  %s  %-26s", item.icon or "•", item.label)
+            local len = vim.fn.strdisplaywidth(line)
+            if len > max_len then
+              max_len = len
+            end
+            table.insert(display_lines, line)
+            table.insert(actions, item.action)
+          end
+        end
+
+        local buf = vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_buf_set_lines(buf, 0, -1, false, display_lines)
+        vim.bo[buf].buftype = "nofile"
+        vim.bo[buf].filetype = "contextline_menu"
+        vim.bo[buf].bufhidden = "wipe"
+        vim.bo[buf].modifiable = false
+
+        local win_width = math.min(max_len + 3, vim.o.columns - 4)
+        local win_height = #display_lines
+
+        local mouse_pos = vim.fn.getmousepos()
+        local col = preferred_col or (mouse_pos and mouse_pos.screencol) or 10
+        col = math.max(0, math.min(col - math.floor(win_width / 2), vim.o.columns - win_width - 2))
+        local row = math.max(0, vim.o.lines - win_height - 2)
+
+        local win = vim.api.nvim_open_win(buf, true, {
+          relative = "editor",
+          row = row,
+          col = col,
+          width = win_width,
+          height = win_height,
+          style = "minimal",
+          border = "single",
+          title = " " .. title .. " ",
+          title_pos = "center",
+          zindex = 300,
+        })
+
+        vim.wo[win].cursorline = true
+        vim.wo[win].winhighlight = "NormalFloat:Pmenu,FloatBorder:Pmenu,CursorLine:PmenuSel,FloatTitle:Title"
+
+        _G._statusline_menu_win = win
+        _G._statusline_menu_buf = buf
+
+        local function close()
+          if win and vim.api.nvim_win_is_valid(win) then
+            pcall(vim.api.nvim_win_close, win, true)
+          end
+          _G._statusline_menu_win = nil
+          _G._statusline_menu_buf = nil
+        end
+
+        local function execute_current()
+          local ok, cur = pcall(vim.api.nvim_win_get_cursor, win)
+          local line_idx = (ok and cur) and cur[1] or 1
+          close()
+          local act = actions[line_idx]
+          if type(act) == "function" then
+            vim.schedule(act)
+          end
+        end
+
+        local kmopts = { buffer = buf, nowait = true, silent = true }
+        vim.keymap.set("n", "<CR>", execute_current, kmopts)
+        vim.keymap.set("n", "<Space>", execute_current, kmopts)
+        vim.keymap.set("n", "<LeftMouse>", function()
+          local mp = vim.fn.getmousepos()
+          if mp and mp.winid == win then
+            if mp.line >= 1 and mp.line <= #display_lines then
+              pcall(vim.api.nvim_win_set_cursor, win, { mp.line, 0 })
+              execute_current()
+            end
+          else
+            close()
+          end
+        end, kmopts)
+        vim.keymap.set("n", "q", close, kmopts)
+        vim.keymap.set("n", "<Esc>", close, kmopts)
+
+        vim.api.nvim_create_autocmd({ "BufLeave", "WinLeave" }, {
+          buffer = buf,
+          once = true,
+          callback = close,
+        })
+      end
+
       local Mode = {
         init = function(self)
           self.mode = vim.fn.mode(1)
         end,
+        on_click = {
+          callback = function(self, _, _, button)
+            if button ~= "l" then return end
+            trigger_press(self)
+            open_statusline_menu("Quick Commands", {
+              {
+                icon = "⌨️",
+                label = "Show All Keymaps (:WhichKey)",
+                action = function()
+                  pcall(function() require("which-key").show() end)
+                end,
+              },
+              {
+                icon = "🔍",
+                label = "Find Files (<leader><space>)",
+                action = function()
+                  pcall(function() require("snacks").picker.files() end)
+                end,
+              },
+              {
+                icon = "🔎",
+                label = "Search Text in Project (<leader>sg)",
+                action = function()
+                  pcall(function() require("snacks").picker.grep() end)
+                end,
+              },
+              {
+                icon = "📁",
+                label = "Project Explorer (<leader>e)",
+                action = function()
+                  pcall(function() require("neo-tree.command").execute({ toggle = true }) end)
+                end,
+              },
+              {
+                icon = "⚡",
+                label = "Plugin Manager (:Lazy)",
+                action = function()
+                  vim.cmd("Lazy")
+                end,
+              },
+            })
+          end,
+          name = "heirline_mode_menu",
+        },
+        hl = function(self)
+          if self._pressed then
+            return { bg = "#0064c8" }
+          end
+        end,
         {
           provider = " ",
           hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
             local c = mode_colors[self.mode] or mode_colors[self.mode:sub(1, 1)] or "#ffffff"
             return { fg = c, bold = true }
           end,
@@ -112,6 +273,7 @@ return {
             return (mode_names[self.mode] or self.mode)
           end,
           hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
             local c = mode_colors[self.mode] or mode_colors[self.mode:sub(1, 1)] or "#ffffff"
             return { fg = c, bold = true }
           end,
@@ -122,12 +284,77 @@ return {
         init = function(self)
           self.gs = vim.b.gitsigns_status_dict
         end,
+        on_click = {
+          callback = function(self, _, _, button)
+            if button ~= "l" then return end
+            trigger_press(self)
+            open_statusline_menu("Git Operations", {
+              {
+                icon = "",
+                label = "Open Diffview Workspace (<leader>gd)",
+                action = function()
+                  vim.cmd("DiffviewOpen")
+                end,
+              },
+              {
+                icon = "",
+                label = "Current File Diff History (<leader>gD)",
+                action = function()
+                  vim.cmd("DiffviewFileHistory %")
+                end,
+              },
+              {
+                icon = "",
+                label = "Branch Commit History (<leader>gV)",
+                action = function()
+                  vim.cmd("DiffviewFileHistory")
+                end,
+              },
+              {
+                icon = "🚀",
+                label = "Open Lazygit Terminal (<leader>gg)",
+                action = function()
+                  pcall(function() require("snacks").lazygit() end)
+                end,
+              },
+              { separator = true },
+              {
+                icon = "👁️",
+                label = "Toggle Line Blame (<leader>ub)",
+                action = function()
+                  pcall(function() require("gitsigns").toggle_current_line_blame() end)
+                end,
+              },
+              {
+                icon = "🔍",
+                label = "Preview Hunk at Cursor (<leader>gp)",
+                action = function()
+                  pcall(function() require("gitsigns").preview_hunk() end)
+                end,
+              },
+              {
+                icon = "↩️",
+                label = "Reset Hunk at Cursor (<leader>gr)",
+                action = function()
+                  pcall(function() require("gitsigns").reset_hunk() end)
+                end,
+              },
+            })
+          end,
+          name = "heirline_git_menu",
+        },
+        hl = function(self)
+          if self._pressed then
+            return { bg = "#0064c8" }
+          end
+        end,
         {
           provider = function(self)
             local head = self.gs and self.gs.head or ""
             return " " .. (head == "" and "-" or head)
           end,
           hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
             local head = self.gs and self.gs.head or ""
             if head ~= "" then
               return { fg = "#ff79c6", bold = true }
@@ -140,21 +367,30 @@ return {
             local count = (self.gs and self.gs.added) or 0
             return " +" .. count
           end,
-          hl = { fg = "#50fa7b" },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff" } end
+            return { fg = "#50fa7b" }
+          end,
         },
         {
           provider = function(self)
             local count = (self.gs and self.gs.changed) or 0
             return " ~" .. count
           end,
-          hl = { fg = "#ffff00" },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff" } end
+            return { fg = "#ffff00" }
+          end,
         },
         {
           provider = function(self)
             local count = (self.gs and self.gs.removed) or 0
             return " -" .. count
           end,
-          hl = { fg = "#ff5555" },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff" } end
+            return { fg = "#ff5555" }
+          end,
         },
       }
 
@@ -197,23 +433,92 @@ return {
         end,
         on_click = {
           callback = function(self, _, nclicks, button)
-            if button ~= "l" or nclicks < 2 then
-              return
-            end
+            if button ~= "l" then return end
+            trigger_press(self)
             local path = self.current_path
-            if not path or path == "" or path == "[No Name]" then
+            if not path or path == "" or path == "[No Name]" then return end
+            local fname = self.file or vim.fn.fnamemodify(path, ":t")
+            local rel_path = vim.fn.fnamemodify(path, ":.")
+
+            if nclicks and nclicks >= 2 then
+              vim.fn.setreg("+", path)
+              vim.notify("Copied full path: " .. path, vim.log.levels.INFO)
               return
             end
-            vim.fn.setreg("+", path)
-            vim.notify("Copied path: " .. path, vim.log.levels.INFO)
+
+            open_statusline_menu("File Actions", {
+              {
+                icon = "📋",
+                label = "Copy Relative Path",
+                action = function()
+                  vim.fn.setreg("+", rel_path)
+                  vim.notify("Copied: " .. rel_path, vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "📋",
+                label = "Copy Absolute Path",
+                action = function()
+                  vim.fn.setreg("+", path)
+                  vim.notify("Copied: " .. path, vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "📋",
+                label = "Copy Filename Only",
+                action = function()
+                  vim.fn.setreg("+", fname)
+                  vim.notify("Copied: " .. fname, vim.log.levels.INFO)
+                end,
+              },
+              { separator = true },
+              {
+                icon = "📂",
+                label = "Open Directory in Oil (-)",
+                action = function()
+                  vim.cmd("Oil")
+                end,
+              },
+              {
+                icon = "🌳",
+                label = "Reveal in Neo-tree (<leader>e)",
+                action = function()
+                  pcall(function()
+                    require("neo-tree.command").execute({ toggle = false, reveal = true })
+                  end)
+                end,
+              },
+              {
+                icon = "📜",
+                label = "View File History (Diffview)",
+                action = function()
+                  vim.cmd("DiffviewFileHistory %")
+                end,
+              },
+              {
+                icon = "✏️",
+                label = "Rename File (Snacks)",
+                action = function()
+                  pcall(function()
+                    require("snacks").rename.rename_file()
+                  end)
+                end,
+              },
+            })
           end,
-          name = "heirline_copy_filepath",
+          name = "heirline_file_actions",
         },
+        hl = function(self)
+          if self._pressed then
+            return { bg = "#0064c8" }
+          end
+        end,
         {
           provider = function(self)
             return self.icon .. " "
           end,
           hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
             return { fg = self.icon_color }
           end,
         },
@@ -221,34 +526,49 @@ return {
           provider = function(self)
             return self.dir
           end,
-          hl = { fg = "#a0a0a0" },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff" } end
+            return { fg = "#a0a0a0" }
+          end,
         },
         {
           provider = function(self)
             return self.file
           end,
-          hl = { fg = "#ffffff", bold = true },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
+            return { fg = "#ffffff", bold = true }
+          end,
         },
         {
           condition = function(self)
             return self.is_modified
           end,
           provider = " [+]",
-          hl = { fg = "#ffff00", bold = true },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffff00", bold = true } end
+            return { fg = "#ffff00", bold = true }
+          end,
         },
         {
           condition = function(self)
             return self.is_readonly
           end,
           provider = " [RO]",
-          hl = { fg = "#ff5555", bold = true },
+          hl = function(self)
+            if self._pressed then return { fg = "#ff5555", bold = true } end
+            return { fg = "#ff5555", bold = true }
+          end,
         },
         {
           condition = function(self)
             return self.is_new
           end,
           provider = " [New]",
-          hl = { fg = "#50fa7b", bold = true },
+          hl = function(self)
+            if self._pressed then return { fg = "#50fa7b", bold = true } end
+            return { fg = "#50fa7b", bold = true }
+          end,
         },
       }
 
@@ -267,9 +587,69 @@ return {
             self.active = true
           end
         end,
+        on_click = {
+          callback = function(self, _, _, button)
+            if button ~= "l" then return end
+            trigger_press(self)
+            open_statusline_menu("LSP & Dev Tools", {
+              {
+                icon = "󰒋",
+                label = "LSP Information (:LspInfo)",
+                action = function()
+                  vim.cmd("LspInfo")
+                end,
+              },
+              {
+                icon = "📦",
+                label = "Package Manager (:Mason)",
+                action = function()
+                  vim.cmd("Mason")
+                end,
+              },
+              {
+                icon = "📑",
+                label = "Document Symbols (<leader>cs)",
+                action = function()
+                  vim.cmd("AerialToggle!")
+                end,
+              },
+              { separator = true },
+              {
+                icon = "💡",
+                label = "Code Actions (<leader>ca)",
+                action = function()
+                  pcall(vim.lsp.buf.code_action)
+                end,
+              },
+              {
+                icon = "✨",
+                label = "Format Buffer (<leader>F)",
+                action = function()
+                  pcall(function()
+                    require("conform").format({ async = true, lsp_fallback = true })
+                  end)
+                end,
+              },
+              {
+                icon = "🔄",
+                label = "Restart LSP Server (:LspRestart)",
+                action = function()
+                  vim.cmd("LspRestart")
+                end,
+              },
+            })
+          end,
+          name = "heirline_lsp_menu",
+        },
+        hl = function(self)
+          if self._pressed then
+            return { bg = "#0064c8" }
+          end
+        end,
         {
           provider = "󰒋 ",
           hl = function(self)
+            if self._pressed then return { fg = "#ffffff" } end
             return { fg = self.active and "#50fa7b" or "#7f7f7f" }
           end,
         },
@@ -278,22 +658,146 @@ return {
             return self.lsp_name
           end,
           hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
             return { fg = self.active and "#50fa7b" or "#7f7f7f", bold = self.active }
           end,
         },
       }
 
       local Encoding = {
+        on_click = {
+          callback = function(self, _, _, button)
+            if button ~= "l" then return end
+            trigger_press(self)
+            open_statusline_menu("Encoding & Line Format", {
+              {
+                icon = "󰉿",
+                label = "Set Encoding: UTF-8",
+                action = function()
+                  vim.bo.fileencoding = "utf-8"
+                  vim.notify("File encoding set to UTF-8", vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "󰉿",
+                label = "Set Encoding: GB18030 / GBK",
+                action = function()
+                  vim.bo.fileencoding = "gb18030"
+                  vim.notify("File encoding set to GB18030", vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "󰉿",
+                label = "Set Encoding: Shift-JIS (CP932)",
+                action = function()
+                  vim.bo.fileencoding = "cp932"
+                  vim.notify("File encoding set to CP932", vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "󰉿",
+                label = "Set Encoding: EUC-JP",
+                action = function()
+                  vim.bo.fileencoding = "euc-jp"
+                  vim.notify("File encoding set to EUC-JP", vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "󰉿",
+                label = "Set Encoding: Latin-1 (ISO-8859-1)",
+                action = function()
+                  vim.bo.fileencoding = "latin1"
+                  vim.notify("File encoding set to Latin-1", vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "󰉿",
+                label = "Set Encoding: UTF-16LE",
+                action = function()
+                  vim.bo.fileencoding = "utf-16le"
+                  vim.notify("File encoding set to UTF-16LE", vim.log.levels.INFO)
+                end,
+              },
+              { separator = true },
+              {
+                icon = "󰑓",
+                label = "Reload as: UTF-8 (:e ++enc=utf-8)",
+                action = function()
+                  vim.cmd("edit ++enc=utf-8")
+                end,
+              },
+              {
+                icon = "󰑓",
+                label = "Reload as: Shift-JIS (:e ++enc=cp932)",
+                action = function()
+                  vim.cmd("edit ++enc=cp932")
+                end,
+              },
+              {
+                icon = "󰑓",
+                label = "Reload as: GB18030 (:e ++enc=gb18030)",
+                action = function()
+                  vim.cmd("edit ++enc=gb18030")
+                end,
+              },
+              {
+                icon = "󰑓",
+                label = "Reload as: EUC-JP (:e ++enc=euc-jp)",
+                action = function()
+                  vim.cmd("edit ++enc=euc-jp")
+                end,
+              },
+              { separator = true },
+              {
+                icon = "󰌒",
+                label = "Line Format: Unix (LF)",
+                action = function()
+                  vim.bo.fileformat = "unix"
+                  vim.notify("Line format set to Unix (LF)", vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "󰌒",
+                label = "Line Format: Windows (CRLF)",
+                action = function()
+                  vim.bo.fileformat = "dos"
+                  vim.notify("Line format set to Windows (CRLF)", vim.log.levels.INFO)
+                end,
+              },
+              {
+                icon = "󰌒",
+                label = "Line Format: Mac Classic (CR)",
+                action = function()
+                  vim.bo.fileformat = "mac"
+                  vim.notify("Line format set to Mac Classic (CR)", vim.log.levels.INFO)
+                end,
+              },
+            })
+          end,
+          name = "heirline_encoding_menu",
+        },
+        hl = function(self)
+          if self._pressed then
+            return { bg = "#0064c8" }
+          end
+        end,
         {
           provider = "󰉿 ",
-          hl = { fg = "#8be9fd" },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff" } end
+            return { fg = "#8be9fd" }
+          end,
         },
         {
           provider = function()
             local enc = vim.bo.fileencoding ~= "" and vim.bo.fileencoding or vim.o.encoding
-            return string.upper(enc)
+            local fmt = vim.bo.fileformat == "dos" and " [CRLF]" or (vim.bo.fileformat == "mac" and " [CR]" or "")
+            return string.upper(enc) .. fmt
           end,
-          hl = { fg = "#8be9fd", bold = true },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
+            return { fg = "#8be9fd", bold = true }
+          end,
         },
       }
 
@@ -314,9 +818,58 @@ return {
       }
 
       local RemainingPercent = {
+        on_click = {
+          callback = function(self, _, _, button)
+            if button ~= "l" then return end
+            trigger_press(self)
+            open_statusline_menu("Navigation & Position", {
+              {
+                icon = "🔢",
+                label = "Go to Line Number...",
+                action = function()
+                  vim.ui.input({ prompt = "Enter line number: " }, function(input)
+                    if input and tonumber(input) then
+                      vim.cmd("normal! " .. input .. "G")
+                    end
+                  end)
+                end,
+              },
+              {
+                icon = "⬆️",
+                label = "Jump to Top of File (gg)",
+                action = function()
+                  vim.cmd("normal! gg")
+                end,
+              },
+              {
+                icon = "⬇️",
+                label = "Jump to Bottom of File (G)",
+                action = function()
+                  vim.cmd("normal! G")
+                end,
+              },
+              {
+                icon = "🎯",
+                label = "Center Screen on Cursor (zz)",
+                action = function()
+                  vim.cmd("normal! zz")
+                end,
+              },
+            })
+          end,
+          name = "heirline_nav_menu",
+        },
+        hl = function(self)
+          if self._pressed then
+            return { bg = "#0064c8" }
+          end
+        end,
         {
           provider = "󰦨 ",
-          hl = { fg = "#bd93f9" },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff" } end
+            return { fg = "#bd93f9" }
+          end,
         },
         {
           provider = function()
@@ -328,7 +881,10 @@ return {
             local remain = math.floor(((total - current) / total) * 100 + 0.5)
             return remain .. "%"
           end,
-          hl = { fg = "#bd93f9", bold = true },
+          hl = function(self)
+            if self._pressed then return { fg = "#ffffff", bold = true } end
+            return { fg = "#bd93f9", bold = true }
+          end,
         },
       }
 
