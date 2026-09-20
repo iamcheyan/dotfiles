@@ -25,8 +25,10 @@ return {
       git_use_branch_name = false,
       git_auto_restore_on_branch_change = false,
 
-      -- 关闭不支持自动保存的窗口
-      close_unsupported_windows = true,
+      -- 关闭不支持自动保存的窗口（但保留 neo-tree 和 aerial 免于提前被杀）
+      close_unsupported_windows = {
+        preserve_filetypes = { "neo-tree", "aerial" },
+      },
 
       -- 空会话自动删除
       auto_delete_empty_sessions = true,
@@ -82,27 +84,97 @@ return {
           return
         end
 
-        -- 延迟微调以确保 session buffer 加载完毕后平滑恢复侧边栏
         vim.schedule(function()
           -- 恢复 Neo-tree
           if state.neotree then
-            pcall(function()
-              require("neo-tree.command").execute({
-                source = state.neotree,
-                action = "show",
-              })
-            end)
+            vim.defer_fn(function()
+              pcall(function()
+                require("neo-tree.command").execute({
+                  source = state.neotree,
+                  action = "show",
+                })
+              end)
+            end, 50)
           end
 
           -- 恢复 Aerial 代码结构
           if state.aerial then
-            pcall(function()
-              require("aerial").open()
-            end)
+            vim.defer_fn(function()
+              pcall(function()
+                require("aerial").open()
+              end)
+            end, 100)
           end
         end)
       end,
     },
+    config = function(_, opts)
+      require("auto-session").setup(opts)
+
+      -- 独立兜底：即使启动时不走 auto-session，也按工作目录（CWD）自动持久化和恢复侧边栏状态
+      local state_dir = vim.fn.stdpath("data") .. "/sidebar_state/"
+      pcall(vim.fn.mkdir, state_dir, "p")
+
+      local function get_state_file()
+        local cwd = vim.uv.cwd() or vim.fn.getcwd()
+        local hash = vim.fn.sha256(cwd)
+        return state_dir .. hash .. ".json"
+      end
+
+      -- 退出前保存侧边栏状态
+      vim.api.nvim_create_autocmd("VimLeavePre", {
+        group = vim.api.nvim_create_augroup("persist_sidebars_state", { clear = true }),
+        callback = function()
+          local state = { neotree = nil, aerial = false }
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            if vim.api.nvim_win_is_valid(win) then
+              local buf = vim.api.nvim_win_get_buf(win)
+              local ft = vim.bo[buf].filetype
+              if ft == "neo-tree" then
+                state.neotree = vim.b[buf].neo_tree_source or "filesystem"
+              elseif ft == "aerial" then
+                state.aerial = true
+              end
+            end
+          end
+
+          pcall(vim.fn.writefile, { vim.json.encode(state) }, get_state_file())
+        end,
+      })
+
+      -- 启动后延迟恢复侧边栏状态
+      vim.api.nvim_create_autocmd("VimEnter", {
+        group = vim.api.nvim_create_augroup("restore_sidebars_state", { clear = true }),
+        callback = function()
+          local s_file = get_state_file()
+          if vim.fn.filereadable(s_file) == 1 then
+            local lines = vim.fn.readfile(s_file)
+            if lines and #lines > 0 then
+              local ok, state = pcall(vim.json.decode, lines[1])
+              if ok and type(state) == "table" then
+                vim.schedule(function()
+                  vim.defer_fn(function()
+                    if state.neotree then
+                      pcall(function()
+                        require("neo-tree.command").execute({
+                          source = state.neotree,
+                          action = "show",
+                        })
+                      end)
+                    end
+                    if state.aerial then
+                      pcall(function()
+                        vim.cmd("AerialOpen")
+                      end)
+                    end
+                  end, 100)
+                end)
+              end
+            end
+          end
+        end,
+      })
+    end,
 
     -- 推荐设置 sessionoptions
     init = function()
