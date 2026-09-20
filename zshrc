@@ -15,10 +15,10 @@ setopt HIST_VERIFY          # 执行前允许编辑历史扩展
 setopt INC_APPEND_HISTORY   # 立即追加历史（而不是退出时）
 setopt AUTO_CD              # 启用 AUTO_CD：输入目录路径时自动 cd
 
-# SSH 会话中降级 TERM，避免远程服务器不认识 xterm-kitty
-if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" || -n "$SSH_TTY" ]]; then
-    export TERM=xterm-256color
-fi
+# 不要因为处于 SSH 会话就无条件降级 TERM。
+# `kitten ssh` 会把 Kitty 的 terminfo 传到远端；保留 xterm-kitty/tmux-256color
+# 才能让 Agy/Gemini 等 TUI 使用 truecolor。真正缺少 terminfo 时，上面的保护
+# 会自动回退到 xterm-256color。
 
 # Resolve the repository from this file's location so the checkout can live
 # anywhere. In zsh, %x expands to the file currently being sourced.
