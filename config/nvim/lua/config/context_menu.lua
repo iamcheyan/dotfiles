@@ -274,21 +274,27 @@ end
 -- ---------------------------------------------------------------------------
 
 -- Called by bufferline's right_mouse_command.
--- Sets context and installs the buffer menu BEFORE :popup is triggered.
+-- The callback fires inside a tabline mouse-click handler where Neovim's
+-- window context may not yet be settled.  Defer popup PopUp via schedule()
+-- so it runs after the event loop returns to normal, guaranteeing the menu
+-- appears at the correct position.
 function M.open_buffer(id)
   _ctx = { kind = "buffer", buffer_id = id }
   install_popup(buffer_entries)
-  -- :popup PopUp displays the menu at the mouse position.
-  -- MenuPopup autocmd fires synchronously inside this call; the context is
-  -- already set so the autocmd guard is satisfied.
-  vim.cmd("popup PopUp")
+  vim.schedule(function()
+    local ok, err = pcall(vim.cmd, "popup PopUp")
+    if not ok then notify(tostring(err), vim.log.levels.ERROR) end
+  end)
 end
 
 -- Called by neo-tree's <RightMouse> mapping.
 function M.open_neo(state)
   _ctx = { kind = "neo", neo_state = state }
   install_popup(neo_entries)
-  vim.cmd("popup PopUp")
+  vim.schedule(function()
+    local ok, err = pcall(vim.cmd, "popup PopUp")
+    if not ok then notify(tostring(err), vim.log.levels.ERROR) end
+  end)
 end
 
 -- ---------------------------------------------------------------------------
