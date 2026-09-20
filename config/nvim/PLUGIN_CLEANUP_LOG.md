@@ -74,34 +74,28 @@ git checkout <commit_hash>~1 -- config/nvim/lua/plugins/ccc.lua
 ## 四、执行与验证结果 (Execution & Verification)
 
 ### 4.1 执行变更记录
-1. **删除冗余插件配置文件**：
+1. **精简冗余插件配置文件**：
    - 已删除 `lua/plugins/telescope.lua`
    - 已删除 `lua/plugins/hunk-review.lua`
    - 已删除 `lua/plugins/cyberdream.lua`
-   - 已删除 `lua/plugins/ccc.lua`
    - 已删除 `lua/plugins/lsp-keymaps.lua`
 2. **迁移 `yanky.nvim` 剪贴板历史选择器**：
    - 修改 `lua/plugins/yanky-substitute.lua`：
    - 移除了 `opts.picker.telescope` 配置块。
-   - `<leader>fy` 绑定为原生 Snacks 选择器：
-     ```lua
-     {
-       "<leader>fy",
-       function()
-         require("yanky.sources.snacks").pick()
-       end,
-       desc = "Yank History (Snacks Picker)",
-     }
-     ```
+   - `<leader>fy` 绑定为原生 Snacks 选择器。
+3. **保留并优化 `ccc.nvim`（调色板与颜色转换）**：
+   - 用户需要保留交互式调色滑块（`:CccPick` / `<leader>cp`）与格式转换（`:CccConvert` / `<leader>cC`）。
+   - **架构解耦**：将 `opts.highlighter.auto_enable` 设置为 `false`。
+   - **分工明确**：代码文件中的常驻十六进制颜色高亮由极速无依赖的 `mini.hipatterns` 负责；`ccc.nvim` 仅按需加载，专注提供图形化调色板滑块与颜色格式转换，两全其美且互不冲突！
 
 ### 4.2 验证结果实测
 
-- **插件总数变化**：
-  - 精简前：45 个插件
-  - 精简后：**40 个插件**（`telescope.nvim`, `telescope-fzf-native.nvim`, `hunk-review.nvim`, `cyberdream.nvim`, `ccc.nvim` 5 个插件已彻底卸除，无残留依赖）
+- **最终插件总数**：**41 个插件**（`telescope.nvim`, `telescope-fzf-native.nvim`, `hunk-review.nvim`, `cyberdream.nvim` 4 个真正冗余的项目已彻底卸除）
 - **功能实测**：
-  - `require("yanky.sources.snacks").pick()` 运行状态：**NORMAL (Loaded)**
-  - LSP `gr`（`vim.lsp.buf.references`）覆盖已移除：**已彻底恢复**
-  - 十六进制颜色高亮（`#ff0055`, `#10B981` 等）：由 `mini.hipatterns` 正常渲染
+  - `ccc.nvim` 交互式调色板：`:CccPick` (`<leader>cp`) 与 `:CccConvert` (`<leader>cC`) **完全可用**
+  - 常驻十六进制颜色高亮：由 `mini.hipatterns` 极速渲染，不再出现双重高亮刷新打架
+  - `require("yanky.sources.snacks").pick()`：**NORMAL (Loaded)**
+  - LSP `gr`（`vim.lsp.buf.references`）：**已彻底恢复**
   - 无头启动与语法检查：零错误，零告警
+
 
