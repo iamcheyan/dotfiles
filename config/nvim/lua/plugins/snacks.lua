@@ -58,11 +58,15 @@ return {
       -- 1. 全局基础窗口配置
       win = { border = "single" },
       -- 2. 覆盖 Snacks 内置的所有标准样式
+      lazygit = {
+        configure = false,
+      },
       styles = {
         float = { border = "single" },
         notification = { border = "single" },
         input = { border = "single" },
         confirm = { border = "single" },
+        lazygit = { border = "single" },
       },
       picker = {
         layout = {
