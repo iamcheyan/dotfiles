@@ -400,6 +400,7 @@ return {
         },
         winbar = ContextlineWinbar,
         statusline = {
+          hl = "StatusLine",
           pad,
           GitBranch,
           gap,
@@ -421,6 +422,21 @@ return {
     config = function(_, opts)
       vim.o.laststatus = 3
       require("heirline").setup(opts)
+
+      -- 解决切换主题后状态栏失去颜色的问题：
+      -- 当执行 :colorscheme 时，Vim 会清空所有高亮组 (hi clear)。
+      -- 监听 ColorScheme 事件，自动调用 heirline.utils.on_colorscheme 重建高亮并重绘状态栏。
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("HeirlineReloadOnColorscheme", { clear = true }),
+        callback = function()
+          local ok, utils = pcall(require, "heirline.utils")
+          if ok and utils.on_colorscheme then
+            utils.on_colorscheme()
+          end
+          pcall(vim.cmd, "redrawstatus")
+        end,
+      })
+
       if not vim.g.heirline_clock_timer_started then
         local timer = vim.uv.new_timer()
         if timer then
