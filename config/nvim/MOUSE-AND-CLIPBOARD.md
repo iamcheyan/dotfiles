@@ -32,7 +32,7 @@ vim.keymap.set({ "x", "s" }, "<LeftRelease>", '"+ygv', { desc = "Auto-copy selec
 vim.opt.clipboard = "unnamedplus" -- 默认 yank 操作与系统剪贴板 (+) 深度同步
 vim.opt.mouse = "a"              -- 全局开启所有模式的鼠标支持
 
--- 多设备跨平台智能剪贴板适配 (本地原生工具优先，无独立 GUI 时自动退回终端 OSC 52)
+-- 多设备跨平台智能剪贴板适配 (本地原生工具优先，无独立 GUI 时自动退回 tmux / 终端 OSC 52)
 if vim.env.WAYLAND_DISPLAY and vim.env.WAYLAND_DISPLAY ~= "" and vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1 then
   vim.g.clipboard = "wl-copy"
 elseif vim.fn.has("mac") == 1 and vim.fn.executable("pbcopy") == 1 then
@@ -41,8 +41,10 @@ elseif vim.fn.executable("win32yank.exe") == 1 then
   vim.g.clipboard = "win32yank"
 elseif vim.env.DISPLAY and vim.env.DISPLAY ~= "" and vim.fn.executable("xclip") == 1 then
   vim.g.clipboard = "xclip"
+elseif vim.env.TMUX and vim.env.TMUX ~= "" and vim.fn.executable("tmux") == 1 then
+  vim.g.clipboard = "tmux"
 else
-  -- 无原生 GUI 显示服务时（如 SSH 远程会话、tmux 或容器），优雅降级到终端 OSC 52
+  -- 无原生 GUI 显示服务时（如纯终端 SSH 远程连接），优雅降级到终端 OSC 52
   vim.g.clipboard = "osc52"
 end
 ```

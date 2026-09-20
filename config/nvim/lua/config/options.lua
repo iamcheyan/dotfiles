@@ -16,7 +16,7 @@ vim.opt.expandtab = false
 vim.opt.clipboard = "unnamedplus"
 
 -- 多设备跨平台剪贴板智能适配：
--- 优先级：本地 Wayland (wl-copy) -> macOS (pbcopy) -> WSL (win32yank) -> X11 (xclip) -> 终端 OSC 52 (Kitty/SSH 降级兜底)
+-- 优先级：本地 Wayland (wl-copy) -> macOS (pbcopy) -> WSL (win32yank) -> X11 (xclip) -> tmux -> 终端 OSC 52 (降级兜底)
 if vim.env.WAYLAND_DISPLAY and vim.env.WAYLAND_DISPLAY ~= "" and vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1 then
   vim.g.clipboard = "wl-copy"
 elseif vim.fn.has("mac") == 1 and vim.fn.executable("pbcopy") == 1 then
@@ -25,8 +25,10 @@ elseif vim.fn.executable("win32yank.exe") == 1 then
   vim.g.clipboard = "win32yank"
 elseif vim.env.DISPLAY and vim.env.DISPLAY ~= "" and vim.fn.executable("xclip") == 1 then
   vim.g.clipboard = "xclip"
+elseif vim.env.TMUX and vim.env.TMUX ~= "" and vim.fn.executable("tmux") == 1 then
+  vim.g.clipboard = "tmux"
 else
-  -- 无原生 GUI 显示服务时（如 SSH 远程连接、tmux 或容器环境），自动降级使用 OSC 52 终端剪贴板
+  -- 无原生 GUI 显示服务时（如纯终端 SSH 远程连接），自动降级使用 OSC 52 终端剪贴板
   vim.g.clipboard = "osc52"
 end
 vim.opt.completeopt = { "menu", "menuone", "noselect" }
