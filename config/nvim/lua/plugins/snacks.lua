@@ -37,6 +37,15 @@ return {
     opts = {
       explorer = { enabled = false },
       scroll = { enabled = false },
+      statuscolumn = {
+        enabled = true,
+        left = { "mark", "sign" },
+        right = { "fold", "git" },
+        folds = {
+          open = true, -- 显示已展开的代码折叠三角图标 
+          git_hl = false,
+        },
+      },
       notifier = {
         icons = {
           error = "",
