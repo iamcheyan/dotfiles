@@ -121,6 +121,13 @@ function M.apply()
   set(0, "BufferLineBuffer", { fg = p.surface_fg, bg = p.surface_bg })
   set(0, "BufferLineBufferVisible", { fg = p.visible_fg, bg = p.visible_bg })
   set(0, "BufferLineBufferSelected", { fg = p.active_fg, bg = p.active_bg, bold = true })
+  -- Bufferline keeps a one-cell indicator slot before every icon. Copy the
+  -- final tab backgrounds here so that slot cannot retain a stale/different
+  -- color after a theme change or delayed bufferline highlight generation.
+  local visible_tab_bg = get("BufferLineBufferVisible").bg or p.visible_bg
+  local selected_tab_bg = get("BufferLineBufferSelected").bg or p.active_bg
+  set(0, "BufferLineIndicatorVisible", { fg = visible_tab_bg, bg = visible_tab_bg })
+  set(0, "BufferLineIndicatorSelected", { fg = selected_tab_bg, bg = selected_tab_bg })
   set(0, "BufferLineTab", { fg = p.visible_fg, bg = p.surface_bg })
   set(0, "BufferLineTabSelected", { fg = p.active_fg, bg = p.active_bg, bold = true })
   set(0, "BufferLineSeparator", { fg = p.separator_fg, bg = p.surface_bg })
@@ -164,7 +171,7 @@ function M.apply()
   for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
     if group:match("Selected$") then
       set(0, group, { fg = p.active_fg, bg = p.active_bg, bold = true })
-    elseif group:match("Visible$") then
+    elseif group:match("Visible$") or group:match("Inactive$") then
       set(0, group, { fg = p.visible_fg, bg = p.visible_bg })
     else
       set(0, group, { fg = p.surface_fg, bg = p.surface_bg })

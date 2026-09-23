@@ -33,6 +33,10 @@ else
 end
 vim.opt.completeopt = { "menu", "menuone", "noselect" }
 vim.opt.mouse = "a"
+if vim.fn.exists("&mousemoveevent") == 1 then
+  vim.opt.mousemoveevent = true
+end
+require("config.context_menu").setup()
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.cursorline = true
@@ -47,8 +51,8 @@ vim.opt.winminwidth = 1
 vim.opt.termguicolors = true
 vim.opt.showmode = true
 vim.opt.laststatus = 3
--- Keep the command line hidden when idle; it temporarily overlays the
--- bottom statusline while entering commands or searches.
+-- Keep the command line merged with the global statusline while idle; active
+-- commands temporarily overlay this row.
 if vim.fn.exists("&cmdheight") == 1 then
   vim.opt.cmdheight = 0
 end

@@ -18,14 +18,6 @@ return {
         topdelete = { text = "" },
         changedelete = { text = "▎" },
       },
-      current_line_blame = true,
-      current_line_blame_opts = {
-        virt_text = true,
-        virt_text_pos = "eol",
-        delay = 300,
-        ignore_whitespace = false,
-      },
-      current_line_blame_formatter = "   <author>, <author_time:%R> • <summary>",
       on_attach = function(buffer)
         local gs = package.loaded.gitsigns
 
@@ -87,15 +79,6 @@ return {
           require("gitsigns").toggle_signs(state)
         end,
       }):map("<leader>uG")
-      Snacks.toggle({
-        name = "Git Line Blame",
-        get = function()
-          return require("gitsigns.config").config.current_line_blame
-        end,
-        set = function(state)
-          require("gitsigns").toggle_current_line_blame(state)
-        end,
-      }):map("<leader>ub")
     end,
   },
 }

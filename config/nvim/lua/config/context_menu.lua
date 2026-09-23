@@ -24,16 +24,21 @@ local function notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO)
 end
 
-local function target_buffer()
-  return _ctx.buffer_id or vim.api.nvim_get_current_buf()
+local function target_buffer(ctx)
+  ctx = ctx or _ctx
+  return ctx.buffer_id or ctx.target_buf or vim.api.nvim_get_current_buf()
 end
 
-local function target_path()
-  if _ctx.neo_state then
-    local node = _ctx.neo_state.tree:get_node()
+local function target_path(ctx)
+  ctx = ctx or _ctx
+  if ctx.target_path and ctx.target_path ~= "" then
+    return ctx.target_path
+  end
+  if ctx.neo_state then
+    local node = ctx.neo_state.tree:get_node()
     return node and node.path or ""
   end
-  return vim.api.nvim_buf_get_name(target_buffer())
+  return vim.api.nvim_buf_get_name(target_buffer(ctx))
 end
 
 local function copy(value, message)
@@ -63,8 +68,8 @@ end
 -- Action dispatch
 -- ---------------------------------------------------------------------------
 
-local function run_buffer(action)
-  local id       = target_buffer()
+local function run_buffer(action, ctx)
+  local id       = target_buffer(ctx)
   local elements = buffer_elements()
   local index
   for i, e in ipairs(elements) do
@@ -84,11 +89,11 @@ local function run_buffer(action)
   elseif action == "close_all" then
     delete_buffers(vim.tbl_map(function(e) return e.id end, elements))
   elseif action == "copy_relative" then
-    copy(vim.fn.fnamemodify(target_path(), ":."), "Copied relative path")
+    copy(vim.fn.fnamemodify(target_path(ctx), ":."), "Copied relative path")
   elseif action == "copy_absolute" then
-    copy(target_path(), "Copied absolute path")
+    copy(target_path(ctx), "Copied absolute path")
   elseif action == "copy_filename" then
-    copy(vim.fn.fnamemodify(target_path(), ":t"), "Copied filename")
+    copy(vim.fn.fnamemodify(target_path(ctx), ":t"), "Copied filename")
   elseif action == "split_vertical" or action == "split_horizontal" then
     if vim.api.nvim_buf_is_valid(id) then
       vim.api.nvim_set_current_buf(id)
@@ -103,7 +108,7 @@ local function run_buffer(action)
     vim.api.nvim_set_current_buf(id)
     vim.cmd("checktime")
   elseif action == "reveal" then
-    local path = target_path()
+    local path = target_path(ctx)
     if path == "" then
       notify("This buffer has no file path", vim.log.levels.INFO)
     elseif vim.fn.has("mac") == 1 then
@@ -112,7 +117,7 @@ local function run_buffer(action)
       vim.fn.jobstart({ "xdg-open", vim.fn.fnamemodify(path, ":h") }, { detach = true })
     end
   elseif action == "history" then
-    local path = target_path()
+    local path = target_path(ctx)
     if path == "" then notify("This buffer has no file path", vim.log.levels.INFO); return end
     vim.api.nvim_set_current_buf(id)
     local ok, snacks = pcall(require, "snacks.picker")
@@ -124,10 +129,16 @@ local function run_buffer(action)
   end
 end
 
-local function run_neo(action)
-  local state = _ctx.neo_state
-  local node  = state and state.tree:get_node()
-  local path  = node and node.path or ""
+local function run_neo(action, ctx)
+  local state = ctx.neo_state
+  if ctx.target_win and vim.api.nvim_win_is_valid(ctx.target_win) then
+    vim.api.nvim_set_current_win(ctx.target_win)
+    if ctx.target_line and ctx.target_line > 0 then
+      pcall(vim.api.nvim_win_set_cursor, ctx.target_win, { ctx.target_line, 0 })
+    end
+  end
+  local node = state and state.tree:get_node()
+  local path = (node and node.path) or ctx.target_path or ""
   if not state or path == "" then return end
   local fs = require("neo-tree.sources.filesystem.commands")
   local commands = {
@@ -166,18 +177,110 @@ local function run_neo(action)
   end
 end
 
+local function run_editor(action, ctx)
+  if ctx.target_win and vim.api.nvim_win_is_valid(ctx.target_win) then
+    pcall(vim.api.nvim_set_current_win, ctx.target_win)
+  end
+  local buf  = target_buffer(ctx)
+  local path = target_path(ctx)
+
+  if action == "definition" then
+    local ok, snacks = pcall(require, "snacks.picker")
+    if ok and snacks.lsp_definitions then
+      snacks.lsp_definitions()
+    else
+      vim.lsp.buf.definition()
+    end
+  elseif action == "references" then
+    local ok, snacks = pcall(require, "snacks.picker")
+    if ok and snacks.lsp_references then
+      snacks.lsp_references()
+    else
+      vim.lsp.buf.references()
+    end
+  elseif action == "implementation" then
+    local ok, snacks = pcall(require, "snacks.picker")
+    if ok and snacks.lsp_implementations then
+      snacks.lsp_implementations()
+    else
+      vim.lsp.buf.implementation()
+    end
+  elseif action == "code_action" then
+    vim.lsp.buf.code_action()
+  elseif action == "rename" then
+    vim.lsp.buf.rename()
+  elseif action == "format" then
+    local ok, conform = pcall(require, "conform")
+    if ok then
+      conform.format({ async = true, lsp_fallback = true })
+    else
+      vim.lsp.buf.format({ async = true })
+    end
+  elseif action == "diagnostic" then
+    vim.diagnostic.open_float()
+  elseif action == "open_browser" then
+    pcall(vim.cmd, "normal! gx")
+  elseif action == "copy_relative" then
+    copy(vim.fn.fnamemodify(path, ":."), "Copied relative path")
+  elseif action == "copy_absolute" then
+    copy(path, "Copied absolute path")
+  elseif action == "select_all" then
+    vim.cmd("normal! ggVG")
+  elseif action == "copy_all" then
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local text = table.concat(lines, "\n") .. "\n"
+    vim.fn.setreg("+", text)
+    notify(string.format("Copied entire document (%d lines)", #lines))
+  elseif action == "cut_all" then
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    local text = table.concat(lines, "\n") .. "\n"
+    vim.fn.setreg("+", text)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "" })
+    notify(string.format("Cut entire document (%d lines)", #lines))
+  elseif action == "paste_all" then
+    local content = vim.fn.getreg("+")
+    if content == "" then
+      notify("Clipboard is empty", vim.log.levels.WARN)
+      return
+    end
+    local lines = vim.split(content, "\n", { plain = true })
+    if #lines > 0 and lines[#lines] == "" then
+      table.remove(lines, #lines)
+    end
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    notify(string.format("Replaced document with clipboard (%d lines)", #lines))
+  elseif action == "reveal" then
+    if path ~= "" then
+      local ok, neotree = pcall(require, "neo-tree.command")
+      if ok then
+        neotree.execute({ action = "focus", reveal_file = path })
+      end
+    end
+  elseif action == "history" then
+    if path == "" then
+      notify("This buffer has no file path", vim.log.levels.INFO)
+      return
+    end
+    local ok, snacks = pcall(require, "snacks.picker")
+    if ok and snacks.git_log_file then
+      snacks.git_log_file()
+    else
+      pcall(vim.cmd, "DiffviewFileHistory " .. vim.fn.fnameescape(path))
+    end
+  end
+end
+
 -- Public dispatch – called by every menu item command.
 function M.run(action)
-  local kind = _ctx.kind
-  -- Clear context BEFORE running the action so stale state is never reused
-  -- even if the action opens another menu.
+  local ctx = _ctx
   _ctx = {}
-  if kind == "neo" then
-    run_neo(action)
-  elseif kind == "buffer" then
-    run_buffer(action)
+  if ctx.kind == "neo" then
+    run_neo(action, ctx)
+  elseif ctx.kind == "buffer" then
+    run_buffer(action, ctx)
+  elseif ctx.kind == "editor" then
+    run_editor(action, ctx)
   end
-  -- "editor" entries embed raw key sequences; they never reach M.run().
 end
 
 -- ---------------------------------------------------------------------------
@@ -228,15 +331,32 @@ local neo_entries = {
   { "󰋚  Git: View File History",     "history" },
 }
 
--- Editor entries use raw key sequences rather than M.run() because they
--- must operate on the buffer that was under the cursor when right-clicked,
--- not a saved buffer id.
 local editor_entries = {
-  { "󰆍  Open in web browser",        "<Cmd>normal! gx<CR>" },
-  { "󰊕  Go to definition",           "<Cmd>lua vim.lsp.buf.definition()<CR>" },
-  { "󰒡  Show Diagnostics",           "<Cmd>lua vim.diagnostic.open_float()<CR>" },
-  { "󰒡  Show All Diagnostics",       "<Cmd>lua vim.diagnostic.setqflist()<CR>" },
-  { "󰘥  Configure Diagnostics",      "<Cmd>help vim.diagnostic.config()<CR>" },
+  { "󰆒  Select All & Paste",         "paste_all" },
+  { "󰅍  Select All & Copy",          "copy_all" },
+  { "󰆐  Select All & Cut",           "cut_all" },
+  { "󰒅  Select All",                 "select_all" },
+  { separator = true },
+  { "󰊕  Go to Definition",           "definition" },
+  { "󰌹  Go to References",           "references" },
+  { "󰈔  Go to Implementation",       "implementation" },
+  { "󰌵  Code Action",                "code_action" },
+  { "󰏫  Rename Symbol",              "rename" },
+  { separator = true },
+  { "󰉦  Format Document",            "format" },
+  { "󰒡  Line Diagnostics",           "diagnostic" },
+  { "󰆍  Open URL in Browser",        "open_browser" },
+  { separator = true },
+  { "󰆴  Copy",                       '"+yy', mode = "n", raw = true },
+  { "󰆴  Copy",                       '"+y',  mode = "v", raw = true },
+  { "󰆐  Cut",                        '"+dd', mode = "n", raw = true },
+  { "󰆐  Cut",                        '"+d',  mode = "v", raw = true },
+  { "󰆒  Paste",                      '"+p',  mode = "a", raw = true },
+  { separator = true },
+  { "󰆏  Copy Relative Path",         "copy_relative" },
+  { "󰅎  Copy Absolute Path",         "copy_absolute" },
+  { "󰀼  Reveal in File Tree",        "reveal" },
+  { "󰋚  Git: View File History",     "history" },
 }
 
 -- ---------------------------------------------------------------------------
@@ -255,7 +375,11 @@ local function install_popup(entries)
   for _, entry in ipairs(entries) do
     if entry.separator then
       sep_idx = sep_idx + 1
-      vim.cmd(("amenu PopUp.-sep%d- <Nop>"):format(sep_idx))
+      vim.cmd(("anoremenu PopUp.-sep%d- <Nop>"):format(sep_idx))
+    elseif entry.raw then
+      local label = menu_name(entry[1])
+      local mode  = entry.mode or "a"
+      vim.cmd(("%snoremenu PopUp.%s %s"):format(mode, label, entry[2]))
     else
       local label   = menu_name(entry[1])
       local rhs     = entry[2]
@@ -263,8 +387,8 @@ local function install_popup(entries)
       -- Action strings are dispatched through M.run().
       local command = rhs:sub(1, 1) == "<"
           and rhs
-          or (":lua require('config.context_menu').run(" .. string.format("%q", rhs) .. ")<CR>")
-      vim.cmd(("amenu PopUp.%s %s"):format(label, command))
+          or ("<Cmd>lua require('config.context_menu').run(" .. string.format("%q", rhs) .. ")<CR>")
+      vim.cmd(("anoremenu PopUp.%s %s"):format(label, command))
     end
   end
 end
@@ -272,6 +396,31 @@ end
 -- ---------------------------------------------------------------------------
 -- Public entry points (called by plugins before :popup fires)
 -- ---------------------------------------------------------------------------
+
+-- Resolve which buffer corresponds to a given screen column on row 1.
+local function resolve_buffer_at_col(screencol)
+  local ok, s = pcall(require, "bufferline.state")
+  if not ok or not s.visible_components or #s.visible_components == 0 then
+    return vim.api.nvim_get_current_buf(), "tab"
+  end
+  local offset = s.left_offset_size or 0
+  if screencol <= offset then
+    return nil, "offset"
+  end
+  local pos = offset
+  for _, item in ipairs(s.visible_components) do
+    local next_pos = pos + item.length
+    if screencol > pos and screencol <= next_pos then
+      if item.id and vim.api.nvim_buf_is_valid(item.id) then
+        return item.id, "tab"
+      end
+    end
+    pos = next_pos
+  end
+  -- Past all tabs (empty tabline space)
+  return vim.api.nvim_get_current_buf(), "empty"
+end
+M.resolve_buffer_at_col = resolve_buffer_at_col
 
 -- Called by bufferline's right_mouse_command.
 -- The callback fires inside a tabline mouse-click handler where Neovim's
@@ -287,9 +436,20 @@ function M.open_buffer(id)
   end)
 end
 
--- Called by neo-tree's <RightMouse> mapping.
-function M.open_neo(state)
-  _ctx = { kind = "neo", neo_state = state }
+-- Called by neo-tree's context action or tests.
+function M.open_neo(state, line)
+  line = line or (state and state.winid and vim.api.nvim_win_is_valid(state.winid) and vim.api.nvim_win_get_cursor(state.winid)[1]) or 1
+  local node = state and state.tree and state.tree:get_node(line)
+  if not node or node.type == "message" or not node.path or node.path == "" then
+    return
+  end
+  _ctx = {
+    kind        = "neo",
+    neo_state   = state,
+    target_win  = state.winid,
+    target_line = line,
+    target_path = node.path,
+  }
   install_popup(neo_entries)
   vim.schedule(function()
     local ok, err = pcall(vim.cmd, "popup! PopUp")
@@ -321,15 +481,83 @@ function M.setup()
   vim.api.nvim_create_autocmd("MenuPopup", {
     group    = group,
     callback = function()
-      if _ctx.kind == "neo" then
-        install_popup(neo_entries)
-      elseif _ctx.kind == "buffer" then
+      local mouse = vim.fn.getmousepos()
+      local mouse_win = mouse.winid
+      local mouse_buf = (mouse_win and mouse_win > 0 and vim.api.nvim_win_is_valid(mouse_win))
+          and vim.api.nvim_win_get_buf(mouse_win)
+          or 0
+      local ft = mouse_buf > 0 and vim.bo[mouse_buf].filetype or ""
+
+      -- 1. Top tabline area (screenrow 1)
+      if mouse.screenrow == 1 then
+        local buf_id, area_type = resolve_buffer_at_col(mouse.screencol)
+        if area_type == "offset" then
+          -- Click on offset area (e.g. "Neo-tree" sidebar label in tabline): no menu
+          vim.cmd("silent! aunmenu PopUp")
+          _ctx = {}
+          return
+        end
+        local target_id = (_ctx.kind == "buffer" and _ctx.buffer_id) or buf_id
+        _ctx = {
+          kind = "buffer",
+          buffer_id = target_id,
+        }
         install_popup(buffer_entries)
-      else
-        -- Bare editor right-click: reset any stale context and show editor menu.
-        _ctx = {}
-        install_popup(editor_entries)
+        return
       end
+
+      -- If an explicit buffer tab click was scheduled but screenrow is not 1 (fallback)
+      if _ctx.kind == "buffer" and mouse_win == 0 then
+        install_popup(buffer_entries)
+        return
+      end
+
+      local ok_nt, nt_sources = pcall(require, "neo-tree.sources.manager")
+      local nt_state = ok_nt and (
+        (mouse_win > 0 and nt_sources.get_state_for_window(mouse_win))
+        or (ft == "neo-tree" and nt_sources.get_state("filesystem"))
+      ) or nil
+
+      -- 2. Neo-tree sidebar area (screenrow > 1)
+      if ft == "neo-tree" or nt_state ~= nil then
+        local line_count = mouse_buf > 0 and vim.api.nvim_buf_line_count(mouse_buf) or 0
+        local line = mouse.line
+        if line < 1 or line > line_count then
+          -- Blank space below tree items: do not show menu
+          vim.cmd("silent! aunmenu PopUp")
+          _ctx = {}
+          return
+        end
+        local node = nt_state and nt_state.tree and nt_state.tree:get_node(line)
+        if not node or node.type == "message" or not node.path or node.path == "" then
+          -- Non-actionable node (e.g. '(8 hidden items)' message): do not show menu
+          vim.cmd("silent! aunmenu PopUp")
+          _ctx = {}
+          return
+        end
+
+        if mouse_win > 0 and line > 0 then
+          pcall(vim.api.nvim_win_set_cursor, mouse_win, { line, 0 })
+          pcall(vim.api.nvim_set_current_win, mouse_win)
+        end
+        _ctx = {
+          kind        = "neo",
+          neo_state   = nt_state,
+          target_win  = mouse_win,
+          target_line = line,
+          target_path = node.path,
+        }
+        install_popup(neo_entries)
+        return
+      end
+
+      -- 3. Regular editor window
+      _ctx = {
+        kind       = "editor",
+        target_win = mouse_win,
+        target_buf = mouse_buf,
+      }
+      install_popup(editor_entries)
     end,
   })
 

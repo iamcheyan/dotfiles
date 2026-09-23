@@ -25,6 +25,12 @@ return {
           show_tab_indicators = false,
           offsets = {
             {
+              filetype = "neo-tree",
+              text = "Neo-tree",
+              highlight = "Directory",
+              text_align = "left",
+            },
+            {
               filetype = "snacks_layout_box",
             },
           },
@@ -68,6 +74,19 @@ return {
         opts.options.style_preset = bufferline.style_preset.no_italic
       end
       bufferline.setup(opts)
+
+      -- Guard handle_close against right-clicks: right-click on close icon should
+      -- open the context menu instead of closing the buffer.
+      local orig_handle_close = _G.___bufferline_private and _G.___bufferline_private.handle_close
+      if orig_handle_close then
+        _G.___bufferline_private.handle_close = function(id, clicks, button, mod)
+          if button == "r" then
+            require("config.context_menu").open_buffer(id)
+            return
+          end
+          orig_handle_close(id, clicks, button, mod)
+        end
+      end
 
       -- bufferline creates its DevIcon groups during setup.
       vim.defer_fn(function()
