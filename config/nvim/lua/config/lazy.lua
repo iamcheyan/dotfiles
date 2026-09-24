@@ -28,7 +28,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Optional private extensions are kept outside the public dotfiles tree.
 local private_nvim = vim.fn.expand("~/.config/nvim-private")
 local spec = { { import = "plugins" } }
-local private_specs = vim.fn.glob(private_nvim .. "/lua/plugins/*.lua", false, true)
+local private_specs = vim.fn.globpath(private_nvim .. "/lua/plugins", "*.lua", false, true)
 for _, private_spec_file in ipairs(private_specs) do
   local ok, private_plugin = pcall(dofile, private_spec_file)
   if ok and type(private_plugin) == "table" then
