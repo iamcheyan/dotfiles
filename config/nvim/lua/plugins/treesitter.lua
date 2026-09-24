@@ -3,6 +3,25 @@
 -- indentation, folds and text-objects no longer depend on LazyVim.treesitter
 -- helpers. Behavior is kept equivalent to the previous setup.
 
+-- nvim-treesitter main currently uses vim.list.unique, introduced after
+-- Neovim 0.10. Keep the public config usable on the installed 0.10 series
+-- while allowing newer Neovim versions to use their native implementation.
+if vim.list == nil then
+  vim.list = {}
+end
+if vim.list.unique == nil then
+  vim.list.unique = function(values)
+    local seen, result = {}, {}
+    for _, value in ipairs(values) do
+      if not seen[value] then
+        seen[value] = true
+        table.insert(result, value)
+      end
+    end
+    return result
+  end
+end
+
 local ensure_installed = {
   "bash",
   "c",
@@ -81,32 +100,28 @@ end
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    branch = "main",
-    version = false, -- last release is way too old and doesn't work on Windows
-    -- Install any missing parsers on build (safe: never fails the build).
-    build = function()
-      local ok, TS = pcall(require, "nvim-treesitter")
-      if not (ok and TS.get_installed) then
-        return
-      end
-      local ok2, installed = pcall(TS.get_installed)
-      if not ok2 then
-        return
-      end
-      local missing = vim.tbl_filter(function(lang)
-        return not vim.tbl_contains(installed, lang)
-      end, ensure_installed)
-      if #missing > 0 then
-        pcall(TS.install, missing)
-      end
-    end,
+    -- Neovim 0.10 supports the stable master branch. The newer main branch
+    -- requires Neovim 0.11 and downloads ABI-15 parsers, which do not load on
+    -- the 0.10 runtime used by this public configuration.
+    branch = "master",
+    build = ":TSUpdate",
     event = { "LazyFile", "VeryLazy" },
     cmd = { "TSUpdate", "TSInstall", "TSLog", "TSUninstall" },
     opts = {
+      ensure_installed = ensure_installed,
       install_dir = vim.fn.stdpath("data") .. "/site",
     },
     config = function(_, opts)
-      require("nvim-treesitter").setup(opts)
+      local treesitter = require("nvim-treesitter")
+      if treesitter.setup then
+        treesitter.setup(opts)
+      else
+        require("nvim-treesitter.configs").setup({
+          ensure_installed = opts.ensure_installed,
+          highlight = { enable = false },
+          indent = { enable = false },
+        })
+      end
       vim.api.nvim_create_autocmd("FileType", {
         pattern = vim.tbl_keys(treesitter_filetypes),
         callback = function(args)
