@@ -1042,6 +1042,14 @@ return {
             local ok, cl = pcall(require, "contextline")
             return ok and cl.get({ separator = "  " }) or ""
           end,
+          on_click = {
+            callback = function()
+              vim.schedule(function()
+                pcall(vim.cmd, "ContextlineMenu")
+              end)
+            end,
+            name = "contextline_menu",
+          },
         },
         -- Do not cache only on CursorMoved: opening the hierarchy menu must
         -- redraw the active chip on the first click, before any cursor move.
