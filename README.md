@@ -39,6 +39,8 @@
   * **LSP 自动管理**：Mason + Mason-LSPconfig 一键安装并管理各语言 Language Server。
   * **代码补全与格式化**：Blink.cmp 极速智能补全 + Conform 自动代码格式化。
   * **语法分析与高亮**：Treesitter 语法高亮、代码折叠与文本对象。
+    **需要 Neovim 0.11 或更高版本**（`nvim-treesitter` 的 `main` 分支 + ABI-15 parser）。
+    分支选择、parser 管理与常见报错处理见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)。
 * **生产力神器合集**：
   * `Telescope` + `Snacks`：极速模糊搜索文件、文本与符号。
   * `Neo-tree` + `Oil.nvim`：支持双模式文件树管理（侧边栏文件树 + Buffer 自由编辑重构目录）。
@@ -81,7 +83,7 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 1. 按平台检查或安装 Zsh，并在用户确认后设为默认 Shell。
 > 2. 在非 NixOS 平台安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）；NixOS 由 `~/nixos-config` 管理。
 > 3. 安装配置 `zinit`、`Starship`、`Atuin`；非 NixOS 平台额外配置 `fnm`。
-> 4. 在非 NixOS 平台安装 Neovim；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
+> 4. 在非 NixOS 平台安装 Neovim（脚本安装官方最新 release，**必须 0.11+**，原因见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)）；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
 > 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
 

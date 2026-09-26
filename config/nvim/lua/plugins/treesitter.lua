@@ -3,25 +3,6 @@
 -- indentation, folds and text-objects no longer depend on LazyVim.treesitter
 -- helpers. Behavior is kept equivalent to the previous setup.
 
--- nvim-treesitter main currently uses vim.list.unique, introduced after
--- Neovim 0.10. Keep the public config usable on the installed 0.10 series
--- while allowing newer Neovim versions to use their native implementation.
-if vim.list == nil then
-  vim.list = {}
-end
-if vim.list.unique == nil then
-  vim.list.unique = function(values)
-    local seen, result = {}, {}
-    for _, value in ipairs(values) do
-      if not seen[value] then
-        seen[value] = true
-        table.insert(result, value)
-      end
-    end
-    return result
-  end
-end
-
 local ensure_installed = {
   "bash",
   "c",
@@ -100,27 +81,69 @@ end
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    -- Neovim 0.10 supports the stable master branch. The newer main branch
-    -- requires Neovim 0.11 and downloads ABI-15 parsers, which do not load on
-    -- the 0.10 runtime used by this public configuration.
-    branch = "master",
-    build = ":TSUpdate",
+    -- `main` is the supported branch (master is archived). It requires Neovim
+    -- 0.11+ and ABI-15 parsers, so the oldest supported runtime for this public
+    -- config is 0.11.
+    branch = "main",
+    version = false, -- last release is way too old and doesn't work on Windows
+    -- Keep parsers in sync when the plugin is installed or updated: fetch the
+    -- ones that are missing and rebuild grammars that predate the revisions
+    -- `main` pins. Stale grammars are not cosmetic -- the queries shipped with
+    -- the plugin use fields that older revisions lack, which aborts highlighting
+    -- with "Invalid field name" query errors.
+    -- The install/update calls are async, so wait for them: this build step runs
+    -- in a Neovim that exits as soon as it returns.
+    build = function()
+      local ok, TS = pcall(require, "nvim-treesitter")
+      if not (ok and TS.get_installed) then
+        return
+      end
+      -- Only parsers count here: `get_installed()` also reports languages that
+      -- merely have a query directory.
+      local ok2, installed = pcall(TS.get_installed, "parsers")
+      if not ok2 then
+        return
+      end
+      local missing = vim.tbl_filter(function(lang)
+        return not vim.tbl_contains(installed, lang)
+      end, ensure_installed)
+
+      local tasks = {}
+      if #missing > 0 then
+        -- `force` is needed because `install()` skips any language listed by
+        -- `get_installed()`, query directory included.
+        tasks[#tasks + 1] = TS.install(missing, { force = true })
+      end
+      tasks[#tasks + 1] = TS.update()
+      for _, task in ipairs(tasks) do
+        pcall(function()
+          task:wait()
+        end)
+      end
+    end,
     event = { "LazyFile", "VeryLazy" },
     cmd = { "TSUpdate", "TSInstall", "TSLog", "TSUninstall" },
     opts = {
-      ensure_installed = ensure_installed,
+      -- `main` already defaults to this directory; keeping it explicit documents
+      -- that parsers stay out of the plugin directory, where `:Lazy` operations
+      -- could wipe them. It is also the directory the install/update commands
+      -- consult when deciding whether a parser is installed.
       install_dir = vim.fn.stdpath("data") .. "/site",
     },
     config = function(_, opts)
-      local treesitter = require("nvim-treesitter")
-      if treesitter.setup then
-        treesitter.setup(opts)
-      else
-        require("nvim-treesitter.configs").setup({
-          ensure_installed = opts.ensure_installed,
-          highlight = { enable = false },
-          indent = { enable = false },
-        })
+      -- Highlighting, indentation and folds are set up natively below, so
+      -- `main` only needs the install directory here.
+      require("nvim-treesitter").setup(opts)
+      -- `main` does not register filetype aliases (master's parsers.lua mapped
+      -- `javascriptreact` for us), and `sh`/`zsh` used to depend on aerial being
+      -- loaded first. Register them here so highlighting works from the start
+      -- of the session instead of silently doing nothing.
+      for lang, filetypes in pairs({
+        bash = { "sh", "zsh" },
+        javascript = { "javascriptreact" },
+        tsx = { "typescriptreact" },
+      }) do
+        pcall(vim.treesitter.language.register, lang, filetypes)
       end
       vim.api.nvim_create_autocmd("FileType", {
         pattern = vim.tbl_keys(treesitter_filetypes),

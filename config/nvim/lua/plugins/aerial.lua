@@ -29,7 +29,8 @@ return {
       },
     },
     config = function(_, opts)
-      pcall(vim.treesitter.language.register, "bash", { "sh", "bash", "zsh" })
+      -- `sh`/`zsh` are registered as `bash` by the treesitter configuration so
+      -- they work without aerial being loaded first.
       require("aerial").setup(opts)
     end,
   },

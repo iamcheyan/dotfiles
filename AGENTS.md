@@ -118,3 +118,15 @@ git push origin main
 ```
 
 发布后的配置应当能被另一台没有 `~/chezmoi` 的机器单独克隆并运行。若某项功能只有个人环境可用，应移到私有 Chezmoi，而不是在公开仓库中添加更多机器特判。
+
+## 8. Neovim 运行时要求与 Treesitter 注意事项
+
+详细说明见 [config/nvim/TREESITTER.md](config/nvim/TREESITTER.md)，改动 Treesitter 相关配置前请先读它。必须记住的几条：
+
+- **最低 Neovim 版本为 0.11**。`nvim-treesitter` 固定 `main` 分支（`master` 已被上游归档），需要 0.11+ 与 ABI-15 parser。仍是 0.10 的机器**必须先升级 Neovim 再拉取本配置**，否则高亮整体失效。
+- **`nvim-treesitter` 与 `nvim-treesitter-textobjects` 都必须是 `main`**，且 textobjects 的 `opts` 用的是 `main` 的 schema（`move.keys.*`）。两者不要单独回退到 `master`。
+- **切换分支或跨大版本升级后必须重建 parser**。旧 grammar 与新查询不匹配时，打开文件会直接报 `Query error ... Invalid field name "..."` 并中断高亮；`:TSUpdate` 可修复，`lua/plugins/treesitter.lua` 的 `build` 步骤已覆盖（补装缺失 + 重建过期 + 等待异步完成）。
+- **parser 装在 `~/.local/share/nvim/site/parser`**（`opts.install_dir`），不要改到插件目录，否则 `:Lazy` 操作会清掉它们。
+- **`sh`/`zsh`、`javascriptreact`、`typescriptreact` 的 filetype 别名注册由本配置显式提供**（`main` 不再注册）。新增类似别名时改 `lua/plugins/treesitter.lua`，不要散落到其它插件。
+- **`config/nvim/lazy-lock.json` 已被 `.gitignore` 忽略、不入库**，插件分支与 commit 只钉在本机。
+- `gitsigns.nvim` 仍钉在 `v2.1.0`（原为 Neovim 0.10 兼容而加）；0.10 支持已废弃，如需跟进上游删掉该行即可。
