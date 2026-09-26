@@ -54,6 +54,14 @@ return {
     opts = {
       sources = { "filesystem", "buffers", "git_status" },
       open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
+      -- The root directory is shown in the tabline offset instead (see
+      -- `plugins/bufferline.lua`), so the tree itself starts one row higher.
+      hide_root_node = true,
+      -- With the root node hidden, drop its indent level too: every row shifts
+      -- one level to the left. Nothing is clipped by this -- the indent
+      -- component only substitutes the expander glyph inside the indent, and
+      -- this config leaves `expander_collapsed`/`expander_expanded` empty.
+      retain_hidden_root_indent = false,
       -- 全局默认缩进配置（用于 filesystem）
       default_component_configs = {
         indent = {

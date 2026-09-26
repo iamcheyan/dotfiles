@@ -10,6 +10,27 @@ return {
         end
       end
 
+      -- The sidebar's title shows the tree's current root instead of a static
+      -- label. neo-tree hides its own root node (`hide_root_node`), so this is
+      -- where the path is displayed -- bufferline truncates it to the offset
+      -- width when it does not fit.
+      local function neo_tree_root_text()
+        local ok, manager = pcall(require, "neo-tree.sources.manager")
+        if ok then
+          for _, win in ipairs(vim.api.nvim_list_wins()) do
+            local buf = vim.api.nvim_win_get_buf(win)
+            if vim.bo[buf].filetype == "neo-tree" then
+              local source = vim.b[buf].neo_tree_source or "filesystem"
+              local state = manager.get_state(source)
+              if state and state.path and state.path ~= "" then
+                return vim.fn.fnamemodify(state.path, ":~")
+              end
+            end
+          end
+        end
+        return "Neo-tree"
+      end
+
       -- The native PopUp menu is installed by config.context_menu.
       return {
         highlights = require("config.ui_highlights").bufferline_highlights(),
@@ -26,7 +47,7 @@ return {
           offsets = {
             {
               filetype = "neo-tree",
-              text = "Neo-tree",
+              text = neo_tree_root_text,
               highlight = "Directory",
               text_align = "left",
             },

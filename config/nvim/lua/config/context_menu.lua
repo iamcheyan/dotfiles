@@ -492,7 +492,7 @@ function M.setup()
       if mouse.screenrow == 1 then
         local buf_id, area_type = resolve_buffer_at_col(mouse.screencol)
         if area_type == "offset" then
-          -- Click on offset area (e.g. "Neo-tree" sidebar label in tabline): no menu
+          -- Click on the offset area (the sidebar's root path in the tabline): no menu
           vim.cmd("silent! aunmenu PopUp")
           _ctx = {}
           return
