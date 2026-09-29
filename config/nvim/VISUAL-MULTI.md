@@ -11,9 +11,9 @@
 
 ## 实现方式
 
-Visual Multi 的 `Add Cursor Down` 和 `Select Cursor Down` 命令本身工作在普通模式。插入模式映射用 `<C-o>` 执行一次对应的普通模式命令，随后 Neovim 返回插入模式。处于 Visual Multi 扩展选择模式时选择 `Select Cursor Down`；其他情况下选择 `Add Cursor Down`。行尾增加光标后，再调用插件的 `VM-I-End` 插入模式动作，把各光标移到各自行尾，处理不等长行。
-
-插件文档说明，`Add Cursors Down/Up` 会按垂直列创建光标，`Select Right/Left` 会扩展所有活动选区。此处将同一垂直扩展机制绑定到插入模式的 `Ctrl+N`，保留原有普通／可视模式的 Find Under 绑定。
+- **行尾扩展**：检测插入模式光标处于行尾时，使用 Visual Multi 的位置添加机制（`add_cursor_at_pos`）在当前行尾与下一行行尾分别创建光标，并调用插件的 `Insert.key('A')` 进入行尾插入模式；后续连续按 `Ctrl+N` 会自动沿现有选区底部向下一行行尾追加光标并对齐。由于基于各行真实的 `$` 末尾定位，不同行长的行也能精准落在各自行尾，不会出现垂直列对其导致的短行跳过或长行错位。
+- **行首扩展**：光标处于行首第 1 列时，同样在每行第 1 列定位并调用 `Insert.key('i')`，连续向下添加行首光标。
+- **选区延伸 / 普通位置**：处于 Visual Multi 扩展模式时使用 `VM-Select-Cursor-Down` 延伸选区；处于行中间普通位置时使用 `<C-o><Plug>(VM-Add-Cursor-Down)` 保持垂直列加光标。
 
 ## 快捷键
 
