@@ -166,3 +166,9 @@ fi
 
 # Added by Antigravity CLI installer
 export PATH="/home/tetsuya/.antigravity/bin:$PATH"
+# >>> Photon CLI >>>
+case ":$PATH:" in
+  *:"$HOME/.photon/bin":*) ;;
+  *) export PATH="$PATH:$HOME/.photon/bin" ;;
+esac
+# <<< Photon CLI <<<
