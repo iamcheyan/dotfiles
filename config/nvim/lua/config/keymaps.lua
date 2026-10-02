@@ -174,3 +174,46 @@ vim.keymap.set("x", "<C-v>", 'P', { desc = "Paste over selection from clipboard"
 
 -- 5. 插入模式下 Ctrl + V: 从系统剪贴板原样粘贴 (保留缩进格式，避免自动缩进导致阶梯错位)
 vim.keymap.set("i", "<C-v>", "<C-r><C-o>+", { desc = "Paste from system clipboard verbatim" })
+
+-- =======================================================================
+-- 全面纯删除与真正剪切工作流 (Black Hole Register & Dedicated Cut)
+-- 彻底解决从外部复制文本后，在 nvim 中执行任何删除/修改(ci", dw, dd 等)
+-- 把被删旧内容写入系统剪贴板的痛点。
+-- =======================================================================
+
+local blackhole_opts = { noremap = true, silent = true }
+
+-- 1. 所有删除操作 (Delete) -> 黑洞寄存器 ("_)
+-- 覆盖 d + 任意 motion / text-object (dw, d$, di", da", diw, dG 等全部生效)
+vim.keymap.set({ "n", "x" }, "d", '"_d', vim.tbl_extend("force", blackhole_opts, { desc = "Delete (black hole, no yank)" }))
+vim.keymap.set("n", "dd", '"_dd', vim.tbl_extend("force", blackhole_opts, { desc = "Delete line (black hole)" }))
+vim.keymap.set({ "n", "x" }, "D", '"_D', vim.tbl_extend("force", blackhole_opts, { desc = "Delete to end of line (black hole)" }))
+vim.keymap.set({ "n", "x" }, "x", '"_x', vim.tbl_extend("force", blackhole_opts, { desc = "Delete char (black hole)" }))
+vim.keymap.set({ "n", "x" }, "X", '"_X', vim.tbl_extend("force", blackhole_opts, { desc = "Delete char before cursor (black hole)" }))
+vim.keymap.set("n", "<Del>", '"_x', vim.tbl_extend("force", blackhole_opts, { desc = "Delete key (black hole)" }))
+vim.keymap.set("x", "<Del>", '"_d', vim.tbl_extend("force", blackhole_opts, { desc = "Delete selection (black hole)" }))
+
+-- 2. 所有修改操作 (Change) -> 黑洞寄存器 ("_)
+-- 彻底解决 ci", ca", ciw, caw, cw, cc, C 等动作把被替换内容塞入剪贴板的问题
+vim.keymap.set({ "n", "x" }, "c", '"_c', vim.tbl_extend("force", blackhole_opts, { desc = "Change (black hole, no yank)" }))
+vim.keymap.set("n", "cc", '"_S', vim.tbl_extend("force", blackhole_opts, { desc = "Change line (black hole)" }))
+vim.keymap.set({ "n", "x" }, "C", '"_C', vim.tbl_extend("force", blackhole_opts, { desc = "Change to end of line (black hole)" }))
+
+-- 3. Select 模式 (如补全/Snippet 占位符被替换) -> 黑洞寄存器 ("_)
+-- 防止在 Select 模式下直接打字替换占位符时将旧占位符写入剪贴板
+for char_nr = 33, 126 do
+  local char = vim.fn.nr2char(char_nr)
+  vim.keymap.set("s", char, '<c-o>"_c' .. (char == "\\" and "\\\\" or char), blackhole_opts)
+end
+vim.keymap.set("s", "<bs>", '<c-o>"_c', blackhole_opts)
+vim.keymap.set("s", "<space>", '<c-o>"_c<space>', blackhole_opts)
+
+-- 4. 专属剪切 (Dedicated Cut) 操作流：
+-- 普通模式下用 m (Move / Cut) 接管原本的剪切操作，明确剪切至系统剪贴板 ("+)；
+-- 标记 (mark) 原生功能若需要，使用 <leader>m 触发
+vim.keymap.set("n", "<leader>m", "m", { desc = "Set mark (original m)" })
+vim.keymap.set("n", "m", '"+d', { desc = "Cut to system clipboard" })
+vim.keymap.set("n", "mm", '"+dd', { desc = "Cut line to system clipboard" })
+vim.keymap.set("n", "M", '"+D', { desc = "Cut to end of line to system clipboard" })
+vim.keymap.set("x", "m", '"+d', { desc = "Cut selection to system clipboard" })
+
