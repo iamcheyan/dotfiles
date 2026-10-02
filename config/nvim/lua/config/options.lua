@@ -65,28 +65,114 @@ vim.opt.smartcase = true
 -- 告诉 Neovim 自动尝试这些编码
 vim.opt.fileencodings = "ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,default,latin1"
 
--- Neovim's default detector is case-sensitive for extensions.  COBOL sources
--- commonly use uppercase .COB/.CBL, so normalize all common extensions to the
--- same filetype and let the COBOL-only palette apply automatically.
-vim.filetype.add({
-  extension = {
-    cob = "cobol",
-    cbl = "cobol",
-    cobol = "cobol",
-  },
-  pattern = {
-    ["*.COB"] = "cobol",
-    ["*.CBL"] = "cobol",
-    ["*.COBOL"] = "cobol",
-  },
-})
+-- ── Case-insensitive extension detection ──
+-- Neovim registers each extension with the exact spelling used in its own
+-- filetype table, so `.bat` is highlighted while `.BAT` receives no filetype at
+-- all and silently loses highlighting.  Batch scripts, COBOL programs and
+-- copybooks, and hand-written configuration files routinely use upper- or
+-- mixed-case extensions, so register the families we actually work with
+-- case-insensitively.
+--
+-- Two traps when editing this table:
+--   * `vim.filetype.add` wraps every `pattern` key as '^' .. key .. '$', so the
+--     key must be a Lua pattern matching the whole file name.  A glob such as
+--     "*.[bB][aA][tT]" becomes "^*.[bB][aA][tT]$", where the leading "*"
+--     quantifies the "^" character and the pattern can therefore never match.
+--     Use ".*%.[bB][aA][tT]" instead, and never append "$" (it would double).
+--   * Negative priority keeps these broad rules behind Neovim's specific ones,
+--     so ~/.config/tmux/tmux.conf still resolves to `tmux` rather than the
+--     generic `conf` rule below.
+local function ci_pattern(ext)
+  return ".*%." .. ext:gsub("%a", function(c)
+    return "[" .. c:lower() .. c:upper() .. "]"
+  end)
+end
 
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  pattern = { "*.COB", "*.CBL", "*.COBOL" },
-  callback = function()
-    vim.bo.filetype = "cobol"
-  end,
-})
+-- Generic *.conf/*.cnf/*.config files are a grab bag: shell fragments that zsh
+-- sources (aliases.conf, machine.conf, zsh's znt/*.conf), KEY=VALUE settings
+-- (btop.conf, fcitx5), CLI flag lists (chromium-flags.conf), or an
+-- application's own DSL (ranger's rc.conf).  Neovim's `conf` syntax understands
+-- only `#` comments and leaves nearly all of them unhighlighted, so count shell
+-- and assignment constructs in the head of the buffer and pick a syntax that
+-- actually covers the content.  Thresholds are deliberately conservative: a
+-- file must look consistently shell-like to be treated as shell.
+local function detect_generic_config(_, bufnr)
+  -- Called with bufnr == -1 when matching a name without a buffer; keep the
+  -- conservative default there.
+  if bufnr < 0 then
+    return "conf"
+  end
+
+  local shell, ini = 0, 0
+  local last = math.min(120, vim.api.nvim_buf_line_count(bufnr))
+  for _, line in ipairs(vim.api.nvim_buf_get_lines(bufnr, 0, last, false)) do
+    if
+      line:match("^%s*[#;]")
+      or line:match("^%s*$")
+      or line:match("^%s*//")
+      or line:match("^%s*%-%-") -- CLI flag such as --ozone-platform=wayland
+    then
+      -- Comment, blank, or flag line: no signal either way.
+    elseif
+      line:match("^%s*alias%s")
+      or line:match("^%s*function%s")
+      or line:match("^%s*local%s")
+      or line:match("^%s*export%s")
+      or line:match("^%s*case%s")
+      or line:match("^%s*esac")
+      or line:match("^%s*then%s*$")
+      or line:match("^%s*fi%s*$")
+      or line:match("^%s*for%s")
+      or line:match("^%s*done%s*$")
+      or line:match("^%s*if%s")
+      or line:match("^%s*while%s")
+      or line:find("%[%[", 1, true)
+      or line:find("%$%(", 1, true)
+      or line:find("${", 1, true)
+      or line:find("&&", 1, true)
+      or line:find("||", 1, true)
+      or line:find(">/dev/null", 1, true)
+      or line:match("^%s*[%w_]+%s*=%s*%$")
+      or line:match("^%s*[%w_]+%s*=%s*%(")
+    then
+      shell = shell + 1
+    elseif line:find("=", 1, true) then
+      ini = ini + 1
+    end
+  end
+
+  if shell >= 5 and shell > ini then
+    return "sh"
+  end
+  if ini >= 1 then
+    return "dosini"
+  end
+  return "conf"
+end
+
+local filetype_patterns = {}
+
+for _, ext in ipairs({ "conf", "cnf", "config" }) do
+  filetype_patterns[ci_pattern(ext)] = { detect_generic_config, { priority = -1 } }
+end
+
+-- Batch scripts.  Uppercase *.CMD is mapped straight to `dosbatch`; Neovim's
+-- own `detect.cmd` also considers OS/2 REXX and MS linker command files, which
+-- only ever appear in lowercase.
+for _, ext in ipairs({ "bat", "cmd" }) do
+  filetype_patterns[ci_pattern(ext)] = { "dosbatch", { priority = -1 } }
+end
+
+-- COBOL programs and copybooks.
+for _, ext in ipairs({ "cob", "cbl", "cobol", "cpy" }) do
+  filetype_patterns[ci_pattern(ext)] = { "cobol", { priority = -1 } }
+end
+
+-- INI-style settings and environment files.
+filetype_patterns[ci_pattern("ini")] = { "dosini", { priority = -1 } }
+filetype_patterns[ci_pattern("env")] = { "env", { priority = -1 } }
+
+vim.filetype.add({ pattern = filetype_patterns })
 
 -- 禁用诊断图标和诊断功能
 vim.opt.signcolumn = "yes"

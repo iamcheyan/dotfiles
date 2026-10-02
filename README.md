@@ -41,6 +41,8 @@
   * **语法分析与高亮**：Treesitter 语法高亮、代码折叠与文本对象。
     **需要 Neovim 0.11 或更高版本**（`nvim-treesitter` 的 `main` 分支 + ABI-15 parser）。
     分支选择、parser 管理与常见报错处理见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)。
+    COBOL、批处理脚本与手写配置文件的**大小写不敏感扩展名检测**见
+    [`config/nvim/FILETYPE-DETECTION.md`](config/nvim/FILETYPE-DETECTION.md)。
 * **生产力神器合集**：
   * `Telescope` + `Snacks`：极速模糊搜索文件、文本与符号。
   * `Neo-tree` + `Oil.nvim`：支持双模式文件树管理（侧边栏文件树 + Buffer 自由编辑重构目录）。
