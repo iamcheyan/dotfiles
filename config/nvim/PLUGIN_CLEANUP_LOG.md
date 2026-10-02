@@ -98,4 +98,33 @@ git checkout <commit_hash>~1 -- config/nvim/lua/plugins/ccc.lua
   - LSP `gr`（`vim.lsp.buf.references`）：**已彻底恢复**
   - 无头启动与语法检查：零错误，零告警
 
+---
+
+## 五、2026-10-03 重构：卸载 `vim-cutlass` 并升级为原生无延迟纯删除体系
+
+- **重构背景**：
+  日前引入第三方插件 `svermeulen/vim-cutlass` 尝试将删除从剪切改为纯删除，但在使用中发现严重缺陷：
+  1. **VeryLazy 延迟时序缺陷**：打开文件后初始操作无法被拦截，直接回退原生逻辑污染剪贴板；
+  2. **Weak Mapping 避让逻辑**：内部源码遇到已有映射即静默放弃，导致 `ci"`、`ca"`、`s` 等极其高频的组合直接穿透失效；
+  3. 复制外部文本后，回到 Neovim 使用 `ci"` 仍会把旧文本写入系统剪贴板并冲掉外部复制内容。
+
+- **删除的项目 (Removed)**：
+  - `config/nvim/lua/plugins/vim-cutlass.lua`（彻底卸载 `svermeulen/vim-cutlass` 插件）
+  - 执行 `Lazy! clean` 移除插件本地缓存
+
+- **增加的项目 (Added)**：
+  - 在 `config/nvim/lua/config/keymaps.lua` 的现代编辑器操作流区域新增原生黑洞重定向体系（0 插件依赖、启动即生效、0 避让缺陷）：
+    - **修改组 (Change)**：`c` $\to$ `"_c`、`cc` $\to$ `"_S`、`C` $\to$ `"_C`（覆盖 `ci"`, `ca"`, `ciw`, `cw` 等所有文本对象）
+    - **删除组 (Delete)**：`d` $\to$ `"_d`、`dd` $\to$ `"_dd`、`D` $\to$ `"_D`（覆盖 `di"`, `da"`, `diw`, `dw`, `d$` 等所有 motion）
+    - **字符与按键组**：`x` $\to$ `"_x`、`X` $\to$ `"_X`、`<Del>` $\to$ `"_x` (Normal) / `"_d` (Visual)
+    - **选择模式组 (Select)**：针对可打印字符、退格与空格做 `<c-o>"_c` 包装，防止补全/Snippet 参数被直接打字替换时污染剪贴板
+    - **专属现代剪切流 (Dedicated Cut)**：
+      - 普通模式：`m`（`"+d`）、`mm`（`"+dd` 剪切整行）、`M`（`"+D` 剪切到行尾）
+      - 可视模式：`<C-x>` / `m`（`"+d` 剪切选区）
+      - 原生标记保留：`<leader>m` 备用
+
+- **验证实测**：
+  编写自动化测试脚本，全面覆盖 `dd`, `ci"`, `ca"`, `di"`, `da"`, `ciw`, `diw`, `dw`, `cw`, `D`, `C`, `x`, `X`, visual `d`, visual `c`, visual `x`, visual `p`, `mm` 共 18 个核心场景，**100% 全部通过**，系统剪贴板与默认寄存器在删除过程中完全不受任何污染。
+
+
 
