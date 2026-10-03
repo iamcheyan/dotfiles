@@ -23,12 +23,11 @@ vim.keymap.set("n", "<leader>cd", function()
 end, { desc = "Copy directory" })
 
 vim.keymap.set("n", "<leader>fC", function()
-  require("telescope.builtin").find_files({
-    prompt_title = "常用配置文件",
-    search_dirs = {
+  require("snacks").picker.files({
+    title = "常用配置文件",
+    dirs = {
       "~/dotfiles",
       "~/.config/nvim",
-      -- vim.env.SBZR_CHROME_RIME_YAML, -- 甚至可以精确到具体文件
     },
   })
 end, { desc = "打开常用收藏" })
@@ -39,10 +38,24 @@ end, { desc = "format this file" })
 
 vim.keymap.set("n", "<leader>fu", function()
   local file = vim.fn.expand("%:p")
-  if file ~= "" then
-    vim.fn.system({ "dos2unix", file })
-    vim.notify("dos2unix: " .. vim.fn.fnamemodify(file, ":t"))
+  if file == "" then
+    vim.notify("dos2unix: buffer has no file", vim.log.levels.WARN)
+    return
   end
+  if vim.fn.executable("dos2unix") ~= 1 then
+    vim.notify("dos2unix: not installed", vim.log.levels.WARN)
+    return
+  end
+  -- vim.fn.system() throws when the executable is missing, and its exit status
+  -- must be checked explicitly: a conversion failure would otherwise still be
+  -- reported as success.
+  local result = vim.system({ "dos2unix", file }, { text = true }):wait()
+  if result.code ~= 0 then
+    vim.notify("dos2unix failed: " .. vim.trim(result.stderr or ""), vim.log.levels.ERROR)
+    return
+  end
+  vim.cmd("checktime")
+  vim.notify("dos2unix: " .. vim.fn.fnamemodify(file, ":t"))
 end, { desc = "dos2unix current file" })
 
 vim.keymap.set("n", "<leader>aa", "ggVG", { desc = "CLRT A" })
@@ -203,7 +216,9 @@ vim.keymap.set({ "n", "x" }, "C", '"_C', vim.tbl_extend("force", blackhole_opts,
 -- 防止在 Select 模式下直接打字替换占位符时将旧占位符写入剪贴板
 for char_nr = 33, 126 do
   local char = vim.fn.nr2char(char_nr)
-  vim.keymap.set("s", char, '<c-o>"_c' .. (char == "\\" and "\\\\" or char), blackhole_opts)
+  -- "\\\\" is TWO backslash characters in Lua, so select mode inserted "\\" for
+  -- every typed backslash while every other character inserted exactly one.
+  vim.keymap.set("s", char, '<c-o>"_c' .. (char == "\\" and "\\" or char), blackhole_opts)
 end
 vim.keymap.set("s", "<bs>", '<c-o>"_c', blackhole_opts)
 vim.keymap.set("s", "<space>", '<c-o>"_c<space>', blackhole_opts)

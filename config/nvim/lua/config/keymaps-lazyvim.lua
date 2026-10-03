@@ -139,10 +139,11 @@ map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
 
 ------------------- formatting -------------------------------------------------
+-- No autoformat gate here: vim.g.autoformat controls format-on-save (see
+-- conform.lua), not this explicit request. Gating it made the key a silent
+-- no-op, since conform sets vim.g.autoformat = false at startup.
 map({ "n", "x" }, "<leader>cf", function()
-  if vim.g.autoformat ~= false then
-    vim.lsp.buf.format({ async = true })
-  end
+  vim.lsp.buf.format({ async = true })
 end, { desc = "Format" })
 
 ------------------- diagnostic -------------------------------------------------

@@ -2,13 +2,16 @@ return {
   -- yanky.nvim: 增强的剪贴板管理
   {
     "gbprod/yanky.nvim",
-    dependencies = {
-      "kkharji/sqlite.lua", -- 可选：用于持久化历史记录
-    },
     opts = {
       ring = {
         history_length = 100,
-        storage = "sqlite", -- 使用 sqlite 持久化，或改为 "shada"
+        -- "sqlite" needs libsqlite3 through sqlite.lua's FFI binding, which only
+        -- probes Debian/RedHat paths (/usr/lib/.../libsqlite3.so). On NixOS that
+        -- lookup fails, yanky.history.setup() throws, and setup() aborts before
+        -- configuring highlight/preserve_cursor/system_clipboard -- so yank and
+        -- put raise "attempt to call a nil value". "shada" is dependency-free
+        -- and persists the ring across sessions.
+        storage = "shada",
         sync_with_numbered_registers = true,
         cancel_event = "update",
       },

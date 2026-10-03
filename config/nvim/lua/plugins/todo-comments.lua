@@ -17,10 +17,25 @@ return {
       },
     },
     keys = {
-      { "]t",         function() require("todo-comments").jump_next() end, desc = "Todo: Next" },
-      { "[t",         function() require("todo-comments").jump_prev() end, desc = "Todo: Prev" },
-      { "<leader>st", "<cmd>TodoPicker<cr>",                               desc = "Todo: Search All" },
-      { "<leader>sT", "<cmd>TodoPicker keywords=TODO,FIX,FIXME<cr>",      desc = "Todo: Search TODO/FIX" },
+      { "]t", function() require("todo-comments").jump_next() end, desc = "Todo: Next" },
+      { "[t", function() require("todo-comments").jump_prev() end, desc = "Todo: Prev" },
+      -- todo-comments has no :TodoPicker command (only TodoQuickFix/TodoLocList/
+      -- TodoTelescope/TodoFzfLua/TodoTrouble). Its Snacks integration is the
+      -- documented entry point and is what registers the picker source.
+      {
+        "<leader>st",
+        function()
+          require("todo-comments.snacks").pick({})
+        end,
+        desc = "Todo: Search All",
+      },
+      {
+        "<leader>sT",
+        function()
+          require("todo-comments.snacks").pick({ keywords = { "TODO", "FIX", "FIXME" } })
+        end,
+        desc = "Todo: Search TODO/FIX",
+      },
     },
   },
 }

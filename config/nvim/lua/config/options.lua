@@ -190,7 +190,10 @@ vim.diagnostic.config({
 if vim.version().minor >= 10 then
   vim.opt.smoothscroll = false -- 关闭平滑滚动
 end
-vim.opt.showtabline = 0 -- 隐藏顶部的 Tab Page 标签栏（通过 leader+tab 管理）
+-- 'showtabline' is intentionally not set here. bufferline.nvim renders into the
+-- same tabline slot (vim.o.tabline = "%!v:lua.nvim_bufferline()") and manages
+-- 'showtabline' itself via auto_toggle_bufferline, so any value assigned here is
+-- overwritten on the next render. Setting 0 would also hide bufferline itself.
 
 -- 去掉窗口分隔线
 vim.opt.fillchars = {

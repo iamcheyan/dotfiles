@@ -1,33 +1,18 @@
--- 完全禁用所有语法检查和诊断提示
+-- Diagnostics are disabled across the board.
+--
+-- vim.diagnostic.config() is applied in config/options.lua at startup; what
+-- remains here is the part that only makes sense once the LSP client is loaded:
+-- suppressing the diagnostic handlers so servers cannot push them at all.
+--
+-- The previous `opts = { diagnostics = {...} }` table on nvim-lspconfig was
+-- inert: current nvim-lspconfig never reads that key (it is a leftover from the
+-- pre-0.11 lspconfig.default_config API).
 return {
-	-- 禁用 nvim-lspconfig 的默认诊断配置
-	{
-		"neovim/nvim-lspconfig",
-		opts = {
-			diagnostics = {
-				enabled = false,
-				virtual_text = false,
-				signs = false,
-				underline = false,
-				update_in_insert = false,
-				severity_sort = false,
-			},
-		},
-		config = function(_, opts)
-			-- 完全禁用 LSP 诊断处理器
-			vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
-			vim.lsp.handlers["textDocument/diagnostic"] = function() end
-
-			-- 禁用所有诊断
-			vim.diagnostic.config({
-				enabled = false,
-				virtual_text = false,
-				signs = false,
-				underline = false,
-				update_in_insert = false,
-				severity_sort = false,
-				float = { enabled = false },
-			})
-		end,
-	},
+  {
+    "neovim/nvim-lspconfig",
+    config = function()
+      vim.lsp.handlers["textDocument/publishDiagnostics"] = function() end
+      vim.lsp.handlers["textDocument/diagnostic"] = function() end
+    end,
+  },
 }

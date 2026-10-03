@@ -28,17 +28,11 @@ return {
       automatic_enable = false,
     },
     config = function(_, opts)
-      -- on_attach: register LSP keymaps (previously from LazyVim lsp/keymaps.lua)
-      -- and silence diagnostics per-buffer (consistent with prior python.lua behavior).
+      -- on_attach: register LSP keymaps (previously from LazyVim lsp/keymaps.lua).
+      -- Diagnostics are silenced globally by plugins/disable-diagnostics.lua
+      -- (vim.lsp.handlers + vim.diagnostic.config), so no per-client/per-buffer
+      -- suppression is needed here.
       local on_attach = function(client, bufnr)
-        -- silence diagnostics from this client (global diagnostics already disabled)
-        local ok, ns = pcall(vim.lsp.diagnostic.get_namespace, client.id)
-        if ok then
-          vim.diagnostic.reset(ns, bufnr)
-          vim.diagnostic.enable(false, { bufnr = bufnr, ns_id = ns })
-        end
-        client.handlers["textDocument/publishDiagnostics"] = function() end
-
         -- LSP-powered 'gq' formatting (replaces LazyVim's formatexpr).
         if client.server_capabilities.documentFormattingProvider then
           vim.bo[bufnr].formatexpr = "v:lua.vim.lsp.formatexpr()"

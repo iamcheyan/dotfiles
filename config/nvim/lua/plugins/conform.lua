@@ -35,7 +35,16 @@ return {
       c = { "clang_format" },
       cpp = { "clang_format" },
     },
-    format_on_save = false,
+    -- Honour the Auto Format toggle (<leader>uf / <leader>uF). LazyVim wired
+    -- this flag itself; without a consumer here the toggle was inert. The
+    -- function form is evaluated on each save, so toggling takes effect
+    -- immediately instead of being frozen at startup.
+    format_on_save = function(bufnr)
+      if vim.g.autoformat == false then
+        return nil
+      end
+      return { timeout_ms = 500, lsp_fallback = true }
+    end,
   },
   init = function()
     vim.g.autoformat = false
