@@ -1,4 +1,4 @@
--- Personal keymaps. Loaded after keymaps-lazyvim.lua so these mappings win
+-- Personal keymaps. Loaded after keymaps-defaults.lua so these mappings win
 -- when they intentionally reuse the same lhs.
 
 -- Terminal keybindings
@@ -22,13 +22,20 @@ vim.keymap.set("n", "<leader>cd", function()
   vim.fn.setreg("+", vim.fn.expand("%:p:h"))
 end, { desc = "Copy directory" })
 
+-- Search the config's own repository, wherever it is checked out. stdpath
+-- follows the ~/.config/nvim symlink, so this works on any machine without
+-- assuming a particular home directory or clone location.
 vim.keymap.set("n", "<leader>fC", function()
+  local config_root = vim.uv.fs_realpath(vim.fn.stdpath("config")) or vim.fn.stdpath("config")
+  local repo_root = vim.fn.fnamemodify(config_root, ":h:h")
+  local dirs = { repo_root }
+  local private = vim.fn.expand("~/.config/nvim-private")
+  if vim.fn.isdirectory(private) == 1 then
+    table.insert(dirs, private)
+  end
   require("snacks").picker.files({
     title = "常用配置文件",
-    dirs = {
-      "~/dotfiles",
-      "~/.config/nvim",
-    },
+    dirs = dirs,
   })
 end, { desc = "打开常用收藏" })
 

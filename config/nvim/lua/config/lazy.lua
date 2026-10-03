@@ -101,9 +101,9 @@ require("lazy").setup({
   },
 })
 
--- LazyVim's default <leader> keymaps (find/buffers/git/windows/UI/quit...),
--- ported to our plugins (snacks picker, gitsigns, vim builtins).
-require("config.keymaps-lazyvim")
+-- Baseline <leader> keymaps ported from LazyVim's defaults and adapted to the
+-- plugins we actually run (snacks picker, gitsigns, vim builtins).
+require("config.keymaps-defaults")
 -- Load personal keymaps last so they intentionally override compatibility
 -- mappings when the same lhs is used.
 require("config.keymaps")

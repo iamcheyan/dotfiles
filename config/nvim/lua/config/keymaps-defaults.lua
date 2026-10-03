@@ -1,5 +1,7 @@
--- LazyVim default keymaps, ported to our pure lazy.nvim setup.
--- Source of truth: lazyvim/lazyvim/lua/lazyvim/config/keymaps.lua (main branch).
+-- Baseline <leader> keymaps, ported from LazyVim's defaults (main branch) and
+-- adapted to this configuration. LazyVim itself is not installed; this file is
+-- our own implementation. It loads before config/keymaps.lua so the personal
+-- mappings there can intentionally override the same lhs.
 -- Only calls APIs that exist in our setup: snacks.nvim, gitsigns.nvim, vim
 -- builtins. API substitutions for the removed LazyVim runtime:
 --   * LazyVim.safe_keymap_set      -> vim.keymap.set
@@ -139,12 +141,10 @@ map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
 
 ------------------- formatting -------------------------------------------------
--- No autoformat gate here: vim.g.autoformat controls format-on-save (see
--- conform.lua), not this explicit request. Gating it made the key a silent
--- no-op, since conform sets vim.g.autoformat = false at startup.
-map({ "n", "x" }, "<leader>cf", function()
-  vim.lsp.buf.format({ async = true })
-end, { desc = "Format" })
+-- No <leader>cf binding here. It was ported from LazyVim, but config/keymaps.lua
+-- binds <leader>cf to "copy file path" in normal mode, which left the same key
+-- meaning "format" in visual/select mode and "copy" in normal mode. Formatting
+-- already has two dedicated keys: <leader>F (conform) and <leader>fo.
 
 ------------------- diagnostic -------------------------------------------------
 local diagnostic_goto = function(next, severity)

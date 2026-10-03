@@ -3,17 +3,47 @@
 -- with explicit lspconfig + mason + mason-lspconfig, and registers all LSP
 -- keymaps via LspAttach. Keeps the exact same servers: lua_ls + basedpyright.
 return {
-  -- Mason: portable package manager for LSP servers and CLI tools.
+  -- Mason: portable package manager for LSP servers and CLI tools. Installing
+  -- through mason keeps the config machine-independent: tools land in
+  -- stdpath("data")/mason and mason prepends that bin directory to PATH, so
+  -- nothing depends on a distro package or an absolute tool path.
   {
     "mason-org/mason.nvim",
     cmd = "Mason",
     keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
     build = ":MasonUpdate",
-    opts = {
-      ensure_installed = { "stylua", "shfmt" },
-    },
-    config = function(_, opts)
-      require("mason").setup(opts)
+    config = function()
+      require("mason").setup()
+
+      -- `ensure_installed` is NOT a mason.nvim option (it belongs to
+      -- mason-lspconfig, which only handles servers). Passing it to mason.setup
+      -- was silently ignored, so these formatters were never installed and
+      -- conform had nothing to run.
+      --
+      -- Run this after startup: registry.refresh() performs network I/O and
+      -- would otherwise add ~10ms to every launch. It is also a no-op once the
+      -- tools exist, so it stays cheap on machines that already have them.
+      local wanted = { "stylua", "shfmt" }
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "VeryLazy",
+        once = true,
+        callback = function()
+          local ok, registry = pcall(require, "mason-registry")
+          if not ok then
+            return
+          end
+          registry.refresh(function()
+            for _, name in ipairs(wanted) do
+              if registry.has_package(name) then
+                local pkg = registry.get_package(name)
+                if not pkg:is_installed() then
+                  pkg:install()
+                end
+              end
+            end
+          end)
+        end,
+      })
     end,
   },
 

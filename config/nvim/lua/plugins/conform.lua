@@ -8,6 +8,11 @@ return {
     {
       "<leader>F",
       function()
+        -- conform already skips unavailable formatters and warns with the tool
+        -- name ("Formatter 'stylua' unavailable: ..."), so no extra guard is
+        -- needed. Tools are resolved through PATH, which mason extends when it
+        -- is installed, so the same config works whether a formatter comes from
+        -- the system, from mason, or is missing entirely.
         require("conform").format({ async = true, lsp_fallback = true })
       end,
       mode = { "n", "x" },
