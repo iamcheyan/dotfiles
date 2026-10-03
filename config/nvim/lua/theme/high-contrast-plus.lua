@@ -415,21 +415,13 @@ function M.load()
   set("NeoTreeCursorLine", { bg = p.current_line_bg })
 
   -----------------------------------------------------------------------------
-  -- 11. Snacks Picker & Telescope & WhichKey
+  -- 11. Snacks Picker & WhichKey
   -----------------------------------------------------------------------------
   set("SnacksPicker", { fg = p.fg, bg = p.popup_bg })
   set("SnacksPickerBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
   set("SnacksPickerMatch", { fg = p.func, bold = true })
   set("SnacksPickerSelected", { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg, bold = true })
   set("SnacksPickerTitle", { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = true })
-
-  set("TelescopeNormal", { fg = p.fg, bg = p.popup_bg })
-  set("TelescopeBorder", { fg = p.split_separator_fg, bg = p.popup_bg })
-  set("TelescopePromptNormal", { fg = p.prompt_fg, bg = p.prompt_bg })
-  set("TelescopePromptBorder", { fg = p.split_separator_fg, bg = p.prompt_bg })
-  set("TelescopeSelection", { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg, bold = true })
-  set("TelescopeMatching", { fg = p.func, bold = true })
-  set("TelescopeTitle", { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = true })
 
   set("WhichKey", { fg = p.func, bold = true })
   set("WhichKeyGroup", { fg = p.keyword })
