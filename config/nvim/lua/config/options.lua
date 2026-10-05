@@ -122,6 +122,23 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set({ "x", "s" }, "<S-Tab>", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL selection" })
     vim.keymap.set("x", ">", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL selection" })
     vim.keymap.set("x", "<", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL selection" })
+    local function open_indented_line(command)
+      local current = vim.api.nvim_win_get_cursor(0)[1]
+      local source = command == "o" and current or math.max(1, current - 1)
+      local source_line = vim.api.nvim_buf_get_lines(ev.buf, source - 1, source, false)[1] or ""
+      local indent = source_line:match("^%s*") or ""
+      return command .. indent
+    end
+    vim.keymap.set("n", "o", function() return open_indented_line("o") end, {
+      buffer = ev.buf,
+      expr = true,
+      desc = "COBOL: open below with current-line indentation",
+    })
+    vim.keymap.set("n", "O", function() return open_indented_line("O") end, {
+      buffer = ev.buf,
+      expr = true,
+      desc = "COBOL: open above with preceding-line indentation",
+    })
     vim.keymap.set("n", "<leader>cO", format_cobol_buffer, { buffer = ev.buf, desc = "Format entire COBOL buffer" })
 
     -- A period terminates COBOL words/sentences; hide any completion menu it triggers.
