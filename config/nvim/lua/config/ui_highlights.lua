@@ -10,6 +10,13 @@ local function get(name)
   return vim.api.nvim_get_hl(0, { name = name, link = false })
 end
 
+-- TabLineSel may link to StatusLine. Cache the theme's original accent before
+-- this adapter changes StatusLine, so repeated apply() calls keep the same thumb.
+local function get_theme_scrollbar_accent()
+  return get("TabLineSel").bg or get("TitleBar").bg
+end
+local theme_scrollbar_accent = get_theme_scrollbar_accent()
+
 local minimum_text_contrast = 4.5
 
 local function relative_luminance(color)
@@ -61,13 +68,16 @@ local function readable_pair(fg, bg, normal)
   return fg, bg
 end
 
--- Keep Blue's bar hue but scale its theme-provided title surfaces down to a
--- near-black shade, distinct from the document's saturated Normal background.
-local bar_surface_scale = 0.32
-local function darken_surface(color)
+-- Keep Blue's bar hue but scale its theme-provided title surfaces to deep navy.
+-- The bottom bar is intentionally a little lighter than the top bar.
+local top_active_scale = 0.18
+local top_inactive_scale = 0.16
+local bottom_active_scale = 0.26
+local bottom_inactive_scale = 0.23
+local function darken_surface(color, scale)
   if type(color) ~= "number" then return color end
   local function scale_channel(channel)
-    return math.floor(channel * bar_surface_scale + 0.5)
+    return math.floor(channel * scale + 0.5)
   end
   local r = scale_channel(math.floor(color / 65536) % 256)
   local g = scale_channel(math.floor(color / 256) % 256)
@@ -80,9 +90,14 @@ local function title_bar_surfaces()
   local inactive = get("TitleBarNC")
   return {
     active_fg = active.fg,
-    active_bg = darken_surface(active.bg),
+    active_bg = darken_surface(active.bg, top_active_scale),
     inactive_fg = inactive.fg,
-    inactive_bg = darken_surface(inactive.bg),
+    inactive_bg = darken_surface(inactive.bg, top_inactive_scale),
+    status_active_fg = active.fg,
+    status_active_bg = darken_surface(active.bg, bottom_active_scale),
+    status_inactive_fg = inactive.fg,
+    status_inactive_bg = darken_surface(inactive.bg, bottom_inactive_scale),
+    scrollbar_bg = theme_scrollbar_accent or get("TabLineSel").bg or active.bg,
   }
 end
 
@@ -164,6 +179,7 @@ local function tab_palette()
     visible_fg = visible_fg,
     visible_bg = visible_bg,
     separator_fg = separator_fg,
+    scrollbar_bg = title_surfaces.scrollbar_bg or active_bg,
     winbar_fg = winbar_fg,
     winbar_bg = winbar_bg,
   }
@@ -211,13 +227,13 @@ function M.apply()
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
   local status_fg, status_bg = readable_pair(
-    title_surfaces.active_fg or active_status.fg or normal.fg,
-    title_surfaces.active_bg or active_status.bg or normal.bg,
+    title_surfaces.status_active_fg or active_status.fg or normal.fg,
+    title_surfaces.status_active_bg or active_status.bg or normal.bg,
     normal
   )
   local status_nc_fg, status_nc_bg = readable_pair(
-    title_surfaces.inactive_fg or inactive_status.fg or status_fg,
-    title_surfaces.inactive_bg or inactive_status.bg or status_bg,
+    title_surfaces.status_inactive_fg or inactive_status.fg or status_fg,
+    title_surfaces.status_inactive_bg or inactive_status.bg or status_bg,
     normal
   )
   set(0, "StatusLine", { fg = status_fg, bg = status_bg })
@@ -262,12 +278,12 @@ function M.apply()
 
   -- Scrollbar (Satellite & nvim-scrollbar):
   set(0, "SatelliteBackground", { bg = "#25252a" })
-  set(0, "SatelliteBar", { bg = p.active_bg })
+  set(0, "SatelliteBar", { bg = p.scrollbar_bg })
 
-  set(0, "ScrollbarHandle", { fg = p.active_bg, bg = p.active_bg })
-  set(0, "ScrollbarCursorHandle", { fg = p.active_bg, bg = p.active_bg })
+  set(0, "ScrollbarHandle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })
+  set(0, "ScrollbarCursorHandle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })
   set(0, "ScrollbarMisc", { fg = p.surface_fg, bg = p.fill_bg })
-  set(0, "ScrollbarMiscHandle", { fg = p.active_bg, bg = p.active_bg })
+  set(0, "ScrollbarMiscHandle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })
   local mark_groups = {
     Search = "Search",
     Error = "DiagnosticError",
@@ -278,7 +294,7 @@ function M.apply()
   for mark, source in pairs(mark_groups) do
     local h = get(source)
     set(0, "Scrollbar" .. mark, { fg = h.fg or p.surface_fg, bg = h.bg or p.fill_bg })
-    set(0, "Scrollbar" .. mark .. "Handle", { fg = p.active_bg, bg = p.active_bg })
+    set(0, "Scrollbar" .. mark .. "Handle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })
   end
 
   for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
@@ -294,6 +310,7 @@ end
 
 vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()
+    theme_scrollbar_accent = get_theme_scrollbar_accent()
     vim.schedule(M.apply)
   end,
 })
