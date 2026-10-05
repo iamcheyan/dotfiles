@@ -61,6 +61,32 @@ local function readable_pair(fg, bg, normal)
   return fg, bg
 end
 
+-- Darken theme-provided title surfaces toward Normal.bg so bars remain distinct
+-- from the document area without introducing a colorscheme-specific color.
+local bar_surface_dim = 0.45
+local function darken_surface(color, toward)
+  if type(color) ~= "number" or type(toward) ~= "number" then return color end
+  if relative_luminance(toward) >= relative_luminance(color) then return color end
+  local function mix_channel(color_channel, target_channel)
+    return math.floor(color_channel * (1 - bar_surface_dim) + target_channel * bar_surface_dim + 0.5)
+  end
+  local r = mix_channel(math.floor(color / 65536) % 256, math.floor(toward / 65536) % 256)
+  local g = mix_channel(math.floor(color / 256) % 256, math.floor(toward / 256) % 256)
+  local b = mix_channel(color % 256, toward % 256)
+  return r * 65536 + g * 256 + b
+end
+
+local function title_bar_surfaces(normal)
+  local active = get("TitleBar")
+  local inactive = get("TitleBarNC")
+  return {
+    active_fg = active.fg,
+    active_bg = darken_surface(active.bg, normal.bg),
+    inactive_fg = inactive.fg,
+    inactive_bg = darken_surface(inactive.bg, normal.bg),
+  }
+end
+
 local function pick_bg(...)
   for _, group in ipairs({ ... }) do
     local bg = get(group).bg
@@ -94,24 +120,23 @@ local function tab_palette()
   local normal = get("Normal")
   local normal_fg = normal.fg
   local normal_bg = normal.bg
-  local title_active = get("TitleBar")
-  local title_inactive = get("TitleBarNC")
-  local surface_bg = title_inactive.bg or preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
-  local surface_fg = title_inactive.fg or pick_fg("TabLine", "StatusLine", "Normal")
+  local title_surfaces = title_bar_surfaces(normal)
+  local surface_bg = title_surfaces.inactive_bg or preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
+  local surface_fg = title_surfaces.inactive_fg or pick_fg("TabLine", "StatusLine", "Normal")
   surface_fg, surface_bg = readable_pair(surface_fg, surface_bg, normal)
 
-  local fill_bg = title_inactive.bg or preferred_bg("TabLineFill", "TabLine", "StatusLine", "Normal")
+  local fill_bg = title_surfaces.inactive_bg or preferred_bg("TabLineFill", "TabLine", "StatusLine", "Normal")
   if contrast_ratio(surface_fg, fill_bg) < minimum_text_contrast then
     fill_bg = surface_bg
   end
 
   local active = get("TabLineSel")
-  local active_bg = title_active.bg or active.bg or get("Visual").bg or surface_bg
-  local active_fg = title_active.fg or active.fg or get("Visual").fg or normal_fg
+  local active_bg = title_surfaces.active_bg or active.bg or get("Visual").bg or surface_bg
+  local active_fg = title_surfaces.active_fg or active.fg or get("Visual").fg or normal_fg
   active_fg, active_bg = readable_pair(active_fg, active_bg, normal)
 
-  local visible_bg = title_inactive.bg or pick_bg("CursorLine", "TabLine", "Normal")
-  local visible_fg = title_inactive.fg or pick_fg("TabLine", "StatusLineNC", "NormalNC", "Normal")
+  local visible_bg = title_surfaces.inactive_bg or pick_bg("CursorLine", "TabLine", "Normal")
+  local visible_fg = title_surfaces.inactive_fg or pick_fg("TabLine", "StatusLineNC", "NormalNC", "Normal")
   visible_fg, visible_bg = readable_pair(visible_fg, visible_bg, normal)
 
   local separator_fg = pick_fg("WinSeparator", "VertSplit", "NonText", "TabLine")
@@ -125,8 +150,8 @@ local function tab_palette()
   if separator_ratio >= minimum_text_contrast then separator_fg = readable_separator else separator_fg = surface_fg end
 
   local winbar = get("WinBar")
-  local winbar_bg = winbar.bg or title_active.bg or surface_bg
-  local winbar_fg = winbar.fg or title_active.fg or surface_fg
+  local winbar_bg = winbar.bg or title_surfaces.active_bg or surface_bg
+  local winbar_fg = winbar.fg or title_surfaces.active_fg or surface_fg
   winbar_fg, winbar_bg = readable_pair(winbar_fg, winbar_bg, normal)
 
   return {
@@ -183,18 +208,17 @@ function M.apply()
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
-  local active_title = get("TitleBar")
-  local inactive_title = get("TitleBarNC")
+  local title_surfaces = title_bar_surfaces(normal)
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
   local status_fg, status_bg = readable_pair(
-    active_title.fg or active_status.fg or normal.fg,
-    active_title.bg or active_status.bg or normal.bg,
+    title_surfaces.active_fg or active_status.fg or normal.fg,
+    title_surfaces.active_bg or active_status.bg or normal.bg,
     normal
   )
   local status_nc_fg, status_nc_bg = readable_pair(
-    inactive_title.fg or inactive_status.fg or status_fg,
-    inactive_title.bg or inactive_status.bg or status_bg,
+    title_surfaces.inactive_fg or inactive_status.fg or status_fg,
+    title_surfaces.inactive_bg or inactive_status.bg or status_bg,
     normal
   )
   set(0, "StatusLine", { fg = status_fg, bg = status_bg })
