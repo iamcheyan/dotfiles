@@ -13,8 +13,8 @@ vim.opt.softtabstop = 0
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = false
 
--- COBOL fixed-format source: keep the prior line's indentation, without syntax-aware reindentation.
--- Visual shifts operate only after the 7-column sequence/indicator area.
+-- COBOL source may be pasted starting at column 1, so indentation keys shift the
+-- entire line rather than treating columns 1-7 as untouchable sequence fields.
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "cobol", "cbl", "cob" },
   callback = function(ev)
@@ -23,30 +23,82 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.cindent = false
     vim.opt_local.indentexpr = ""
 
-    local function shift_cobol_selection(direction)
-      local first = vim.fn.line("v")
-      local last = vim.fn.line(".")
-      if first > last then first, last = last, first end
-      local amount = (vim.v.count1 or 1) * (vim.bo[ev.buf].shiftwidth > 0 and vim.bo[ev.buf].shiftwidth or 4)
-      for row = first, last do
-        local line = vim.api.nvim_buf_get_lines(ev.buf, row - 1, row, false)[1] or ""
-        if #line >= 7 then
-          local prefix, body = line:sub(1, 7), line:sub(8)
-          local indent = body:match("^ *") or ""
-          local rest = body:sub(#indent + 1)
-          if direction > 0 then
-            indent = indent .. string.rep(" ", amount)
-          else
-            indent = indent:sub(1, math.max(0, #indent - amount))
-          end
-          vim.api.nvim_buf_set_lines(ev.buf, row - 1, row, false, { prefix .. indent .. rest })
-        end
+    local function shift_cobol_line(row, direction, count)
+      local line = vim.api.nvim_buf_get_lines(ev.buf, row - 1, row, false)[1] or ""
+      local amount = count * (vim.bo[ev.buf].shiftwidth > 0 and vim.bo[ev.buf].shiftwidth or 4)
+      if direction > 0 then
+        line = string.rep(" ", amount) .. line
+      else
+        local indent = line:match("^ *") or ""
+        local remove = math.min(#indent, amount)
+        line = line:sub(remove + 1)
       end
+      vim.api.nvim_buf_set_lines(ev.buf, row - 1, row, false, { line })
+    end
+
+    local function shift_cobol_range(first, last, direction, count)
+      if first > last then first, last = last, first end
+      for row = first, last do
+        shift_cobol_line(row, direction, count)
+      end
+    end
+
+    local function shift_cobol_selection(direction)
+      shift_cobol_range(vim.fn.line("v"), vim.fn.line("."), direction, vim.v.count1 or 1)
       vim.cmd("normal! gv")
     end
 
-    vim.keymap.set("x", ">", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL code area" })
-    vim.keymap.set("x", "<", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL code area" })
+    local function shift_cobol_current(direction)
+      shift_cobol_line(vim.api.nvim_win_get_cursor(0)[1], direction, vim.v.count1 or 1)
+    end
+
+    local function format_cobol_buffer()
+      local original = vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false)
+      local view = vim.fn.winsaveview()
+      local saved = {
+        indentexpr = vim.bo[ev.buf].indentexpr,
+        indentkeys = vim.bo[ev.buf].indentkeys,
+        autoindent = vim.bo[ev.buf].autoindent,
+        smartindent = vim.bo[ev.buf].smartindent,
+        cindent = vim.bo[ev.buf].cindent,
+        expandtab = vim.bo[ev.buf].expandtab,
+      }
+      local ok, err = pcall(function()
+        vim.cmd("runtime! indent/cobol.vim")
+        vim.bo[ev.buf].indentexpr = "GetCobolIndent(v:lnum)"
+        vim.bo[ev.buf].autoindent = true
+        vim.bo[ev.buf].smartindent = false
+        vim.bo[ev.buf].cindent = false
+        vim.cmd("silent keepjumps normal! gg=G")
+        local formatter_ok, formatter = pcall(require, "cobol.formatter")
+        if formatter_ok then
+          formatter.format_range(ev.buf, 1, vim.api.nvim_buf_line_count(ev.buf))
+        end
+      end)
+      if not ok then
+        vim.api.nvim_buf_set_lines(ev.buf, 0, -1, false, original)
+        vim.notify("COBOL format failed: " .. tostring(err), vim.log.levels.ERROR)
+      end
+
+      vim.bo[ev.buf].indentexpr = saved.indentexpr
+      vim.bo[ev.buf].indentkeys = saved.indentkeys
+      vim.bo[ev.buf].autoindent = saved.autoindent
+      vim.bo[ev.buf].smartindent = saved.smartindent
+      vim.bo[ev.buf].cindent = saved.cindent
+      vim.bo[ev.buf].expandtab = saved.expandtab
+      vim.fn.winrestview(view)
+    end
+
+    -- VS Code-style indentation keys: whole-line adjustment in Normal mode,
+    -- selected-line adjustment in Visual/Select mode, and Shift-Tab in Insert.
+    vim.keymap.set("n", "<Tab>", function() shift_cobol_current(1) end, { buffer = ev.buf, desc = "Indent COBOL line" })
+    vim.keymap.set("n", "<S-Tab>", function() shift_cobol_current(-1) end, { buffer = ev.buf, desc = "Unindent COBOL line" })
+    vim.keymap.set({ "x", "s" }, "<Tab>", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL selection" })
+    vim.keymap.set({ "x", "s" }, "<S-Tab>", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL selection" })
+    vim.keymap.set("x", ">", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL selection" })
+    vim.keymap.set("x", "<", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL selection" })
+    vim.keymap.set("i", "<S-Tab>", "<C-d>", { buffer = ev.buf, desc = "Unindent COBOL line" })
+    vim.keymap.set("n", "<leader>cO", format_cobol_buffer, { buffer = ev.buf, desc = "Format entire COBOL buffer" })
 
     -- A period terminates COBOL words/sentences; hide any completion menu it triggers.
     local group = vim.api.nvim_create_augroup("CobolNoPeriodCompletion_" .. ev.buf, { clear = true })
