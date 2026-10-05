@@ -94,22 +94,24 @@ local function tab_palette()
   local normal = get("Normal")
   local normal_fg = normal.fg
   local normal_bg = normal.bg
-  local surface_bg = preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
-  local surface_fg = pick_fg("TabLine", "StatusLine", "Normal")
+  local title_active = get("TitleBar")
+  local title_inactive = get("TitleBarNC")
+  local surface_bg = title_inactive.bg or preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
+  local surface_fg = title_inactive.fg or pick_fg("TabLine", "StatusLine", "Normal")
   surface_fg, surface_bg = readable_pair(surface_fg, surface_bg, normal)
 
-  local fill_bg = preferred_bg("TabLineFill", "TabLine", "StatusLine", "Normal")
+  local fill_bg = title_inactive.bg or preferred_bg("TabLineFill", "TabLine", "StatusLine", "Normal")
   if contrast_ratio(surface_fg, fill_bg) < minimum_text_contrast then
     fill_bg = surface_bg
   end
 
   local active = get("TabLineSel")
-  local active_bg = active.bg or get("Visual").bg or surface_bg
-  local active_fg = active.fg or get("Visual").fg or normal_fg
+  local active_bg = title_active.bg or active.bg or get("Visual").bg or surface_bg
+  local active_fg = title_active.fg or active.fg or get("Visual").fg or normal_fg
   active_fg, active_bg = readable_pair(active_fg, active_bg, normal)
 
-  local visible_bg = pick_bg("CursorLine", "TabLine", "Normal")
-  local visible_fg = pick_fg("TabLine", "StatusLineNC", "NormalNC", "Normal")
+  local visible_bg = title_inactive.bg or pick_bg("CursorLine", "TabLine", "Normal")
+  local visible_fg = title_inactive.fg or pick_fg("TabLine", "StatusLineNC", "NormalNC", "Normal")
   visible_fg, visible_bg = readable_pair(visible_fg, visible_bg, normal)
 
   local separator_fg = pick_fg("WinSeparator", "VertSplit", "NonText", "TabLine")
@@ -123,8 +125,8 @@ local function tab_palette()
   if separator_ratio >= minimum_text_contrast then separator_fg = readable_separator else separator_fg = surface_fg end
 
   local winbar = get("WinBar")
-  local winbar_bg = winbar.bg or surface_bg
-  local winbar_fg = winbar.fg or surface_fg
+  local winbar_bg = winbar.bg or title_active.bg or surface_bg
+  local winbar_fg = winbar.fg or title_active.fg or surface_fg
   winbar_fg, winbar_bg = readable_pair(winbar_fg, winbar_bg, normal)
 
   return {
@@ -181,16 +183,27 @@ function M.apply()
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
-  for _, group in ipairs({ "StatusLine", "StatusLineNC" }) do
-    local style = get(group)
-    local fg, bg = readable_pair(style.fg or normal.fg, style.bg or normal.bg, normal)
-    set(0, group, { fg = fg, bg = bg })
-  end
+  local active_title = get("TitleBar")
+  local inactive_title = get("TitleBarNC")
+  local active_status = get("StatusLine")
+  local inactive_status = get("StatusLineNC")
+  local status_fg, status_bg = readable_pair(
+    active_title.fg or active_status.fg or normal.fg,
+    active_title.bg or active_status.bg or normal.bg,
+    normal
+  )
+  local status_nc_fg, status_nc_bg = readable_pair(
+    inactive_title.fg or inactive_status.fg or status_fg,
+    inactive_title.bg or inactive_status.bg or status_bg,
+    normal
+  )
+  set(0, "StatusLine", { fg = status_fg, bg = status_bg })
+  set(0, "StatusLineNC", { fg = status_nc_fg, bg = status_nc_bg })
 
   -- The path and metadata bar should read as a UI surface, not disappear
   -- into the editor background.  The colors still come from the active theme.
   set(0, "WinBar", { fg = p.winbar_fg, bg = p.winbar_bg })
-  set(0, "WinBarNC", { fg = p.visible_fg, bg = p.winbar_bg })
+  set(0, "WinBarNC", { fg = p.visible_fg, bg = p.visible_bg })
 
   set(0, "BufferLineFill", { fg = p.surface_fg, bg = p.fill_bg })
   set(0, "BufferLineNewBuffer", { fg = p.normal_fg, bg = p.fill_bg, bold = true })

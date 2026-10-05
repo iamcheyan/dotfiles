@@ -33,6 +33,12 @@ local function readable(name, fg, bg)
 end
 
 local tabs = ui.bufferline_highlights()
+local title_active = vim.api.nvim_get_hl(0, { name = "TitleBar", link = false })
+local title_inactive = vim.api.nvim_get_hl(0, { name = "TitleBarNC", link = false })
+local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+assert(tabs.fill.bg == title_inactive.bg, "top-bar fill should use the blue theme's dark inactive surface")
+assert(tabs.buffer_selected.bg == title_active.bg, "selected tab should use the blue theme's dark active surface")
+assert(tabs.fill.bg ~= normal.bg, "top-bar fill should remain distinct from the document background")
 for _, name in ipairs({ "fill", "buffer", "buffer_visible", "buffer_selected" }) do
   readable("BufferLine " .. name, tabs[name].fg, tabs[name].bg)
 end
@@ -40,6 +46,14 @@ for _, name in ipairs({ "WinBar", "WinBarNC", "StatusLine", "StatusLineNC" }) do
   local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
   readable(name, hl.fg, hl.bg)
 end
+local status_active = vim.api.nvim_get_hl(0, { name = "StatusLine", link = false })
+local status_inactive = vim.api.nvim_get_hl(0, { name = "StatusLineNC", link = false })
+local winbar_active = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
+local winbar_inactive = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
+assert(status_active.bg == title_active.bg, "bottom statusline should use the blue theme's dark active surface")
+assert(status_inactive.bg == title_inactive.bg, "inactive statusline should use the blue theme's dark surface")
+assert(status_active.bg ~= normal.bg and status_inactive.bg ~= normal.bg, "bottom bars should be distinct from the document background")
+assert(winbar_active.bg == title_active.bg and winbar_inactive.bg == title_inactive.bg, "window bars should use the theme's dark title surfaces")
 
 -- Runtime theme switching should keep the existing high-contrast theme legible too.
 vim.cmd.colorscheme("high-contrast-plus")
