@@ -33,12 +33,29 @@ vim.api.nvim_create_autocmd("FileType", {
 
     local function shift_cobol_line(row, direction, count)
       local line = vim.api.nvim_buf_get_lines(ev.buf, row - 1, row, false)[1] or ""
-      local amount = count * (vim.bo[ev.buf].shiftwidth > 0 and vim.bo[ev.buf].shiftwidth or 4)
+      local shiftwidth = vim.bo[ev.buf].shiftwidth > 0 and vim.bo[ev.buf].shiftwidth or 4
       if direction > 0 then
-        line = string.rep(" ", amount) .. line
+        line = string.rep(" ", count * shiftwidth) .. line
       else
         local indent = line:match("^ *") or ""
-        local remove = math.min(#indent, amount)
+        local remove = 0
+        for _ = 1, count do
+          local length = #indent
+          local step
+          if length <= 6 then
+            step = length
+          elseif length == 7 then
+            step = 1
+          elseif length < 11 then
+            step = length - 7
+          elseif length == 11 then
+            step = 4
+          else
+            step = math.min(shiftwidth, length)
+          end
+          remove = remove + step
+          indent = indent:sub(step + 1)
+        end
         line = line:sub(remove + 1)
       end
       vim.api.nvim_buf_set_lines(ev.buf, row - 1, row, false, { line })
@@ -105,7 +122,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set({ "x", "s" }, "<S-Tab>", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL selection" })
     vim.keymap.set("x", ">", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL selection" })
     vim.keymap.set("x", "<", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL selection" })
-    vim.keymap.set("i", "<S-Tab>", "<C-d>", { buffer = ev.buf, desc = "Unindent COBOL line" })
     vim.keymap.set("n", "<leader>cO", format_cobol_buffer, { buffer = ev.buf, desc = "Format entire COBOL buffer" })
 
     -- A period terminates COBOL words/sentences; hide any completion menu it triggers.

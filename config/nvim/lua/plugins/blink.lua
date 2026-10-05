@@ -183,8 +183,26 @@ return {
       keymap = {
         preset = "enter",
         ["<C-y>"] = { "select_and_accept" },
-        -- snippet_forward first, otherwise fall back (e.g. to indentation)
-        ["<Tab>"] = { "snippet_forward", "fallback" },
+        ["<Tab>"] = {
+          function(cmp)
+            if vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
+              local aligned = require("cobol").smart_tab()
+              if aligned then return aligned end
+            end
+            return cmp.snippet_forward()
+          end,
+          "fallback",
+        },
+        ["<S-Tab>"] = {
+          function(cmp)
+            if vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
+              local aligned = require("cobol").smart_backtab()
+              if aligned then return vim.api.nvim_replace_termcodes(aligned, true, false, true) end
+            end
+            return cmp.snippet_backward()
+          end,
+          "fallback",
+        },
       },
     },
 
