@@ -39,6 +39,8 @@ local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
 assert(luminance(tabs.fill.bg) < luminance(title_inactive.bg), "top-bar fill should be darker than the blue theme's inactive title surface")
 assert(luminance(tabs.buffer_selected.bg) < luminance(title_active.bg), "selected tab should be darker than the blue theme's active title surface")
 assert(tabs.fill.bg ~= normal.bg, "top-bar fill should remain distinct from the document background")
+assert(luminance(tabs.fill.bg) < luminance(normal.bg), "top-bar fill should be darker than the document background")
+assert(luminance(tabs.buffer_selected.bg) < luminance(normal.bg), "selected tab should be darker than the document background")
 for _, name in ipairs({ "fill", "buffer", "buffer_visible", "buffer_selected" }) do
   readable("BufferLine " .. name, tabs[name].fg, tabs[name].bg)
 end
@@ -53,7 +55,9 @@ local winbar_inactive = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false
 assert(luminance(status_active.bg) < luminance(title_active.bg), "bottom statusline should be darker than the blue theme's active title surface")
 assert(luminance(status_inactive.bg) < luminance(title_inactive.bg), "inactive statusline should be darker than the blue theme's inactive title surface")
 assert(status_active.bg ~= normal.bg and status_inactive.bg ~= normal.bg, "bottom bars should be distinct from the document background")
+assert(luminance(status_active.bg) < luminance(normal.bg) and luminance(status_inactive.bg) < luminance(normal.bg), "bottom bars should be darker than the document background")
 assert(luminance(winbar_active.bg) < luminance(title_active.bg) and luminance(winbar_inactive.bg) < luminance(title_inactive.bg), "window bars should be darker than the title surfaces")
+assert(luminance(winbar_active.bg) < luminance(normal.bg) and luminance(winbar_inactive.bg) < luminance(normal.bg), "window bars should be darker than the document background")
 
 -- Runtime theme switching should keep the existing high-contrast theme legible too.
 vim.cmd.colorscheme("high-contrast-plus")

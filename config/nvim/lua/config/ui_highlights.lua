@@ -61,29 +61,28 @@ local function readable_pair(fg, bg, normal)
   return fg, bg
 end
 
--- Darken theme-provided title surfaces toward Normal.bg so bars remain distinct
--- from the document area without introducing a colorscheme-specific color.
-local bar_surface_dim = 0.45
-local function darken_surface(color, toward)
-  if type(color) ~= "number" or type(toward) ~= "number" then return color end
-  if relative_luminance(toward) >= relative_luminance(color) then return color end
-  local function mix_channel(color_channel, target_channel)
-    return math.floor(color_channel * (1 - bar_surface_dim) + target_channel * bar_surface_dim + 0.5)
+-- Keep Blue's bar hue but scale its theme-provided title surfaces down to a
+-- near-black shade, distinct from the document's saturated Normal background.
+local bar_surface_scale = 0.32
+local function darken_surface(color)
+  if type(color) ~= "number" then return color end
+  local function scale_channel(channel)
+    return math.floor(channel * bar_surface_scale + 0.5)
   end
-  local r = mix_channel(math.floor(color / 65536) % 256, math.floor(toward / 65536) % 256)
-  local g = mix_channel(math.floor(color / 256) % 256, math.floor(toward / 256) % 256)
-  local b = mix_channel(color % 256, toward % 256)
+  local r = scale_channel(math.floor(color / 65536) % 256)
+  local g = scale_channel(math.floor(color / 256) % 256)
+  local b = scale_channel(color % 256)
   return r * 65536 + g * 256 + b
 end
 
-local function title_bar_surfaces(normal)
+local function title_bar_surfaces()
   local active = get("TitleBar")
   local inactive = get("TitleBarNC")
   return {
     active_fg = active.fg,
-    active_bg = darken_surface(active.bg, normal.bg),
+    active_bg = darken_surface(active.bg),
     inactive_fg = inactive.fg,
-    inactive_bg = darken_surface(inactive.bg, normal.bg),
+    inactive_bg = darken_surface(inactive.bg),
   }
 end
 
@@ -120,7 +119,7 @@ local function tab_palette()
   local normal = get("Normal")
   local normal_fg = normal.fg
   local normal_bg = normal.bg
-  local title_surfaces = title_bar_surfaces(normal)
+  local title_surfaces = title_bar_surfaces()
   local surface_bg = title_surfaces.inactive_bg or preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
   local surface_fg = title_surfaces.inactive_fg or pick_fg("TabLine", "StatusLine", "Normal")
   surface_fg, surface_bg = readable_pair(surface_fg, surface_bg, normal)
@@ -208,7 +207,7 @@ function M.apply()
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
-  local title_surfaces = title_bar_surfaces(normal)
+  local title_surfaces = title_bar_surfaces()
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
   local status_fg, status_bg = readable_pair(
