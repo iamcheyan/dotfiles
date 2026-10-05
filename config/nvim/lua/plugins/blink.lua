@@ -183,6 +183,48 @@ return {
       keymap = {
         preset = "enter",
         ["<C-y>"] = { "select_and_accept" },
+        ["<BS>"] = {
+          function()
+            if not vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then return end
+            local cobol = require("cobol")
+            if cobol.detect_format(0) ~= "fixed" then return end
+
+            local buf = vim.api.nvim_get_current_buf()
+            local win = vim.api.nvim_get_current_win()
+            local row, cursor_byte = unpack(vim.api.nvim_win_get_cursor(win))
+            local line = vim.api.nvim_get_current_line()
+            local prefix = line:sub(1, math.min(cursor_byte + 1, #line))
+            local target_prefix
+
+            if #prefix >= 7 and prefix:sub(1, 7):match("^%s*$") then
+              local code = prefix:sub(8)
+              local data_name = code:match("^(%d%d%s+[%w_%-]+)%s+$")
+              local level = code:match("^(%d%d)%s+$")
+              if data_name then
+                target_prefix = prefix:sub(1, 7 + #data_name)
+              elseif level then
+                target_prefix = prefix:sub(1, 7 + #level)
+              end
+            end
+
+            if not target_prefix and prefix:match("^ *$") then
+              local col = vim.fn.strdisplaywidth(prefix) + 1
+              local sw = vim.bo[buf].shiftwidth > 0 and vim.bo[buf].shiftwidth or 4
+              local target = col <= 7 and 1 or col == 8 and 7 or col <= 12 and 8 or math.max(12, col - sw)
+              target_prefix = string.rep(" ", target - 1)
+            end
+            if not target_prefix or #target_prefix >= #prefix then return end
+
+            vim.schedule(function()
+              if not vim.api.nvim_buf_is_valid(buf) or not vim.api.nvim_buf_is_loaded(buf) then return end
+              local current = vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1] or ""
+              if current:sub(1, #prefix) ~= prefix then return end
+              vim.api.nvim_buf_set_text(buf, row - 1, 0, row - 1, #prefix, { target_prefix })
+            end)
+            return true
+          end,
+          "fallback",
+        },
         ["<Tab>"] = {
           function(cmp)
             if vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
