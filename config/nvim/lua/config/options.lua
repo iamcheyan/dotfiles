@@ -13,15 +13,55 @@ vim.opt.softtabstop = 0
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = false
 
--- COBOL fixed-format source: do not inherit indentation when starting a new line.
--- The sequence area (columns 1-7) is positional, not ordinary indentation.
+-- COBOL fixed-format source: keep the prior line's indentation, without syntax-aware reindentation.
+-- Visual shifts operate only after the 7-column sequence/indicator area.
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "cobol", "cbl", "cob" },
-  callback = function()
-    vim.opt_local.autoindent = false
+  callback = function(ev)
+    vim.opt_local.autoindent = true
     vim.opt_local.smartindent = false
     vim.opt_local.cindent = false
     vim.opt_local.indentexpr = ""
+
+    local function shift_cobol_selection(direction)
+      local first = vim.fn.line("v")
+      local last = vim.fn.line(".")
+      if first > last then first, last = last, first end
+      local amount = (vim.v.count1 or 1) * (vim.bo[ev.buf].shiftwidth > 0 and vim.bo[ev.buf].shiftwidth or 4)
+      for row = first, last do
+        local line = vim.api.nvim_buf_get_lines(ev.buf, row - 1, row, false)[1] or ""
+        if #line >= 7 then
+          local prefix, body = line:sub(1, 7), line:sub(8)
+          local indent = body:match("^ *") or ""
+          local rest = body:sub(#indent + 1)
+          if direction > 0 then
+            indent = indent .. string.rep(" ", amount)
+          else
+            indent = indent:sub(1, math.max(0, #indent - amount))
+          end
+          vim.api.nvim_buf_set_lines(ev.buf, row - 1, row, false, { prefix .. indent .. rest })
+        end
+      end
+      vim.cmd("normal! gv")
+    end
+
+    vim.keymap.set("x", ">", function() shift_cobol_selection(1) end, { buffer = ev.buf, desc = "Indent COBOL code area" })
+    vim.keymap.set("x", "<", function() shift_cobol_selection(-1) end, { buffer = ev.buf, desc = "Unindent COBOL code area" })
+
+    -- A period terminates COBOL words/sentences; hide any completion menu it triggers.
+    local group = vim.api.nvim_create_augroup("CobolNoPeriodCompletion_" .. ev.buf, { clear = true })
+    vim.api.nvim_create_autocmd("InsertCharPre", {
+      group = group,
+      buffer = ev.buf,
+      callback = function()
+        if vim.v.char == "." then
+          vim.schedule(function()
+            local ok, blink = pcall(require, "blink.cmp")
+            if ok and blink.hide then blink.hide() end
+          end)
+        end
+      end,
+    })
   end,
 })
 
