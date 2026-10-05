@@ -13,6 +13,18 @@ vim.opt.softtabstop = 0
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = false
 
+-- COBOL fixed-format source: do not inherit indentation when starting a new line.
+-- The sequence area (columns 1-7) is positional, not ordinary indentation.
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "cobol", "cbl", "cob" },
+  callback = function()
+    vim.opt_local.autoindent = false
+    vim.opt_local.smartindent = false
+    vim.opt_local.cindent = false
+    vim.opt_local.indentexpr = ""
+  end,
+})
+
 vim.opt.clipboard = "unnamedplus"
 
 -- 多设备跨平台剪贴板智能适配：
