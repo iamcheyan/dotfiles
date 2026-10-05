@@ -18,7 +18,15 @@ vim.opt.expandtab = false
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "cobol", "cbl", "cob" },
   callback = function(ev)
-    vim.opt_local.autoindent = true
+    -- Use an explicit Enter mapping instead of filetype-dependent indentexpr behavior.
+    -- This always copies exactly the current line's leading whitespace, including col 8.
+    vim.opt_local.autoindent = false
+    vim.keymap.set("i", "<CR>", function()
+      local ok, blink = pcall(require, "blink.cmp")
+      if ok and blink.is_menu_visible() then return "<C-y>" end
+      local indent = vim.api.nvim_get_current_line():match("^%s*") or ""
+      return "<CR>" .. indent
+    end, { buffer = ev.buf, expr = true, desc = "COBOL: continue previous line indentation" })
     vim.opt_local.smartindent = false
     vim.opt_local.cindent = false
     vim.opt_local.indentexpr = ""
