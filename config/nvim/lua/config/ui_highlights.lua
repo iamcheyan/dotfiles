@@ -85,19 +85,106 @@ local function darken_surface(color, scale)
   return r * 65536 + g * 256 + b
 end
 
+local function mix_colors(color_a, color_b, amount_b)
+  if type(color_a) ~= "number" or type(color_b) ~= "number" then return nil end
+  local function channel(color, shift)
+    return math.floor(color / (2 ^ shift)) % 256
+  end
+  local r = math.floor(channel(color_a, 16) * (1 - amount_b) + channel(color_b, 16) * amount_b + 0.5)
+  local g = math.floor(channel(color_a, 8) * (1 - amount_b) + channel(color_b, 8) * amount_b + 0.5)
+  local b = math.floor(channel(color_a, 0) * (1 - amount_b) + channel(color_b, 0) * amount_b + 0.5)
+  return r * 65536 + g * 256 + b
+end
+
+local function xterm_color(index)
+  if index >= 232 then
+    local level = 8 + (index - 232) * 10
+    return level * 65536 + level * 257
+  end
+  if index >= 16 then
+    local levels = { 0, 95, 135, 175, 215, 255 }
+    local value = index - 16
+    local r = levels[math.floor(value / 36) + 1]
+    local g = levels[math.floor(value / 6) % 6 + 1]
+    local b = levels[value % 6 + 1]
+    return r * 65536 + g * 256 + b
+  end
+end
+
+local function nearest_xterm_color(color)
+  if type(color) ~= "number" then return nil end
+  local best_index, best_distance = nil, math.huge
+  local r, g, b = math.floor(color / 65536) % 256, math.floor(color / 256) % 256, color % 256
+  for index = 16, 255 do
+    local candidate = xterm_color(index)
+    local dr = r - math.floor(candidate / 65536) % 256
+    local dg = g - math.floor(candidate / 256) % 256
+    local db = b - candidate % 256
+    local distance = dr * dr + dg * dg + db * db
+    if distance < best_distance then
+      best_index, best_distance = index, distance
+    end
+  end
+  return best_index
+end
+
+local function apply_cursor_guide_highlights()
+  local cursor_line = get("CursorLine")
+  local cursor_column = get("CursorColumn")
+  local normal = get("Normal")
+  if cursor_line.bg == nil or cursor_column.bg == nil or cursor_column.bg ~= cursor_line.bg then
+    return
+  end
+
+  -- A shared row/column color erases the vertical axis at their crossing.
+  -- Pull the column guide toward the editor surface to keep both directions
+  -- visible, while preserving any theme that already chose separate colors.
+  local attrs = vim.deepcopy(cursor_column)
+  attrs.bg = mix_colors(cursor_column.bg, normal.bg, 0.65)
+  if attrs.ctermbg then attrs.ctermbg = nearest_xterm_color(attrs.bg) end
+  if attrs.bg then
+    vim.api.nvim_set_hl(0, "CursorColumn", attrs)
+  end
+end
+
+function M.apply_completion_highlights()
+  local menu = get("Pmenu")
+  local normal = get("Normal")
+  local doc_bg = normal.bg or menu.bg
+  local doc_fg = readable_foreground(
+    doc_bg,
+    menu.fg,
+    normal.fg,
+    get("StatusLine").fg,
+    get("LineNr").fg
+  ) or menu.fg or normal.fg
+  if not doc_bg or not doc_fg then return end
+
+  -- Keep completion docs distinct from the list surface and readable on every
+  -- colorscheme; the menu itself continues to use Pmenu/PmenuSel.
+  vim.api.nvim_set_hl(0, "BlinkCmpMenuBorder", { fg = menu.fg or doc_fg, bg = menu.bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpDoc", { fg = doc_fg, bg = doc_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpDocBorder", { fg = doc_fg, bg = doc_bg })
+  vim.api.nvim_set_hl(0, "BlinkCmpDocSeparator", { fg = doc_fg, bg = doc_bg })
+end
+
 local function title_bar_surfaces()
   local active = get("TitleBar")
   local inactive = get("TitleBarNC")
+  local tab_accent = theme_scrollbar_accent or get("TabLineSel").bg or active.bg
+  local is_blue = vim.g.colors_name == "blue"
   return {
-    active_fg = active.fg,
-    active_bg = darken_surface(active.bg, top_active_scale),
+    active_fg = is_blue and (get("TabLineSel").fg or active.fg) or active.fg,
+    -- Keep the original bright blue on the active top tab.  The darkened
+    -- title-bar blue made the whole top edge read nearly black.
+    active_bg = is_blue and tab_accent or darken_surface(active.bg, top_active_scale),
     inactive_fg = inactive.fg,
     inactive_bg = darken_surface(inactive.bg, top_inactive_scale),
-    status_active_fg = active.fg,
-    status_active_bg = darken_surface(active.bg, bottom_active_scale),
+    status_active_fg = is_blue and (get("TabLineSel").fg or active.fg) or darken_surface(active.fg, 1.0),
+    status_active_bg = is_blue and tab_accent or darken_surface(active.bg, top_active_scale),
     status_inactive_fg = inactive.fg,
-    status_inactive_bg = darken_surface(inactive.bg, bottom_inactive_scale),
-    scrollbar_bg = theme_scrollbar_accent or get("TabLineSel").bg or active.bg,
+    status_inactive_bg = inactive.bg,
+    scrollbar_bg = tab_accent,
   }
 end
 
@@ -219,11 +306,63 @@ function M.bufferline_highlights()
   }
 end
 
+-- Snacks links the focused list row to Visual by default. Visual may have
+-- exactly the same surface as NormalFloat, making the selection disappear.
+function M.apply_picker_highlights()
+  local normal = get("Normal")
+  local menu = get("Pmenu")
+  local selected = get("PmenuSel")
+  local separator = get("WinSeparator")
+  local float_bg = menu.bg or get("NormalFloat").bg or normal.bg
+  local float_fg = menu.fg or get("NormalFloat").fg or normal.fg
+  -- Both panes share the menu surface so the picker reads as one cohesive
+  -- menu rather than a teal list pasted over a differently colored editor.
+  local preview_bg = darken_surface(float_bg, 0.34)
+  local preview_fg = normal.fg or float_fg
+  if not float_bg then return end
+
+  -- Keep both panes and the footer on one opaque, menu-colored surface.
+  for _, group in ipairs({ "SnacksPickerInput", "SnacksPickerList" }) do
+    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
+  end
+  for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter" }) do
+    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
+  end
+  for _, group in ipairs({ "SnacksPickerFooterKey", "SnacksPickerFooterText", "SnacksPickerFooterSeparator" }) do
+    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
+  end
+  vim.api.nvim_set_hl(0, "SnacksPickerPreview", { fg = preview_fg, bg = preview_bg })
+  local border_fg = float_fg or separator.fg or get("FloatBorder").fg
+  for _, group in ipairs({
+    "SnacksPickerBorder", "SnacksPickerInputBorder", "SnacksPickerListBorder",
+    "SnacksPickerPreviewBorder", "SnacksPickerFooterBorder",
+  }) do
+    vim.api.nvim_set_hl(0, group, { fg = border_fg, bg = float_bg })
+  end
+
+  -- Match the context menu's inverted active row, using the current theme's
+  -- popup selection pair rather than a fixed color.
+  local selected_bg = selected.bg or float_fg
+  local selected_fg = selected.fg or float_bg
+  vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", {
+    bg = selected_bg,
+    fg = selected_fg,
+    ctermbg = selected.ctermbg or nearest_xterm_color(selected_bg),
+    ctermfg = selected.ctermfg or nearest_xterm_color(selected_fg),
+    bold = true,
+  })
+end
+
 function M.apply()
+  local winbar_before = get("WinBar")
+  local winbar_nc_before = get("WinBarNC")
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
   local title_surfaces = title_bar_surfaces()
+  apply_cursor_guide_highlights()
+  M.apply_completion_highlights()
+  M.apply_picker_highlights()
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
   local status_fg, status_bg = readable_pair(
@@ -306,9 +445,22 @@ function M.apply()
       set(0, group, { fg = p.surface_fg, bg = p.surface_bg })
     end
   end
+
+  -- Heirline caches both component strings and generated RGB highlight
+  -- groups. Invalidate them after the delayed adapter changes the bar palette,
+  -- so the first visible frame uses the new foreground and background together.
+  if not vim.deep_equal(winbar_before, get("WinBar"))
+      or not vim.deep_equal(winbar_nc_before, get("WinBarNC")) then
+    if package.loaded["heirline"] then
+      require("heirline.utils").on_colorscheme()
+    end
+    vim.schedule(function() pcall(vim.cmd, "redrawstatus") end)
+  end
 end
 
+local ui_group = vim.api.nvim_create_augroup("ThemeUiHighlights", { clear = true })
 vim.api.nvim_create_autocmd("ColorScheme", {
+  group = ui_group,
   callback = function()
     theme_scrollbar_accent = get_theme_scrollbar_accent()
     vim.schedule(M.apply)
@@ -321,6 +473,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 -- not match the current theme.  Re-applying 100 ms after BufEnter gives
 -- bufferline time to create the group before we overwrite it.
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "TabEnter" }, {
+  group = ui_group,
   callback = function()
     vim.defer_fn(M.apply, 100)
   end,

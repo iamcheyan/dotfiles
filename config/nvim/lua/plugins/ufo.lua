@@ -49,11 +49,11 @@ return {
       vim.o.foldlevelstart = 99
       vim.o.foldenable = true
 
-      -- 当某一行被折叠时，整行使用高对比度背景色（深灰 #24242a），字泛白，让整行折叠状态一目了然
+      -- Reuse the theme's current-line surface for folded rows. This keeps
+      -- folds visually distinct without forcing the same gray in every theme.
       local function set_fold_hl()
         vim.api.nvim_set_hl(0, "Folded", {
-          fg = "#f0f0f4",
-          bg = "#24242a",
+          link = "CursorLine",
         })
       end
       set_fold_hl()

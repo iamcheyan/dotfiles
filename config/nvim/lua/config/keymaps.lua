@@ -188,12 +188,11 @@ vim.keymap.set("x", "<C-c>", '"+y', { desc = "Copy selection to system clipboard
 -- 3. Ctrl + X: 仅在可视模式下生效，剪切选区到系统剪贴板 (普通模式保留数字减 1，插入模式保留补全前缀)
 vim.keymap.set("x", "<C-x>", '"+d', { desc = "Cut selection to system clipboard" })
 
--- 4. 覆盖粘贴绝不冲掉剪贴板 (从 AI 复制之后，在 Vim 选中文本直接粘贴覆盖，剪贴板内容不变)
-vim.keymap.set("x", "p", 'P', { desc = "Paste over selection without clobbering clipboard" })
-vim.keymap.set("x", "<C-v>", 'P', { desc = "Paste over selection from clipboard" })
+-- 4. smart-paste.nvim 接管 p/P：行式粘贴按目标上下文调整缩进，并保留原剪贴板。
+vim.keymap.set("x", "<C-v>", function() require("smart-paste").paste_clipboard_visual() end, { desc = "Smart paste clipboard over selection" })
 
--- 5. 插入模式下 Ctrl + V: 从系统剪贴板原样粘贴 (保留缩进格式，避免自动缩进导致阶梯错位)
-vim.keymap.set("i", "<C-v>", "<C-r><C-o>+", { desc = "Paste from system clipboard verbatim" })
+-- 5. 插入模式 Ctrl + V：多行代码按当前位置缩进重排；单行文本保持原样插入。
+vim.keymap.set("i", "<C-v>", "<Plug>(smart-paste-clipboard-insert)", { remap = true, desc = "Smart paste from system clipboard" })
 
 -- =======================================================================
 -- 全面纯删除与真正剪切工作流 (Black Hole Register & Dedicated Cut)

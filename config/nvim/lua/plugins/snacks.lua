@@ -69,6 +69,36 @@ return {
         lazygit = { border = "single" },
       },
       picker = {
+        on_show = function(picker)
+          -- The picker floats over the editor; hide its context winbar while
+          -- open so the old buffer breadcrumb does not look like a stray bar.
+          local win = picker.main
+          if win and vim.api.nvim_win_is_valid(win) then
+            picker._saved_main_winbar = vim.wo[win].winbar
+            vim.wo[win].winbar = ""
+          end
+          -- Snacks maps NormalFloat for the preview, but blank filler lines
+          -- use Normal. Map that too so scrolling past document text never
+          -- exposes the editor's blue background inside the picker.
+          vim.defer_fn(function()
+            if picker.closed then return end
+            local preview = picker.preview and picker.preview.win and picker.preview.win.win
+            if preview and vim.api.nvim_win_is_valid(preview) then
+              local winhl = vim.wo[preview].winhighlight
+              if not winhl:find("Normal:", 1, true) then
+                vim.wo[preview].winhighlight = (winhl ~= "" and (winhl .. ",") or "")
+                  .. "Normal:SnacksPickerPreview"
+              end
+            end
+          end, 50)
+        end,
+        on_close = function(picker)
+          local win = picker.main
+          if win and vim.api.nvim_win_is_valid(win) and picker._saved_main_winbar ~= nil then
+            vim.wo[win].winbar = picker._saved_main_winbar
+            picker._saved_main_winbar = nil
+          end
+        end,
         layout = {
           layout = {
             box = "horizontal",
@@ -77,29 +107,32 @@ return {
             height = 0.8,
             border = "single",
             footer = {
-              { " Alt+h ", "Special" },
-              { "Toggle Hidden", "Comment" },
-              { "  │  ", "NonText" },
-              { " Alt+i ", "Special" },
-              { "Toggle Ignored", "Comment" },
-              { "  │  ", "NonText" },
-              { " Enter ", "Special" },
-              { "Open", "Comment" },
-              { "  │  ", "NonText" },
-              { " Esc ", "Special" },
-              { "Close", "Comment" },
+              { " Alt+h ", "SnacksPickerFooterKey" },
+              { "Toggle Hidden", "SnacksPickerFooterText" },
+              { "  │  ", "SnacksPickerFooterSeparator" },
+              { " Alt+i ", "SnacksPickerFooterKey" },
+              { "Toggle Ignored", "SnacksPickerFooterText" },
+              { "  │  ", "SnacksPickerFooterSeparator" },
+              { " Enter ", "SnacksPickerFooterKey" },
+              { "Open", "SnacksPickerFooterText" },
+              { "  │  ", "SnacksPickerFooterSeparator" },
+              { " Esc ", "SnacksPickerFooterKey" },
+              { "Close", "SnacksPickerFooterText" },
             },
             footer_pos = "center",
             {
               box = "vertical",
               border = "none",
-              { win = "input", height = 1, border = "bottom" },
+              { win = "input", height = 1, border = "single" },
               { win = "list", border = "none" },
             },
             { win = "preview", border = "left", width = 0.55 },
           },
         },
         win = {
+          preview = {
+            wo = { cursorcolumn = false },
+          },
           input = {
             keys = {
               ["<a-h>"] = { "toggle_hidden", mode = { "i", "n" } },

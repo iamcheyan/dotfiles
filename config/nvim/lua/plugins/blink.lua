@@ -129,8 +129,11 @@ return {
           },
         },
         menu = {
-          border = "single",
+          border = "rounded",
           draw = {
+            align_to = "label",
+            padding = 1,
+            gap = 1,
             treesitter = { "lsp" },
           },
         },
@@ -138,7 +141,9 @@ return {
           auto_show = true,
           auto_show_delay_ms = 200,
           window = {
-            border = "single",
+            border = "rounded",
+            max_width = 60,
+            max_height = 16,
           },
         },
         ghost_text = {
@@ -272,6 +277,7 @@ return {
       end
 
       require("blink.cmp").setup(opts)
+      require("config.ui_highlights").apply_completion_highlights()
     end,
   },
 }

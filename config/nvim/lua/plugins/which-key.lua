@@ -76,7 +76,30 @@ return {
       },
     },
     config = function(_, opts)
-      vim.api.nvim_set_hl(0, "WhichKeyTitle", { default = true, fg = "#eed49f", bold = true, bg = "NONE" })
+      local function apply_which_key_highlights()
+        local float = vim.api.nvim_get_hl(0, { name = "NormalFloat", link = false })
+        local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
+        local menu = vim.api.nvim_get_hl(0, { name = "Pmenu", link = false })
+        local bg = float.bg or menu.bg
+        local fg = float.fg or menu.fg
+        local accent = winbar.fg or fg
+        if not bg or not fg then return end
+        -- Match the readable teal menu surface used by floating pickers while
+        -- taking both colors from the active theme.
+        vim.api.nvim_set_hl(0, "WhichKeyNormal", { fg = fg, bg = bg })
+        vim.api.nvim_set_hl(0, "WhichKey", { fg = accent, bg = bg, bold = true })
+        vim.api.nvim_set_hl(0, "WhichKeyGroup", { fg = accent, bg = bg, bold = true })
+        vim.api.nvim_set_hl(0, "WhichKeyDesc", { fg = fg, bg = bg })
+        vim.api.nvim_set_hl(0, "WhichKeySeparator", { fg = accent, bg = bg })
+        vim.api.nvim_set_hl(0, "WhichKeyValue", { fg = fg, bg = bg })
+        vim.api.nvim_set_hl(0, "WhichKeyBorder", { fg = accent, bg = bg })
+        vim.api.nvim_set_hl(0, "WhichKeyTitle", { fg = fg, bg = bg, bold = true })
+      end
+      apply_which_key_highlights()
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("WhichKeyThemeHighlights", { clear = true }),
+        callback = function() vim.schedule(apply_which_key_highlights) end,
+      })
       local wk = require("which-key")
       wk.setup(opts)
       if not vim.tbl_isempty(opts.defaults) then

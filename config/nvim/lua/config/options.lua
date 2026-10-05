@@ -183,7 +183,9 @@ end
 vim.opt.completeopt = { "menu", "menuone", "noselect" }
 vim.opt.mouse = "a"
 if vim.fn.exists("&mousemoveevent") == 1 then
-  vim.opt.mousemoveevent = true
+  -- Native confirmation prompts treat MouseMove as an invalid answer and
+  -- redraw the prompt repeatedly. Keep clicks/scroll/drag, disable idle motion.
+  vim.opt.mousemoveevent = false
 end
 require("config.context_menu").setup()
 vim.opt.number = true
