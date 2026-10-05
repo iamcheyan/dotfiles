@@ -360,6 +360,31 @@ vim.opt.listchars = {
   eol = "↴",
 }
 
+-- Spaces and tabs are both ordinary column padding in fixed-format COBOL.
+-- Hide visible whitespace only while a COBOL buffer occupies a window, then
+-- restore that window's original `list` value when it leaves COBOL.
+local cobol_filetypes = { cobol = true, cbl = true, cob = true }
+local cobol_list_group = vim.api.nvim_create_augroup("CobolWhitespaceMarkers", { clear = true })
+local function update_cobol_whitespace(ev)
+  local buf = ev.buf
+  if not vim.api.nvim_buf_is_valid(buf) then return end
+  local is_cobol = cobol_filetypes[vim.bo[buf].filetype] == true
+  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+    local saved = vim.w[win].cobol_list_before
+    if is_cobol then
+      if saved == nil then vim.w[win].cobol_list_before = vim.wo[win].list end
+      vim.wo[win].list = false
+    elseif saved ~= nil then
+      vim.wo[win].list = saved
+      vim.w[win].cobol_list_before = nil
+    end
+  end
+end
+vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
+  group = cobol_list_group,
+  callback = update_cobol_whitespace,
+})
+
 -- Built-in yaml ftplugin resets indentation to spaces, so force tabs back locally.
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "yaml",

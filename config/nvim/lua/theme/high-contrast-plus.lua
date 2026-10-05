@@ -13,6 +13,7 @@ M.palette = {
   selection_bg            = "#0064c8", -- ui.menu_highlight_bg / prompt_selection_bg: [0, 100, 200]
   selection_editor_bg     = "#323c5a", -- editor.selection_bg: [50, 60, 90]
   current_line_bg         = "#141414", -- editor.current_line_bg: [20, 20, 20]
+  cursor_guide_bg          = "#303030", -- Brighter row/column guide overlay for high contrast
   line_number_fg          = "#ffffff", -- editor.line_number_fg: [255, 255, 255]
   line_number_bg          = "#000000", -- editor.line_number_bg: [0, 0, 0]
   whitespace              = "#505050", -- editor.whitespace_indicator_fg: [80, 80, 80]
@@ -135,14 +136,14 @@ function M.load()
   set("TermCursor", { fg = p.bg, bg = p.cursor })
   set("TermCursorNC", { fg = p.bg, bg = p.inactive_cursor })
 
-  set("CursorLine", { bg = p.current_line_bg })
-  set("CursorColumn", { bg = p.current_line_bg })
+  set("CursorLine", { bg = p.cursor_guide_bg })
+  set("CursorColumn", { bg = p.cursor_guide_bg })
   set("ColorColumn", { bg = p.current_line_bg })
 
   set("LineNr", { fg = p.line_number_fg, bg = p.line_number_bg })
   set("LineNrAbove", { fg = p.inactive_cursor, bg = p.line_number_bg })
   set("LineNrBelow", { fg = p.inactive_cursor, bg = p.line_number_bg })
-  set("CursorLineNr", { fg = p.tab_active_bg, bg = p.current_line_bg, bold = true })
+  set("CursorLineNr", { fg = p.tab_active_bg, bg = p.cursor_guide_bg, bold = true })
 
   set("SignColumn", { fg = p.fg, bg = p.bg })
   set("FoldColumn", { fg = p.keyword, bg = p.bg })
