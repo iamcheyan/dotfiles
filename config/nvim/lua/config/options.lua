@@ -397,8 +397,8 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- ── Colorscheme ──
--- Primary theme: high-contrast-plus (exact 1:1 port of Fresh editor theme)
-pcall(vim.cmd.colorscheme, "high-contrast-plus")
+-- Primary theme: Neovim's built-in blue colorscheme.
+pcall(vim.cmd.colorscheme, "blue")
 
 -- ── Baseline options previously provided by LazyVim (lazyvim.config.options) ──
 -- Re-declared here so removing LazyVim does not silently revert them to Neovim

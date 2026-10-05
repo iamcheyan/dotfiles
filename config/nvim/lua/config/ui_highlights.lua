@@ -10,6 +10,57 @@ local function get(name)
   return vim.api.nvim_get_hl(0, { name = name, link = false })
 end
 
+local minimum_text_contrast = 4.5
+
+local function relative_luminance(color)
+  if type(color) ~= "number" then return nil end
+  local function linear(channel)
+    channel = channel / 255
+    return channel <= 0.04045 and channel / 12.92 or ((channel + 0.055) / 1.055) ^ 2.4
+  end
+  local r = math.floor(color / 65536) % 256
+  local g = math.floor(color / 256) % 256
+  local b = color % 256
+  return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b)
+end
+
+local function contrast_ratio(fg, bg)
+  local fg_luminance, bg_luminance = relative_luminance(fg), relative_luminance(bg)
+  if not fg_luminance or not bg_luminance then return 0 end
+  if fg_luminance < bg_luminance then fg_luminance, bg_luminance = bg_luminance, fg_luminance end
+  return (fg_luminance + 0.05) / (bg_luminance + 0.05)
+end
+
+local function readable_foreground(bg, ...)
+  local best_fg, best_ratio, count = nil, -1, select("#", ...)
+  for i = 1, count do
+    local fg = select(i, ...)
+    if fg then
+      local ratio = contrast_ratio(fg, bg)
+      if ratio > best_ratio then best_fg, best_ratio = fg, ratio end
+      if ratio >= minimum_text_contrast then return fg, ratio end
+    end
+  end
+  return best_fg, best_ratio
+end
+
+local function readable_pair(fg, bg, normal)
+  local chosen_fg, ratio = readable_foreground(
+    bg,
+    fg,
+    normal.fg,
+    normal.bg,
+    get("Pmenu").fg,
+    get("StatusLine").fg,
+    get("LineNr").fg
+  )
+  if ratio >= minimum_text_contrast then return chosen_fg, bg end
+  if normal.fg and normal.bg and contrast_ratio(normal.fg, normal.bg) >= minimum_text_contrast then
+    return normal.fg, normal.bg
+  end
+  return fg, bg
+end
+
 local function pick_bg(...)
   for _, group in ipairs({ ... }) do
     local bg = get(group).bg
@@ -44,17 +95,37 @@ local function tab_palette()
   local normal_fg = normal.fg
   local normal_bg = normal.bg
   local surface_bg = preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
-  local fill_bg = preferred_bg("TabLineFill", "TabLine", "StatusLine", "Normal")
   local surface_fg = pick_fg("TabLine", "StatusLine", "Normal")
+  surface_fg, surface_bg = readable_pair(surface_fg, surface_bg, normal)
+
+  local fill_bg = preferred_bg("TabLineFill", "TabLine", "StatusLine", "Normal")
+  if contrast_ratio(surface_fg, fill_bg) < minimum_text_contrast then
+    fill_bg = surface_bg
+  end
+
   local active = get("TabLineSel")
   local active_bg = active.bg or get("Visual").bg or surface_bg
   local active_fg = active.fg or get("Visual").fg or normal_fg
+  active_fg, active_bg = readable_pair(active_fg, active_bg, normal)
+
   local visible_bg = pick_bg("CursorLine", "TabLine", "Normal")
   local visible_fg = pick_fg("TabLine", "StatusLineNC", "NormalNC", "Normal")
+  visible_fg, visible_bg = readable_pair(visible_fg, visible_bg, normal)
+
   local separator_fg = pick_fg("WinSeparator", "VertSplit", "NonText", "TabLine")
+  local readable_separator, separator_ratio = readable_foreground(
+    surface_bg,
+    separator_fg,
+    normal_fg,
+    normal_bg,
+    get("Pmenu").fg
+  )
+  if separator_ratio >= minimum_text_contrast then separator_fg = readable_separator else separator_fg = surface_fg end
+
   local winbar = get("WinBar")
   local winbar_bg = winbar.bg or surface_bg
   local winbar_fg = winbar.fg or surface_fg
+  winbar_fg, winbar_bg = readable_pair(winbar_fg, winbar_bg, normal)
 
   return {
     normal_fg = normal_fg,
@@ -109,6 +180,12 @@ end
 function M.apply()
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
+  local normal = get("Normal")
+  for _, group in ipairs({ "StatusLine", "StatusLineNC" }) do
+    local style = get(group)
+    local fg, bg = readable_pair(style.fg or normal.fg, style.bg or normal.bg, normal)
+    set(0, group, { fg = fg, bg = bg })
+  end
 
   -- The path and metadata bar should read as a UI surface, not disappear
   -- into the editor background.  The colors still come from the active theme.
