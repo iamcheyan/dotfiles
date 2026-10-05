@@ -112,6 +112,16 @@ return {
       },
 
       completion = {
+        trigger = {
+          -- COBOL periods terminate words/sentences; suppress LSP trigger popups only there.
+          show_on_blocked_trigger_characters = function()
+            local blocked = { " ", "\n", "\t" }
+            if vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then
+              blocked[#blocked + 1] = "."
+            end
+            return blocked
+          end,
+        },
         accept = {
           -- experimental auto-brackets support
           auto_brackets = {
