@@ -18,18 +18,22 @@ vim.opt.expandtab = false
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "cobol", "cbl", "cob" },
   callback = function(ev)
-    -- Use an explicit Enter mapping instead of filetype-dependent indentexpr behavior.
-    -- This always copies exactly the current line's leading whitespace, including col 8.
-    vim.opt_local.autoindent = false
+    -- Keep manual COBOL reindentation available for `=`/`gg=G`, while Enter
+    -- remains explicitly controlled below and never auto-indents twice.
+    vim.api.nvim_buf_call(ev.buf, function()
+      vim.cmd("runtime! indent/cobol.vim")
+    end)
+    vim.bo[ev.buf].autoindent = false
     vim.keymap.set("i", "<CR>", function()
       local ok, blink = pcall(require, "blink.cmp")
       if ok and blink.is_menu_visible() then return "<C-y>" end
       local indent = vim.api.nvim_get_current_line():match("^%s*") or ""
       return "<CR>" .. indent
     end, { buffer = ev.buf, expr = true, desc = "COBOL: continue previous line indentation" })
-    vim.opt_local.smartindent = false
-    vim.opt_local.cindent = false
-    vim.opt_local.indentexpr = ""
+    vim.bo[ev.buf].smartindent = false
+    vim.bo[ev.buf].cindent = false
+    vim.bo[ev.buf].indentexpr = "GetCobolIndent(v:lnum)"
+    vim.bo[ev.buf].indentkeys = ""
 
     local function shift_cobol_line(row, direction, count)
       local line = vim.api.nvim_buf_get_lines(ev.buf, row - 1, row, false)[1] or ""
