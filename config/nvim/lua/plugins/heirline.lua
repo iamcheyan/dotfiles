@@ -17,7 +17,13 @@ return {
           local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
           local fg, bg = statusline.fg or normal.fg, statusline.bg or normal.bg
           if key == "bg" then return bg end
-          if key == "text" or key == "accent" or key == "warning" or key == "on_accent" then return fg end
+          if key == "press_bg" then
+            return vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false }).bg or bg
+          end
+          if key == "on_accent" then
+            return vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false }).fg or fg
+          end
+          if key == "text" or key == "accent" or key == "warning" then return fg end
         end,
       })
 
@@ -69,10 +75,6 @@ return {
         end
         return nil
       end
-
-      local mode_colors = setmetatable({}, {
-        __index = function() return statusline_colors.accent end,
-      })
 
       local function get_active_editor_win()
         local id = tonumber(vim.g.statusline_winid)
@@ -411,18 +413,18 @@ return {
           if _G._active_statusline_menu == "mode" then
             return "Pmenu"
           end
-          if mode_names[self.mode] == "NORMAL" then
+          if vim.g.colors_name == "blue" and mode_names[self.mode] == "NORMAL" then
             return "FreshStatusLineNormal"
           end
           if self._pressed then
-            return { bg = statusline_colors.accent }
+            return { bg = statusline_colors.press_bg }
           end
         end,
         {
           provider = " ",
           hl = function(self)
             if _G._active_statusline_menu == "mode" then return "Pmenu" end
-            if mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
+            if vim.g.colors_name == "blue" and mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
             if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
             return { fg = statusline_colors.accent, bold = false }
           end,
@@ -433,7 +435,7 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "mode" then return "Pmenu" end
-            if mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
+            if vim.g.colors_name == "blue" and mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
             if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
             return { fg = statusline_colors.accent, bold = false }
           end,
@@ -507,7 +509,7 @@ return {
             return "Pmenu"
           end
           if self._pressed then
-            return { bg = statusline_colors.accent }
+            return { bg = statusline_colors.press_bg }
           end
         end,
         {
@@ -677,7 +679,7 @@ return {
             return "Pmenu"
           end
           if self._pressed then
-            return { bg = statusline_colors.accent }
+            return { bg = statusline_colors.press_bg }
           end
         end,
         {
@@ -716,7 +718,9 @@ return {
           end,
           provider = " [+]",
           hl = function(self)
-            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.warning, bold = false } end
+            if _G._active_statusline_menu == "file" then return "Pmenu" end
+            if self._pressed and vim.g.colors_name == "blue" then return "FreshStatusLineAccent" end
+            if vim.g.colors_name == "blue" then return "FreshStatusLineWarning" end
             return { fg = statusline_colors.warning, bold = false }
           end,
         },
@@ -726,7 +730,9 @@ return {
           end,
           provider = " [RO]",
           hl = function(self)
-            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.warning, bold = false } end
+            if _G._active_statusline_menu == "file" then return "Pmenu" end
+            if self._pressed and vim.g.colors_name == "blue" then return "FreshStatusLineAccent" end
+            if vim.g.colors_name == "blue" then return "FreshStatusLineWarning" end
             return { fg = statusline_colors.warning, bold = false }
           end,
         },
@@ -736,7 +742,9 @@ return {
           end,
           provider = " [New]",
           hl = function(self)
-            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.accent, bold = false } end
+            if _G._active_statusline_menu == "file" then return "Pmenu" end
+            if vim.g.colors_name == "blue" then return "FreshStatusLineAccent" end
+            if self._pressed then return { fg = statusline_colors.accent, bold = false } end
             return { fg = statusline_colors.accent, bold = false }
           end,
         },
@@ -817,7 +825,7 @@ return {
             return "Pmenu"
           end
           if self._pressed then
-            return { bg = statusline_colors.accent }
+            return { bg = statusline_colors.press_bg }
           end
         end,
         {
@@ -956,7 +964,7 @@ return {
             return "Pmenu"
           end
           if self._pressed then
-            return { bg = statusline_colors.accent }
+            return { bg = statusline_colors.press_bg }
           end
         end,
         {
@@ -1045,7 +1053,7 @@ return {
             return "Pmenu"
           end
           if self._pressed then
-            return { bg = statusline_colors.accent }
+            return { bg = statusline_colors.press_bg }
           end
         end,
         {
@@ -1153,7 +1161,7 @@ return {
         winbar = ContextlineWinbar,
         statusline = {
           hl = function()
-            return { fg = statusline_colors.text, bg = statusline_colors.bg }
+            return { fg = statusline_colors.text, bg = statusline_colors.bg, bold = false }
           end,
           pad,
           GitBranch,

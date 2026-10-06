@@ -10,11 +10,11 @@ local function get(name)
   return vim.api.nvim_get_hl(0, { name = name, link = false })
 end
 
-local function fresh_palette()
-  local ok, theme = pcall(require, "theme.high-contrast-plus")
+local function nostalgia_palette()
+  local ok, theme = pcall(require, "theme.nostalgia")
   return ok and theme.palette or nil
 end
-M.fresh_palette = fresh_palette
+M.nostalgia_palette = nostalgia_palette
 local function to_rgb(color)
   if type(color) == "string" and color:match("^#%x%x%x%x%x%x$") then
     return tonumber(color:sub(2), 16)
@@ -23,27 +23,11 @@ local function to_rgb(color)
 end
 M.to_rgb = to_rgb
 
-local normal_mode_codes = { n = true, niI = true, niR = true, niV = true, nt = true }
-function M.fresh_mode_style(mode)
-  local fresh = fresh_palette() or {}
-  if normal_mode_codes[mode] then
-    return {
-      fg = fresh.status_bar_fg or fresh.menu_highlight_fg,
-      bg = fresh.diff_add_bg or fresh.diff_add_highlight_bg,
-      bold = false,
-    }
-  end
-  return {
-    fg = fresh.menu_highlight_fg or fresh.status_bar_fg,
-    bg = fresh.menu_highlight_bg or fresh.status_bar_bg,
-    bold = false,
-  }
-end
 M.fresh_normal_style = function()
-  local fresh = fresh_palette() or {}
+  local fresh = nostalgia_palette() or {}
   return {
-    fg = "#ffffff",
-    bg = fresh.diff_add_bg or "#005f00",
+    fg = fresh.status_palette_fg,
+    bg = fresh.status_palette_bg,
     bold = false,
   }
 end
@@ -185,6 +169,174 @@ local function apply_cursor_guide_highlights()
   end
 end
 
+local function apply_nostalgia_editor_highlights(p)
+  local normal = get("Normal")
+  local document_bg = normal.bg
+  local groups = {
+    Normal = { fg = p.editor_fg, bg = document_bg },
+    NormalNC = { fg = p.editor_fg, bg = document_bg },
+    NormalFloat = { fg = p.popup_text_fg, bg = p.popup_bg },
+    FloatBorder = { fg = p.popup_border_fg, bg = p.popup_bg },
+    FloatTitle = { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = false },
+    FloatFooter = { fg = p.menu_disabled_fg, bg = p.popup_bg },
+    Cursor = { fg = p.editor_bg, bg = p.cursor },
+    lCursor = { fg = p.editor_bg, bg = p.cursor },
+    CursorIM = { fg = p.editor_bg, bg = p.cursor },
+    TermCursor = { fg = p.editor_bg, bg = p.cursor },
+    TermCursorNC = { fg = p.editor_bg, bg = p.inactive_cursor },
+    CursorLine = { bg = p.current_line_bg },
+    CursorColumn = { bg = p.current_line_bg },
+    ColorColumn = { bg = p.current_line_bg },
+    LineNr = { fg = p.line_number_fg, bg = p.line_number_bg },
+    LineNrAbove = { fg = p.line_number_fg, bg = p.line_number_bg },
+    LineNrBelow = { fg = p.line_number_fg, bg = p.line_number_bg },
+    CursorLineNr = { fg = p.line_number_fg, bg = p.current_line_bg, bold = false },
+    SignColumn = { fg = p.editor_fg, bg = p.line_number_bg },
+    FoldColumn = { fg = p.line_number_fg, bg = p.line_number_bg },
+    Folded = { fg = p.inactive_cursor, bg = p.current_line_bg, italic = false },
+    Visual = { fg = p.editor_fg, bg = p.selection_bg, bold = false },
+    VisualNOS = { fg = p.editor_fg, bg = p.selection_bg, bold = false },
+    Search = { fg = p.search_match_fg, bg = p.search_match_bg, bold = false },
+    IncSearch = { fg = p.search_match_fg, bg = p.search_match_bg, bold = false },
+    CurSearch = { fg = p.search_match_fg, bg = p.search_match_bg, bold = false },
+    WinSeparator = { fg = p.split_separator_fg, bg = document_bg },
+    VertSplit = { fg = p.split_separator_fg, bg = document_bg },
+    Whitespace = { fg = p.whitespace_indicator_fg },
+    NonText = { fg = p.whitespace_indicator_fg },
+    SpecialKey = { fg = p.whitespace_indicator_fg },
+    EndOfBuffer = { fg = p.editor_bg, bg = document_bg },
+    Conceal = { fg = p.inactive_cursor },
+    MatchParen = { fg = p.bracket_match_fg, bg = p.current_line_bg, bold = false },
+    DiffAdd = { fg = p.editor_fg, bg = p.diff_add_bg },
+    DiffDelete = { fg = p.editor_fg, bg = p.diff_remove_bg },
+    DiffChange = { fg = p.editor_fg, bg = p.diff_modify_bg },
+    DiffText = { fg = p.editor_fg, bg = p.diff_modify_bg, bold = false },
+    DiagnosticError = { fg = p.diag_error_fg },
+    DiagnosticWarn = { fg = p.diag_warning_fg },
+    DiagnosticInfo = { fg = p.diag_info_fg },
+    DiagnosticHint = { fg = p.diag_hint_fg },
+    DiagnosticUnderlineError = { undercurl = true, sp = p.diag_error_fg },
+    DiagnosticUnderlineWarn = { undercurl = true, sp = p.diag_warning_fg },
+    DiagnosticUnderlineInfo = { undercurl = true, sp = p.diag_info_fg },
+    DiagnosticUnderlineHint = { undercurl = true, sp = p.diag_hint_fg },
+    DiagnosticVirtualTextError = { fg = p.diag_error_fg, bg = p.diag_error_bg },
+    DiagnosticVirtualTextWarn = { fg = p.diag_warning_fg, bg = p.diag_warning_bg },
+    DiagnosticVirtualTextInfo = { fg = p.diag_info_fg, bg = p.diag_info_bg },
+    DiagnosticVirtualTextHint = { fg = p.diag_hint_fg, bg = p.diag_hint_bg },
+    DiagnosticFloatingError = { fg = p.diag_error_fg, bg = p.popup_bg },
+    DiagnosticFloatingWarn = { fg = p.diag_warning_fg, bg = p.popup_bg },
+    DiagnosticFloatingInfo = { fg = p.diag_info_fg, bg = p.popup_bg },
+    DiagnosticFloatingHint = { fg = p.diag_hint_fg, bg = p.popup_bg },
+    Comment = { fg = p.syntax_comment, italic = false, bold = false },
+    SpecialComment = { fg = p.syntax_comment, italic = false, bold = false },
+    Constant = { fg = p.syntax_constant, bold = false },
+    String = { fg = p.syntax_string, bold = false },
+    Character = { fg = p.syntax_string, bold = false },
+    Number = { fg = p.syntax_constant, bold = false },
+    Boolean = { fg = p.syntax_constant, bold = false },
+    Float = { fg = p.syntax_constant, bold = false },
+    Identifier = { fg = p.syntax_variable, bold = false },
+    Function = { fg = p.syntax_function, bold = false },
+    Statement = { fg = p.syntax_keyword, bold = false },
+    Conditional = { fg = p.syntax_keyword, bold = false },
+    Repeat = { fg = p.syntax_keyword, bold = false },
+    Label = { fg = p.syntax_function, bold = false },
+    Operator = { fg = p.syntax_operator, bold = false },
+    Keyword = { fg = p.syntax_keyword, bold = false },
+    Exception = { fg = p.diag_error_fg, bold = false },
+    Type = { fg = p.syntax_type, bold = false },
+    StorageClass = { fg = p.syntax_keyword, bold = false },
+    Structure = { fg = p.syntax_type, bold = false },
+    Typedef = { fg = p.syntax_type, bold = false },
+    PreProc = { fg = p.syntax_type, bold = false },
+    Include = { fg = p.syntax_type, bold = false },
+    Define = { fg = p.syntax_type, bold = false },
+    Macro = { fg = p.syntax_type, bold = false },
+    PreCondit = { fg = p.syntax_type, bold = false },
+    Special = { fg = p.syntax_keyword, bold = false },
+    SpecialChar = { fg = p.syntax_constant, bold = false },
+    Tag = { fg = p.syntax_keyword, bold = false },
+    Delimiter = { fg = p.syntax_operator, bold = false },
+    Debug = { fg = p.diag_warning_fg, bold = false },
+    Underlined = { underline = true },
+    Ignore = { fg = p.inactive_cursor },
+    Error = { fg = p.editor_fg, bg = p.diff_remove_bg, bold = false },
+    Todo = { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = false },
+    Added = { fg = p.syntax_string },
+    Removed = { fg = p.diag_error_fg },
+    Changed = { fg = p.syntax_function },
+    ModeMsg = { fg = p.status_palette_fg, bg = p.status_palette_bg, bold = false },
+    WarningMsg = { fg = p.diag_warning_fg, bold = false },
+    ErrorMsg = { fg = p.diag_error_fg, bold = false },
+    Question = { fg = p.syntax_keyword, bold = false },
+    MoreMsg = { fg = p.syntax_keyword, bold = false },
+    Directory = { fg = p.syntax_keyword, bold = false },
+    Title = { fg = p.syntax_function, bold = false },
+  }
+  for group, spec in pairs(groups) do
+    vim.api.nvim_set_hl(0, group, spec)
+  end
+
+  local treesitter = {
+    ["@comment"] = "Comment",
+    ["@string"] = "String",
+    ["@character"] = "Character",
+    ["@number"] = "Number",
+    ["@boolean"] = "Boolean",
+    ["@constant"] = "Constant",
+    ["@constant.builtin"] = "Constant",
+    ["@variable"] = "Identifier",
+    ["@variable.parameter"] = "Identifier",
+    ["@variable.member"] = "Identifier",
+    ["@property"] = "Identifier",
+    ["@field"] = "Identifier",
+    ["@function"] = "Function",
+    ["@function.call"] = "Function",
+    ["@method"] = "Function",
+    ["@method.call"] = "Function",
+    ["@keyword"] = "Keyword",
+    ["@keyword.function"] = "Keyword",
+    ["@keyword.operator"] = "Keyword",
+    ["@keyword.return"] = "Keyword",
+    ["@keyword.conditional"] = "Keyword",
+    ["@keyword.repeat"] = "Keyword",
+    ["@operator"] = "Operator",
+    ["@type"] = "Type",
+    ["@type.builtin"] = "Type",
+    ["@constructor"] = "Type",
+    ["@attribute"] = "Type",
+    ["@namespace"] = "Type",
+    ["@module"] = "Type",
+    ["@punctuation.delimiter"] = "Delimiter",
+    ["@punctuation.bracket"] = "Delimiter",
+    ["@tag"] = "Tag",
+    ["@tag.attribute"] = "Identifier",
+    ["@tag.delimiter"] = "Delimiter",
+    ["@markup.heading"] = "Function",
+    ["@markup.link"] = "Keyword",
+    ["@markup.raw"] = "String",
+    ["@markup.list"] = "Keyword",
+  }
+  for group, link in pairs(treesitter) do
+    vim.api.nvim_set_hl(0, group, { link = link })
+  end
+
+  local rainbow_groups = {
+    RainbowDelimiterYellow = p.bracket_rainbow_3,
+    RainbowDelimiterCyan = p.bracket_rainbow_2,
+    RainbowDelimiterBlue = p.bracket_rainbow_1,
+    RainbowDelimiterOrange = p.bracket_rainbow_5,
+    RainbowDelimiterGreen = p.bracket_rainbow_4,
+    RainbowDelimiterViolet = p.bracket_rainbow_6,
+    RainbowDelimiterRed = p.diag_error_fg,
+    IblIndent = p.indent_rainbow_1,
+    IblScope = p.indent_rainbow_2,
+  }
+  for group, fg in pairs(rainbow_groups) do
+    vim.api.nvim_set_hl(0, group, { fg = fg })
+  end
+end
+
 function M.apply_completion_highlights()
   local menu = get("Pmenu")
   local normal = get("Normal")
@@ -259,16 +411,15 @@ local function tab_palette()
   local normal = get("Normal")
   local normal_fg = normal.fg
   local normal_bg = normal.bg
-  local fresh = vim.g.colors_name == "blue" and fresh_palette()
+  local fresh = vim.g.colors_name == "blue" and nostalgia_palette()
   if fresh then
-    local surface_bg = to_rgb(fresh.tab_inactive_bg or "#000000")
-    local surface_fg = to_rgb(fresh.menu_fg or normal_fg)
-    local separator_bg = to_rgb(fresh.tab_separator_bg or "#1e1e23")
-    local inactive_bg = to_rgb(fresh.tab_inactive_bg or "#000000")
-    local active_bg = to_rgb(fresh.tab_active_bg or "#ffff00")
-    local active_fg = to_rgb(fresh.tab_active_fg or "#000000")
+    local surface_bg = to_rgb(fresh.tab_inactive_bg)
+    local surface_fg = to_rgb(fresh.tab_inactive_fg)
+    local separator_bg = to_rgb(fresh.tab_separator_bg)
+    local active_bg = to_rgb(fresh.tab_active_bg)
+    local active_fg = to_rgb(fresh.tab_active_fg)
     return {
-      normal_fg = normal_fg,
+      normal_fg = to_rgb(fresh.editor_fg),
       normal_bg = normal_bg,
       fill_bg = separator_bg,
       surface_fg = surface_fg,
@@ -276,12 +427,14 @@ local function tab_palette()
       active_fg = active_fg,
       active_bg = active_bg,
       visible_fg = surface_fg,
-      visible_bg = inactive_bg,
-      separator_fg = to_rgb(fresh.tab_separator_bg or "#1e1e23"),
-      scrollbar_bg = to_rgb(fresh.scrollbar_thumb_fg or "#ffff00"),
-      scrollbar_track_bg = to_rgb(fresh.scrollbar_track_fg or "#505050"),
-      winbar_fg = surface_fg,
-      winbar_bg = surface_bg,
+      visible_bg = surface_bg,
+      separator_fg = to_rgb(fresh.split_separator_fg),
+      scrollbar_bg = to_rgb(fresh.scrollbar_thumb_fg),
+      scrollbar_track_bg = to_rgb(fresh.scrollbar_track_fg),
+      winbar_fg = active_fg,
+      winbar_bg = active_bg,
+      winbar_nc_fg = surface_fg,
+      winbar_nc_bg = surface_bg,
       top_bold = false,
     }
   end
@@ -379,14 +532,15 @@ function M.apply_picker_highlights()
   local menu = get("Pmenu")
   local selected = get("PmenuSel")
   local separator = get("WinSeparator")
-  local float_bg = menu.bg or get("NormalFloat").bg or normal.bg
-  local float_fg = menu.fg or get("NormalFloat").fg or normal.fg
+  local nostalgia = vim.g.colors_name == "blue" and nostalgia_palette()
+  local float_bg = nostalgia and to_rgb(nostalgia.popup_bg) or menu.bg or get("NormalFloat").bg or normal.bg
+  local float_fg = nostalgia and to_rgb(nostalgia.popup_text_fg) or menu.fg or get("NormalFloat").fg or normal.fg
   local document_bg = normal.bg or float_bg
-  local preview_fg = normal.fg or float_fg
+  local preview_fg = nostalgia and to_rgb(nostalgia.editor_fg) or normal.fg or float_fg
   if not float_bg then return end
 
-  -- Keep all left-pane sections and the preview on the document-blue surface.
-  -- The border foreground itself remains the theme's existing white menu fg.
+  -- Keep pane text on Fresh Nostalgia's editor foreground, but preserve Blue's document surface.
+  -- Picker borders use Fresh's dedicated popup-border color.
   vim.api.nvim_set_hl(0, "SnacksPickerInput", { fg = float_fg, bg = document_bg })
   vim.api.nvim_set_hl(0, "SnacksPickerList", { fg = float_fg, bg = document_bg })
   for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter" }) do
@@ -396,7 +550,7 @@ function M.apply_picker_highlights()
     vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = document_bg })
   end
   vim.api.nvim_set_hl(0, "SnacksPickerPreview", { fg = preview_fg, bg = document_bg })
-  local border_fg = float_fg or separator.fg or get("FloatBorder").fg
+  local border_fg = nostalgia and to_rgb(nostalgia.popup_border_fg) or float_fg or separator.fg or get("FloatBorder").fg
   for _, group in ipairs({
     "SnacksPickerBorder", "SnacksPickerInputBorder", "SnacksPickerListBorder",
     "SnacksPickerPreviewBorder", "SnacksPickerFooterBorder",
@@ -414,15 +568,13 @@ function M.apply_picker_highlights()
     vim.api.nvim_set_hl(0, group, row)
   end
 
-  -- Use the same theme-derived blue accent as the active tab so the current result
-  -- remains obvious without restoring Snacks' mismatched green/white PmenuSel.
+  -- Use Fresh Nostalgia's green menu selection while preserving Blue's document surface.
   local title_surfaces = title_bar_surfaces()
   local cursor_line = get("CursorLine")
-  local fresh = vim.g.colors_name == "blue" and fresh_palette()
   local selected_bg, selected_fg
-  if fresh then
-    selected_bg = to_rgb(fresh.menu_highlight_bg)
-    selected_fg = to_rgb(fresh.menu_highlight_fg)
+  if nostalgia then
+    selected_bg = to_rgb(nostalgia.menu_highlight_bg)
+    selected_fg = to_rgb(nostalgia.menu_highlight_fg)
   else
     selected_bg = title_surfaces.active_bg
       or (cursor_line.bg ~= document_bg and cursor_line.bg)
@@ -440,35 +592,53 @@ function M.apply_picker_highlights()
 end
 
 function M.apply()
+  local nostalgia = vim.g.colors_name == "blue" and nostalgia_palette()
+  if nostalgia then
+    apply_nostalgia_editor_highlights(nostalgia)
+  end
   local winbar_before = get("WinBar")
   local winbar_nc_before = get("WinBarNC")
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
-  local fresh = vim.g.colors_name == "blue" and fresh_palette()
-  if fresh then
-    set(0, "TabLine", { fg = fresh.menu_fg, bg = fresh.tab_separator_bg, bold = false })
-    set(0, "TabLineFill", { fg = fresh.menu_fg, bg = fresh.tab_separator_bg, bold = false })
-    set(0, "TabLineSel", { fg = fresh.tab_active_fg, bg = fresh.tab_active_bg, bold = false })
-    set(0, "Pmenu", { fg = fresh.menu_dropdown_fg, bg = fresh.menu_dropdown_bg })
-    set(0, "PmenuSel", { fg = fresh.menu_highlight_fg, bg = fresh.menu_highlight_bg, bold = false })
-    set(0, "PmenuBorder", { fg = fresh.menu_border_fg, bg = fresh.menu_dropdown_bg })
-    set(0, "PmenuSbar", { bg = fresh.scrollbar_track_fg })
-    set(0, "PmenuThumb", { bg = fresh.scrollbar_thumb_fg })
-    set(0, "WildMenu", { fg = fresh.menu_active_fg, bg = fresh.menu_active_bg, bold = false })
+  if nostalgia then
+    set(0, "TabLine", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
+    set(0, "TabLineFill", { fg = nostalgia.tab_inactive_fg, bg = nostalgia.tab_separator_bg, bold = false })
+    set(0, "TabLineSel", { fg = nostalgia.tab_active_fg, bg = nostalgia.tab_active_bg, bold = false })
+    set(0, "Pmenu", { fg = nostalgia.popup_text_fg, bg = nostalgia.popup_bg })
+    set(0, "PmenuSel", { fg = nostalgia.status_palette_fg, bg = nostalgia.popup_selection_bg, bold = false })
+    set(0, "PmenuBorder", { fg = nostalgia.popup_border_fg, bg = nostalgia.popup_bg })
+    set(0, "PmenuSbar", { bg = nostalgia.scrollbar_track_fg })
+    set(0, "PmenuThumb", { bg = nostalgia.scrollbar_thumb_fg })
+    set(0, "WildMenu", { fg = nostalgia.menu_active_fg, bg = nostalgia.menu_active_bg, bold = false })
     set(0, "FreshStatusLineNormal", M.fresh_normal_style())
+    set(0, "FreshStatusLineAccent", {
+      fg = nostalgia.status_palette_fg,
+      bg = nostalgia.status_palette_bg,
+      bold = false,
+    })
+    set(0, "FreshStatusLineWarning", {
+      fg = nostalgia.status_warning_indicator_fg,
+      bg = nostalgia.status_warning_indicator_bg,
+      bold = false,
+    })
+    set(0, "FreshStatusLineError", {
+      fg = nostalgia.status_error_indicator_fg,
+      bg = nostalgia.status_error_indicator_bg,
+      bold = false,
+    })
   end
   local title_surfaces = title_bar_surfaces()
-  apply_cursor_guide_highlights()
+  if not nostalgia then apply_cursor_guide_highlights() end
   M.apply_completion_highlights()
   M.apply_picker_highlights()
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
   local status_fg, status_bg
   local status_nc_fg, status_nc_bg
-  if fresh then
-    status_fg, status_bg = fresh.menu_highlight_fg, fresh.menu_highlight_bg
-    status_nc_fg, status_nc_bg = fresh.menu_highlight_fg, fresh.menu_highlight_bg
+  if nostalgia then
+    status_fg, status_bg = nostalgia.status_bar_fg, nostalgia.status_bar_bg
+    status_nc_fg, status_nc_bg = nostalgia.status_bar_fg, nostalgia.status_bar_bg
   else
     status_fg, status_bg = readable_pair(
       title_surfaces.status_active_fg or active_status.fg or normal.fg,
@@ -487,10 +657,10 @@ function M.apply()
   -- The path and metadata bar should read as a UI surface, not disappear
   -- into the editor background.  The colors still come from the active theme.
   set(0, "WinBar", { fg = p.winbar_fg, bg = p.winbar_bg })
-  set(0, "WinBarNC", { fg = p.visible_fg, bg = p.visible_bg })
+  set(0, "WinBarNC", { fg = p.winbar_nc_fg or p.visible_fg, bg = p.winbar_nc_bg or p.visible_bg })
 
   set(0, "BufferLineFill", { fg = p.surface_fg, bg = p.fill_bg })
-  set(0, "BufferLineNewBuffer", { fg = p.normal_fg, bg = p.fill_bg, bold = true })
+  set(0, "BufferLineNewBuffer", { fg = p.normal_fg, bg = p.fill_bg, bold = p.top_bold })
   set(0, "BufferLineBackground", { fg = p.surface_fg, bg = p.surface_bg })
   set(0, "BufferLineBuffer", { fg = p.surface_fg, bg = p.surface_bg })
   set(0, "BufferLineBufferVisible", { fg = p.visible_fg, bg = p.visible_bg })

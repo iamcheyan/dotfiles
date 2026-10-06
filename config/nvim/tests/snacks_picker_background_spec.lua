@@ -22,9 +22,9 @@ for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter", "Snacks
 end
 
 local selected = vim.api.nvim_get_hl(0, { name = "SnacksPickerListCursorLine", link = false })
-local fresh = ui.fresh_palette()
-assert(selected.bg == tonumber(fresh.menu_highlight_bg:gsub("#", ""), 16), "selected file row should use Fresh's blue highlight")
-assert(selected.fg == tonumber(fresh.menu_highlight_fg:gsub("#", ""), 16), "selected file row should use Fresh's white text")
+local nostalgia = ui.nostalgia_palette()
+assert(selected.bg == ui.to_rgb(nostalgia.menu_highlight_bg), "selected file row should use Fresh Nostalgia's green highlight")
+assert(selected.fg == ui.to_rgb(nostalgia.menu_highlight_fg), "selected file row should use Fresh Nostalgia's white text")
 for _, group in ipairs({ "SnacksPickerCursorLine", "SnacksPickerInputCursorLine", "SnacksPickerPreviewCursorLine", "SnacksPickerBoxCursorLine" }) do
   assert(vim.api.nvim_get_hl(0, { name = group, link = false }).bg == normal.bg, group .. " should not retain a green or pale-blue row background")
 end
