@@ -23,8 +23,11 @@ for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter", "Snacks
 end
 
 local selected = vim.api.nvim_get_hl(0, { name = "SnacksPickerListCursorLine", link = false })
-assert(selected.bg == normal.bg, "selected file row should not retain a green or pale-blue background")
-assert(selected.fg ~= nil, "selected file row should remain readable without a contrasting background")
+local tab_highlights = ui.bufferline_highlights()
+assert(selected.bg == tab_highlights.buffer_selected.bg, "selected file row should reuse the active tab's blue accent")
+assert(selected.fg == tab_highlights.buffer_selected.fg, "selected file row text should match the active tab's readable foreground")
+assert(selected.bg ~= normal.bg, "selected file row should remain visibly distinct from the document")
+assert(selected.fg ~= nil, "selected file row should remain readable with its highlight")
 for _, group in ipairs({ "SnacksPickerCursorLine", "SnacksPickerInputCursorLine", "SnacksPickerPreviewCursorLine", "SnacksPickerBoxCursorLine" }) do
   assert(vim.api.nvim_get_hl(0, { name = group, link = false }).bg == normal.bg, group .. " should not retain a green or pale-blue row background")
 end

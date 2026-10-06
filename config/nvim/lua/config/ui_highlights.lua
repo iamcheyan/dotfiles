@@ -348,20 +348,20 @@ function M.apply_picker_highlights()
     vim.api.nvim_set_hl(0, group, row)
   end
 
-  -- Keep the focused result on the same blue surface too; distinguish it with
-  -- a readable theme foreground and bold text instead of Snacks' green/white PmenuSel pair.
-  local selected_bg = document_bg
-  local selected_fg = selected.fg or normal.fg
+  -- Use the same theme-derived blue accent as the active tab so the current result
+  -- remains obvious without restoring Snacks' mismatched green/white PmenuSel.
+  local title_surfaces = title_bar_surfaces()
+  local cursor_line = get("CursorLine")
+  local selected_bg = title_surfaces.active_bg
+    or (cursor_line.bg ~= document_bg and cursor_line.bg)
+    or selected.bg or document_bg
+  local selected_fg = title_surfaces.active_fg or cursor_line.fg or selected.fg or normal.fg
   selected_fg, selected_bg = readable_pair(selected_fg, selected_bg, normal)
-  local cterm_bg = selected_bg == normal.bg and normal.ctermbg or nearest_xterm_color(selected_bg)
-  local cterm_fg = selected_fg == normal.fg and normal.ctermfg
-    or selected_fg == selected.fg and selected.ctermfg
-    or nearest_xterm_color(selected_fg)
   vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", {
     bg = selected_bg,
     fg = selected_fg,
-    ctermbg = cterm_bg or nearest_xterm_color(selected_bg),
-    ctermfg = cterm_fg or nearest_xterm_color(selected_fg),
+    ctermbg = nearest_xterm_color(selected_bg),
+    ctermfg = nearest_xterm_color(selected_fg),
     bold = true,
   })
 end
