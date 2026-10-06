@@ -315,23 +315,21 @@ function M.apply_picker_highlights()
   local separator = get("WinSeparator")
   local float_bg = menu.bg or get("NormalFloat").bg or normal.bg
   local float_fg = menu.fg or get("NormalFloat").fg or normal.fg
-  -- Both panes share the menu surface so the picker reads as one cohesive
-  -- menu rather than a teal list pasted over a differently colored editor.
-  local preview_bg = darken_surface(float_bg, 0.34)
+  local document_bg = normal.bg or float_bg
   local preview_fg = normal.fg or float_fg
   if not float_bg then return end
 
-  -- Keep both panes and the footer on one opaque, menu-colored surface.
-  for _, group in ipairs({ "SnacksPickerInput", "SnacksPickerList" }) do
-    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
-  end
+  -- Only the left file list and right preview use the editor's blue surface.
+  -- The input/footer and all border groups keep their existing menu colors.
+  vim.api.nvim_set_hl(0, "SnacksPickerInput", { fg = float_fg, bg = float_bg })
+  vim.api.nvim_set_hl(0, "SnacksPickerList", { fg = float_fg, bg = document_bg })
   for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter" }) do
     vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
   end
   for _, group in ipairs({ "SnacksPickerFooterKey", "SnacksPickerFooterText", "SnacksPickerFooterSeparator" }) do
     vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
   end
-  vim.api.nvim_set_hl(0, "SnacksPickerPreview", { fg = preview_fg, bg = preview_bg })
+  vim.api.nvim_set_hl(0, "SnacksPickerPreview", { fg = preview_fg, bg = document_bg })
   local border_fg = float_fg or separator.fg or get("FloatBorder").fg
   for _, group in ipairs({
     "SnacksPickerBorder", "SnacksPickerInputBorder", "SnacksPickerListBorder",
