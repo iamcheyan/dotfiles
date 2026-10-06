@@ -220,7 +220,7 @@ return {
         local ns = vim.api.nvim_create_namespace("statusline_menu")
         for i, act in ipairs(actions) do
           if act == false then
-            vim.api.nvim_buf_add_highlight(buf, ns, "Comment", i - 1, 0, -1)
+            vim.api.nvim_buf_add_highlight(buf, ns, "FreshMenuMuted", i - 1, 0, -1)
           end
         end
 
@@ -230,8 +230,8 @@ return {
         end
 
         local statusline_row = vim.o.lines - vim.o.cmdheight - 1
-        local win_height = math.min(#final_lines, math.max(1, statusline_row))
-        local row = math.max(0, statusline_row - win_height)
+        local win_height = math.min(#final_lines, math.max(1, statusline_row - 2))
+        local row = math.max(0, statusline_row - win_height - 2)
 
         local src_win = get_active_editor_win()
         local src_buf = vim.api.nvim_win_get_buf(src_win)
@@ -242,7 +242,7 @@ return {
           width = win_width,
           height = win_height,
           style = "minimal",
-          border = "none",
+          border = "single",
           zindex = 250,
         })
 
@@ -253,7 +253,7 @@ return {
         vim.wo[win].scrolloff = 0
         vim.wo[win].sidescrolloff = 0
         vim.wo[win].wrap = false
-        vim.wo[win].winhighlight = "NormalFloat:Pmenu,FloatBorder:Pmenu,CursorLine:PmenuSel"
+        vim.wo[win].winhighlight = "NormalFloat:FreshMenu,FloatBorder:FreshMenuBorder,CursorLine:FreshMenuSelected"
 
         _G._statusline_menu_win = win
         _G._statusline_menu_buf = buf

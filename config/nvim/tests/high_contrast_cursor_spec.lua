@@ -19,7 +19,7 @@ assert(cursor_line.bg == expected, "CursorLine should use a brighter, distinct b
 assert(cursor_column.bg ~= cursor_line.bg, "CursorColumn must differ from CursorLine so the crosshair intersection stays visible")
 assert(cursor_line_number.bg == expected, "CursorLineNr should match the brighter row guide")
 assert(completion_doc.bg == normal.bg, "completion documentation should use a distinct editor surface")
-assert(completion_doc.fg == vim.api.nvim_get_hl(0, { name = "Pmenu", link = false }).fg, "completion documentation text should use the menu's readable foreground")
+assert(completion_doc.fg == vim.api.nvim_get_hl(0, { name = "BlinkCmpMenu", link = false }).fg, "completion documentation text should use the menu's readable foreground")
 assert(completion_doc_border.fg == completion_doc.fg, "completion documentation border should remain visible against its surface")
 
 -- Blue and several built-in themes assign the same GUI and terminal color to

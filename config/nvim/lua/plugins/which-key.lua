@@ -77,23 +77,7 @@ return {
     },
     config = function(_, opts)
       local function apply_which_key_highlights()
-        local float = vim.api.nvim_get_hl(0, { name = "NormalFloat", link = false })
-        local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
-        local menu = vim.api.nvim_get_hl(0, { name = "Pmenu", link = false })
-        local bg = float.bg or menu.bg
-        local fg = float.fg or menu.fg
-        local accent = winbar.fg or fg
-        if not bg or not fg then return end
-        -- Match the readable teal menu surface used by floating pickers while
-        -- taking both colors from the active theme.
-        vim.api.nvim_set_hl(0, "WhichKeyNormal", { fg = fg, bg = bg })
-        vim.api.nvim_set_hl(0, "WhichKey", { fg = accent, bg = bg, bold = true })
-        vim.api.nvim_set_hl(0, "WhichKeyGroup", { fg = accent, bg = bg, bold = true })
-        vim.api.nvim_set_hl(0, "WhichKeyDesc", { fg = fg, bg = bg })
-        vim.api.nvim_set_hl(0, "WhichKeySeparator", { fg = accent, bg = bg })
-        vim.api.nvim_set_hl(0, "WhichKeyValue", { fg = fg, bg = bg })
-        vim.api.nvim_set_hl(0, "WhichKeyBorder", { fg = accent, bg = bg })
-        vim.api.nvim_set_hl(0, "WhichKeyTitle", { fg = fg, bg = bg, bold = true })
+        require("config.ui_highlights").apply_menu_highlights()
       end
       apply_which_key_highlights()
       vim.api.nvim_create_autocmd("ColorScheme", {
@@ -120,7 +104,7 @@ return {
           local cur_winhl = vim.wo[View.view.win].winhighlight
           if not cur_winhl:find("WinBar:") then
             vim.wo[View.view.win].winhighlight = (cur_winhl ~= "" and (cur_winhl .. ",") or "")
-              .. "WinBar:NormalFloat,WinBarNC:NormalFloat"
+              .. "WinBar:WhichKeyNormal,WinBarNC:WhichKeyNormal"
           end
 
           local node = State.state and State.state.node

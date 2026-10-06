@@ -6,7 +6,16 @@
 
 local M = {}
 
+-- Preserve completion/picker colors while native context menus use Pmenu.
+local menu_original = {}
+local function capture_menu_colors()
+  for _, name in ipairs({ "Pmenu", "PmenuSel" }) do
+    menu_original[name] = vim.api.nvim_get_hl(0, { name = name, link = false })
+  end
+end
+capture_menu_colors()
 local function get(name)
+  if menu_original[name] then return vim.deepcopy(menu_original[name]) end
   return vim.api.nvim_get_hl(0, { name = name, link = false })
 end
 
@@ -172,6 +181,9 @@ end
 
 function M.apply_completion_highlights()
   local menu = get("Pmenu")
+  vim.api.nvim_set_hl(0, "BlinkCmpMenu", menu_original.Pmenu)
+  vim.api.nvim_set_hl(0, "BlinkCmpMenuSelection", menu_original.PmenuSel)
+  vim.api.nvim_set_hl(0, "BlinkCmpLabel", { fg = menu.fg })
   local normal = get("Normal")
   local doc_bg = normal.bg or menu.bg
   local doc_fg = readable_foreground(
@@ -421,6 +433,37 @@ function M.apply_picker_highlights()
   })
 end
 
+-- Dedicated menu groups never recolor document floats or sidebar contents.
+function M.apply_menu_highlights()
+  local p = nostalgia_palette()
+  if not p then return end
+  local set = vim.api.nvim_set_hl
+  local normal = { fg = p.menu_fg, bg = p.menu_bg }
+  local selected = { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg }
+  set(0, "FreshMenu", normal)
+  set(0, "FreshMenuSelected", selected)
+  set(0, "FreshMenuBorder", { fg = p.menu_border_fg, bg = p.menu_bg })
+  set(0, "FreshMenuMuted", { fg = p.menu_disabled_fg })
+  -- :popup uses Pmenu directly. Blink and picker surfaces keep their originals.
+  -- Blue links all ordinary floats to Pmenu; preserve that surface first.
+  if vim.api.nvim_get_hl(0, { name = "NormalFloat" }).link == "Pmenu" then
+    set(0, "NormalFloat", menu_original.Pmenu)
+  end
+  set(0, "Pmenu", normal)
+  set(0, "PmenuSel", selected)
+  set(0, "BlinkCmpMenu", menu_original.Pmenu)
+  set(0, "BlinkCmpMenuSelection", menu_original.PmenuSel)
+  set(0, "BlinkCmpLabel", { fg = menu_original.Pmenu.fg })
+  for _, name in ipairs({ "WhichKeyNormal", "WhichKey", "WhichKeyGroup",
+    "WhichKeyDesc", "WhichKeySeparator", "WhichKeyValue", "WhichKeyTitle",
+    "WhichKeyIcon", "WhichKeyIconAzure", "WhichKeyIconBlue", "WhichKeyIconCyan",
+    "WhichKeyIconGreen", "WhichKeyIconGrey", "WhichKeyIconOrange",
+    "WhichKeyIconPurple", "WhichKeyIconRed", "WhichKeyIconYellow" }) do
+    set(0, name, normal)
+  end
+  set(0, "WhichKeyBorder", { link = "FreshMenuBorder" })
+end
+
 function M.apply()
   local nostalgia = vim.g.colors_name == "blue" and nostalgia_palette()
   local winbar_before = get("WinBar")
@@ -453,6 +496,7 @@ function M.apply()
   apply_cursor_guide_highlights()
   M.apply_completion_highlights()
   M.apply_picker_highlights()
+  M.apply_menu_highlights()
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
   local status_fg, status_bg
@@ -559,6 +603,7 @@ local ui_group = vim.api.nvim_create_augroup("ThemeUiHighlights", { clear = true
 vim.api.nvim_create_autocmd("ColorScheme", {
   group = ui_group,
   callback = function()
+    capture_menu_colors()
     theme_scrollbar_accent = get_theme_scrollbar_accent()
     theme_scrollbar_fg = get("TabLineSel").fg
     vim.schedule(M.apply)

@@ -1,4 +1,4 @@
--- Only the top/bottom bars use Fresh Nostalgia; the rest stays Neovim Blue.
+-- Bars and menus use Fresh Nostalgia; document surfaces stay Neovim Blue.
 -- Run: nvim --headless -u NONE -l config/nvim/tests/fresh_blue_chrome_spec.lua
 local this_file = debug.getinfo(1, "S").source:sub(2)
 local nvim_root = vim.fn.fnamemodify(this_file, ":h:h")
@@ -33,7 +33,7 @@ end
 local blue_groups = {
   "Normal", "NormalNC", "CursorLine", "ColorColumn", "LineNr", "LineNrAbove",
   "LineNrBelow", "CursorLineNr", "SignColumn", "FoldColumn", "Visual", "VisualNOS",
-  "Search", "IncSearch", "CurSearch", "Pmenu", "PmenuSel", "PmenuBorder",
+  "Search", "IncSearch", "CurSearch",
   "PmenuSbar", "PmenuThumb", "NormalFloat", "FloatBorder", "Comment", "String",
   "Function", "Type", "Identifier", "Keyword", "Operator", "DiagnosticError",
   "DiagnosticWarn", "DiagnosticInfo",
