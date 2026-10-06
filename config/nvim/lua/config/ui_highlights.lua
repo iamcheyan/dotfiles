@@ -319,15 +319,15 @@ function M.apply_picker_highlights()
   local preview_fg = normal.fg or float_fg
   if not float_bg then return end
 
-  -- Only the left file list and right preview use the editor's blue surface.
-  -- The input/footer and all border groups keep their existing menu colors.
-  vim.api.nvim_set_hl(0, "SnacksPickerInput", { fg = float_fg, bg = float_bg })
+  -- Keep all left-pane sections and the preview on the document-blue surface.
+  -- The border foreground itself remains the theme's existing white menu fg.
+  vim.api.nvim_set_hl(0, "SnacksPickerInput", { fg = float_fg, bg = document_bg })
   vim.api.nvim_set_hl(0, "SnacksPickerList", { fg = float_fg, bg = document_bg })
   for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter" }) do
-    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
+    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = document_bg })
   end
   for _, group in ipairs({ "SnacksPickerFooterKey", "SnacksPickerFooterText", "SnacksPickerFooterSeparator" }) do
-    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = float_bg })
+    vim.api.nvim_set_hl(0, group, { fg = float_fg, bg = document_bg })
   end
   vim.api.nvim_set_hl(0, "SnacksPickerPreview", { fg = preview_fg, bg = document_bg })
   local border_fg = float_fg or separator.fg or get("FloatBorder").fg
@@ -335,18 +335,33 @@ function M.apply_picker_highlights()
     "SnacksPickerBorder", "SnacksPickerInputBorder", "SnacksPickerListBorder",
     "SnacksPickerPreviewBorder", "SnacksPickerFooterBorder",
   }) do
-    vim.api.nvim_set_hl(0, group, { fg = border_fg, bg = float_bg })
+    vim.api.nvim_set_hl(0, group, { fg = border_fg, bg = document_bg })
   end
 
-  -- Match the context menu's inverted active row, using the current theme's
-  -- popup selection pair rather than a fixed color.
-  local selected_bg = selected.bg or float_fg
-  local selected_fg = selected.fg or float_bg
+  for _, group in ipairs({
+    "SnacksPickerCursorLine", "SnacksPickerInputCursorLine",
+    "SnacksPickerPreviewCursorLine", "SnacksPickerBoxCursorLine",
+  }) do
+    local row = vim.api.nvim_get_hl(0, { name = group, link = false })
+    row.bg = document_bg
+    row.ctermbg = normal.ctermbg or nearest_xterm_color(document_bg)
+    vim.api.nvim_set_hl(0, group, row)
+  end
+
+  -- Keep the focused result on the same blue surface too; distinguish it with
+  -- a readable theme foreground and bold text instead of Snacks' green/white PmenuSel pair.
+  local selected_bg = document_bg
+  local selected_fg = selected.fg or normal.fg
+  selected_fg, selected_bg = readable_pair(selected_fg, selected_bg, normal)
+  local cterm_bg = selected_bg == normal.bg and normal.ctermbg or nearest_xterm_color(selected_bg)
+  local cterm_fg = selected_fg == normal.fg and normal.ctermfg
+    or selected_fg == selected.fg and selected.ctermfg
+    or nearest_xterm_color(selected_fg)
   vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", {
     bg = selected_bg,
     fg = selected_fg,
-    ctermbg = selected.ctermbg or nearest_xterm_color(selected_bg),
-    ctermfg = selected.ctermfg or nearest_xterm_color(selected_fg),
+    ctermbg = cterm_bg or nearest_xterm_color(selected_bg),
+    ctermfg = cterm_fg or nearest_xterm_color(selected_fg),
     bold = true,
   })
 end

@@ -17,10 +17,22 @@ local preview = vim.api.nvim_get_hl(0, { name = "SnacksPickerPreview", link = fa
 local input = vim.api.nvim_get_hl(0, { name = "SnacksPickerInput", link = false })
 assert(list.bg == normal.bg, "left file list should use the document's blue background")
 assert(preview.bg == normal.bg, "right preview should use the document's blue background")
-assert(input.bg == menu.bg, "picker input background must remain unchanged")
+assert(input.bg == normal.bg, "left input pane should not retain the old green menu background")
+for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter", "SnacksPickerFooterKey", "SnacksPickerFooterText", "SnacksPickerFooterSeparator" }) do
+  assert(vim.api.nvim_get_hl(0, { name = group, link = false }).bg == normal.bg, group .. " should share the left pane background")
+end
 
-local border = vim.api.nvim_get_hl(0, { name = "SnacksPickerPreviewBorder", link = false })
-assert(border.fg == menu.fg, "white preview border foreground must remain unchanged")
-assert(border.bg == menu.bg, "preview border background must remain unchanged")
+local selected = vim.api.nvim_get_hl(0, { name = "SnacksPickerListCursorLine", link = false })
+assert(selected.bg == normal.bg, "selected file row should not retain a green or pale-blue background")
+assert(selected.fg ~= nil, "selected file row should remain readable without a contrasting background")
+for _, group in ipairs({ "SnacksPickerCursorLine", "SnacksPickerInputCursorLine", "SnacksPickerPreviewCursorLine", "SnacksPickerBoxCursorLine" }) do
+  assert(vim.api.nvim_get_hl(0, { name = group, link = false }).bg == normal.bg, group .. " should not retain a green or pale-blue row background")
+end
+
+for _, group in ipairs({ "SnacksPickerBorder", "SnacksPickerInputBorder", "SnacksPickerListBorder", "SnacksPickerPreviewBorder", "SnacksPickerFooterBorder" }) do
+  local border = vim.api.nvim_get_hl(0, { name = group, link = false })
+  assert(border.fg == menu.fg, group .. " should retain the white border foreground")
+  assert(border.bg == normal.bg, group .. " should not leave a green border background")
+end
 
 print("snacks_picker_background_spec: OK")
