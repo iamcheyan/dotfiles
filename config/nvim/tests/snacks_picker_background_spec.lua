@@ -6,7 +6,6 @@ vim.opt.runtimepath:prepend(nvim_root)
 package.path = nvim_root .. "/lua/?.lua;" .. nvim_root .. "/lua/?/init.lua;" .. package.path
 vim.cmd("filetype plugin indent on")
 dofile(nvim_root .. "/lua/config/options.lua")
-
 local ui = require("config.ui_highlights")
 local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
 local menu = vim.api.nvim_get_hl(0, { name = "Pmenu", link = false })
@@ -23,11 +22,9 @@ for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter", "Snacks
 end
 
 local selected = vim.api.nvim_get_hl(0, { name = "SnacksPickerListCursorLine", link = false })
-local tab_highlights = ui.bufferline_highlights()
-assert(selected.bg == tab_highlights.buffer_selected.bg, "selected file row should reuse the active tab's blue accent")
-assert(selected.fg == tab_highlights.buffer_selected.fg, "selected file row text should match the active tab's readable foreground")
-assert(selected.bg ~= normal.bg, "selected file row should remain visibly distinct from the document")
-assert(selected.fg ~= nil, "selected file row should remain readable with its highlight")
+local fresh = ui.fresh_palette()
+assert(selected.bg == tonumber(fresh.menu_highlight_bg:gsub("#", ""), 16), "selected file row should use Fresh's blue highlight")
+assert(selected.fg == tonumber(fresh.menu_highlight_fg:gsub("#", ""), 16), "selected file row should use Fresh's white text")
 for _, group in ipairs({ "SnacksPickerCursorLine", "SnacksPickerInputCursorLine", "SnacksPickerPreviewCursorLine", "SnacksPickerBoxCursorLine" }) do
   assert(vim.api.nvim_get_hl(0, { name = group, link = false }).bg == normal.bg, group .. " should not retain a green or pale-blue row background")
 end

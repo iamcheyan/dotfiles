@@ -10,6 +10,44 @@ local function get(name)
   return vim.api.nvim_get_hl(0, { name = name, link = false })
 end
 
+local function fresh_palette()
+  local ok, theme = pcall(require, "theme.high-contrast-plus")
+  return ok and theme.palette or nil
+end
+M.fresh_palette = fresh_palette
+local function to_rgb(color)
+  if type(color) == "string" and color:match("^#%x%x%x%x%x%x$") then
+    return tonumber(color:sub(2), 16)
+  end
+  return color
+end
+M.to_rgb = to_rgb
+
+local normal_mode_codes = { n = true, niI = true, niR = true, niV = true, nt = true }
+function M.fresh_mode_style(mode)
+  local fresh = fresh_palette() or {}
+  if normal_mode_codes[mode] then
+    return {
+      fg = fresh.status_bar_fg or fresh.menu_highlight_fg,
+      bg = fresh.diff_add_bg or fresh.diff_add_highlight_bg,
+      bold = false,
+    }
+  end
+  return {
+    fg = fresh.menu_highlight_fg or fresh.status_bar_fg,
+    bg = fresh.menu_highlight_bg or fresh.status_bar_bg,
+    bold = false,
+  }
+end
+M.fresh_normal_style = function()
+  local fresh = fresh_palette() or {}
+  return {
+    fg = "#ffffff",
+    bg = fresh.diff_add_bg or "#005f00",
+    bold = false,
+  }
+end
+
 -- TabLineSel may link to StatusLine. Cache the theme's original accent before
 -- this adapter changes StatusLine, so repeated apply() calls keep the same thumb.
 local function get_theme_scrollbar_accent()
@@ -221,6 +259,33 @@ local function tab_palette()
   local normal = get("Normal")
   local normal_fg = normal.fg
   local normal_bg = normal.bg
+  local fresh = vim.g.colors_name == "blue" and fresh_palette()
+  if fresh then
+    local surface_bg = to_rgb(fresh.tab_inactive_bg or "#000000")
+    local surface_fg = to_rgb(fresh.menu_fg or normal_fg)
+    local separator_bg = to_rgb(fresh.tab_separator_bg or "#1e1e23")
+    local inactive_bg = to_rgb(fresh.tab_inactive_bg or "#000000")
+    local active_bg = to_rgb(fresh.tab_active_bg or "#ffff00")
+    local active_fg = to_rgb(fresh.tab_active_fg or "#000000")
+    return {
+      normal_fg = normal_fg,
+      normal_bg = normal_bg,
+      fill_bg = separator_bg,
+      surface_fg = surface_fg,
+      surface_bg = surface_bg,
+      active_fg = active_fg,
+      active_bg = active_bg,
+      visible_fg = surface_fg,
+      visible_bg = inactive_bg,
+      separator_fg = to_rgb(fresh.tab_separator_bg or "#1e1e23"),
+      scrollbar_bg = to_rgb(fresh.scrollbar_thumb_fg or "#ffff00"),
+      scrollbar_track_bg = to_rgb(fresh.scrollbar_track_fg or "#505050"),
+      winbar_fg = surface_fg,
+      winbar_bg = surface_bg,
+      top_bold = false,
+    }
+  end
+
   local title_surfaces = title_bar_surfaces()
   local surface_bg = title_surfaces.inactive_bg or preferred_bg("TabLine", "StatusLine", "CursorLine", "Normal")
   local surface_fg = title_surfaces.inactive_fg or pick_fg("TabLine", "StatusLine", "Normal")
@@ -269,31 +334,32 @@ local function tab_palette()
     scrollbar_bg = title_surfaces.scrollbar_bg or active_bg,
     winbar_fg = winbar_fg,
     winbar_bg = winbar_bg,
+    top_bold = true,
   }
 end
 
 function M.bufferline_highlights()
   local p = tab_palette()
   return {
-    fill = { fg = p.surface_fg, bg = p.surface_bg },
+    fill = { fg = p.surface_fg, bg = p.fill_bg },
     background = { fg = p.surface_fg, bg = p.surface_bg },
     buffer = { fg = p.surface_fg, bg = p.surface_bg },
     buffer_visible = { fg = p.visible_fg, bg = p.visible_bg },
-    buffer_selected = { fg = p.active_fg, bg = p.active_bg, bold = true },
+    buffer_selected = { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold },
     tab = { fg = p.visible_fg, bg = p.surface_bg },
-    tab_selected = { fg = p.active_fg, bg = p.active_bg, bold = true },
+    tab_selected = { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold },
     separator = { fg = p.separator_fg, bg = p.surface_bg },
     separator_visible = { fg = p.separator_fg, bg = p.visible_bg },
     separator_selected = { fg = p.active_bg, bg = p.active_bg },
     modified = { fg = p.active_fg, bg = p.surface_bg },
     modified_visible = { fg = p.active_fg, bg = p.visible_bg },
-    modified_selected = { fg = p.active_fg, bg = p.active_bg, bold = true },
+    modified_selected = { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold },
     close_button = { fg = p.visible_fg, bg = p.surface_bg },
     close_button_visible = { fg = p.visible_fg, bg = p.visible_bg },
     close_button_selected = { fg = p.active_fg, bg = p.active_bg },
     numbers = { fg = p.surface_fg, bg = p.surface_bg },
     numbers_visible = { fg = p.visible_fg, bg = p.visible_bg },
-    numbers_selected = { fg = p.active_fg, bg = p.active_bg, bold = true },
+    numbers_selected = { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold },
     indicator_selected = { fg = p.active_bg, bg = p.active_bg },
     indicator_visible = { fg = p.visible_bg, bg = p.visible_bg },
     offset_separator = { fg = p.separator_fg, bg = p.surface_bg },
@@ -352,11 +418,18 @@ function M.apply_picker_highlights()
   -- remains obvious without restoring Snacks' mismatched green/white PmenuSel.
   local title_surfaces = title_bar_surfaces()
   local cursor_line = get("CursorLine")
-  local selected_bg = title_surfaces.active_bg
-    or (cursor_line.bg ~= document_bg and cursor_line.bg)
-    or selected.bg or document_bg
-  local selected_fg = title_surfaces.active_fg or cursor_line.fg or selected.fg or normal.fg
-  selected_fg, selected_bg = readable_pair(selected_fg, selected_bg, normal)
+  local fresh = vim.g.colors_name == "blue" and fresh_palette()
+  local selected_bg, selected_fg
+  if fresh then
+    selected_bg = to_rgb(fresh.menu_highlight_bg)
+    selected_fg = to_rgb(fresh.menu_highlight_fg)
+  else
+    selected_bg = title_surfaces.active_bg
+      or (cursor_line.bg ~= document_bg and cursor_line.bg)
+      or selected.bg or document_bg
+    selected_fg = title_surfaces.active_fg or cursor_line.fg or selected.fg or normal.fg
+    selected_fg, selected_bg = readable_pair(selected_fg, selected_bg, normal)
+  end
   vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", {
     bg = selected_bg,
     fg = selected_fg,
@@ -372,24 +445,44 @@ function M.apply()
   local p = tab_palette()
   local set = vim.api.nvim_set_hl
   local normal = get("Normal")
+  local fresh = vim.g.colors_name == "blue" and fresh_palette()
+  if fresh then
+    set(0, "TabLine", { fg = fresh.menu_fg, bg = fresh.tab_separator_bg, bold = false })
+    set(0, "TabLineFill", { fg = fresh.menu_fg, bg = fresh.tab_separator_bg, bold = false })
+    set(0, "TabLineSel", { fg = fresh.tab_active_fg, bg = fresh.tab_active_bg, bold = false })
+    set(0, "Pmenu", { fg = fresh.menu_dropdown_fg, bg = fresh.menu_dropdown_bg })
+    set(0, "PmenuSel", { fg = fresh.menu_highlight_fg, bg = fresh.menu_highlight_bg, bold = false })
+    set(0, "PmenuBorder", { fg = fresh.menu_border_fg, bg = fresh.menu_dropdown_bg })
+    set(0, "PmenuSbar", { bg = fresh.scrollbar_track_fg })
+    set(0, "PmenuThumb", { bg = fresh.scrollbar_thumb_fg })
+    set(0, "WildMenu", { fg = fresh.menu_active_fg, bg = fresh.menu_active_bg, bold = false })
+    set(0, "FreshStatusLineNormal", M.fresh_normal_style())
+  end
   local title_surfaces = title_bar_surfaces()
   apply_cursor_guide_highlights()
   M.apply_completion_highlights()
   M.apply_picker_highlights()
   local active_status = get("StatusLine")
   local inactive_status = get("StatusLineNC")
-  local status_fg, status_bg = readable_pair(
-    title_surfaces.status_active_fg or active_status.fg or normal.fg,
-    title_surfaces.status_active_bg or active_status.bg or normal.bg,
-    normal
-  )
-  local status_nc_fg, status_nc_bg = readable_pair(
-    title_surfaces.status_inactive_fg or inactive_status.fg or status_fg,
-    title_surfaces.status_inactive_bg or inactive_status.bg or status_bg,
-    normal
-  )
-  set(0, "StatusLine", { fg = status_fg, bg = status_bg })
-  set(0, "StatusLineNC", { fg = status_nc_fg, bg = status_nc_bg })
+  local status_fg, status_bg
+  local status_nc_fg, status_nc_bg
+  if fresh then
+    status_fg, status_bg = fresh.menu_highlight_fg, fresh.menu_highlight_bg
+    status_nc_fg, status_nc_bg = fresh.menu_highlight_fg, fresh.menu_highlight_bg
+  else
+    status_fg, status_bg = readable_pair(
+      title_surfaces.status_active_fg or active_status.fg or normal.fg,
+      title_surfaces.status_active_bg or active_status.bg or normal.bg,
+      normal
+    )
+    status_nc_fg, status_nc_bg = readable_pair(
+      title_surfaces.status_inactive_fg or inactive_status.fg or status_fg,
+      title_surfaces.status_inactive_bg or inactive_status.bg or status_bg,
+      normal
+    )
+  end
+  set(0, "StatusLine", { fg = status_fg, bg = status_bg, bold = false })
+  set(0, "StatusLineNC", { fg = status_nc_fg, bg = status_nc_bg, bold = false })
 
   -- The path and metadata bar should read as a UI surface, not disappear
   -- into the editor background.  The colors still come from the active theme.
@@ -401,7 +494,7 @@ function M.apply()
   set(0, "BufferLineBackground", { fg = p.surface_fg, bg = p.surface_bg })
   set(0, "BufferLineBuffer", { fg = p.surface_fg, bg = p.surface_bg })
   set(0, "BufferLineBufferVisible", { fg = p.visible_fg, bg = p.visible_bg })
-  set(0, "BufferLineBufferSelected", { fg = p.active_fg, bg = p.active_bg, bold = true })
+  set(0, "BufferLineBufferSelected", { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold })
   -- Bufferline keeps a one-cell indicator slot before every icon. Copy the
   -- final tab backgrounds here so that slot cannot retain a stale/different
   -- color after a theme change or delayed bufferline highlight generation.
@@ -410,16 +503,16 @@ function M.apply()
   set(0, "BufferLineIndicatorVisible", { fg = visible_tab_bg, bg = visible_tab_bg })
   set(0, "BufferLineIndicatorSelected", { fg = selected_tab_bg, bg = selected_tab_bg })
   set(0, "BufferLineTab", { fg = p.visible_fg, bg = p.surface_bg })
-  set(0, "BufferLineTabSelected", { fg = p.active_fg, bg = p.active_bg, bold = true })
+  set(0, "BufferLineTabSelected", { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold })
   set(0, "BufferLineSeparator", { fg = p.separator_fg, bg = p.surface_bg })
   set(0, "BufferLineSeparatorVisible", { fg = p.separator_fg, bg = p.visible_bg })
   set(0, "BufferLineSeparatorSelected", { fg = p.active_bg, bg = p.active_bg })
   set(0, "BufferLineModified", { fg = p.active_fg, bg = p.surface_bg })
   set(0, "BufferLineModifiedVisible", { fg = p.active_fg, bg = p.visible_bg })
-  set(0, "BufferLineModifiedSelected", { fg = p.active_fg, bg = p.active_bg, bold = true })
+  set(0, "BufferLineModifiedSelected", { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold })
   set(0, "BufferLineCloseButton", { fg = p.visible_fg, bg = p.surface_bg })
   set(0, "BufferLineCloseButtonVisible", { fg = p.visible_fg, bg = p.visible_bg })
-  set(0, "BufferLineCloseButtonSelected", { fg = p.active_fg, bg = p.active_bg })
+  set(0, "BufferLineCloseButtonSelected", { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold })
   set(0, "BufferLineOffsetSeparator", { fg = p.separator_fg, bg = p.surface_bg })
   -- Duplicate prefix: directory shown in tab when two buffers share the same
   -- filename.  bufferline's default bg is Normal.bg (black); override it so
@@ -429,7 +522,7 @@ function M.apply()
   set(0, "BufferLineDuplicate",         { fg = p.surface_fg, bg = p.surface_bg, italic = true })
 
   -- Scrollbar (Satellite & nvim-scrollbar):
-  set(0, "SatelliteBackground", { bg = "#25252a" })
+  set(0, "SatelliteBackground", { bg = p.scrollbar_track_bg or "#25252a" })
   set(0, "SatelliteBar", { bg = p.scrollbar_bg })
 
   set(0, "ScrollbarHandle", { fg = p.scrollbar_bg, bg = p.scrollbar_bg })
@@ -451,7 +544,7 @@ function M.apply()
 
   for _, group in ipairs(vim.fn.getcompletion("BufferLineDevIcon", "highlight")) do
     if group:match("Selected$") then
-      set(0, group, { fg = p.active_fg, bg = p.active_bg, bold = true })
+      set(0, group, { fg = p.active_fg, bg = p.active_bg, bold = p.top_bold })
     elseif group:match("Visible$") or group:match("Inactive$") then
       set(0, group, { fg = p.visible_fg, bg = p.visible_bg })
     else

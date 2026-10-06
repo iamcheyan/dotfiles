@@ -9,17 +9,14 @@ return {
     opts = function()
       local gap = { provider = "  " }
       local pad = { provider = " " }
-      -- Read the active theme palette whenever Heirline evaluates a segment.
-      -- These colors used to be fixed cyan/navy values, so switching themes
-      -- changed the top bar but left the bottom bar behind.
+      -- Resolve colors from the adapted StatusLine group so the actual bottom bar,
+      -- not the separate WinBar surface, controls every statusline segment.
       local statusline_colors = setmetatable({}, {
         __index = function(_, key)
-          local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
+          local statusline = vim.api.nvim_get_hl(0, { name = "StatusLine", link = false })
           local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-          local fg, bg = winbar.fg or normal.fg, winbar.bg or normal.bg
+          local fg, bg = statusline.fg or normal.fg, statusline.bg or normal.bg
           if key == "bg" then return bg end
-          -- Keep the whole bar on the same theme surface; semantic warning or
-          -- mode colors made individual sections look like a second palette.
           if key == "text" or key == "accent" or key == "warning" or key == "on_accent" then return fg end
         end,
       })
@@ -414,6 +411,9 @@ return {
           if _G._active_statusline_menu == "mode" then
             return "Pmenu"
           end
+          if mode_names[self.mode] == "NORMAL" then
+            return "FreshStatusLineNormal"
+          end
           if self._pressed then
             return { bg = statusline_colors.accent }
           end
@@ -421,10 +421,10 @@ return {
         {
           provider = " ",
           hl = function(self)
-            if _G._active_statusline_menu == "mode" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
-            local c = mode_colors[self.mode] or mode_colors[self.mode:sub(1, 1)] or statusline_colors.accent
-            return { fg = c, bold = true }
+            if _G._active_statusline_menu == "mode" then return "Pmenu" end
+            if mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            return { fg = statusline_colors.accent, bold = false }
           end,
         },
         {
@@ -432,10 +432,10 @@ return {
             return (mode_names[self.mode] or self.mode)
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "mode" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
-            local c = mode_colors[self.mode] or mode_colors[self.mode:sub(1, 1)] or statusline_colors.accent
-            return { fg = c, bold = true }
+            if _G._active_statusline_menu == "mode" then return "Pmenu" end
+            if mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            return { fg = statusline_colors.accent, bold = false }
           end,
         },
       }
@@ -516,11 +516,11 @@ return {
             return " " .. (head == "" and "-" or head)
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "git" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
+            if _G._active_statusline_menu == "git" then return { fg = statusline_colors.text, bold = false } end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
             local head = self.gs and self.gs.head or ""
             if head ~= "" then
-              return { fg = statusline_colors.accent, bold = true }
+              return { fg = statusline_colors.accent, bold = false }
             end
             return { fg = statusline_colors.text }
           end,
@@ -685,8 +685,8 @@ return {
             return self.icon .. " "
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
+            if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text, bold = false } end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
             return { fg = self.icon_color }
           end,
         },
@@ -705,9 +705,9 @@ return {
             return self.file
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
-            return { fg = statusline_colors.text, bold = true }
+            if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text, bold = false } end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            return { fg = statusline_colors.text, bold = false }
           end,
         },
         {
@@ -716,8 +716,8 @@ return {
           end,
           provider = " [+]",
           hl = function(self)
-            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.warning, bold = true } end
-            return { fg = statusline_colors.warning, bold = true }
+            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.warning, bold = false } end
+            return { fg = statusline_colors.warning, bold = false }
           end,
         },
         {
@@ -726,8 +726,8 @@ return {
           end,
           provider = " [RO]",
           hl = function(self)
-            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.warning, bold = true } end
-            return { fg = statusline_colors.warning, bold = true }
+            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.warning, bold = false } end
+            return { fg = statusline_colors.warning, bold = false }
           end,
         },
         {
@@ -736,8 +736,8 @@ return {
           end,
           provider = " [New]",
           hl = function(self)
-            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.accent, bold = true } end
-            return { fg = statusline_colors.accent, bold = true }
+            if _G._active_statusline_menu == "file" or self._pressed then return { fg = statusline_colors.accent, bold = false } end
+            return { fg = statusline_colors.accent, bold = false }
           end,
         },
       }
@@ -833,9 +833,9 @@ return {
             return self.lsp_name
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "lsp" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
-            return { fg = self.active and statusline_colors.accent or statusline_colors.text, bold = self.active }
+            if _G._active_statusline_menu == "lsp" then return { fg = statusline_colors.text, bold = false } end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            return { fg = self.active and statusline_colors.accent or statusline_colors.text, bold = false }
           end,
         },
       }
@@ -976,9 +976,9 @@ return {
             return string.upper(enc) .. fmt
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "encoding" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
-            return { fg = statusline_colors.accent, bold = true }
+            if _G._active_statusline_menu == "encoding" then return { fg = statusline_colors.text, bold = false } end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            return { fg = statusline_colors.accent, bold = false }
           end,
         },
       }
@@ -995,7 +995,7 @@ return {
           provider = function()
             return get_venv_name()
           end,
-          hl = { fg = statusline_colors.accent, bold = true },
+          hl = { fg = statusline_colors.accent, bold = false },
         },
       }
 
@@ -1069,9 +1069,9 @@ return {
             return remain .. "%"
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "nav" then return { fg = statusline_colors.text, bold = true } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = true } end
-            return { fg = statusline_colors.accent, bold = true }
+            if _G._active_statusline_menu == "nav" then return { fg = statusline_colors.text, bold = false } end
+            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            return { fg = statusline_colors.accent, bold = false }
           end,
         },
       }
