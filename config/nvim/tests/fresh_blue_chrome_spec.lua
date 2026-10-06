@@ -36,7 +36,7 @@ local blue_groups = {
   "Search", "IncSearch", "CurSearch", "Pmenu", "PmenuSel", "PmenuBorder",
   "PmenuSbar", "PmenuThumb", "NormalFloat", "FloatBorder", "Comment", "String",
   "Function", "Type", "Identifier", "Keyword", "Operator", "DiagnosticError",
-  "DiagnosticWarn", "DiagnosticInfo", "WinBar", "WinBarNC",
+  "DiagnosticWarn", "DiagnosticInfo",
 }
 local blue_before = {}
 for _, name in ipairs(blue_groups) do
@@ -64,6 +64,10 @@ local tabline_fill = vim.api.nvim_get_hl(0, { name = "TabLineFill", link = false
 local tabline_selected = vim.api.nvim_get_hl(0, { name = "TabLineSel", link = false })
 assert(tabline.bg == color_id(fresh.tab_separator_bg) and tabline_fill.bg == color_id(fresh.tab_separator_bg), "native topbar should use Fresh Nostalgia")
 assert(tabline_selected.bg == color_id(fresh.tab_active_bg) and tabline_selected.fg == color_id(fresh.tab_active_fg), "active native tab should use Fresh Nostalgia")
+local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
+local winbar_nc = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
+assert(winbar.bg == color_id(fresh.tab_active_bg) and winbar.fg == color_id(fresh.tab_active_fg), "context WinBar should match Fresh Nostalgia active tab")
+assert(winbar_nc.bg == color_id(fresh.tab_inactive_bg) and winbar_nc.fg == color_id(fresh.tab_inactive_fg), "inactive context WinBar should match Fresh Nostalgia inactive tab")
 local bufferline_selected = vim.api.nvim_get_hl(0, { name = "BufferLineBufferSelected", link = false })
 assert(bufferline_selected.bg == color_id(fresh.tab_active_bg) and bufferline_selected.fg == color_id(fresh.tab_active_fg), "bufferline active tab should use Fresh Nostalgia")
 assert(bufferline_selected.bold ~= true, "bufferline active tab should not be bold")
