@@ -66,8 +66,9 @@ assert(tabline.bg == color_id(fresh.tab_separator_bg) and tabline_fill.bg == col
 assert(tabline_selected.bg == color_id(fresh.tab_active_bg) and tabline_selected.fg == color_id(fresh.tab_active_fg), "active native tab should use Fresh Nostalgia")
 local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
 local winbar_nc = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
-assert(winbar.bg == color_id(fresh.tab_active_bg) and winbar.fg == color_id(fresh.tab_active_fg), "context WinBar should match Fresh Nostalgia active tab")
-assert(winbar_nc.bg == color_id(fresh.tab_inactive_bg) and winbar_nc.fg == color_id(fresh.tab_inactive_fg), "inactive context WinBar should match Fresh Nostalgia inactive tab")
+assert(winbar.bg == color_id(fresh.tab_active_bg) and winbar.fg == color_id(fresh.tab_active_fg), "context WinBar should match the active tab")
+assert(vim.deep_equal(winbar, winbar_nc), "context bar colors must not change with focus")
+assert(winbar_nc.bg == color_id(fresh.tab_active_bg) and winbar_nc.fg == color_id(fresh.tab_active_fg), "inactive context WinBar should match the active tab")
 local bufferline_selected = vim.api.nvim_get_hl(0, { name = "BufferLineBufferSelected", link = false })
 assert(bufferline_selected.bg == color_id(fresh.tab_active_bg) and bufferline_selected.fg == color_id(fresh.tab_active_fg), "bufferline active tab should use Fresh Nostalgia")
 assert(bufferline_selected.bold ~= true, "bufferline active tab should not be bold")
@@ -91,13 +92,24 @@ local statusline_style = statusline_opts.hl()
 assert(color_id(statusline_style.bg) == color_id(fresh.status_bar_bg), "Heirline bottom bar should use Fresh Nostalgia")
 assert(color_id(statusline_style.fg) == color_id(fresh.status_bar_fg), "Heirline bottom-bar text should use Fresh Nostalgia")
 assert(statusline_style.bold == false, "Heirline bottom bar should not be bold")
-local mode_component
-for _, component in ipairs(statusline_opts) do
-  if type(component) == "table" and component.on_click and component.on_click.name == "heirline_mode_menu" then
-    mode_component = component
-    break
+local right_info
+local function find_right_info(components)
+  for _, component in ipairs(components) do
+    if type(component) == "table" then
+      if component.hl == "FreshStatusLineAccent" and #component > 0 then
+        right_info = component
+        return
+      end
+      find_right_info(component)
+      if right_info then return end
+    end
   end
 end
-assert(mode_component and mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineNormal", "Heirline NORMAL segment should use Fresh Nostalgia green")
+find_right_info(statusline_opts)
+assert(right_info, "right status information should share one Fresh green group")
+assert(right_info[1].provider == " " and right_info[#right_info].provider == " ", "right status block should have green padding on both edges")
+local mode_component = right_info[9]
+assert(mode_component and mode_component.on_click.name == "heirline_mode_menu", "mode segment should remain in the right status block")
+assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineAccent", "mode segment should share Fresh green")
 
 print("fresh_blue_chrome_spec: OK")

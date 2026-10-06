@@ -1,3 +1,12 @@
+-- Backdrops are inactive windows: map NormalNC too, or Blue leaks through.
+local black_backdrop = {
+  bg = "#000000",
+  blend = 20,
+  win = {
+    wo = { winhighlight = "Normal:SnacksBackdrop_000000,NormalNC:SnacksBackdrop_000000" },
+  },
+}
+
 return {
   {
     "folke/snacks.nvim",
@@ -62,11 +71,11 @@ return {
         configure = false,
       },
       styles = {
-        float = { border = "single" },
+        float = { border = "single", backdrop = black_backdrop },
         notification = { border = "single" },
-        input = { border = "single" },
-        confirm = { border = "single" },
-        lazygit = { border = "single" },
+        input = { border = "single", backdrop = black_backdrop },
+        confirm = { border = "single", backdrop = black_backdrop },
+        lazygit = { border = "single", backdrop = black_backdrop },
       },
       picker = {
         on_show = function(picker)
@@ -101,6 +110,8 @@ return {
         end,
         layout = {
           layout = {
+            -- Keep background text visible at 20% brightness behind the dialog.
+            backdrop = black_backdrop,
             box = "horizontal",
             width = 0.85,
             min_width = 120,

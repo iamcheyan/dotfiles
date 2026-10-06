@@ -410,23 +410,12 @@ return {
           name = "heirline_mode_menu",
         },
         hl = function(self)
-          if _G._active_statusline_menu == "mode" then
-            return "Pmenu"
-          end
-          if vim.g.colors_name == "blue" and mode_names[self.mode] == "NORMAL" then
-            return "FreshStatusLineNormal"
-          end
-          if self._pressed then
-            return { bg = statusline_colors.press_bg }
-          end
+          return "FreshStatusLineAccent"
         end,
         {
           provider = " ",
           hl = function(self)
-            if _G._active_statusline_menu == "mode" then return "Pmenu" end
-            if vim.g.colors_name == "blue" and mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
-            return { fg = statusline_colors.accent, bold = false }
+            return "FreshStatusLineAccent"
           end,
         },
         {
@@ -434,13 +423,11 @@ return {
             return (mode_names[self.mode] or self.mode)
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "mode" then return "Pmenu" end
-            if vim.g.colors_name == "blue" and mode_names[self.mode] == "NORMAL" then return "FreshStatusLineNormal" end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
-            return { fg = statusline_colors.accent, bold = false }
+            return "FreshStatusLineAccent"
           end,
         },
       }
+
 
       local GitBranch = {
         init = function(self)
@@ -1115,6 +1102,23 @@ return {
       }
 
 
+      -- Treat encoding, LSP, location, and mode as one continuous right block.
+      -- The leading and trailing padding inherit the same green surface.
+      local RightInfo = {
+        hl = "FreshStatusLineAccent",
+        pad,
+        Venv,
+        Encoding,
+        gap,
+        LspName,
+        gap,
+        RemainingPercent,
+        gap,
+        Mode,
+        pad,
+      }
+
+
       local ContextlineWinbar = {
         hl = "WinBar",
         condition = function()
@@ -1168,16 +1172,7 @@ return {
           gap,
           FileName,
           Align,
-          Venv,
-          gap,
-          Encoding, 
-          gap,
-          LspName,
-          gap,
-          RemainingPercent,
-          gap,
-          Mode,
-          pad,
+          RightInfo,
         },
       }
     end,

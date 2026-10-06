@@ -14,6 +14,7 @@ for name, attrs in pairs(before) do assert(vim.deep_equal(attrs, hl(name)), name
 for _, name in ipairs({ "Pmenu", "FreshMenu", "WhichKeyNormal", "WhichKeyDesc", "WhichKeyIconRed" }) do
   assert(hl(name).fg == 0 and hl(name).bg == 0xaaaaaa, name .. " should use grey and black")
 end
+assert(hl("PmenuBorder").fg == 0 and hl("PmenuBorder").bg == 0xaaaaaa, "native popup border should be black on grey")
 assert(hl("PmenuSel").fg == 0xffffff and hl("PmenuSel").bg == 0x00aa00)
 assert(vim.deep_equal(completion, hl("BlinkCmpMenu")), "completion surface changed")
 assert(vim.deep_equal(selected, hl("BlinkCmpMenuSelection")), "completion selection changed")

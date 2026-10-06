@@ -277,10 +277,12 @@ local function tab_palette()
       scrollbar_bg = theme_scrollbar_accent,
       scrollbar_misc_fg = normal_fg,
       scrollbar_misc_bg = normal_bg,
+      -- Keep the context bar visually attached to the active buffer tab,
+      -- including when focus moves to a sidebar or menu.
       winbar_fg = active_fg,
       winbar_bg = active_bg,
-      winbar_nc_fg = surface_fg,
-      winbar_nc_bg = surface_bg,
+      winbar_nc_fg = active_fg,
+      winbar_nc_bg = active_bg,
       top_bold = false,
     }
   end
@@ -451,6 +453,7 @@ function M.apply_menu_highlights()
   end
   set(0, "Pmenu", normal)
   set(0, "PmenuSel", selected)
+  set(0, "PmenuBorder", { link = "FreshMenuBorder" })
   set(0, "BlinkCmpMenu", menu_original.Pmenu)
   set(0, "BlinkCmpMenuSelection", menu_original.PmenuSel)
   set(0, "BlinkCmpLabel", { fg = menu_original.Pmenu.fg })
