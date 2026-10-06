@@ -7,6 +7,7 @@ package.path = nvim_root .. "/lua/?.lua;" .. nvim_root .. "/lua/?/init.lua;" .. 
 vim.cmd("filetype plugin indent on")
 dofile(nvim_root .. "/lua/config/options.lua")
 local ui = require("config.ui_highlights")
+local blue_tab_sel = vim.api.nvim_get_hl(0, { name = "TabLineSel", link = false })
 local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
 local menu = vim.api.nvim_get_hl(0, { name = "Pmenu", link = false })
 ui.apply_picker_highlights()
@@ -22,9 +23,8 @@ for _, group in ipairs({ "SnacksPickerFooter", "SnacksPickerListFooter", "Snacks
 end
 
 local selected = vim.api.nvim_get_hl(0, { name = "SnacksPickerListCursorLine", link = false })
-local nostalgia = ui.nostalgia_palette()
-assert(selected.bg == ui.to_rgb(nostalgia.menu_highlight_bg), "selected file row should use Fresh Nostalgia's green highlight")
-assert(selected.fg == ui.to_rgb(nostalgia.menu_highlight_fg), "selected file row should use Fresh Nostalgia's white text")
+assert(selected.bg == blue_tab_sel.bg, "selected file row should use Blue's active-tab background")
+assert(selected.bg ~= normal.bg and selected.fg == blue_tab_sel.fg, "selected file row should retain Blue's visible selection colors")
 for _, group in ipairs({ "SnacksPickerCursorLine", "SnacksPickerInputCursorLine", "SnacksPickerPreviewCursorLine", "SnacksPickerBoxCursorLine" }) do
   assert(vim.api.nvim_get_hl(0, { name = group, link = false }).bg == normal.bg, group .. " should not retain a green or pale-blue row background")
 end

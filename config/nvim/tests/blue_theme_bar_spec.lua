@@ -9,6 +9,9 @@ dofile(nvim_root .. "/lua/config/options.lua")
 assert(vim.g.colors_name == "blue", "Neovim should start with the built-in blue colorscheme")
 
 local ui = require("config.ui_highlights")
+local blue_tab_accent = vim.api.nvim_get_hl(0, { name = "TabLineSel", link = false }).bg
+local blue_winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
+local blue_winbar_nc = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
 ui.apply()
 ui.apply() -- BufEnter/ColorScheme can reapply the adapter after its own StatusLine override.
 
@@ -43,23 +46,21 @@ assert(tabs.fill.bg ~= normal.bg, "top-bar fill should remain distinct from the 
 for _, name in ipairs({ "fill", "buffer", "buffer_visible", "buffer_selected" }) do
   readable("BufferLine " .. name, tabs[name].fg, tabs[name].bg)
 end
-for _, name in ipairs({ "WinBar", "WinBarNC", "StatusLine", "StatusLineNC" }) do
+for _, name in ipairs({ "StatusLine", "StatusLineNC" }) do
   local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
   readable(name, hl.fg, hl.bg)
 end
 local status_active = vim.api.nvim_get_hl(0, { name = "StatusLine", link = false })
 local status_inactive = vim.api.nvim_get_hl(0, { name = "StatusLineNC", link = false })
-local winbar_active = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
-local winbar_inactive = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
 assert(status_active.bg == fresh_rgb(fresh.status_bar_bg), "bottom statusline should use Fresh Nostalgia cyan")
 assert(status_inactive.bg == fresh_rgb(fresh.status_bar_bg), "inactive statusline should use Fresh Nostalgia cyan")
 assert(status_active.fg == fresh_rgb(fresh.status_bar_fg), "bottom statusline should use Fresh Nostalgia black text")
 assert(status_active.bold ~= true and status_inactive.bold ~= true, "bottom bars should not be bold")
 assert(status_active.bg ~= normal.bg and status_inactive.bg ~= normal.bg, "bottom bars should be distinct from the document background")
-assert(winbar_active.bg == fresh_rgb(fresh.tab_active_bg) and winbar_active.fg == fresh_rgb(fresh.tab_active_fg), "active winbar should use Fresh Nostalgia active-tab colors")
-assert(winbar_inactive.bg == fresh_rgb(fresh.tab_inactive_bg) and winbar_inactive.fg == fresh_rgb(fresh.tab_inactive_fg), "inactive winbar should use Fresh Nostalgia inactive-tab colors")
-assert(vim.api.nvim_get_hl(0, { name = "ScrollbarHandle", link = false }).bg == fresh_rgb(fresh.scrollbar_thumb_fg), "scrollbar handle should use Fresh Nostalgia gray")
-assert(vim.api.nvim_get_hl(0, { name = "SatelliteBackground", link = false }).bg == fresh_rgb(fresh.scrollbar_track_fg), "satellite scrollbar should use Fresh Nostalgia dark-blue track")
+assert(vim.deep_equal(vim.api.nvim_get_hl(0, { name = "WinBar", link = false }), blue_winbar), "WinBar should remain on the built-in Blue theme")
+assert(vim.deep_equal(vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false }), blue_winbar_nc), "inactive WinBar should remain on the built-in Blue theme")
+assert(vim.api.nvim_get_hl(0, { name = "ScrollbarHandle", link = false }).bg == blue_tab_accent, "scrollbar handle should remain Blue")
+assert(vim.api.nvim_get_hl(0, { name = "SatelliteBackground", link = false }).bg == tonumber("25252a", 16), "satellite track should remain Blue")
 
 -- Runtime theme switching should keep the existing high-contrast theme legible too.
 vim.cmd.colorscheme("high-contrast-plus")
