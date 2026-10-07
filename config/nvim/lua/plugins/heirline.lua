@@ -1127,9 +1127,9 @@ return {
         gap,
         RemainingPercent,
         gap,
-        Mode,
-        gap,
         CapsState,
+        gap,
+        Mode,
         pad,
       }
 

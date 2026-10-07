@@ -107,13 +107,15 @@ end
 find_right_info(statusline_opts)
 assert(right_info and right_info.hl() == "FreshStatusLineAccent", "right status information should use Fresh green normally")
 assert(right_info[1].provider == " " and right_info[#right_info].provider == " ", "right status block should have green padding on both edges")
-local mode_component = right_info[9]
+local caps_component = right_info[9]
+local mode_component = right_info[11]
 assert(mode_component and mode_component.on_click.name == "heirline_mode_menu", "mode segment should remain in the right status block")
 assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineAccent", "mode segment should share Fresh green")
+_G._heirline_caps_lock_on = false
+assert(caps_component.provider() == "CAPS OFF", "Caps Lock status should appear immediately before the mode segment")
 _G._heirline_caps_lock_on = true
 assert(right_info.hl() == "FreshStatusLineCaps", "right status information should turn red when Caps Lock is on")
 assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineCaps", "mode segment should turn red when Caps Lock is on")
-local caps_component = right_info[11]
 assert(caps_component.provider() == "CAPS ON", "caps status should report uppercase state")
 _G._heirline_caps_lock_on = false
 assert(caps_component.provider() == "CAPS OFF", "caps status should report normal state")
