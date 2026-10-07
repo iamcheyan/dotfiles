@@ -784,7 +784,6 @@ return {
           hl = function(self)
             if _G._active_statusline_menu == "file" then return "Pmenu" end
             if self._pressed then return click_feedback(self, vim.g.colors_name == "blue" and "FreshStatusLineWarning" or nil) end
-            if vim.g.colors_name == "blue" then return "FreshStatusLineWarning" end
             return { fg = statusline_colors.warning, bold = false }
           end,
         },
@@ -1198,7 +1197,6 @@ return {
           end
           return cl.get_info() ~= nil
         end,
-        pad,
         {
           provider = function()
             local ok, cl = pcall(require, "contextline")
@@ -1217,8 +1215,15 @@ return {
               local anchor = tonumber(id) == cl._active_menu_segment and "%#ContextlineActiveMenu#" or ""
               return marker .. anchor .. " " .. text .. " " .. ending
             end)
-            local active = cl._active_menu_segment and ("contextline_click:" .. cl._active_menu_segment) or nil
-            return feedback.paint(line, active, "WinBar")
+            -- Embedded resets otherwise fall back to the window's default
+            -- surface between icons, labels and padding. Keep every cell on
+            -- the same winbar palette, including while a menu is open.
+            line = line:gsub("%%#([^#]+)#", function(group)
+              return group == "ContextlineActiveMenu" and "%#ContextlineActiveMenu#" or "%#WinBar#"
+            end)
+            line = line:gsub("%%%*", "%%#WinBar#")
+            vim.api.nvim_set_hl(0, "ContextlineActiveMenu", { link = "WinBar" })
+            return "%#WinBar#" .. line .. "%#WinBar#"
           end,
         },
         -- Do not cache only on CursorMoved: opening the hierarchy menu must

@@ -547,7 +547,7 @@ function M.apply()
   -- The path and metadata bar should read as a UI surface, not disappear
   -- into the editor background.  The colors still come from the active theme.
   set(0, "WinBar", { fg = p.winbar_fg, bg = p.winbar_bg })
-  set(0, "WinBarNC", { fg = p.winbar_nc_fg or p.visible_fg, bg = p.winbar_nc_bg or p.visible_bg })
+  set(0, "WinBarNC", { fg = p.winbar_fg, bg = p.winbar_bg })
 
   set(0, "BufferLineFill", { fg = p.surface_fg, bg = p.fill_bg })
   set(0, "BufferLineNewBuffer", { fg = p.normal_fg, bg = p.fill_bg, bold = p.top_bold })

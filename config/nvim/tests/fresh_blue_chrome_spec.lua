@@ -69,7 +69,7 @@ assert(tabline_selected.bg == color_id(fresh.tab_active_bg) and tabline_selected
 local winbar = vim.api.nvim_get_hl(0, { name = "WinBar", link = false })
 local winbar_nc = vim.api.nvim_get_hl(0, { name = "WinBarNC", link = false })
 assert(winbar.bg == color_id(fresh.tab_active_bg) and winbar.fg == color_id(fresh.tab_active_fg), "context WinBar should match the active tab")
-assert(winbar_nc.bg == color_id(fresh.tab_inactive_bg) and winbar_nc.fg == color_id(fresh.tab_inactive_fg), "inactive context WinBar should match the inactive tab")
+assert(vim.deep_equal(winbar_nc, winbar), "context WinBar should retain one palette when focus changes")
 local bufferline_selected = vim.api.nvim_get_hl(0, { name = "BufferLineBufferSelected", link = false })
 assert(bufferline_selected.bg == color_id(fresh.tab_active_bg) and bufferline_selected.fg == color_id(fresh.tab_active_fg), "bufferline active tab should use Fresh Nostalgia")
 assert(bufferline_selected.bold ~= true, "bufferline active tab should not be bold")

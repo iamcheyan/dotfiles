@@ -51,6 +51,9 @@ return {
               text = neo_tree_root_text,
               highlight = "Directory",
               text_align = "left",
+              -- Window width excludes the split separator; reserve that cell
+              -- so the first tab starts above the editor's winbar.
+              padding = 1,
             },
             {
               filetype = "snacks_layout_box",
