@@ -277,12 +277,11 @@ local function tab_palette()
       scrollbar_bg = theme_scrollbar_accent,
       scrollbar_misc_fg = normal_fg,
       scrollbar_misc_bg = normal_bg,
-      -- Keep the context bar visually attached to the active buffer tab,
-      -- including when focus moves to a sidebar or menu.
+      -- Match the context bar to the corresponding active/inactive buffer tab.
       winbar_fg = active_fg,
       winbar_bg = active_bg,
-      winbar_nc_fg = active_fg,
-      winbar_nc_bg = active_bg,
+      winbar_nc_fg = surface_fg,
+      winbar_nc_bg = surface_bg,
       top_bold = false,
     }
   end
