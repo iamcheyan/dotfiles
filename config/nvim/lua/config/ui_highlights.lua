@@ -414,16 +414,16 @@ function M.apply_picker_highlights()
     vim.api.nvim_set_hl(0, group, row)
   end
 
-  -- Use the same theme-derived blue accent as the active tab so the current result
-  -- remains obvious without restoring Snacks' mismatched green/white PmenuSel.
+  -- Share the selection surface with menus, pickers, and Lazygit.
   local title_surfaces = title_bar_surfaces()
   local cursor_line = get("CursorLine")
   local selected_bg = title_surfaces.active_bg
     or (cursor_line.bg ~= document_bg and cursor_line.bg)
     or selected.bg or document_bg
-  local selected_fg = (vim.g.colors_name == "blue" and nostalgia_palette())
-      and theme_scrollbar_fg
-      or title_surfaces.active_fg or cursor_line.fg or selected.fg or normal.fg
+  local selected_fg = title_surfaces.active_fg or cursor_line.fg or selected.fg or normal.fg
+  if vim.g.colors_name == "blue" then
+    selected_bg, selected_fg = 0x0200ec, 0xffffff
+  end
   selected_fg, selected_bg = readable_pair(selected_fg, selected_bg, normal)
   vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", {
     bg = selected_bg,

@@ -1,12 +1,3 @@
--- Backdrops are inactive windows: map NormalNC too, or Blue leaks through.
-local black_backdrop = {
-  bg = "#000000",
-  blend = 80,
-  win = {
-    wo = { winhighlight = "Normal:SnacksBackdrop_000000,NormalNC:SnacksBackdrop_000000" },
-  },
-}
-
 return {
   {
     "folke/snacks.nvim",
@@ -65,7 +56,7 @@ return {
         },
       },
       -- 1. 全局基础窗口配置
-      win = { border = "single" },
+      win = { border = "single", backdrop = false },
       -- 2. 覆盖 Snacks 内置的所有标准样式
       lazygit = {
         configure = true,
@@ -77,11 +68,11 @@ return {
         },
       },
       styles = {
-        float = { border = "single", backdrop = black_backdrop },
-        notification = { border = "single" },
-        input = { border = "single", backdrop = black_backdrop },
-        confirm = { border = "single", backdrop = black_backdrop },
-        lazygit = { border = "single", backdrop = black_backdrop },
+        float = { border = "single", backdrop = false },
+        notification = { border = "single", backdrop = false },
+        input = { border = "single", backdrop = false },
+        confirm = { border = "single", backdrop = false },
+        lazygit = { border = "single", backdrop = false },
       },
       picker = {
         on_show = function(picker)
@@ -116,8 +107,8 @@ return {
         end,
         layout = {
           layout = {
-            -- Keep background text visible at 20% brightness behind the dialog.
-            backdrop = black_backdrop,
+            -- Show the editor directly behind the picker.
+            backdrop = false,
             box = "horizontal",
             width = 0.85,
             min_width = 120,

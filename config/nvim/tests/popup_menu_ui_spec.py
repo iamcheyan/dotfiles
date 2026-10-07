@@ -14,6 +14,7 @@ try:
       require('config.popup_menu').open({{'First','first'},{separator=true},{'Last','last'}},
         function(entry) _G.executed = entry[2] end)
     ''', str(Path(__file__).resolve().parents[1]))
+    assert len(n.api.list_wins()) == 2, "opening a menu must not create a backdrop"
     win, pos = n.exec_lua('local w=require("config.popup_menu").win; return {w,vim.api.nvim_win_get_position(w)}')
     row, col = pos
     n.api.input_mouse('move', '', '', 0, row + 2, col + 4)
@@ -38,7 +39,7 @@ try:
       local normal=vim.api.nvim_get_hl(0,{name='Normal',link=false})
       assert(vim.api.nvim_get_hl(0,{name='NormalFloat',link=false}).bg==normal.bg)
       assert(vim.api.nvim_get_hl(0,{name='FloatBorder',link=false}).fg==0xffffff)
-      assert(#vim.api.nvim_list_wins()==1,'backdrop must close with the menu')
+      assert(#vim.api.nvim_list_wins()==1,'only the editor should remain after closing the menu')
     ''')
     print('popup_menu_ui_spec: OK')
 finally:
