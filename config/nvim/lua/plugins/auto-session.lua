@@ -38,6 +38,133 @@ local function schedule_restore(state)
   end
 end
 
+local function find_saved_session(session_name)
+  if type(session_name) ~= "string" or session_name == "" then
+    return nil
+  end
+  local ok_auto, auto_session = pcall(require, "auto-session")
+  local ok_lib, lib = pcall(require, "auto-session.lib")
+  if not ok_auto or not ok_lib or not auto_session.get_root_dir then
+    return nil
+  end
+  local root = auto_session.get_root_dir()
+  local encodings = {
+    lib.escape_session_name(session_name),
+    lib.legacy_escape_session_name(session_name),
+  }
+  for _, encoded in ipairs(encodings) do
+    local path = vim.fs.joinpath(root, encoded .. ".vim")
+    if vim.fn.filereadable(path) == 1 then
+      return path, lib
+    end
+  end
+end
+
+local function restore_missing_session_paths(session_name)
+  local session_path, lib = find_saved_session(session_name)
+  if not session_path then
+    return true
+  end
+  local ok, summary = pcall(lib.create_session_summary, session_path)
+  if not ok or type(summary) ~= "table" then
+    return true
+  end
+
+  local session_cwd = summary.cwd
+  if (not session_cwd or session_cwd == "") and session_name:sub(1, 1) == "/" then
+    session_cwd = session_name
+  end
+  local missing, seen = {}, {}
+  local function add_missing(path, kind)
+    if type(path) ~= "string" or path == "" or path:match("^[%w+.-]+://") then
+      return
+    end
+    if kind == "file" then
+      path = lib.resolve_filename_path(path, session_cwd)
+    else
+      path = vim.fn.fnamemodify(path, ":p")
+    end
+    local exists = kind == "directory" and vim.fn.isdirectory(path) == 1 or vim.fn.filereadable(path) == 1
+    if not exists and not seen[path] then
+      seen[path] = true
+      table.insert(missing, { path = path, kind = kind })
+    end
+  end
+
+  add_missing(session_cwd, "directory")
+  for _, buffer in ipairs(summary.buffers or {}) do
+    add_missing(buffer.path, "file")
+  end
+  add_missing(summary.current_buffer, "file")
+  if #missing == 0 then
+    return true
+  end
+  if #vim.api.nvim_list_uis() == 0 then
+    return false
+  end
+
+  local example = vim.fn.fnamemodify(missing[1].path, ":t")
+  local choice = vim.fn.confirm(
+    string.format("Saved session has %d missing path(s), e.g. %s. Recreate the missing path(s)?", #missing, example),
+    "&Create\n&Skip session",
+    2
+  )
+  if choice ~= 1 then
+    return false
+  end
+
+  for _, item in ipairs(missing) do
+    if item.kind == "directory" then
+      vim.fn.mkdir(item.path, "p")
+      if vim.fn.isdirectory(item.path) ~= 1 then
+        return false
+      end
+    else
+      local parent = vim.fs.dirname(item.path)
+      if parent and vim.fn.isdirectory(parent) ~= 1 then
+        vim.fn.mkdir(parent, "p")
+      end
+      if vim.fn.filereadable(item.path) ~= 1 and vim.fn.writefile({}, item.path) ~= 0 then
+        return false
+      end
+    end
+  end
+  return true
+end
+
+local function confirm_auto_create_session()
+  local ok, auto_session = pcall(require, "auto-session")
+  if not ok or type(auto_session.session_exists_for_cwd) ~= "function" or auto_session.session_exists_for_cwd() then
+    return true
+  end
+  if #vim.api.nvim_list_uis() == 0 then
+    return false
+  end
+  return vim.fn.confirm(
+    "No saved session exists for this directory. Create one when exiting?",
+    "&Create\n&Skip",
+    2
+  ) == 1
+end
+
+local function handle_missing_restore_error(error_msg)
+  local message = tostring(error_msg or "")
+  if message:find("E344: Can't find directory", 1, true)
+    or message:find("E484: Can't open file", 1, true)
+    or message:find("ENOENT", 1, true) then
+    if #vim.api.nvim_list_uis() == 0 then
+      return true
+    end
+    return vim.fn.confirm(
+      "Session restore encountered a missing path. Continue and refresh the session on exit?",
+      "&Continue\n&Disable autosave",
+      1
+    ) == 1
+  end
+  local auto_session = require("auto-session")
+  return auto_session.default_restore_error_handler(error_msg)
+end
+
 return {
   {
     "rmagatti/auto-session",
@@ -51,8 +178,12 @@ return {
       enabled = true,
       auto_save = true,
       auto_restore = true,
-      auto_create = true,
+      auto_create = confirm_auto_create_session,
       auto_restore_last_session = false,
+      args_allow_files_auto_save = true,
+
+      pre_restore_cmds = { restore_missing_session_paths },
+      restore_error_handler = handle_missing_restore_error,
 
       suppressed_dirs = { "/", "~/.cache/*" },
       bypass_save_filetypes = { "alpha", "dashboard", "snacks_dashboard" },
