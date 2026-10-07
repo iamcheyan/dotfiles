@@ -12,6 +12,19 @@ fail() {
   exit 1
 }
 
+usage() {
+  printf 'Usage: nvim-update [--help]\n'
+  printf 'Installs the latest stable Neovim release in user-local directories.\n'
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  usage
+  exit 0
+fi
+if [[ $# -gt 0 ]]; then
+  fail "Unknown argument: $1 (use --help for usage)"
+fi
+
 need() {
   command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1"
 }
@@ -76,6 +89,18 @@ else
 fi
 
 mkdir -p "$TMP_BASE" "$INSTALL_ROOT" "$BIN_DIR"
+link="$BIN_DIR/nvim"
+if [[ -e "$link" && ! -L "$link" ]]; then
+  fail "Refusing to replace non-symlink file at $link. Move it manually if you want this updater to manage that path."
+fi
+if [[ -L "$link" ]]; then
+  existing_target="$(readlink "$link")"
+  case "$existing_target" in
+    "$INSTALL_ROOT"/*) ;;
+    *) fail "Refusing to replace unrelated symlink at $link -> $existing_target" ;;
+  esac
+fi
+
 tmp_dir="$(mktemp -d "$TMP_BASE/nvim-update.XXXXXX")"
 staging_dir=""
 temp_link=""
@@ -111,6 +136,9 @@ if [[ "$actual_digest" != "$expected_digest" ]]; then
 fi
 
 version_dir="$INSTALL_ROOT/$version"
+if [[ -L "$version_dir" ]]; then
+  fail "Refusing to trust a symlink as the version directory: $version_dir"
+fi
 if [[ -d "$version_dir" ]]; then
   candidate="$version_dir/bin/nvim"
   [[ -x "$candidate" && -d "$version_dir/share/nvim/runtime" ]] \
@@ -121,28 +149,17 @@ else
   candidate="$staging_dir/bin/nvim"
   [[ -x "$candidate" && -d "$staging_dir/share/nvim/runtime" ]] \
     || fail "The release archive is missing Neovim's binary or runtime files."
-  version_line="$("$candidate" --version 2>&1)" \
-    || fail "The downloaded Neovim binary could not run."
-  case "$version_line" in
-    *"NVIM v$version"*) ;;
-    *) fail "Downloaded binary version did not match release tag $tag." ;;
-  esac
   mv "$staging_dir" "$version_dir"
   staging_dir=""
   candidate="$version_dir/bin/nvim"
 fi
 
-link="$BIN_DIR/nvim"
-if [[ -e "$link" && ! -L "$link" ]]; then
-  fail "Refusing to replace non-symlink file at $link. Move it manually if you want this updater to manage that path."
-fi
-if [[ -L "$link" ]]; then
-  existing_target="$(readlink "$link")"
-  case "$existing_target" in
-    "$INSTALL_ROOT"/*) ;;
-    *) fail "Refusing to replace unrelated symlink at $link -> $existing_target" ;;
-  esac
-fi
+version_line="$("$candidate" --version 2>&1)" \
+  || fail "The downloaded Neovim binary could not run."
+case "$version_line" in
+  *"NVIM v$version"*) ;;
+  *) fail "Downloaded binary version did not match release tag $tag." ;;
+esac
 
 if [[ ! -L "$link" || "$(readlink "$link")" != "$candidate" ]]; then
   temp_link="$BIN_DIR/.nvim-update.$$.tmp"

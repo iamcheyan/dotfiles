@@ -80,4 +80,9 @@ case "$alias_output" in
   *"scripts/update_nvim.sh"*) ;;
   *) printf 'nvim-update alias does not invoke the updater script\n' >&2; exit 1 ;;
 esac
+alias_help="$(PATH="$stub_bin:$PATH" DOTFILES_ROOT="$repo_root" zsh -f -i -c 'source "$DOTFILES_ROOT/aliases.conf"; eval "nvim-update --help"' 2>/dev/null)"
+case "$alias_help" in
+  *"Usage: nvim-update"*) ;;
+  *) printf 'nvim-update alias did not execute its --help branch' >&2; exit 1 ;;
+esac
 printf 'nvim_update_test: OK\n'
