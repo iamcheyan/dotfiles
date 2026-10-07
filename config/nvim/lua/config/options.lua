@@ -26,7 +26,10 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.bo[ev.buf].autoindent = false
     vim.keymap.set("i", "<CR>", function()
       local ok, blink = pcall(require, "blink.cmp")
-      if ok and blink.is_menu_visible() then return "<C-y>" end
+      if ok and blink.is_menu_visible() and type(blink.select_and_accept) == "function"
+        and blink.select_and_accept() then
+        return ""
+      end
       local indent = vim.api.nvim_get_current_line():match("^%s*") or ""
       return "<CR>" .. indent
     end, { buffer = ev.buf, expr = true, desc = "COBOL: continue previous line indentation" })

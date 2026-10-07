@@ -188,6 +188,9 @@ return {
       keymap = {
         preset = "enter",
         ["<C-y>"] = { "select_and_accept" },
+        ["<CR>"] = { "select_and_accept", "fallback" },
+        ["<Up>"] = { "select_prev", "fallback" },
+        ["<Down>"] = { "select_next", "fallback" },
         ["<BS>"] = {
           function()
             if not vim.tbl_contains({ "cobol", "cbl", "cob" }, vim.bo.filetype) then return end
@@ -277,6 +280,7 @@ return {
       end
 
       require("blink.cmp").setup(opts)
+      require("config.blink_menu").setup()
       require("config.ui_highlights").apply_completion_highlights()
     end,
   },

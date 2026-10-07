@@ -70,6 +70,7 @@ return {
           buffer_close_icon = "",
           modified_icon = "",
           close_command = "bdelete! %d",
+          middle_mouse_command = "bdelete! %d",
           right_mouse_command = function(buffer_id)
             require("config.context_menu").open_buffer(buffer_id)
           end,

@@ -31,6 +31,20 @@ end
 assert(lines[8]:sub(1, 11) == string.rep(" ", 11), "Area B statement should start in column 12")
 assert(lines[9]:sub(1, 11) == string.rep(" ", 11), "following statement should remain in Area B")
 
+-- When Blink is active, the COBOL Enter fallback must call its API directly;
+-- the `enter` preset does not bind <C-y>.
+local enter_map = vim.fn.maparg("<CR>", "i", false, true)
+assert(type(enter_map.callback) == "function", "COBOL Enter callback should remain buffer-local")
+local saved_blink = package.loaded["blink.cmp"]
+local accepted = 0
+package.loaded["blink.cmp"] = {
+  is_menu_visible = function() return true end,
+  select_and_accept = function() accepted = accepted + 1; return true end,
+}
+assert(enter_map.callback() == "", "Enter should consume the key after accepting a visible completion")
+assert(accepted == 1, "visible Blink completion should be accepted exactly once")
+package.loaded["blink.cmp"] = saved_blink
+
 -- The explicit Enter mapping must still continue the current line's indentation.
 vim.api.nvim_win_set_cursor(0, { 8, #lines[8] })
 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("A<CR><Esc>", true, false, true), "xt", false)
