@@ -8,7 +8,7 @@ package.path = nvim_root .. "/lua/?.lua;" .. nvim_root .. "/lua/?/init.lua;" .. 
 local spec = dofile(nvim_root .. "/lua/plugins/auto-session.lua")[1]
 local opts = spec.opts
 assert(opts.args_allow_files_auto_save == true, "launching with explicit files should still update the session")
-assert(type(opts.auto_create) == "function", "creating a missing session record should ask the user")
+assert(opts.auto_create == true, "a missing session should be created automatically on exit")
 assert(type(opts.pre_restore_cmds) == "table" and type(opts.pre_restore_cmds[1]) == "function", "restore should check deleted files before sourcing")
 assert(type(opts.restore_error_handler) == "function", "missing-path restore errors need a recovery handler")
 
@@ -50,14 +50,6 @@ choice = 1
 assert(opts.pre_restore_cmds[1]("workspace") == true, "Create should allow restoring after repairing paths")
 assert(vim.fn.isdirectory(missing_dir) == 1, "Create should recreate the missing project directory")
 assert(vim.fn.filereadable(missing_dir .. "/deleted.cbl") == 1, "Create should recreate the missing session file")
-
-choice = 1
-assert(opts.auto_create() == true, "Create should enable saving a missing session record")
-choice = 2
-assert(opts.auto_create() == false, "Skip should prevent silent creation of a session record")
-local prompts_before_existing = prompts
-session_api.session_exists_for_cwd = function() return true end
-assert(opts.auto_create() == true and prompts == prompts_before_existing, "an existing session should update without a create prompt")
 
 choice = 1
 assert(opts.restore_error_handler("E344: Can't find directory") == true, "Continue should retain autosave after a missing-path restore error")

@@ -439,11 +439,13 @@ function M.apply_menu_highlights()
   local p = nostalgia_palette()
   if not p then return end
   local set = vim.api.nvim_set_hl
-  local normal = { fg = p.menu_fg, bg = p.menu_bg }
-  local selected = { fg = p.menu_highlight_fg, bg = p.menu_highlight_bg }
+  local document = get("Normal")
+  local normal = { fg = document.fg, bg = document.bg }
+  local selected = vim.api.nvim_get_hl(0, { name = "SnacksPickerListCursorLine", link = false })
+  if not selected.bg then selected = get("Visual") end
   set(0, "FreshMenu", normal)
   set(0, "FreshMenuSelected", selected)
-  set(0, "FreshMenuBorder", { fg = p.menu_border_fg, bg = p.menu_bg })
+  set(0, "FreshMenuBorder", { fg = "#ffffff", bg = document.bg })
   set(0, "FreshMenuMuted", { fg = p.menu_disabled_fg })
   -- :popup uses Pmenu directly. Blink and picker surfaces keep their originals.
   -- Blue links all ordinary floats to Pmenu; preserve that surface first.
@@ -483,6 +485,16 @@ function M.apply()
       bg = nostalgia.status_palette_bg,
       bold = false,
     })
+    set(0, "FreshStatusLineGit", {
+      fg = nostalgia.tab_inactive_bg,
+      bg = nostalgia.tab_inactive_fg,
+      bold = false,
+    })
+    set(0, "FreshStatusLineNeutral", {
+      fg = nostalgia.tab_active_fg,
+      bg = nostalgia.tab_active_bg,
+      bold = false,
+    })
     set(0, "FreshStatusLineWarning", {
       fg = nostalgia.status_warning_indicator_fg,
       bg = nostalgia.status_warning_indicator_bg,
@@ -498,6 +510,9 @@ function M.apply()
       bg = "#ff0000",
       bold = true,
     })
+  else
+    local tab = get("TabLine")
+    set(0, "FreshStatusLineGit", { fg = tab.fg or normal.fg, bg = tab.bg or normal.bg, bold = false })
   end
   local title_surfaces = title_bar_surfaces()
   apply_cursor_guide_highlights()
@@ -525,6 +540,9 @@ function M.apply()
   end
   set(0, "StatusLine", { fg = status_fg, bg = status_bg, bold = false })
   set(0, "StatusLineNC", { fg = status_nc_fg, bg = status_nc_bg, bold = false })
+  if not nostalgia then
+    set(0, "FreshStatusLineNeutral", { fg = status_fg, bg = status_bg, bold = false })
+  end
 
   -- The path and metadata bar should read as a UI surface, not disappear
   -- into the editor background.  The colors still come from the active theme.
@@ -593,6 +611,8 @@ function M.apply()
       set(0, group, { fg = p.surface_fg, bg = p.surface_bg })
     end
   end
+
+  if package.loaded["config.float_style"] then require("config.float_style").apply() end
 
   -- Heirline caches both component strings and generated RGB highlight
   -- groups. Invalidate them after the delayed adapter changes the bar palette,

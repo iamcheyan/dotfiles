@@ -14,6 +14,7 @@ local M = {}
 -- until MenuPopup fires (synchronously inside :popup) AND until M.run() executes
 -- the selected action.  It is cleared only after M.run() completes.
 -- ---------------------------------------------------------------------------
+local _popup_entries
 local _ctx = {}  -- { kind = "buffer"|"neo"|"editor", buffer_id = ?, neo_state = ? }
 
 -- ---------------------------------------------------------------------------
@@ -370,6 +371,7 @@ end
 
 -- Replace every entry in the PopUp menu with the given list.
 local function install_popup(entries)
+  _popup_entries = entries
   vim.cmd("silent! aunmenu PopUp")
   local sep_idx = 0
   for _, entry in ipairs(entries) do
@@ -422,6 +424,17 @@ local function resolve_buffer_at_col(screencol)
 end
 M.resolve_buffer_at_col = resolve_buffer_at_col
 
+local function show_popup()
+  if not _popup_entries then return end
+  require("config.popup_menu").open(_popup_entries, function(entry)
+    if entry.raw then
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(entry[2], true, false, true), "n", false)
+    else
+      M.run(entry[2])
+    end
+  end)
+end
+
 -- Called by bufferline's right_mouse_command.
 -- The callback fires inside a tabline mouse-click handler where Neovim's
 -- window context may not yet be settled.  Defer popup PopUp via schedule()
@@ -431,7 +444,7 @@ function M.open_buffer(id)
   _ctx = { kind = "buffer", buffer_id = id }
   install_popup(buffer_entries)
   vim.schedule(function()
-    local ok, err = pcall(vim.cmd, "popup! PopUp")
+    local ok, err = pcall(show_popup)
     if not ok then notify(tostring(err), vim.log.levels.ERROR) end
   end)
 end
@@ -452,7 +465,7 @@ function M.open_neo(state, line)
   }
   install_popup(neo_entries)
   vim.schedule(function()
-    local ok, err = pcall(vim.cmd, "popup! PopUp")
+    local ok, err = pcall(show_popup)
     if not ok then notify(tostring(err), vim.log.levels.ERROR) end
   end)
 end
@@ -499,6 +512,7 @@ function M.setup()
         if area_type == "offset" then
           -- Click on the offset area (the sidebar's root path in the tabline): no menu
           vim.cmd("silent! aunmenu PopUp")
+          _popup_entries = nil
           _ctx = {}
           return
         end
@@ -530,6 +544,7 @@ function M.setup()
         if line < 1 or line > line_count then
           -- Blank space below tree items: do not show menu
           vim.cmd("silent! aunmenu PopUp")
+          _popup_entries = nil
           _ctx = {}
           return
         end
@@ -537,6 +552,7 @@ function M.setup()
         if not node or node.type == "message" or not node.path or node.path == "" then
           -- Non-actionable node (e.g. '(8 hidden items)' message): do not show menu
           vim.cmd("silent! aunmenu PopUp")
+          _popup_entries = nil
           _ctx = {}
           return
         end
@@ -565,6 +581,12 @@ function M.setup()
       install_popup(editor_entries)
     end,
   })
+
+  vim.keymap.set({ "n", "x", "i" }, "<RightMouse>", function()
+    _ctx = {}
+    vim.api.nvim_exec_autocmds("MenuPopup", { group = group })
+    show_popup()
+  end, { silent = true, desc = "Open context menu" })
 
   -- Seed PopUp with editor entries so there is always something visible
   -- even if MenuPopup fires before any install_popup() call.

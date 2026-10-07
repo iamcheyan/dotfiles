@@ -191,6 +191,7 @@ if vim.fn.exists("&mousemoveevent") == 1 then
   vim.opt.mousemoveevent = false
 end
 require("config.context_menu").setup()
+require("config.float_style").setup()
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.cursorline = true

@@ -132,21 +132,6 @@ local function restore_missing_session_paths(session_name)
   return true
 end
 
-local function confirm_auto_create_session()
-  local ok, auto_session = pcall(require, "auto-session")
-  if not ok or type(auto_session.session_exists_for_cwd) ~= "function" or auto_session.session_exists_for_cwd() then
-    return true
-  end
-  if #vim.api.nvim_list_uis() == 0 then
-    return false
-  end
-  return vim.fn.confirm(
-    "No saved session exists for this directory. Create one when exiting?",
-    "&Create\n&Skip",
-    2
-  ) == 1
-end
-
 local function handle_missing_restore_error(error_msg)
   local message = tostring(error_msg or "")
   if message:find("E344: Can't find directory", 1, true)
@@ -178,7 +163,9 @@ return {
       enabled = true,
       auto_save = true,
       auto_restore = true,
-      auto_create = confirm_auto_create_session,
+      -- Create the first session automatically; asking on every exit leaves
+      -- users stuck in the same prompt until they choose Create once.
+      auto_create = true,
       auto_restore_last_session = false,
       args_allow_files_auto_save = true,
 

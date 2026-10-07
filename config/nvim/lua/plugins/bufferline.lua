@@ -6,7 +6,8 @@ return {
       -- Neovim's tabline click protocol only resolves global functions.
       _G.__bufferline_new_buffer = function(_, _, button)
         if button == "l" then
-          vim.cmd("enew")
+          require("config.bar_feedback").press("__bufferline_new_buffer", 0)
+          vim.defer_fn(function() vim.cmd("enew") end, 100)
         end
       end
 
@@ -62,6 +63,7 @@ return {
           },
           show_buffer_close_icons = true,
           show_close_icon = false,
+          buffer_padding = 1,
           hover = {
             enabled = true,
             reveal = { "close" },
@@ -80,7 +82,7 @@ return {
               return {
                 {
                   -- Keep the click marker inside the highlighted plus area.
-                  text = " %@v:lua.__bufferline_new_buffer@+%T ",
+                  text = "%@v:lua.__bufferline_new_buffer@ + %T",
                   link = "BufferLineNewBuffer",
                 },
               }
@@ -102,12 +104,27 @@ return {
       local orig_handle_close = _G.___bufferline_private and _G.___bufferline_private.handle_close
       if orig_handle_close then
         _G.___bufferline_private.handle_close = function(id, clicks, button, mod)
+          require("config.bar_feedback").press("___bufferline_private.handle_close", id)
           if button == "r" then
             require("config.context_menu").open_buffer(id)
             return
           end
-          orig_handle_close(id, clicks, button, mod)
+          vim.defer_fn(function()
+            if vim.api.nvim_buf_is_valid(id) then orig_handle_close(id, clicks, button, mod) end
+          end, 100)
         end
+      end
+
+      local original_click = _G.___bufferline_private.handle_click
+      _G.___bufferline_private.handle_click = function(id, clicks, button, mods)
+        require("config.bar_feedback").press("___bufferline_private.handle_click", id)
+        return original_click(id, clicks, button, mods)
+      end
+      local original_render = _G.nvim_bufferline
+      _G.nvim_bufferline = function()
+        local line = original_render()
+        line = line:gsub("(%%%d+@v:lua%.___bufferline_private%.handle_close@)(.-)(%%X)", "%1 %2 %3")
+        return require("config.bar_feedback").paint(line)
       end
 
       -- bufferline creates its DevIcon groups during setup.

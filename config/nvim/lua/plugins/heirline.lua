@@ -29,9 +29,28 @@ return {
           if key == "on_accent" then
             return vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false }).fg or fg
           end
-          if key == "text" or key == "accent" or key == "warning" then return fg end
+          if key == "text" then return fg end
+          if key == "accent" then
+            return vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false }).fg or fg
+          end
+          if key == "warning" then
+            return vim.api.nvim_get_hl(0, { name = "FreshStatusLineWarning", link = false }).fg or fg
+          end
+          if key == "git_text" then
+            return vim.api.nvim_get_hl(0, { name = "FreshStatusLineGit", link = false }).fg or fg
+          end
         end,
       })
+      local function pad_segment(component)
+        table.insert(component, 1, pad)
+        table.insert(component, pad)
+        return component
+      end
+      local function click_feedback(self, normal)
+        if not self or not self._pressed then return normal end
+        local accent = vim.api.nvim_get_hl(0, { name = "FreshStatusLineAccent", link = false })
+        return { fg = accent.fg or "#ffffff", bg = accent.bg or statusline_colors.bg, bold = false }
+      end
 
       local mode_names = {
         n = "NORMAL",
@@ -170,7 +189,9 @@ return {
         elseif _G._statusline_menu_win and vim.api.nvim_win_is_valid(_G._statusline_menu_win) then
           pcall(vim.api.nvim_win_close, _G._statusline_menu_win, true)
         end
-        _G._active_statusline_menu = nil -- clear the former focus-based styling state
+        _G._active_statusline_menu = menu_id
+        local saved_mousemove = vim.o.mousemoveevent
+        vim.o.mousemoveevent = true
 
         local comp_col = get_comp_col(click_name)
         if not comp_col then
@@ -274,10 +295,13 @@ return {
           _G._active_statusline_menu = nil
           _G._statusline_menu_close = nil
           restore_buffer_maps()
+          vim.o.mousemoveevent = saved_mousemove
           if _G._statusline_menu_autocmd then
             pcall(vim.api.nvim_del_augroup_by_id, _G._statusline_menu_autocmd)
             _G._statusline_menu_autocmd = nil
           end
+          local feedback = require("config.bar_feedback")
+          if feedback.on_redraw then feedback.on_redraw() end
           pcall(vim.cmd, "redrawstatus")
         end
         _G._statusline_menu_close = close
@@ -293,15 +317,28 @@ return {
         end
 
         local function move_selection(delta)
-          if not _G._statusline_menu_win or not vim.api.nvim_win_is_valid(_G._statusline_menu_win) then return end
-          local row = vim.api.nvim_win_get_cursor(win)[1]
-          row = math.max(1, math.min(#final_lines, row + delta))
-          pcall(vim.api.nvim_win_set_cursor, win, { row, 0 })
+          if not vim.api.nvim_win_is_valid(win) then return end
+          local row = vim.api.nvim_win_get_cursor(win)[1] + delta
+          while row >= 1 and row <= #final_lines do
+            if type(actions[row]) == "function" then
+              vim.api.nvim_win_set_cursor(win, { row, 0 })
+              return
+            end
+            row = row + delta
+          end
+        end
+
+        local function mouse_hover()
+          local mp = vim.fn.getmousepos()
+          if mp and mp.winid == win and type(actions[mp.line]) == "function" then
+            vim.api.nvim_win_set_cursor(win, { mp.line, 0 })
+          end
         end
 
         local function mouse_select()
           local mp = vim.fn.getmousepos()
           if mp and mp.winid == win and mp.line >= 1 and mp.line <= #final_lines then
+            if type(actions[mp.line]) ~= "function" then return end
             vim.api.nvim_win_set_cursor(win, { mp.line, 0 })
             execute_current()
           else
@@ -316,16 +353,7 @@ return {
           local inside = mp and mp.screenrow >= pos[1] + 1 and mp.screenrow <= pos[1] + win_height
             and mp.screencol >= pos[2] + 1 and mp.screencol <= pos[2] + win_width
           if inside then
-            if #final_lines <= win_height then return end
-            local view = vim.api.nvim_win_call(win, vim.fn.winsaveview)
-            local max_topline = math.max(1, #final_lines - win_height + 1)
-            local topline = math.max(1, math.min(max_topline, view.topline + delta * 3))
-            view.topline, view.topfill = topline, 0
-            vim.api.nvim_win_call(win, function() vim.fn.winrestview(view) end)
-            local cursor = vim.api.nvim_win_get_cursor(win)
-            local last_visible = math.min(#final_lines, topline + win_height - 1)
-            local row = math.max(topline, math.min(last_visible, cursor[1]))
-            if row ~= cursor[1] then pcall(vim.api.nvim_win_set_cursor, win, { row, 0 }) end
+            move_selection(delta)
           else
             close()
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, false, true), "m", false)
@@ -335,6 +363,7 @@ return {
         local kmopts = { buffer = buf, nowait = true, silent = true }
         vim.keymap.set("n", "<CR>", execute_current, kmopts)
         vim.keymap.set("n", "<Space>", execute_current, kmopts)
+        vim.keymap.set("n", "<MouseMove>", mouse_hover, kmopts)
         vim.keymap.set("n", "<LeftMouse>", mouse_select, kmopts)
         vim.keymap.set("n", "<ScrollWheelUp>", function() mouse_scroll(-1, "<ScrollWheelUp>") end, kmopts)
         vim.keymap.set("n", "<ScrollWheelDown>", function() mouse_scroll(1, "<ScrollWheelDown>") end, kmopts)
@@ -350,6 +379,7 @@ return {
           ["<Space>"] = execute_current,
           ["q"] = close,
           ["<Esc>"] = close,
+          ["<MouseMove>"] = mouse_hover,
           ["<LeftMouse>"] = mouse_select,
           ["<ScrollWheelUp>"] = function() mouse_scroll(-1, "<ScrollWheelUp>") end,
           ["<ScrollWheelDown>"] = function() mouse_scroll(1, "<ScrollWheelDown>") end,
@@ -416,12 +446,18 @@ return {
           name = "heirline_mode_menu",
         },
         hl = function(self)
-          return mode_surface()
+          if _G._active_statusline_menu == "mode" then
+            return click_feedback({ _pressed = true }, mode_surface())
+          end
+          return click_feedback(self, mode_surface())
         end,
         {
           provider = " ",
           hl = function(self)
-            return mode_surface()
+            if _G._active_statusline_menu == "mode" then
+              return click_feedback({ _pressed = true }, mode_surface())
+            end
+            return click_feedback(self, mode_surface())
           end,
         },
         {
@@ -429,7 +465,10 @@ return {
             return (mode_names[self.mode] or self.mode)
           end,
           hl = function(self)
-            return mode_surface()
+            if _G._active_statusline_menu == "mode" then
+              return click_feedback({ _pressed = true }, mode_surface())
+            end
+            return click_feedback(self, mode_surface())
           end,
         },
       }
@@ -501,9 +540,7 @@ return {
           if _G._active_statusline_menu == "git" then
             return "Pmenu"
           end
-          if self._pressed then
-            return { bg = statusline_colors.press_bg }
-          end
+          return click_feedback(self, "FreshStatusLineGit")
         end,
         {
           provider = function(self)
@@ -512,12 +549,8 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "git" then return { fg = statusline_colors.text, bold = false } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
-            local head = self.gs and self.gs.head or ""
-            if head ~= "" then
-              return { fg = statusline_colors.accent, bold = false }
-            end
-            return { fg = statusline_colors.text }
+            if self._pressed then return click_feedback(self) end
+            return { fg = statusline_colors.git_text, bold = false }
           end,
         },
         {
@@ -527,8 +560,8 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "git" then return { fg = statusline_colors.text } end
-            if self._pressed then return { fg = statusline_colors.on_accent } end
-            return { fg = statusline_colors.text }
+            if self._pressed then return click_feedback(self) end
+            return { fg = statusline_colors.git_text }
           end,
         },
         {
@@ -538,8 +571,8 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "git" then return { fg = statusline_colors.text } end
-            if self._pressed then return { fg = statusline_colors.on_accent } end
-            return { fg = statusline_colors.text }
+            if self._pressed then return click_feedback(self) end
+            return { fg = statusline_colors.git_text }
           end,
         },
         {
@@ -549,13 +582,48 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "git" then return { fg = statusline_colors.text } end
-            if self._pressed then return { fg = statusline_colors.on_accent } end
-            return { fg = statusline_colors.text }
+            if self._pressed then return click_feedback(self) end
+            return { fg = statusline_colors.git_text }
           end,
         },
       }
 
+      local function truncate_middle(value, max_width)
+        if vim.fn.strdisplaywidth(value) <= max_width then return value end
+        if max_width <= 1 then return "…" end
+        local chars = vim.fn.strchars(value)
+        local keep = max_width - 1
+        local left = math.floor(keep / 2)
+        local right = keep - left
+        return vim.fn.strcharpart(value, 0, left) .. "…" .. vim.fn.strcharpart(value, chars - right, right)
+      end
+
+      local function compact_path(path, max_width)
+        if vim.fn.strdisplaywidth(path) <= max_width then
+          return vim.fn.fnamemodify(path, ":h") .. "/", vim.fn.fnamemodify(path, ":t")
+        end
+        local parts = {}
+        for part in path:gmatch("[^/]+") do
+          parts[#parts + 1] = part
+        end
+        local filename = parts[#parts] or path
+        local display_file = filename
+        if vim.fn.strdisplaywidth(display_file) > max_width - 2 then
+          display_file = truncate_middle(display_file, max_width - 1)
+          return "", display_file
+        end
+
+        local display_dir = "…/"
+        for index = #parts - 1, 1, -1 do
+          local candidate = "…/" .. table.concat(parts, "/", index, #parts - 1) .. "/"
+          if vim.fn.strdisplaywidth(candidate .. display_file) > max_width then break end
+          display_dir = candidate
+        end
+        return display_dir, display_file
+      end
+
       local FileName = {
+        update = { "BufEnter", "WinEnter", "VimResized", "WinResized" },
         init = function(self)
           local winid = get_active_editor_win()
           local bufnr = vim.api.nvim_win_get_buf(winid)
@@ -564,7 +632,7 @@ return {
           self.current_path = path
 
           local icon = "󰈔"
-          local icon_color = statusline_colors.accent
+          local icon_color = statusline_colors.text
           if name ~= "" then
             local devicons = require("nvim-web-devicons")
             local fname = vim.fn.fnamemodify(name, ":t")
@@ -573,11 +641,16 @@ return {
             if ic then
               icon = ic
             end
-            self.dir = vim.fn.fnamemodify(path, ":h") .. "/"
+            -- Reserve room for the git block on the left and the metadata blocks
+            -- on the right.  When space gets tight, compact_path drops leading
+            -- directories first and keeps the filename visible.
+            local path_width = math.max(8, vim.o.columns - 100)
+            self.dir, self.display_file = compact_path(path, path_width)
             self.file = fname
           else
             self.dir = ""
             self.file = "[No Name]"
+            self.display_file = self.file
           end
           self.icon = icon
           self.icon_color = icon_color
@@ -671,9 +744,7 @@ return {
           if _G._active_statusline_menu == "file" then
             return "Pmenu"
           end
-          if self._pressed then
-            return { bg = statusline_colors.press_bg }
-          end
+          return click_feedback(self)
         end,
         {
           provider = function(self)
@@ -681,7 +752,7 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text, bold = false } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            if self._pressed then return click_feedback(self) end
             return { fg = self.icon_color }
           end,
         },
@@ -691,17 +762,17 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text } end
-            if self._pressed then return { fg = statusline_colors.on_accent } end
+            if self._pressed then return click_feedback(self) end
             return { fg = statusline_colors.text }
           end,
         },
         {
           provider = function(self)
-            return self.file
+            return self.display_file or self.file
           end,
           hl = function(self)
             if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text, bold = false } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
+            if self._pressed then return click_feedback(self) end
             return { fg = statusline_colors.text, bold = false }
           end,
         },
@@ -709,10 +780,10 @@ return {
           condition = function(self)
             return self.is_modified
           end,
-          provider = " [+]",
+          provider = " [+] ",
           hl = function(self)
             if _G._active_statusline_menu == "file" then return "Pmenu" end
-            if self._pressed and vim.g.colors_name == "blue" then return "FreshStatusLineAccent" end
+            if self._pressed then return click_feedback(self, vim.g.colors_name == "blue" and "FreshStatusLineWarning" or nil) end
             if vim.g.colors_name == "blue" then return "FreshStatusLineWarning" end
             return { fg = statusline_colors.warning, bold = false }
           end,
@@ -721,44 +792,36 @@ return {
           condition = function(self)
             return self.is_readonly
           end,
-          provider = " [RO]",
+          provider = " [RO] ",
           hl = function(self)
-            if _G._active_statusline_menu == "file" then return "Pmenu" end
-            if self._pressed and vim.g.colors_name == "blue" then return "FreshStatusLineAccent" end
-            if vim.g.colors_name == "blue" then return "FreshStatusLineWarning" end
-            return { fg = statusline_colors.warning, bold = false }
+            if _G._active_statusline_menu == "file" then return { fg = statusline_colors.text, bold = false } end
+            if self._pressed then return click_feedback(self) end
+            return { fg = statusline_colors.text, bold = false }
           end,
         },
         {
           condition = function(self)
             return self.is_new
           end,
-          provider = " [New]",
+          provider = " [New] ",
           hl = function(self)
             if _G._active_statusline_menu == "file" then return "Pmenu" end
+            if self._pressed then return click_feedback(self, vim.g.colors_name == "blue" and "FreshStatusLineAccent" or nil) end
             if vim.g.colors_name == "blue" then return "FreshStatusLineAccent" end
-            if self._pressed then return { fg = statusline_colors.accent, bold = false } end
             return { fg = statusline_colors.accent, bold = false }
           end,
         },
       }
 
       local LspName = {
+        update = { "BufEnter", "FileType", "LspAttach", "LspDetach" },
         init = function(self)
           local winid = get_active_editor_win()
           local bufnr = vim.api.nvim_win_get_buf(winid)
-          local clients = vim.lsp.get_clients({ bufnr = bufnr })
-          if #clients == 0 then
-            self.lsp_name = "None"
-            self.active = false
-          else
-            local name = clients[1].name or "Unknown"
-            if name == "basedpyright" or name == "pyright" then
-              name = "Pyright"
-            end
-            self.lsp_name = name
-            self.active = true
-          end
+          local ft = vim.bo[bufnr].filetype
+          local names = { sh = "Shell", text = "Text", javascriptreact = "JSX", typescriptreact = "TSX", vim = "Vimscript" }
+          self.filetype = names[ft] or (ft == "" and "Text" or (ft:sub(1, 1):upper() .. ft:sub(2)))
+          self.active = #vim.lsp.get_clients({ bufnr = bufnr }) > 0
         end,
         on_click = {
           callback = function(self, _, _, button)
@@ -815,176 +878,110 @@ return {
         },
         hl = function(self)
           if _G._active_statusline_menu == "lsp" then
-            return "Pmenu"
+            return click_feedback({ _pressed = true }, "FreshStatusLineWarning")
           end
-          if self._pressed then
-            return { bg = statusline_colors.press_bg }
-          end
+          return click_feedback(self, "FreshStatusLineWarning")
         end,
         {
           provider = "󰒋 ",
           hl = function(self)
-            if _G._active_statusline_menu == "lsp" then return { fg = statusline_colors.text } end
-            if self._pressed then return { fg = statusline_colors.on_accent } end
-            return { fg = self.active and statusline_colors.accent or statusline_colors.text }
+            if _G._active_statusline_menu == "lsp" then
+              return click_feedback({ _pressed = true }, "FreshStatusLineWarning")
+            end
+            if self._pressed then return click_feedback(self, "FreshStatusLineWarning") end
+            return { fg = "#ffffff" }
           end,
         },
         {
           provider = function(self)
-            return self.lsp_name
+            return self.filetype
           end,
           hl = function(self)
-            if _G._active_statusline_menu == "lsp" then return { fg = statusline_colors.text, bold = false } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
-            return { fg = self.active and statusline_colors.accent or statusline_colors.text, bold = false }
+            if _G._active_statusline_menu == "lsp" then
+              return click_feedback({ _pressed = true }, "FreshStatusLineWarning")
+            end
+            if self._pressed then return click_feedback(self, "FreshStatusLineWarning") end
+            return { fg = "#ffffff", bold = false }
           end,
         },
       }
 
-      local Encoding = {
+      local function open_choice_menu(kind, name, icon, choices)
+        local entries = {}
+        for _, choice in ipairs(choices) do
+          entries[#entries + 1] = { icon = icon, label = choice.label, action = choice.action }
+        end
+        open_statusline_menu(kind, entries, name)
+      end
+
+      local FileFormat = {
+        provider = function()
+          local bufnr = vim.api.nvim_win_get_buf(get_active_editor_win())
+          local value = ({ unix = "LF", dos = "CRLF", mac = "CR" })[vim.bo[bufnr].fileformat] or "LF"
+          return " " .. value .. " "
+        end,
         on_click = {
-          callback = function(self, _, _, button)
+          callback = function(_, _, _, button)
+            if button ~= "l" then return end
+            open_choice_menu("fileformat", "heirline_fileformat_menu", "󰌒", {
+              { label = "Line Format: Unix (LF)", action = function() vim.bo.fileformat = "unix" end },
+              { label = "Line Format: Windows (CRLF)", action = function() vim.bo.fileformat = "dos" end },
+              { label = "Line Format: Mac Classic (CR)", action = function() vim.bo.fileformat = "mac" end },
+            })
+          end,
+          name = "heirline_fileformat_menu",
+        },
+        hl = function(self)
+          if _G._active_statusline_menu == "fileformat" then return "FreshStatusLineAccent" end
+          if self._pressed then return click_feedback(self) end
+          return { fg = statusline_colors.text }
+        end,
+      }
+
+      local Encoding = {
+        update = { "BufEnter", "FileType", "OptionSet", "BufWritePost" },
+        provider = function()
+          local bufnr = vim.api.nvim_win_get_buf(get_active_editor_win())
+          local enc = vim.bo[bufnr].fileencoding ~= "" and vim.bo[bufnr].fileencoding or vim.o.encoding
+          return " " .. string.upper(enc) .. " "
+        end,
+        on_click = {
+          callback = function(_, _, _, button)
             if button ~= "l" then return end
             open_statusline_menu("encoding", {
-              {
-                icon = "󰉿",
-                label = "Set Encoding: UTF-8",
-                action = function()
-                  vim.bo.fileencoding = "utf-8"
-                  vim.notify("File encoding set to UTF-8", vim.log.levels.INFO)
-                end,
-              },
-              {
-                icon = "󰉿",
-                label = "Set Encoding: GB18030 / GBK",
-                action = function()
-                  vim.bo.fileencoding = "gb18030"
-                  vim.notify("File encoding set to GB18030", vim.log.levels.INFO)
-                end,
-              },
-              {
-                icon = "󰉿",
-                label = "Set Encoding: Shift-JIS (CP932)",
-                action = function()
-                  vim.bo.fileencoding = "cp932"
-                  vim.notify("File encoding set to CP932", vim.log.levels.INFO)
-                end,
-              },
-              {
-                icon = "󰉿",
-                label = "Set Encoding: EUC-JP",
-                action = function()
-                  vim.bo.fileencoding = "euc-jp"
-                  vim.notify("File encoding set to EUC-JP", vim.log.levels.INFO)
-                end,
-              },
-              {
-                icon = "󰉿",
-                label = "Set Encoding: Latin-1 (ISO-8859-1)",
-                action = function()
-                  vim.bo.fileencoding = "latin1"
-                  vim.notify("File encoding set to Latin-1", vim.log.levels.INFO)
-                end,
-              },
-              {
-                icon = "󰉿",
-                label = "Set Encoding: UTF-16LE",
-                action = function()
-                  vim.bo.fileencoding = "utf-16le"
-                  vim.notify("File encoding set to UTF-16LE", vim.log.levels.INFO)
-                end,
-              },
+              { icon = "󰉿", label = "Set Encoding: UTF-8", action = function() vim.bo.fileencoding = "utf-8" end },
+              { icon = "󰉿", label = "Set Encoding: GB18030 / GBK", action = function() vim.bo.fileencoding = "gb18030" end },
+              { icon = "󰉿", label = "Set Encoding: Shift-JIS (CP932)", action = function() vim.bo.fileencoding = "cp932" end },
+              { icon = "󰉿", label = "Set Encoding: EUC-JP", action = function() vim.bo.fileencoding = "euc-jp" end },
+              { icon = "󰉿", label = "Set Encoding: Latin-1 (ISO-8859-1)", action = function() vim.bo.fileencoding = "latin1" end },
+              { icon = "󰉿", label = "Set Encoding: UTF-16LE", action = function() vim.bo.fileencoding = "utf-16le" end },
               { separator = true },
-              {
-                icon = "󰑓",
-                label = "Reload as: UTF-8 (:e ++enc=utf-8)",
-                action = function()
-                  vim.cmd("edit ++enc=utf-8")
-                end,
-              },
-              {
-                icon = "󰑓",
-                label = "Reload as: Shift-JIS (:e ++enc=cp932)",
-                action = function()
-                  vim.cmd("edit ++enc=cp932")
-                end,
-              },
-              {
-                icon = "󰑓",
-                label = "Reload as: GB18030 (:e ++enc=gb18030)",
-                action = function()
-                  vim.cmd("edit ++enc=gb18030")
-                end,
-              },
-              {
-                icon = "󰑓",
-                label = "Reload as: EUC-JP (:e ++enc=euc-jp)",
-                action = function()
-                  vim.cmd("edit ++enc=euc-jp")
-                end,
-              },
-              { separator = true },
-              {
-                icon = "󰌒",
-                label = "Line Format: Unix (LF)",
-                action = function()
-                  vim.bo.fileformat = "unix"
-                  vim.notify("Line format set to Unix (LF)", vim.log.levels.INFO)
-                end,
-              },
-              {
-                icon = "󰌒",
-                label = "Line Format: Windows (CRLF)",
-                action = function()
-                  vim.bo.fileformat = "dos"
-                  vim.notify("Line format set to Windows (CRLF)", vim.log.levels.INFO)
-                end,
-              },
-              {
-                icon = "󰌒",
-                label = "Line Format: Mac Classic (CR)",
-                action = function()
-                  vim.bo.fileformat = "mac"
-                  vim.notify("Line format set to Mac Classic (CR)", vim.log.levels.INFO)
-                end,
-              },
+              { icon = "󰑓", label = "Reload as: UTF-8 (:e ++enc=utf-8)", action = function() vim.cmd("edit ++enc=utf-8") end },
+              { icon = "󰑓", label = "Reload as: Shift-JIS (:e ++enc=cp932)", action = function() vim.cmd("edit ++enc=cp932") end },
+              { icon = "󰑓", label = "Reload as: GB18030 (:e ++enc=gb18030)", action = function() vim.cmd("edit ++enc=gb18030") end },
+              { icon = "󰑓", label = "Reload as: EUC-JP (:e ++enc=euc-jp)", action = function() vim.cmd("edit ++enc=euc-jp") end },
             }, "heirline_encoding_menu")
           end,
           name = "heirline_encoding_menu",
         },
         hl = function(self)
-          if _G._active_statusline_menu == "encoding" then
-            return "Pmenu"
-          end
-          if self._pressed then
-            return { bg = statusline_colors.press_bg }
-          end
+          if _G._active_statusline_menu == "encoding" then return "FreshStatusLineAccent" end
+          if self._pressed then return click_feedback(self) end
+          return { fg = statusline_colors.text }
         end,
-        {
-          provider = "󰉿 ",
-          hl = function(self)
-            if _G._active_statusline_menu == "encoding" then return { fg = statusline_colors.text } end
-            if self._pressed then return { fg = statusline_colors.on_accent } end
-            return { fg = statusline_colors.accent }
-          end,
-        },
-        {
-          provider = function()
-            local winid = get_active_editor_win()
-            local bufnr = vim.api.nvim_win_get_buf(winid)
-            local enc = vim.bo[bufnr].fileencoding ~= "" and vim.bo[bufnr].fileencoding or vim.o.encoding
-            local fmt = vim.bo[bufnr].fileformat == "dos" and " [CRLF]" or (vim.bo[bufnr].fileformat == "mac" and " [CR]" or "")
-            return string.upper(enc) .. fmt
-          end,
-          hl = function(self)
-            if _G._active_statusline_menu == "encoding" then return { fg = statusline_colors.text, bold = false } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
-            return { fg = statusline_colors.accent, bold = false }
-          end,
-        },
+      }
+
+      local FileMeta = {
+        hl = function(self)
+          return { fg = statusline_colors.text, bold = false }
+        end,
+        { provider = "󰉿 ", hl = { fg = statusline_colors.text } },
+        FileFormat,
+        Encoding,
       }
 
       local Venv = {
+        hl = "FreshStatusLineAccent",
         condition = function()
           return get_venv_name() ~= nil
         end,
@@ -1045,16 +1042,14 @@ return {
           if _G._active_statusline_menu == "nav" then
             return "Pmenu"
           end
-          if self._pressed then
-            return { bg = statusline_colors.press_bg }
-          end
+          return click_feedback(self, "FreshStatusLineNeutral")
         end,
         {
           provider = "󰦨 ",
           hl = function(self)
             if _G._active_statusline_menu == "nav" then return { fg = statusline_colors.text } end
-            if self._pressed then return { fg = statusline_colors.on_accent } end
-            return { fg = statusline_colors.accent }
+            if self._pressed then return click_feedback(self, "FreshStatusLineNeutral") end
+            return { fg = statusline_colors.text }
           end,
         },
         {
@@ -1071,8 +1066,8 @@ return {
           end,
           hl = function(self)
             if _G._active_statusline_menu == "nav" then return { fg = statusline_colors.text, bold = false } end
-            if self._pressed then return { fg = statusline_colors.on_accent, bold = false } end
-            return { fg = statusline_colors.accent, bold = false }
+            if self._pressed then return click_feedback(self, "FreshStatusLineNeutral") end
+            return { fg = statusline_colors.text, bold = false }
           end,
         },
       }
@@ -1108,29 +1103,86 @@ return {
       }
 
 
-      -- Treat encoding, LSP, location, and mode as one continuous right block.
-      -- The leading and trailing padding inherit the same green surface.
+      -- Join the right-side color blocks edge to edge; the padding lives inside
+      -- each block so its background stays continuous.
       local CapsState = {
-        provider = function()
-          if _G._heirline_caps_lock_on == nil then return "CAPS ?" end
-          return caps_locked() and "CAPS ON" or "CAPS OFF"
-        end,
         hl = mode_surface,
+        pad,
+        {
+          provider = function()
+            if _G._heirline_caps_lock_on == nil then return "CAPS ?" end
+            return caps_locked() and "CAPS ON" or "CAPS OFF"
+          end,
+        },
+        pad,
       }
+      pad_segment(GitBranch)
+      pad_segment(FileName)
+      pad_segment(Venv)
+      pad_segment(LspName)
+      pad_segment(RemainingPercent)
+      pad_segment(Mode)
+      -- Heirline does not track mouse presses. Keep our own short pulse and
+      -- invalidate cached components so the first mouse-down redraws immediately.
+      local function invalidate(component)
+        component._win_cache = nil
+        for _, child in ipairs(component) do invalidate(child) end
+      end
+      local function interactive(component)
+        if component.on_click then
+          local callback = component.on_click.callback
+          local normal_hl = component.hl
+          local menu_id = ({
+            heirline_mode_menu = "mode", heirline_git_menu = "git",
+            heirline_file_actions = "file", heirline_lsp_menu = "lsp",
+            heirline_fileformat_menu = "fileformat", heirline_encoding_menu = "encoding",
+            heirline_nav_menu = "nav",
+          })[component.on_click.name]
+          component.hl = function(self)
+            local pressed = self._pressed
+            self._pressed = nil
+            local normal = normal_hl
+            if type(normal_hl) == "function" then normal = normal_hl(self) end
+            self._pressed = pressed
+            if self._pressed or (menu_id and _G._active_statusline_menu == menu_id) then
+              local style = click_feedback({ _pressed = true }, normal)
+              style.force = true
+              return style
+            end
+            return normal
+          end
+          component.on_click.update = true
+          component.on_click.callback = function(self, ...)
+            self._pressed = true
+            self._press_generation = (self._press_generation or 0) + 1
+            local generation = self._press_generation
+            local function redraw()
+              local heirline = require("heirline")
+              if heirline.statusline then invalidate(heirline.statusline) end
+              vim.cmd("redrawstatus")
+            end
+            redraw()
+            vim.defer_fn(function()
+              if self._press_generation == generation then
+                self._pressed = nil
+                redraw()
+              end
+            end, 220)
+            return callback(self, ...)
+          end
+        end
+        for _, child in ipairs(component) do interactive(child) end
+      end
+      for _, component in ipairs({ GitBranch, FileName, FileFormat, Encoding, LspName, RemainingPercent, Mode }) do
+        interactive(component)
+      end
       local RightInfo = {
-        hl = mode_surface,
-        pad,
         Venv,
-        Encoding,
-        gap,
+        FileMeta,
         LspName,
-        gap,
         RemainingPercent,
-        gap,
         CapsState,
-        gap,
         Mode,
-        pad,
       }
 
 
@@ -1150,12 +1202,28 @@ return {
         {
           provider = function()
             local ok, cl = pcall(require, "contextline")
-            return ok and cl.get({ separator = "  ", fixed_palette = true }) or ""
+            if not ok then return "" end
+            local feedback = require("config.bar_feedback")
+            if _G.contextline_click and not cl._bar_feedback_installed then
+              cl._bar_feedback_installed = true
+              local callback = _G.contextline_click
+              _G.contextline_click = function(id, ...)
+                feedback.press("contextline_click", id)
+                return callback(id, ...)
+              end
+            end
+            local line = cl.get({ separator = "", fixed_palette = true })
+            line = line:gsub("(%%(%d+)@v:lua.contextline_click@)(.-)(%%X)", function(marker, id, text, ending)
+              local anchor = tonumber(id) == cl._active_menu_segment and "%#ContextlineActiveMenu#" or ""
+              return marker .. anchor .. " " .. text .. " " .. ending
+            end)
+            local active = cl._active_menu_segment and ("contextline_click:" .. cl._active_menu_segment) or nil
+            return feedback.paint(line, active, "WinBar")
           end,
         },
         -- Do not cache only on CursorMoved: opening the hierarchy menu must
         -- redraw the active chip on the first click, before any cursor move.
-        update = { "CursorMoved", "CursorMovedI", "BufEnter", "WinEnter", "WinLeave" },
+
       }
 
       return {
@@ -1184,7 +1252,6 @@ return {
           end,
           pad,
           GitBranch,
-          gap,
           FileName,
           Align,
           RightInfo,
@@ -1194,18 +1261,83 @@ return {
     config = function(_, opts)
       vim.o.laststatus = 3
       require("heirline").setup(opts)
+      require("config.bar_feedback").on_redraw = function()
+        local function clear(component)
+          if not component then return end
+          component._win_cache = nil
+          for _, child in ipairs(component) do clear(child) end
+        end
+        clear(require("heirline").winbar)
+        clear(require("heirline").statusline)
+        vim.cmd("redrawstatus")
+      end
 
-      local function refresh_caps_lock()
-        if vim.fn.executable("xset") ~= 1 then return end
-        local output = vim.fn.system({ "xset", "-q" })
-        if vim.v.shell_error ~= 0 then return end
-        local state = output:match("Caps Lock:%s*(%a+)")
-        if not state then return end
-        local locked = state:lower() == "on"
+      local function set_caps_lock_state(state)
+        if state ~= "yes" and state ~= "no" and state ~= "1" and state ~= "0" and state ~= "on" and state ~= "off" then
+          return
+        end
+        local locked = state == "yes" or state == "1" or state == "on"
         if _G._heirline_caps_lock_on ~= locked then
           _G._heirline_caps_lock_on = locked
           pcall(vim.cmd, "redrawstatus")
         end
+      end
+
+      local function refresh_caps_lock()
+        if vim.fn.has("mac") == 1 then
+          if vim.g.heirline_caps_job then return end
+          vim.g.heirline_caps_job = true
+          local result = {}
+          local job = vim.fn.jobstart({
+            "sh", "-c",
+            [=[ioreg -l -w 0 -c IOHIDKeyboard | sed -n 's/.*"HIDCapsLockState"[[:space:]]*=[[:space:]]*\([^,}]*\).*/\1/p']=],
+          }, {
+            stdout_buffered = true,
+            on_stdout = function(_, data)
+              result = data or {}
+            end,
+            on_exit = function(_, code)
+              vim.schedule(function()
+                vim.g.heirline_caps_job = false
+                if code == 0 then
+                  local saw_state, locked = false, false
+                  for _, value in ipairs(result) do
+                    local state = value:lower()
+                    if state == "yes" or state == "1" then
+                      saw_state, locked = true, true
+                    elseif state == "no" or state == "0" then
+                      saw_state = true
+                    end
+                  end
+                  if saw_state then
+                    set_caps_lock_state(locked and "on" or "off")
+                  end
+                end
+              end)
+            end,
+          })
+          if job <= 0 then vim.g.heirline_caps_job = false end
+          return
+        end
+        local output
+        if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
+          local powershell = vim.fn.executable("pwsh") == 1 and "pwsh" or "powershell"
+          if vim.fn.executable(powershell) ~= 1 then return end
+          output = vim.fn.system({ powershell, "-NoProfile", "-NonInteractive", "-Command", "[Console]::CapsLock" })
+          if vim.v.shell_error ~= 0 then return end
+          local state = output:match("%a+")
+          if not state or (state:lower() ~= "true" and state:lower() ~= "false") then return end
+          output = state:lower() == "true" and "on" or "off"
+        else
+          -- xset is available on X11 and many XWayland sessions.
+          if vim.fn.executable("xset") ~= 1 then return end
+          output = vim.fn.system({ "xset", "-q" })
+          if vim.v.shell_error ~= 0 then return end
+          local state = output:match("Caps Lock:%s*(%a+)")
+          if not state then return end
+          output = state:lower()
+        end
+        set_caps_lock_state(output)
       end
       refresh_caps_lock()
       if not vim.g.heirline_caps_timer_started then

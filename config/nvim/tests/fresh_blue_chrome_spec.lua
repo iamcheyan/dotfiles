@@ -34,7 +34,7 @@ local blue_groups = {
   "Normal", "NormalNC", "CursorLine", "ColorColumn", "LineNr", "LineNrAbove",
   "LineNrBelow", "CursorLineNr", "SignColumn", "FoldColumn", "Visual", "VisualNOS",
   "Search", "IncSearch", "CurSearch",
-  "PmenuSbar", "PmenuThumb", "NormalFloat", "FloatBorder", "Comment", "String",
+  "PmenuSbar", "PmenuThumb", "Comment", "String",
   "Function", "Type", "Identifier", "Keyword", "Operator", "DiagnosticError",
   "DiagnosticWarn", "DiagnosticInfo",
 }
@@ -48,6 +48,8 @@ assert(vim.g.colors_name == "blue", "default colorscheme should remain Blue")
 assert(document_bg == tonumber("000087", 16), "document background must remain #000087")
 
 ui.apply()
+assert(vim.api.nvim_get_hl(0, { name = "NormalFloat", link = false }).bg == document_bg)
+assert(vim.api.nvim_get_hl(0, { name = "FloatBorder", link = false }).fg == 0xffffff)
 for _, name in ipairs(blue_groups) do
   local current = vim.api.nvim_get_hl(0, { name = name, link = false })
   assert(vim.deep_equal(current, blue_before[name]), name .. " must remain on the built-in Blue colors")
@@ -95,7 +97,11 @@ local right_info
 local function find_right_info(components)
   for _, component in ipairs(components) do
     if type(component) == "table" then
-      if type(component.hl) == "function" and #component > 0 and component[1].provider == " " and component[#component].provider == " " then
+      if #component == 6
+        and component[2][2] and component[2][2].on_click and component[2][2].on_click.name == "heirline_fileformat_menu"
+        and component[2][3] and component[2][3].on_click and component[2][3].on_click.name == "heirline_encoding_menu"
+        and component[3].on_click and component[3].on_click.name == "heirline_lsp_menu"
+        and component[4].on_click and component[4].on_click.name == "heirline_nav_menu" then
         right_info = component
         return
       end
@@ -105,19 +111,19 @@ local function find_right_info(components)
   end
 end
 find_right_info(statusline_opts)
-assert(right_info and right_info.hl() == "FreshStatusLineAccent", "right status information should use Fresh green normally")
-assert(right_info[1].provider == " " and right_info[#right_info].provider == " ", "right status block should have green padding on both edges")
-local caps_component = right_info[9]
-local mode_component = right_info[11]
+assert(right_info, "right status information should be split into color blocks")
+local caps_component = right_info[5]
+local mode_component = right_info[6]
 assert(mode_component and mode_component.on_click.name == "heirline_mode_menu", "mode segment should remain in the right status block")
 assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineAccent", "mode segment should share Fresh green")
+assert(caps_component.on_click == nil, "Caps Lock status should only display state")
 _G._heirline_caps_lock_on = false
-assert(caps_component.provider() == "CAPS OFF", "Caps Lock status should appear immediately before the mode segment")
+assert(caps_component[2].provider() == "CAPS OFF", "Caps Lock status should appear immediately before the mode segment")
 _G._heirline_caps_lock_on = true
-assert(right_info.hl() == "FreshStatusLineCaps", "right status information should turn red when Caps Lock is on")
+assert(caps_component.hl() == "FreshStatusLineCaps", "Caps segment should turn red when Caps Lock is on")
 assert(mode_component.hl({ mode = "n", _pressed = false }) == "FreshStatusLineCaps", "mode segment should turn red when Caps Lock is on")
-assert(caps_component.provider() == "CAPS ON", "caps status should report uppercase state")
+assert(caps_component[2].provider() == "CAPS ON", "caps status should report uppercase state")
 _G._heirline_caps_lock_on = false
-assert(caps_component.provider() == "CAPS OFF", "caps status should report normal state")
+assert(caps_component[2].provider() == "CAPS OFF", "caps status should report normal state")
 
 print("fresh_blue_chrome_spec: OK")

@@ -10,6 +10,7 @@ try:
     n.ui_attach(100, 30, rgb=True, ext_linegrid=True)
     fitting = n.exec_lua('''
       local path = ...
+      package.path = vim.fn.fnamemodify(path, ':h:h:h') .. '/lua/?.lua;' .. package.path
       vim.o.mouse = 'a'
       vim.o.cmdheight = 1
       vim.wo.winbar = '%#WinBar#TOPBAR'
@@ -17,9 +18,11 @@ try:
       package.loaded.heirline = { eval_statusline = function() return '' end }
       local opts = spec.opts()
       local callbacks = {}
-      for _, comp in ipairs(opts.statusline) do
+      local function collect(comp)
         if comp.on_click and comp.on_click.name then callbacks[comp.on_click.name] = comp.on_click.callback end
+        for _, child in ipairs(comp) do collect(child) end
       end
+      collect(opts.statusline)
       _G.source_win = vim.api.nvim_get_current_win()
       _G.source_buf = vim.api.nvim_get_current_buf()
       callbacks.heirline_mode_menu({}, 0, 0, 'l')
@@ -41,7 +44,7 @@ try:
     ''', plugin)
     assert fitting["current"] == fitting["source"], fitting
     assert fitting["buffer"] == fitting["source_buffer"], fitting
-    assert fitting["active_style"] is False, fitting
+    assert fitting["active_style"] == "mode", fitting
     assert fitting["lines"] <= fitting["height"], fitting
     assert fitting["cursorcolumn"] is False and fitting["signcolumn"] == "no", fitting
     assert fitting["winbar"] == "", fitting
@@ -53,9 +56,18 @@ try:
       local win = _G._statusline_menu_win
       return {view=vim.api.nvim_win_call(win,vim.fn.winsaveview), cursor=vim.api.nvim_win_get_cursor(win), source=vim.fn.winsaveview()}
     ''')
-    assert unchanged["view"] == fitting["view"], (fitting, unchanged)
-    assert unchanged["cursor"] == fitting["cursor"], (fitting, unchanged)
+    assert unchanged["cursor"][0] == fitting["cursor"][0] + 1, (fitting, unchanged)
     assert unchanged["source"] == fitting["source_view"], (fitting, unchanged)
+
+    n.api.input_mouse("move", "", "", 0, row + 3, col + 4)
+    time.sleep(0.05)
+    assert n.exec_lua('return vim.api.nvim_win_get_cursor(_statusline_menu_win)[1]') == 3
+    n.input('<Up>')
+    time.sleep(0.05)
+    assert n.exec_lua('return vim.api.nvim_win_get_cursor(_statusline_menu_win)[1]') == 2
+    n.input('<Down>')
+    time.sleep(0.05)
+    assert n.exec_lua('return vim.api.nvim_win_get_cursor(_statusline_menu_win)[1]') == 3
 
     # A real click on a menu row closes it while retaining the editor window.
     n.api.input_mouse("left", "press", "", 0, row + 1, col + 4)
@@ -63,15 +75,17 @@ try:
     clicked = n.exec_lua('return {menu=_G._statusline_menu_win or false,current=vim.api.nvim_get_current_win(),source=source_win}')
     assert clicked["menu"] is False and clicked["current"] == clicked["source"], clicked
 
-    n.ui_try_resize(100, 16)
+    n.ui_try_resize(100, 10)
     time.sleep(0.1)
     overflowing = n.exec_lua('''
       local path = ...
       local opts = dofile(path)[1].opts()
       local callback
-      for _, comp in ipairs(opts.statusline) do
+      local function find(comp)
         if comp.on_click and comp.on_click.name == 'heirline_encoding_menu' then callback = comp.on_click.callback end
+        for _, child in ipairs(comp) do find(child) end
       end
+      find(opts.statusline)
       callback({},0,0,'l')
       local win = _G._statusline_menu_win
       return {
@@ -88,7 +102,12 @@ try:
     n.api.input_mouse("wheel", "down", "", 0, row + 1, col + 4)
     time.sleep(0.05)
     scrolled = n.exec_lua('local win=_G._statusline_menu_win; return vim.api.nvim_win_call(win,vim.fn.winsaveview)')
-    assert scrolled["topline"] > overflowing["view"]["topline"], (overflowing, scrolled)
+    assert n.exec_lua('return vim.api.nvim_win_get_cursor(_statusline_menu_win)[1]') == 2
+    n.exec_lua("vim.api.nvim_win_set_cursor(_statusline_menu_win,{6,0})")
+    n.input('<Down>')
+    time.sleep(0.05)
+    assert n.exec_lua('return vim.api.nvim_win_get_cursor(_statusline_menu_win)[1]') == 8, 'skip separators'
+
     print("statusline_menu_ui_spec: OK (focus, colors, marker, fit/overflow scrolling, mouse selection)")
 finally:
     try:

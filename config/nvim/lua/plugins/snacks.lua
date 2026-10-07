@@ -1,7 +1,7 @@
 -- Backdrops are inactive windows: map NormalNC too, or Blue leaks through.
 local black_backdrop = {
   bg = "#000000",
-  blend = 20,
+  blend = 80,
   win = {
     wo = { winhighlight = "Normal:SnacksBackdrop_000000,NormalNC:SnacksBackdrop_000000" },
   },
@@ -68,7 +68,13 @@ return {
       win = { border = "single" },
       -- 2. 覆盖 Snacks 内置的所有标准样式
       lazygit = {
-        configure = false,
+        configure = true,
+        theme = {
+          activeBorderColor = { fg = "UnifiedFloatBorder" },
+          inactiveBorderColor = { fg = "UnifiedFloatBorder" },
+          defaultFgColor = { fg = "Normal" },
+          selectedLineBgColor = { bg = "SnacksPickerListCursorLine" },
+        },
       },
       styles = {
         float = { border = "single", backdrop = black_backdrop },
