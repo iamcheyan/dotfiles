@@ -88,6 +88,7 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 4. 在非 NixOS 平台安装 Neovim（脚本安装官方最新 release，**必须 0.11+**，原因见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)）；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
 > 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
+> 7. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
 
 ### Fresh Terminal IDE
 
@@ -183,7 +184,11 @@ dotfiles/
 │   ├── atuin/             # Atuin 命令历史配置
 │   └── starship/          # Starship 提示符主题
 ├── plugins/               # Zsh 插件与补全辅助
-├── scripts/               # 安装与系统检测脚本
+├── scripts/               # 安装、升级与系统检测脚本
+│   ├── install/           # init.sh 调用的安装脚本
+│   ├── setup/             # shell 运行时 source 的配置脚本
+│   ├── update_nvim.sh     # 官方稳定版 Neovim 升级脚本（alias nvim-update）
+│   └── tests/             # 脚本回归测试
 └── tools/                 # 通用实用工具脚本
 ```
 
