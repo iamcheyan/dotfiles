@@ -44,16 +44,16 @@
     COBOL、批处理脚本与手写配置文件的**大小写不敏感扩展名检测**见
     [`config/nvim/FILETYPE-DETECTION.md`](config/nvim/FILETYPE-DETECTION.md)。
 * **生产力神器合集**：
-  * `Telescope` + `Snacks`：极速模糊搜索文件、文本与符号。
+  * `Snacks.picker`：查找文件、文本、缓冲区和符号，并提供启动页、通知与状态列。
   * `Neo-tree` + `Oil.nvim`：支持双模式文件树管理（侧边栏文件树 + Buffer 自由编辑重构目录）。
   * `Flash.nvim`：键盘任意位置双键直达跳转。
-  * `Gitsigns` + `hunk-review.nvim`：行级 Git 变动高亮与 Agent 代码审查。
-    详细用法见 [`config/nvim/HUNK-REVIEW.md`](config/nvim/HUNK-REVIEW.md)。
+  * `Gitsigns` + `Diffview`：行级 Git 变更、差异查看与文件历史。
   * `Auto-session`：根据工作目录（cwd）全自动保存和恢复编辑现场。
   * `Yanky.nvim`：支持持久化剪贴板历史与循环粘贴。
   * `鼠标划选自动复制`：支持普通模式与插入模式下鼠标划选自动同步系统剪贴板（含 Linux 原生与 WSL 跨平台支持）。
     详细用法见 [`config/nvim/MOUSE-AND-CLIPBOARD.md`](config/nvim/MOUSE-AND-CLIPBOARD.md)。
-  * `Vimquest`：内置英语单词拼写练习扩展。
+  * `VimQuest`、`contextline.nvim`、`cobol.nvim`、`batch.nvim` 和 `bookmark.nvim`：由私有层加载的自研扩展，提供词汇练习、代码上下文、COBOL/Batch 工具和书签管理。
+  * 完整的公开与私有插件清单（含依赖和用途）见 [`config/nvim/PLUGINS.md`](config/nvim/PLUGINS.md)。
 
 ### 4. 🤖 本地 AI 工具与终端复用生态
 * **内置热门本地 AI 助手 Herdr**：

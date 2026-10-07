@@ -9,6 +9,12 @@ return {
     opts = function()
       local gap = { provider = "  " }
       local pad = { provider = " " }
+      local function caps_locked()
+        return _G._heirline_caps_lock_on == true
+      end
+      local function mode_surface()
+        return caps_locked() and "FreshStatusLineCaps" or "FreshStatusLineAccent"
+      end
       -- Resolve colors from the adapted StatusLine group so the actual bottom bar,
       -- not the separate WinBar surface, controls every statusline segment.
       local statusline_colors = setmetatable({}, {
@@ -410,12 +416,12 @@ return {
           name = "heirline_mode_menu",
         },
         hl = function(self)
-          return "FreshStatusLineAccent"
+          return mode_surface()
         end,
         {
           provider = " ",
           hl = function(self)
-            return "FreshStatusLineAccent"
+            return mode_surface()
           end,
         },
         {
@@ -423,7 +429,7 @@ return {
             return (mode_names[self.mode] or self.mode)
           end,
           hl = function(self)
-            return "FreshStatusLineAccent"
+            return mode_surface()
           end,
         },
       }
@@ -1104,8 +1110,15 @@ return {
 
       -- Treat encoding, LSP, location, and mode as one continuous right block.
       -- The leading and trailing padding inherit the same green surface.
+      local CapsState = {
+        provider = function()
+          if _G._heirline_caps_lock_on == nil then return "CAPS ?" end
+          return caps_locked() and "CAPS ON" or "CAPS OFF"
+        end,
+        hl = mode_surface,
+      }
       local RightInfo = {
-        hl = "FreshStatusLineAccent",
+        hl = mode_surface,
         pad,
         Venv,
         Encoding,
@@ -1115,6 +1128,8 @@ return {
         RemainingPercent,
         gap,
         Mode,
+        gap,
+        CapsState,
         pad,
       }
 
@@ -1179,6 +1194,27 @@ return {
     config = function(_, opts)
       vim.o.laststatus = 3
       require("heirline").setup(opts)
+
+      local function refresh_caps_lock()
+        if vim.fn.executable("xset") ~= 1 then return end
+        local output = vim.fn.system({ "xset", "-q" })
+        if vim.v.shell_error ~= 0 then return end
+        local state = output:match("Caps Lock:%s*(%a+)")
+        if not state then return end
+        local locked = state:lower() == "on"
+        if _G._heirline_caps_lock_on ~= locked then
+          _G._heirline_caps_lock_on = locked
+          pcall(vim.cmd, "redrawstatus")
+        end
+      end
+      refresh_caps_lock()
+      if not vim.g.heirline_caps_timer_started then
+        local timer = vim.uv.new_timer()
+        if timer then
+          timer:start(0, 750, vim.schedule_wrap(refresh_caps_lock))
+          vim.g.heirline_caps_timer_started = true
+        end
+      end
 
       -- Heirline's built-in winbar setup listens to FileType, but a window
       -- can retain the previous buffer's local winbar across BufEnter. Keep

@@ -493,6 +493,11 @@ function M.apply()
       bg = nostalgia.status_error_indicator_bg,
       bold = false,
     })
+    set(0, "FreshStatusLineCaps", {
+      fg = "#ffffff",
+      bg = "#ff0000",
+      bold = true,
+    })
   end
   local title_surfaces = title_bar_surfaces()
   apply_cursor_guide_highlights()
