@@ -126,6 +126,8 @@ return {
           -- experimental auto-brackets support
           auto_brackets = {
             enabled = true,
+            -- COBOL PERFORM calls use bare paragraph names; keep auto brackets in other languages.
+            blocked_filetypes = { "cobol", "cbl", "cob" },
           },
         },
         menu = {
