@@ -52,6 +52,8 @@
   * `Yanky.nvim`：支持持久化剪贴板历史与循环粘贴。
   * `鼠标划选自动复制`：支持普通模式与插入模式下鼠标划选自动同步系统剪贴板（含 Linux 原生与 WSL 跨平台支持）。
     详细用法见 [`config/nvim/MOUSE-AND-CLIPBOARD.md`](config/nvim/MOUSE-AND-CLIPBOARD.md)。
+  * `Caps Lock 状态实时指示器`：底部状态栏实时指示大写锁定状态（`CAPS ON` / `CAPS OFF` / `CAPS ?`），针对 WSL/tmux 环境提供零开销常驻 Worker 检测。
+    技术原理与排错见 [`config/nvim/CAPS-LOCK.md`](config/nvim/CAPS-LOCK.md)。
   * `VimQuest`、`contextline.nvim`、`cobol.nvim`、`batch.nvim` 和 `bookmark.nvim`：由私有层加载的自研扩展，提供词汇练习、代码上下文、COBOL/Batch 工具和书签管理。
   * 完整的公开与私有插件清单（含依赖和用途）见 [`config/nvim/PLUGINS.md`](config/nvim/PLUGINS.md)。
 
