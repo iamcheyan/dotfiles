@@ -173,7 +173,7 @@ return {
       restore_error_handler = handle_missing_restore_error,
 
       suppressed_dirs = { "/", "~/.cache/*" },
-      bypass_save_filetypes = { "alpha", "dashboard", "snacks_dashboard" },
+      bypass_save_filetypes = { "alpha", "dashboard" },
 
       git_use_branch_name = false,
       git_auto_restore_on_branch_change = false,

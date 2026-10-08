@@ -68,7 +68,7 @@ local state = output:match("Caps Lock:%s*(%a+)")
 
 ## 4. 架构设计与高效常驻 Worker 实现
 
-为彻底解决 WSL 终端/tmux 中的检测失效问题，并在全平台避免每 Tick 进程生成的巨大开销，本配置在 [`config/nvim/lua/config/caps_lock.lua`](lua/config/caps_lock.lua) 中实现了平台自适应检测引擎：
+为彻底解决 WSL 终端/tmux 中的检测失效问题，并在全平台避免每 Tick 进程生成的巨大开销，本配置在 [`lua/config/caps_lock.lua`](../../lua/config/caps_lock.lua) 中实现了平台自适应检测引擎：
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

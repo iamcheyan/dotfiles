@@ -1,53 +1,46 @@
 return {
   {
-    "folke/snacks.nvim",
+    "nvimdev/dashboard-nvim",
+    event = "VimEnter",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
-      dashboard = {
-        enabled = true,
-        preset = {
-          header = [[
-███╗   ██╗██╗   ██╗██╗███╗   ███╗
-████╗  ██║██║   ██║██║████╗ ████║
-██╔██╗ ██║██║   ██║██║██╔████╔██║
-██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║
-██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║
-╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝
-          ]],
+      theme = "hyper",
+      change_to_vcs_root = true,
+      config = {
+        header = {
+          "███╗   ██╗██╗   ██╗██╗███╗   ███╗",
+          "████╗  ██║██║   ██║██║████╗ ████║",
+          "██╔██╗ ██║██║   ██║██║██╔████╔██║",
+          "██║╚██╗██║╚██╗ ██╔╝██║██║╚██╔╝██║",
+          "██║ ╚████║ ╚████╔╝ ██║██║ ╚═╝ ██║",
+          "╚═╝  ╚═══╝  ╚═══╝  ╚═╝╚═╝     ╚═╝",
         },
-        sections = {
-          { section = "header" },
-          {
-            section = "keys",
-            gap = 1,
-            padding = 1,
-          },
-          {
-            icon = " ",
-            key = "f",
-            desc = "Find File",
-            action = ":lua Snacks.dashboard.pick('files')",
-          },
-          {
-            icon = " ",
-            key = "r",
-            desc = "Recent Files",
-            action = ":lua Snacks.dashboard.pick('oldfiles')",
-          },
-          {
-            icon = " ",
-            key = "s",
-            desc = "Find Word",
-            action = ":lua Snacks.dashboard.pick('live_grep')",
-          },
-          {
-            icon = " ",
-            key = "l",
-            desc = "Lazy",
-            action = ":Lazy",
-          },
-          { section = "startup" },
+        project = {
+          enable = true,
+          limit = 8,
+          label = " Projects",
+          action = function(path)
+            require("snacks").picker.files({ cwd = path })
+          end,
+        },
+        mru = {
+          enable = true,
+          limit = 10,
+          label = " Recent files",
+          cwd_only = false,
+        },
+        shortcut = {
+          { desc = " Find file", group = "Label", key = "f", action = "lua Snacks.picker.files()" },
+          { desc = " Search text", group = "Label", key = "s", action = "lua Snacks.picker.grep()" },
+          { desc = " Lazy", group = "Label", key = "l", action = "Lazy" },
         },
       },
+    },
+  },
+  {
+    "folke/snacks.nvim",
+    opts = {
+      dashboard = { enabled = false },
     },
   },
 }

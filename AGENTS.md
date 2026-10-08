@@ -121,7 +121,7 @@ git push origin main
 
 ## 8. Neovim 运行时要求与 Treesitter 注意事项
 
-详细说明见 [config/nvim/TREESITTER.md](config/nvim/TREESITTER.md)，改动 Treesitter 相关配置前请先读它。必须记住的几条：
+详细说明见 [config/nvim/docs/reference/TREESITTER.md](config/nvim/docs/reference/TREESITTER.md)，改动 Treesitter 相关配置前请先读它。必须记住的几条：
 
 - **最低 Neovim 版本为 0.11**。`nvim-treesitter` 固定 `main` 分支（`master` 已被上游归档），需要 0.11+ 与 ABI-15 parser。仍是 0.10 的机器**必须先升级 Neovim 再拉取本配置**，否则高亮整体失效。
 - **`nvim-treesitter` 与 `nvim-treesitter-textobjects` 都必须是 `main`**，且 textobjects 的 `opts` 用的是 `main` 的 schema（`move.keys.*`）。两者不要单独回退到 `master`。

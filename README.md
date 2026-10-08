@@ -40,22 +40,22 @@
   * **代码补全与格式化**：Blink.cmp 极速智能补全 + Conform 自动代码格式化。
   * **语法分析与高亮**：Treesitter 语法高亮、代码折叠与文本对象。
     **需要 Neovim 0.11 或更高版本**（`nvim-treesitter` 的 `main` 分支 + ABI-15 parser）。
-    分支选择、parser 管理与常见报错处理见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)。
+    分支选择、parser 管理与常见报错处理见 [`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。
     COBOL、批处理脚本与手写配置文件的**大小写不敏感扩展名检测**见
-    [`config/nvim/FILETYPE-DETECTION.md`](config/nvim/FILETYPE-DETECTION.md)。
+    [`config/nvim/docs/reference/FILETYPE-DETECTION.md`](config/nvim/docs/reference/FILETYPE-DETECTION.md)。
 * **生产力神器合集**：
   * `Snacks.picker`：查找文件、文本、缓冲区和符号，并提供启动页、通知与状态列。
-  * `Neo-tree` + `Oil.nvim`：支持双模式文件树管理（侧边栏文件树 + Buffer 自由编辑重构目录）。
+  * `Neo-tree`：侧边栏文件树、缓冲区列表和 Git 状态视图。
   * `Flash.nvim`：键盘任意位置双键直达跳转。
   * `Gitsigns` + `Diffview`：行级 Git 变更、差异查看与文件历史。
   * `Auto-session`：根据工作目录（cwd）全自动保存和恢复编辑现场。
   * `Yanky.nvim`：支持持久化剪贴板历史与循环粘贴。
-  * `鼠标划选自动复制`：支持普通模式与插入模式下鼠标划选自动同步系统剪贴板（含 Linux 原生与 WSL 跨平台支持）。
-    详细用法见 [`config/nvim/MOUSE-AND-CLIPBOARD.md`](config/nvim/MOUSE-AND-CLIPBOARD.md)。
+  * `鼠标选区与剪贴板`：提供选区复制、智能粘贴和跨平台剪贴板适配。
+    详细用法见 [`config/nvim/docs/guides/MOUSE-AND-CLIPBOARD.md`](config/nvim/docs/guides/MOUSE-AND-CLIPBOARD.md)。
   * `Caps Lock 状态实时指示器`：底部状态栏实时指示大写锁定状态（`CAPS ON` / `CAPS OFF` / `CAPS ?`），针对 WSL/tmux 环境提供零开销常驻 Worker 检测。
-    技术原理与排错见 [`config/nvim/CAPS-LOCK.md`](config/nvim/CAPS-LOCK.md)。
+    技术原理与排错见 [`config/nvim/docs/guides/CAPS-LOCK.md`](config/nvim/docs/guides/CAPS-LOCK.md)。
   * `VimQuest`、`contextline.nvim`、`cobol.nvim`、`batch.nvim` 和 `bookmark.nvim`：由私有层加载的自研扩展，提供词汇练习、代码上下文、COBOL/Batch 工具和书签管理。
-  * 完整的公开与私有插件清单（含依赖和用途）见 [`config/nvim/PLUGINS.md`](config/nvim/PLUGINS.md)。
+  * Neovim 插件使用书按类别列出公开、私有插件和依赖，并为每项提供独立操作章节与练习，见 [`config/nvim/docs/plugins/PLUGINS.md`](config/nvim/docs/plugins/PLUGINS.md)。
 
 ### 4. 🤖 本地 AI 工具与终端复用生态
 * **内置热门本地 AI 助手 Herdr**：
@@ -87,7 +87,7 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 1. 按平台检查或安装 Zsh，并在用户确认后设为默认 Shell。
 > 2. 在非 NixOS 平台安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）；NixOS 由 `~/nixos-config` 管理。
 > 3. 安装配置 `zinit`、`Starship`、`Atuin`；非 NixOS 平台额外配置 `fnm`。
-> 4. 在非 NixOS 平台安装 Neovim（脚本安装官方最新 release，**必须 0.11+**，原因见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)）；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
+> 4. 在非 NixOS 平台安装 Neovim（脚本安装官方最新 release，**必须 0.11+**，原因见 [`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)）；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
 > 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
 > 7. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
