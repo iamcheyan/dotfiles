@@ -101,6 +101,7 @@ return {
         opts.options.style_preset = bufferline.style_preset.no_italic
       end
       bufferline.setup(opts)
+      require("config.bufferline_drag").setup()
 
       -- Guard handle_close against right-clicks: right-click on close icon should
       -- open the context menu instead of closing the buffer.
