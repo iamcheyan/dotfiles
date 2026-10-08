@@ -974,7 +974,6 @@ return {
         hl = function(self)
           return { fg = statusline_colors.text, bold = false }
         end,
-        { provider = "󰉿 ", hl = { fg = statusline_colors.text } },
         FileFormat,
         Encoding,
       }

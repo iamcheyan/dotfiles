@@ -21,6 +21,7 @@ Neovim 的说明文档按用途集中放在 `config/nvim/docs/`。配置源文�
 ## 开发说明
 
 - [状态栏交互菜单](development/STATUSLINE-MENUS.md)：Heirline 菜单实现约定与 UI 回归检查。
+- [浮窗 UI 设计与实现](development/FLOATING-WINDOW-UI.md)：布局、排版、配色，以及 NUI／Noice 和全局浮窗样式之间的配合规则。
 
 ## 清理记录
 

@@ -19,6 +19,10 @@ function M.setup()
   vim.api.nvim_open_win = function(buf, enter, config)
     local float = config.relative and config.relative ~= '' and not config.external
     local ft = vim.bo[buf].filetype
+    -- Noice renders the bottom command line as a borderless popup, and NUI
+    -- manages its dialog borders separately. Adding a border here flashes a
+    -- frame before command entry is painted.
+    if ft == 'noice' then return open(buf, enter, config) end
     local backdrop = float and config.focusable == false and config.border == 'none'
     if float and not backdrop and not ft:match('^snacks_picker') then
       config = vim.tbl_extend('force', {}, config, { border = 'single' })
