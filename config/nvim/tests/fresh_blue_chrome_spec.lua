@@ -57,7 +57,8 @@ end
 assert(vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg == document_bg, "document background must remain unchanged")
 
 local tabs = ui.bufferline_highlights()
-assert(tabs.fill.bg == color_id(fresh.tab_separator_bg), "topbar fill should use Fresh Nostalgia")
+assert(tabs.fill.bg == "NONE", "unused BufferLine fill should not paint a background")
+assert(tabs.trunc_marker.bg == "NONE", "truncation count/arrow should not paint a background")
 assert(tabs.buffer.bg == color_id(fresh.tab_inactive_bg) and tabs.buffer.fg == color_id(fresh.tab_inactive_fg), "inactive tabs should use Fresh Nostalgia")
 assert(tabs.buffer_selected.bg == color_id(fresh.tab_active_bg) and tabs.buffer_selected.fg == color_id(fresh.tab_active_fg), "active tab should use Fresh Nostalgia")
 assert(tabs.buffer_selected.bold == false, "active tab should not be bold")

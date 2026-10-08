@@ -340,8 +340,12 @@ end
 
 function M.bufferline_highlights()
   local p = tab_palette()
+  local trunc_marker_fg = get("Comment").fg or p.surface_fg
+  -- Keep the overflow count/arrow and the unused tail transparent; BufferLine's
+  -- defaults shade them separately, creating a dark patch after the last tab.
   return {
-    fill = { fg = p.surface_fg, bg = p.fill_bg },
+    fill = { fg = p.surface_fg, bg = "NONE" },
+    trunc_marker = { fg = trunc_marker_fg, bg = "NONE" },
     background = { fg = p.surface_fg, bg = p.surface_bg },
     buffer = { fg = p.surface_fg, bg = p.surface_bg },
     buffer_visible = { fg = p.visible_fg, bg = p.visible_bg },
@@ -549,8 +553,9 @@ function M.apply()
   set(0, "WinBar", { fg = p.winbar_fg, bg = p.winbar_bg })
   set(0, "WinBarNC", { fg = p.winbar_fg, bg = p.winbar_bg })
 
-  set(0, "BufferLineFill", { fg = p.surface_fg, bg = p.fill_bg })
-  set(0, "BufferLineNewBuffer", { fg = p.normal_fg, bg = p.fill_bg, bold = p.top_bold })
+  set(0, "BufferLineFill", { fg = p.surface_fg, bg = "NONE" })
+  set(0, "BufferLineNewBuffer", { fg = p.normal_fg, bg = "NONE", bold = p.top_bold })
+  set(0, "BufferLineTruncMarker", { fg = get("Comment").fg or p.surface_fg, bg = "NONE" })
   set(0, "BufferLineBackground", { fg = p.surface_fg, bg = p.surface_bg })
   set(0, "BufferLineBuffer", { fg = p.surface_fg, bg = p.surface_bg })
   set(0, "BufferLineBufferVisible", { fg = p.visible_fg, bg = p.visible_bg })
