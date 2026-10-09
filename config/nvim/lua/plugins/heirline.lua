@@ -1114,8 +1114,7 @@ return {
         },
         pad,
       }
-      -- The statusline's leading `pad` already supplies the left gutter.
-      table.insert(GitBranch, pad)
+      pad_segment(GitBranch)
       pad_segment(FileName)
       pad_segment(Venv)
       pad_segment(LspName)
