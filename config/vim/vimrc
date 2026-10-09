@@ -42,8 +42,6 @@ set ignorecase
 set smartcase
 set incsearch
 set hlsearch
-set laststatus=2
-set statusline=%f%h%m%r%=%y\ %l:%c
 set showmode
 set showcmd
 set ruler
