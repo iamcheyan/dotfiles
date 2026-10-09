@@ -9,7 +9,7 @@ local M = {}
 -- Preserve completion/picker colors while native context menus use Pmenu.
 local menu_original = {}
 local function capture_menu_colors()
-  for _, name in ipairs({ "Pmenu", "PmenuSel" }) do
+  for _, name in ipairs({ "Pmenu", "PmenuSel", "PmenuKind" }) do
     menu_original[name] = vim.api.nvim_get_hl(0, { name = name, link = false })
   end
 end
@@ -458,6 +458,10 @@ function M.apply_menu_highlights()
   end
   set(0, "Pmenu", normal)
   set(0, "PmenuSel", selected)
+  local kind = get("PmenuKind")
+  kind.fg = kind.fg or menu_original.Pmenu.fg
+  kind.bg = menu_original.Pmenu.bg
+  set(0, "PmenuKind", kind)
   set(0, "PmenuBorder", { link = "FreshMenuBorder" })
   set(0, "BlinkCmpMenu", menu_original.Pmenu)
   set(0, "BlinkCmpMenuSelection", menu_original.PmenuSel)

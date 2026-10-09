@@ -11,13 +11,13 @@
 -- restore session when available; otherwise show dashboard.
 
 local function set_cmdline_highlights()
-  local bg = "#2a2a2a"
-  local fg = "#d6d6d6"
+  local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+  local bg, fg = normal.bg, normal.fg
 
   vim.api.nvim_set_hl(0, "MsgArea", { bg = bg, fg = fg })
   vim.api.nvim_set_hl(0, "Cmdline", { bg = bg, fg = fg })
   vim.api.nvim_set_hl(0, "CmdLine", { bg = bg, fg = fg })
-  vim.api.nvim_set_hl(0, "CmdLinePrompt", { bg = bg, fg = "#f0f0f0", bold = true })
+  vim.api.nvim_set_hl(0, "CmdLinePrompt", { bg = bg, fg = fg })
   -- WinSeparator and VertSplit stay theme-owned.  Overriding either field
   -- here would erase the active theme's UI surface semantics.
 end

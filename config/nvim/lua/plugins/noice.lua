@@ -10,6 +10,8 @@ return {
         enabled = true,
         view = "cmdline",
         format = {
+          -- Keep the native ':' prompt instead of Noice's default '>' icon.
+          cmdline = { icon = "", conceal = false },
           -- Keep vim.ui.input prompts at the bottom too.
           input = { view = "cmdline", icon = "" },
         },
