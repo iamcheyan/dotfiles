@@ -43,8 +43,8 @@ syntax on
 set termguicolors
 set background=dark
 
-" 内置主题
-colorscheme desert
+" 内置主题：与终端 Vim / Neovim 保持一致
+colorscheme blue
 
 " 也可以：
 " colorscheme habamax

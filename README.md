@@ -1,11 +1,11 @@
 # 🚀 Dotfiles — 现代化终端开发环境一键配置
 
-> 基于 **Zsh + 自管 Neovim (lazy.nvim) + 本地 AI 工具 (Herdr)** 的全套极速、开箱即用终端配置方案。
+> 基于 **Zsh + Vim/GVim + 自管 Neovim (lazy.nvim) + 本地 AI 工具 (Herdr)** 的全套极速、开箱即用终端配置方案。
 > 纯公开、可独立使用；非 NixOS 平台支持一行命令跨平台初始化，NixOS 系统包由 `~/nixos-config` 管理。
 
 ## 🗺️ 配置仓库边界
 
-本仓库是三层配置中的 **公开基础层**：只保存可公开复用的 Zsh、Neovim 和 CLI
+本仓库是三层配置中的 **公开基础层**：只保存可公开复用的 Zsh、Vim/GVim、Neovim 和 CLI
 配置。NixOS 系统包、服务、硬件及 Nixarchy 接线位于 `~/nixos-config`；个人
 软件、Agent、输入法、终端与敏感配置编排位于私有 `~/chezmoi`。同一配置只在
 一个仓库拥有，不跨仓库复制。
@@ -138,6 +138,8 @@ export PROJECTS_DIR="$HOME/projects"
 | 源码路径 | 目标部署路径 | 对应功能 |
 |---|---|---|
 | `~/dotfiles/zshrc` | `~/.zshrc` | Zsh 主配置文件 |
+| `~/dotfiles/config/vim/vimrc` | `~/.vimrc` | Vim 默认主题与配置 |
+| `~/dotfiles/config/gvim/gvimrc` | `~/.gvimrc` | GVim 图形配置 |
 | `~/dotfiles/config/nvim` | `~/.config/nvim` | Neovim 完整 IDE 配置 |
 | `~/dotfiles/config/ranger` | `~/.config/ranger` | Ranger 终端文件管理器 |
 | `~/dotfiles/config/vifm/*` | `~/.config/vifm/*` | Vifm 终端文件管理器 |
@@ -179,6 +181,8 @@ dotfiles/
 ├── init.sh                # 跨平台初始化脚本
 ├── dotlink/               # 自研轻量符号链接管理器
 ├── config/                # 应用配置集合
+│   ├── vim/               # Vim 终端配置与 Blue 主题
+│   ├── gvim/              # GVim 图形配置
 │   ├── nvim/              # Neovim lazy.nvim 配置
 │   ├── herdr/             # Herdr 本地 AI 助手配置
 │   ├── ranger/            # Ranger 文件管理器配置

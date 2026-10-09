@@ -1,0 +1,4 @@
+" Keep terminal Vim on the same built-in Blue colorscheme as Neovim.
+set background=dark
+syntax on
+colorscheme blue
