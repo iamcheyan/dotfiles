@@ -224,6 +224,22 @@ Neovim 源码位于公开的 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvi
 `init.sh` 安装或检查 Neovim 和依赖；随后 dotlink 会在维护者本机优先链接 `~/nvim`，其他用户链接子模块。插件在首次
 启动 Neovim 时由 lazy.nvim 安装；原有 dotlink 路径保持不变。
 
+### 已有 dotfiles 用户：首次迁移
+
+如果你在 Neovim 迁移前已经克隆过 dotfiles，先提交或备份 `config/nvim` 中自己的修改，
+然后在 dotfiles 目录运行以下命令。它会把旧的普通配置目录切换为 nvim Git 子模块，并建立新的配置链接：
+
+```bash
+cd ~/dotfiles
+git pull --recurse-submodules
+git submodule update --init --recursive
+bash init.sh
+```
+
+首次迁移后，`init.sh` 会为这个 clone 开启递归子模块更新。以后更新 dotfiles 时，普通
+`git pull` 就会同步 nvim 子模块。nvim 会更新到 dotfiles 当前记录的版本；只有维护者更新
+并推送 dotfiles 的子模块指针后，其他用户才会收到新的 nvim 版本。无需在旧电脑额外克隆 `~/nvim`。
+
 普通用户无需单独克隆 nvim 仓库，新克隆 dotfiles 后运行 `bash init.sh` 即可一起安装。
 也可以分别运行 `git submodule update --init --recursive` 和 `bash dotlink/dotlink link`
 来初始化并链接配置。只想使用 Neovim 时，直接克隆 nvim 仓库并运行其 `init.sh` 即可，
