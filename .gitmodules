@@ -4,3 +4,6 @@
 [submodule "config/ranger/plugins/ranger_devicons"]
 	path = config/ranger/plugins/ranger_devicons
 	url = https://github.com/alexanderjeurissen/ranger_devicons.git
+[submodule "config/nvim"]
+	path = config/nvim
+	url = https://github.com/iamcheyan/nvim.git

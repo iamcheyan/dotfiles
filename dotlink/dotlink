@@ -3,6 +3,18 @@
 # 定义 dotfiles 目录的路径
 DOTFILES_DIR="$HOME/dotfiles"
 
+# Older clones acquire the nvim gitlink on their first migration pull. Initialize
+# it before linking so the existing dotlink entry cannot create an empty config.
+if [[ "${1:-}" == "link" && -f "$DOTFILES_DIR/.gitmodules" ]] &&
+   git -C "$DOTFILES_DIR" config -f .gitmodules --get submodule.config/nvim.path >/dev/null 2>&1; then
+    git -C "$DOTFILES_DIR" config submodule.recurse true
+    git -C "$DOTFILES_DIR" config fetch.recurseSubmodules on-demand
+    if [[ ! -f "$DOTFILES_DIR/config/nvim/init.lua" ]]; then
+        git -C "$DOTFILES_DIR" submodule update --init --recursive -- config/nvim || exit 1
+    fi
+fi
+
+
 # 颜色定义
 RED='\033[0;31m'
 NC='\033[0m' # No Color

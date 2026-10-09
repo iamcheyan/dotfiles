@@ -130,3 +130,12 @@ git push origin main
 - **`sh`/`zsh`、`javascriptreact`、`typescriptreact` 的 filetype 别名注册由本配置显式提供**（`main` 不再注册）。新增类似别名时改 `lua/plugins/treesitter.lua`，不要散落到其它插件。
 - **`config/nvim/lazy-lock.json` 已被 `.gitignore` 忽略、不入库**，插件分支与 commit 只钉在本机。
 - `gitsigns.nvim` 仍钉在 `v2.1.0`（原为 Neovim 0.10 兼容而加）；0.10 支持已废弃，如需跟进上游删掉该行即可。
+
+## 9. Neovim 独立维护（2026-10-09）
+
+`config/nvim` 已迁为 `iamcheyan/nvim` Git submodule；源码统一在该独立仓库维护，
+也可使用 `~/nvim` 工作树。dotlink 的 Neovim 链接入口保持不变。
+自研插件使用 lazy.nvim 加载各自公开仓库，chezmoi 不再部署 Neovim 私有层。
+当前 Treesitter main 要求 Neovim 0.12+ 与 Tree-sitter CLI 0.26.1+；本节取代第 8 节旧的 0.11 最低版本说明。
+首次迁移需 `git submodule update --init --recursive`；初始化会开启本 clone 的递归 Git 更新。
+不要在父仓库中把子模块源码重新作为普通文件提交。
