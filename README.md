@@ -14,6 +14,7 @@ Neovim 配置源码由独立公开仓库 [`iamcheyan/nvim`](https://github.com/i
 维护，并作为 `config/nvim` 子模块随本仓库一起安装。使用 dotfiles 的用户运行本仓库
 `init.sh` 即可初始化子模块、准备 Neovim 并建立 `~/.config/nvim` 软链接；无需另行安装
 Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓库，单独运行它自己的 `init.sh`。
+本机维护时只编辑 `~/nvim`；dotlink 会识别它并让 `~/.config/nvim` 直接指向该工作树。其他用户没有这份工作树时，自动使用 dotfiles 内的子模块。
 
 ---
 
@@ -220,7 +221,7 @@ dotfiles/
 
 Neovim 源码位于公开的 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvim)，本仓库通过
 `config/nvim` 子模块固定配置版本。完整运行 `init.sh` 时会初始化子模块，调用其中的
-`init.sh` 安装或检查 Neovim 和依赖，并将 `~/.config/nvim` 链接到该配置。插件在首次
+`init.sh` 安装或检查 Neovim 和依赖；随后 dotlink 会在维护者本机优先链接 `~/nvim`，其他用户链接子模块。插件在首次
 启动 Neovim 时由 lazy.nvim 安装；原有 dotlink 路径保持不变。
 
 普通用户无需单独克隆 nvim 仓库，新克隆 dotfiles 后运行 `bash init.sh` 即可一起安装。
@@ -230,5 +231,5 @@ Neovim 源码位于公开的 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvi
 
 Neovim 需要 **0.12+**，Treesitter 还需要 Tree-sitter CLI 0.26.1+。运行过初始化的
 clone 会启用递归 Git 更新，普通 `git pull` 会跟随 dotfiles 记录的配置版本。维护者在
-`config/nvim` 内编辑和提交，再回 dotfiles 提交新的子模块指针。Treesitter 详情见
+`~/nvim` 内编辑和提交，再回 dotfiles 更新 `config/nvim` 子模块指针。Treesitter 详情见
 [`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。
