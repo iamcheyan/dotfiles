@@ -10,6 +10,11 @@
 软件、Agent、输入法、终端与敏感配置编排位于私有 `~/chezmoi`。同一配置只在
 一个仓库拥有，不跨仓库复制。
 
+Neovim 配置源码由独立公开仓库 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvim)
+维护，并作为 `config/nvim` 子模块随本仓库一起安装。使用 dotfiles 的用户运行本仓库
+`init.sh` 即可初始化子模块、准备 Neovim 并建立 `~/.config/nvim` 软链接；无需另行安装
+Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓库，单独运行它自己的 `init.sh`。
+
 ---
 
 ## 🌟 核心卖点
@@ -87,7 +92,7 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 1. 按平台检查或安装 Zsh，并在用户确认后设为默认 Shell。
 > 2. 在非 NixOS 平台安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）；NixOS 由 `~/nixos-config` 管理。
 > 3. 安装配置 `zinit`、`Starship`、`Atuin`；非 NixOS 平台额外配置 `fnm`。
-> 4. 在非 NixOS 平台安装 Neovim（脚本安装官方最新 release，**必须 0.12+**，原因见 [`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)）；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
+> 4. 初始化 `config/nvim` 子模块，并运行其中的 `init.sh` 检查或安装 Neovim 0.12+、准备依赖、把 `~/.config/nvim` 链接到子模块源码；插件由首次启动时的 lazy.nvim 安装。NixOS 软件包由 `~/nixos-config` 管理。
 > 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
 > 7. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
@@ -183,7 +188,7 @@ dotfiles/
 ├── config/                # 应用配置集合
 │   ├── vim/               # Vim 终端配置与 Blue 主题
 │   ├── gvim/              # GVim 图形配置
-│   ├── nvim/              # Neovim lazy.nvim 配置
+│   ├── nvim/              # iamcheyan/nvim 子模块；由 dotfiles init 一起安装
 │   ├── herdr/             # Herdr 本地 AI 助手配置
 │   ├── ranger/            # Ranger 文件管理器配置
 │   ├── vifm/              # Vifm 文件管理器配置
@@ -211,21 +216,19 @@ dotfiles/
 
 本项目基于 [MIT 许可证](LICENSE) 开源。欢迎 Star 🌟 与 Fork！
 
-### Neovim 独立仓库与子模块更新
+## Neovim 独立仓库与随 dotfiles 安装
 
-Neovim 统一维护于 [iamcheyan/nvim](https://github.com/iamcheyan/nvim)，
-本仓库的 `config/nvim` 是该仓库的 Git 子模块，原有 dotlink 路径保持不变。
-首次迁移前请提交或备份本地 `config/nvim` 修改，然后运行：
+Neovim 源码位于公开的 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvim)，本仓库通过
+`config/nvim` 子模块固定配置版本。完整运行 `init.sh` 时会初始化子模块，调用其中的
+`init.sh` 安装或检查 Neovim 和依赖，并将 `~/.config/nvim` 链接到该配置。插件在首次
+启动 Neovim 时由 lazy.nvim 安装；原有 dotlink 路径保持不变。
 
-```bash
-git pull --recurse-submodules
-git submodule update --init --recursive
-bash dotlink/dotlink link
-```
+普通用户无需单独克隆 nvim 仓库，新克隆 dotfiles 后运行 `bash init.sh` 即可一起安装。
+也可以分别运行 `git submodule update --init --recursive` 和 `bash dotlink/dotlink link`
+来初始化并链接配置。只想使用 Neovim 时，直接克隆 nvim 仓库并运行其 `init.sh` 即可，
+无需安装本 dotfiles 仓库。
 
-`init.sh` 和 `dotlink link` 会初始化 Neovim 子模块并为本 clone 开启递归 Git 操作，
-后续普通 `git pull` 会跟随主仓库记录的配置版本。未运行初始化的旧 clone 仍需上述命令。
-独立安装可运行 `git clone https://github.com/iamcheyan/nvim.git ~/nvim`，
-再运行 `bash ~/nvim/init.sh`。两种方式均不依赖 chezmoi。
-维护子模块前先在 `config/nvim` 执行 `git switch main`，修改在 nvim 仓库提交，
-然后回 dotfiles 提交更新后的子模块指针。
+Neovim 需要 **0.12+**，Treesitter 还需要 Tree-sitter CLI 0.26.1+。运行过初始化的
+clone 会启用递归 Git 更新，普通 `git pull` 会跟随 dotfiles 记录的配置版本。维护者在
+`config/nvim` 内编辑和提交，再回 dotfiles 提交新的子模块指针。Treesitter 详情见
+[`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。
