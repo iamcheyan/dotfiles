@@ -3,6 +3,18 @@
 # 定义 dotfiles 目录的路径
 DOTFILES_DIR="$HOME/dotfiles"
 
+# Older clones acquire the nvim gitlink on their first migration pull. Initialize
+# it before linking so the existing dotlink entry cannot create an empty config.
+if [[ "${1:-}" == "link" && -f "$DOTFILES_DIR/.gitmodules" ]] &&
+   git -C "$DOTFILES_DIR" config -f .gitmodules --get submodule.config/nvim.path >/dev/null 2>&1; then
+    git -C "$DOTFILES_DIR" config submodule.recurse true
+    git -C "$DOTFILES_DIR" config fetch.recurseSubmodules on-demand
+    if [[ ! -f "$DOTFILES_DIR/config/nvim/init.lua" ]]; then
+        git -C "$DOTFILES_DIR" submodule update --init --recursive -- config/nvim || exit 1
+    fi
+fi
+
+
 # 颜色定义
 RED='\033[0;31m'
 NC='\033[0m' # No Color
@@ -54,6 +66,17 @@ process_section_line() {
     # 新增：去除首尾空白字符
     src=$(echo "$src" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     dest=$(echo "$dest" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    # Developers keep the canonical standalone checkout at ~/nvim. Prefer it
+    # on this machine when it is the iamcheyan/nvim repository; other dotfiles
+    # users continue linking to the bundled config/nvim submodule.
+    if [[ "$dest" == "$HOME/.config/nvim" && -f "$HOME/nvim/init.lua" ]]; then
+        local nvim_remote
+        nvim_remote=$(git -C "$HOME/nvim" remote get-url origin 2>/dev/null || true)
+        if [[ "$nvim_remote" =~ (^|[:/])iamcheyan/nvim(\.git)?$ ]]; then
+            src="$HOME/nvim"
+        fi
+    fi
     
     # 检查是否包含通配符
     if [[ "$src" == *"*"* ]]; then

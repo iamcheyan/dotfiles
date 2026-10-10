@@ -1,14 +1,20 @@
 # 🚀 Dotfiles — 现代化终端开发环境一键配置
 
-> 基于 **Zsh + 自管 Neovim (lazy.nvim) + 本地 AI 工具 (Herdr)** 的全套极速、开箱即用终端配置方案。
+> 基于 **Zsh + Vim/GVim + 自管 Neovim (lazy.nvim) + 本地 AI 工具 (Herdr)** 的全套极速、开箱即用终端配置方案。
 > 纯公开、可独立使用；非 NixOS 平台支持一行命令跨平台初始化，NixOS 系统包由 `~/nixos-config` 管理。
 
 ## 🗺️ 配置仓库边界
 
-本仓库是三层配置中的 **公开基础层**：只保存可公开复用的 Zsh、Neovim 和 CLI
+本仓库是三层配置中的 **公开基础层**：只保存可公开复用的 Zsh、Vim/GVim、Neovim 和 CLI
 配置。NixOS 系统包、服务、硬件及 Nixarchy 接线位于 `~/nixos-config`；个人
 软件、Agent、输入法、终端与敏感配置编排位于私有 `~/chezmoi`。同一配置只在
 一个仓库拥有，不跨仓库复制。
+
+Neovim 配置源码由独立公开仓库 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvim)
+维护，并作为 `config/nvim` 子模块随本仓库一起安装。使用 dotfiles 的用户运行本仓库
+`init.sh` 即可初始化子模块、准备 Neovim 并建立 `~/.config/nvim` 软链接；无需另行安装
+Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓库，单独运行它自己的 `init.sh`。
+本机维护时只编辑 `~/nvim`；dotlink 会识别它并让 `~/.config/nvim` 直接指向该工作树。其他用户没有这份工作树时，自动使用 dotfiles 内的子模块。
 
 ---
 
@@ -39,21 +45,23 @@
   * **LSP 自动管理**：Mason + Mason-LSPconfig 一键安装并管理各语言 Language Server。
   * **代码补全与格式化**：Blink.cmp 极速智能补全 + Conform 自动代码格式化。
   * **语法分析与高亮**：Treesitter 语法高亮、代码折叠与文本对象。
-    **需要 Neovim 0.11 或更高版本**（`nvim-treesitter` 的 `main` 分支 + ABI-15 parser）。
-    分支选择、parser 管理与常见报错处理见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)。
+    **需要 Neovim 0.12 或更高版本**（`nvim-treesitter` 的 `main` 分支 + ABI-15 parser）。
+    分支选择、parser 管理与常见报错处理见 [`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。
     COBOL、批处理脚本与手写配置文件的**大小写不敏感扩展名检测**见
-    [`config/nvim/FILETYPE-DETECTION.md`](config/nvim/FILETYPE-DETECTION.md)。
+    [`config/nvim/docs/reference/FILETYPE-DETECTION.md`](config/nvim/docs/reference/FILETYPE-DETECTION.md)。
 * **生产力神器合集**：
-  * `Telescope` + `Snacks`：极速模糊搜索文件、文本与符号。
-  * `Neo-tree` + `Oil.nvim`：支持双模式文件树管理（侧边栏文件树 + Buffer 自由编辑重构目录）。
+  * `Snacks.picker`：查找文件、文本、缓冲区和符号，并提供启动页、通知与状态列。
+  * `Neo-tree`：侧边栏文件树、缓冲区列表和 Git 状态视图。
   * `Flash.nvim`：键盘任意位置双键直达跳转。
-  * `Gitsigns` + `hunk-review.nvim`：行级 Git 变动高亮与 Agent 代码审查。
-    详细用法见 [`config/nvim/HUNK-REVIEW.md`](config/nvim/HUNK-REVIEW.md)。
+  * `Gitsigns` + `Diffview`：行级 Git 变更、差异查看与文件历史。
   * `Auto-session`：根据工作目录（cwd）全自动保存和恢复编辑现场。
   * `Yanky.nvim`：支持持久化剪贴板历史与循环粘贴。
-  * `鼠标划选自动复制`：支持普通模式与插入模式下鼠标划选自动同步系统剪贴板（含 Linux 原生与 WSL 跨平台支持）。
-    详细用法见 [`config/nvim/MOUSE-AND-CLIPBOARD.md`](config/nvim/MOUSE-AND-CLIPBOARD.md)。
-  * `Vimquest`：内置英语单词拼写练习扩展。
+  * `鼠标选区与剪贴板`：提供选区复制、智能粘贴和跨平台剪贴板适配。
+    详细用法见 [`config/nvim/docs/guides/MOUSE-AND-CLIPBOARD.md`](config/nvim/docs/guides/MOUSE-AND-CLIPBOARD.md)。
+  * `Caps Lock 状态实时指示器`：底部状态栏实时指示大写锁定状态（`CAPS ON` / `CAPS OFF` / `CAPS ?`），针对 WSL/tmux 环境提供零开销常驻 Worker 检测。
+    技术原理与排错见 [`config/nvim/docs/guides/CAPS-LOCK.md`](config/nvim/docs/guides/CAPS-LOCK.md)。
+  * `VimQuest`、`contextline.nvim`、`cobol.nvim`、`batch.nvim` 和 `bookmark.nvim`：由 lazy.nvim 安装的独立公开自研扩展，提供词汇练习、代码上下文、COBOL/Batch 工具和书签管理。
+  * Neovim 插件使用书按类别列出公开、私有插件和依赖，并为每项提供独立操作章节与练习，见 [`config/nvim/docs/plugins/PLUGINS.md`](config/nvim/docs/plugins/PLUGINS.md)。
 
 ### 4. 🤖 本地 AI 工具与终端复用生态
 * **内置热门本地 AI 助手 Herdr**：
@@ -85,9 +93,10 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 1. 按平台检查或安装 Zsh，并在用户确认后设为默认 Shell。
 > 2. 在非 NixOS 平台安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）；NixOS 由 `~/nixos-config` 管理。
 > 3. 安装配置 `zinit`、`Starship`、`Atuin`；非 NixOS 平台额外配置 `fnm`。
-> 4. 在非 NixOS 平台安装 Neovim（脚本安装官方最新 release，**必须 0.11+**，原因见 [`config/nvim/TREESITTER.md`](config/nvim/TREESITTER.md)）；插件与 Treesitter 解析器在 Zsh 启动时按配置加载。
+> 4. 初始化 `config/nvim` 子模块，并运行其中的 `init.sh` 检查或安装 Neovim 0.12+、准备依赖、把 `~/.config/nvim` 链接到子模块源码；插件由首次启动时的 lazy.nvim 安装。NixOS 软件包由 `~/nixos-config` 管理。
 > 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
+> 7. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
 
 ### Fresh Terminal IDE
 
@@ -135,6 +144,8 @@ export PROJECTS_DIR="$HOME/projects"
 | 源码路径 | 目标部署路径 | 对应功能 |
 |---|---|---|
 | `~/dotfiles/zshrc` | `~/.zshrc` | Zsh 主配置文件 |
+| `~/dotfiles/config/vim/vimrc` | `~/.vimrc` | Vim 默认主题与配置 |
+| `~/dotfiles/config/gvim/gvimrc` | `~/.gvimrc` | GVim 图形配置 |
 | `~/dotfiles/config/nvim` | `~/.config/nvim` | Neovim 完整 IDE 配置 |
 | `~/dotfiles/config/ranger` | `~/.config/ranger` | Ranger 终端文件管理器 |
 | `~/dotfiles/config/vifm/*` | `~/.config/vifm/*` | Vifm 终端文件管理器 |
@@ -176,14 +187,20 @@ dotfiles/
 ├── init.sh                # 跨平台初始化脚本
 ├── dotlink/               # 自研轻量符号链接管理器
 ├── config/                # 应用配置集合
-│   ├── nvim/              # Neovim lazy.nvim 配置
+│   ├── vim/               # Vim 终端配置与 Blue 主题
+│   ├── gvim/              # GVim 图形配置
+│   ├── nvim/              # iamcheyan/nvim 子模块；由 dotfiles init 一起安装
 │   ├── herdr/             # Herdr 本地 AI 助手配置
 │   ├── ranger/            # Ranger 文件管理器配置
 │   ├── vifm/              # Vifm 文件管理器配置
 │   ├── atuin/             # Atuin 命令历史配置
 │   └── starship/          # Starship 提示符主题
 ├── plugins/               # Zsh 插件与补全辅助
-├── scripts/               # 安装与系统检测脚本
+├── scripts/               # 安装、升级与系统检测脚本
+│   ├── install/           # init.sh 调用的安装脚本
+│   ├── setup/             # shell 运行时 source 的配置脚本
+│   ├── update_nvim.sh     # 官方稳定版 Neovim 升级脚本（alias nvim-update）
+│   └── tests/             # 脚本回归测试
 └── tools/                 # 通用实用工具脚本
 ```
 
@@ -199,3 +216,36 @@ dotfiles/
 ## 📄 开源许可证
 
 本项目基于 [MIT 许可证](LICENSE) 开源。欢迎 Star 🌟 与 Fork！
+
+## Neovim 独立仓库与随 dotfiles 安装
+
+Neovim 源码位于公开的 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvim)，本仓库通过
+`config/nvim` 子模块固定配置版本。完整运行 `init.sh` 时会初始化子模块，调用其中的
+`init.sh` 安装或检查 Neovim 和依赖；随后 dotlink 会在维护者本机优先链接 `~/nvim`，其他用户链接子模块。插件在首次
+启动 Neovim 时由 lazy.nvim 安装；原有 dotlink 路径保持不变。
+
+### 已有 dotfiles 用户：首次迁移
+
+如果你在 Neovim 迁移前已经克隆过 dotfiles，先提交或备份 `config/nvim` 中自己的修改，
+然后在 dotfiles 目录运行以下命令。它会把旧的普通配置目录切换为 nvim Git 子模块，并建立新的配置链接：
+
+```bash
+cd ~/dotfiles
+git pull --recurse-submodules
+git submodule update --init --recursive
+bash init.sh
+```
+
+首次迁移后，`init.sh` 会为这个 clone 开启递归子模块更新。以后更新 dotfiles 时，普通
+`git pull` 就会同步 nvim 子模块。nvim 会更新到 dotfiles 当前记录的版本；只有维护者更新
+并推送 dotfiles 的子模块指针后，其他用户才会收到新的 nvim 版本。无需在旧电脑额外克隆 `~/nvim`。
+
+普通用户无需单独克隆 nvim 仓库，新克隆 dotfiles 后运行 `bash init.sh` 即可一起安装。
+也可以分别运行 `git submodule update --init --recursive` 和 `bash dotlink/dotlink link`
+来初始化并链接配置。只想使用 Neovim 时，直接克隆 nvim 仓库并运行其 `init.sh` 即可，
+无需安装本 dotfiles 仓库。
+
+Neovim 需要 **0.12+**，Treesitter 还需要 Tree-sitter CLI 0.26.1+。运行过初始化的
+clone 会启用递归 Git 更新，普通 `git pull` 会跟随 dotfiles 记录的配置版本。维护者在
+`~/nvim` 内编辑和提交，再回 dotfiles 更新 `config/nvim` 子模块指针。Treesitter 详情见
+[`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。

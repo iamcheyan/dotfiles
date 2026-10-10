@@ -6,8 +6,10 @@
 
 ```
 scripts/
-├── install/     # init.sh 调用的安装脚本
-├── setup/       # shell 运行时 source 的配置脚本
+├── install/        # init.sh 调用的安装脚本
+├── setup/          # shell 运行时 source 的配置脚本
+├── tests/          # 脚本回归测试
+├── update_nvim.sh  # Neovim 最新稳定版升级脚本
 └── README.md
 ```
 
@@ -21,5 +23,10 @@ scripts/
 ### `scripts/setup/` - 环境配置脚本
 
 - `setup_fnm.sh` - fnm lazy loader（zshrc 中 source）
+
+### Neovim 升级
+
+- `scripts/update_nvim.sh` 由 `nvim-update` 别名调用：下载 GitHub 最新稳定 release，验证 release API 提供的 SHA-256，再装入 `~/.local/opt/neovim/<version>` 并原子切换 `~/.local/bin/nvim`。不替换 apt/Homebrew 等系统包，保留旧版本便于回退；NixOS 上拒绝绕开声明式包管理。
+- 回归测试：`bash scripts/tests/nvim_update_test.sh`（使用本地 fixture，不下载或修改真实 Neovim 安装）。
 
 > fnm/fzf 的安装逻辑在 init.sh 内联（`install_fnm`/`install_fzf` 函数），不依赖独立脚本。

@@ -25,13 +25,43 @@ HOME = Path.home()
 DEFAULT_DATA_DIR = HOME / ".local" / "share" / "webapps"
 CHEZMOI_DATA_DIR = HOME / "chezmoi" / "dot_local" / "share" / "webapps"
 
+def _chezmoi_data_dir() -> Path | None:
+    """Return the private chezmoi source data path when this host has one."""
+    source_dir = os.environ.get("CHEZMOI_SOURCE_DIR")
+    if not source_dir and shutil.which("chezmoi"):
+        try:
+            result = subprocess.run(
+                ["chezmoi", "source-path"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            source_dir = result.stdout.strip()
+        except (OSError, subprocess.CalledProcessError):
+            pass
+    if source_dir:
+        return Path(source_dir).expanduser() / "dot_local" / "share" / "webapps"
+    if (HOME / "chezmoi").is_dir():
+        return CHEZMOI_DATA_DIR
+    return None
+
 def get_data_dir() -> Path:
-    """Resolve active data storage directory."""
-    if DEFAULT_DATA_DIR.exists() or not CHEZMOI_DATA_DIR.exists():
-        DEFAULT_DATA_DIR.mkdir(parents=True, exist_ok=True)
-        (DEFAULT_DATA_DIR / "icons").mkdir(parents=True, exist_ok=True)
-        return DEFAULT_DATA_DIR
-    return CHEZMOI_DATA_DIR
+    """Use the private chezmoi source as the shared, versioned data store."""
+    override = os.environ.get("WEBAPPS_DATA_DIR")
+    data_dir = Path(override).expanduser() if override else _chezmoi_data_dir()
+    if data_dir is None:
+        data_dir = DEFAULT_DATA_DIR
+
+    # Import an existing live database once when adopting chezmoi management.
+    # Never overwrite a source database that already contains data.
+    if data_dir != DEFAULT_DATA_DIR and not (data_dir / "webapps.json").exists():
+        live_manifest = DEFAULT_DATA_DIR / "webapps.json"
+        if live_manifest.exists() and data_dir.resolve() != DEFAULT_DATA_DIR.resolve():
+            shutil.copytree(DEFAULT_DATA_DIR, data_dir, dirs_exist_ok=True)
+
+    data_dir.mkdir(parents=True, exist_ok=True)
+    (data_dir / "icons").mkdir(parents=True, exist_ok=True)
+    return data_dir
 
 def slugify(text: str) -> str:
     """Generate a clean identifier from text."""
@@ -138,7 +168,8 @@ def generate_macos_safari_app(app_info: dict, data_dir: Path):
     name = app_info["name"]
     url = app_info["url"]
     app_id = app_info["id"]
-    app_dir = HOME / "Applications" / f"{name}.app"
+    safe_name = name.replace("/", "-").replace(":", "-")
+    app_dir = HOME / "Applications" / f"{safe_name}.app"
 
     if app_dir.exists():
         return
@@ -238,6 +269,16 @@ def generate_linux_desktop_entries(manifest: dict, data_dir: Path):
     desktop_dir.mkdir(parents=True, exist_ok=True)
     icons_base.mkdir(parents=True, exist_ok=True)
 
+    def exec_arg(value: str) -> str:
+        # Quote one Desktop Entry Exec argument (including literal URL % signs).
+        value = value.replace("%", "%%")
+        value = value.replace("\\", "\\\\").replace('"', '\\"')
+        value = value.replace("`", "\\`").replace("$", "\\$")
+        return f'"{value}"'
+
+    def desktop_value(value: str) -> str:
+        return value.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r")
+
     for app_id, app in manifest.items():
         name = app["name"]
         url = app["url"]
@@ -255,9 +296,9 @@ def generate_linux_desktop_entries(manifest: dict, data_dir: Path):
         desktop_content = f"""[Desktop Entry]
 Version=1.0
 Type=Application
-Name={name}
-Comment=Web App ({name})
-Exec=firefox --new-window "{url}"
+Name={desktop_value(name)}
+Comment=Web App ({desktop_value(name)})
+Exec=firefox --new-window {exec_arg(url)}
 Icon={icon_path_str}
 Terminal=false
 StartupWMClass=webapp-{app_id}

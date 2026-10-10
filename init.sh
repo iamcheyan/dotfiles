@@ -596,6 +596,8 @@ init_git_submodules() {
     local dotfiles_dir="${DOTFILES_DIR:-$HOME/dotfiles}"
     if [[ -f "$dotfiles_dir/.gitmodules" ]]; then
         print_info "Initializing git submodules..."
+        git -C "$dotfiles_dir" config submodule.recurse true
+        git -C "$dotfiles_dir" config fetch.recurseSubmodules on-demand
         git -C "$dotfiles_dir" submodule update --init --recursive
         print_success "Git submodules initialized"
     else
@@ -776,17 +778,14 @@ detect_dotfiles_dir() {
 
 # Install Neovim
 install_neovim() {
-    if [[ "$(detect_os)" == "nixos" ]]; then
-        print_info "NixOS detected; Neovim is managed by nixos-config. Rebuild the system to install it."
-        return 0
+    local nvim_init="${DOTFILES_DIR:-$HOME/dotfiles}/config/nvim/init.sh"
+    if [[ ! -f "$nvim_init" ]]; then
+        print_error "Neovim submodule is missing; initialize submodules first."
+        return 1
     fi
-    local install_script="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install/install_nvim.sh"
-    if [[ -f "$install_script" ]]; then
-        print_info "Installing Neovim..."
-        bash "$install_script"
-    else
-        print_warning "Neovim install script not found: $install_script"
-    fi
+    # Share the standalone installer's dependency/version checks and linking.
+    # Plugin downloads remain deferred to the first interactive Neovim launch.
+    bash "$nvim_init" --skip-plugins
 }
 
 # Install fonts

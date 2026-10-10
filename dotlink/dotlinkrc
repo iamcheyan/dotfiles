@@ -21,6 +21,7 @@ $HOME/dotfiles/config/ranger:$HOME/.config/ranger
 
 # vim
 $HOME/dotfiles/config/gvim/gvimrc:$HOME/.gvimrc	# gvim 配置文件
+$HOME/dotfiles/config/vim/vimrc:$HOME/.vimrc	# Vim 配置文件
 $HOME/dotfiles/config/nvim:$HOME/.config/nvim	# Neovim 配置文件
 
 $HOME/dotfiles/config/tmux/tmux.conf:$HOME/.config/tmux/tmux.conf	# Tmux 通用主配置
@@ -29,6 +30,7 @@ $HOME/dotfiles/config/tmux/tmux.conf:$HOME/.config/tmux/tmux.conf	# Tmux 通用�
 $HOME/dotfiles/config/vifm/vifmrc:$HOME/.config/vifm/vifmrc
 $HOME/dotfiles/config/vifm/colors:$HOME/.config/vifm/colors
 $HOME/dotfiles/config/vifm/scripts:$HOME/.config/vifm/scripts
+$HOME/dotfiles/scripts/sync-webapps.py:$HOME/.local/bin/sync-webapps
 
 #[link:macos]
 #MacOS 配置可以单独写在这里

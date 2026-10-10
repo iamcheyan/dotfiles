@@ -1,0 +1,85 @@
+" Shared Vim defaults mirroring the portable parts of the Neovim setup.
+set nocompatible
+let mapleader = " "
+let maplocalleader = "\\"
+
+set encoding=utf-8
+set fileencodings=ucs-bom,utf-8,iso-2022-jp,cp932,euc-jp,default,latin1
+set background=dark
+if exists("+termguicolors")
+  set termguicolors
+endif
+syntax on
+filetype plugin indent on
+colorscheme blue
+
+" Editing
+set tabstop=4
+set softtabstop=0
+set shiftwidth=4
+set noexpandtab
+set autoindent
+set smartindent
+set shiftround
+set backspace=indent,eol,start
+set completeopt=menu,menuone,noselect
+
+" Display and navigation
+set number
+set relativenumber
+set cursorline
+set cursorcolumn
+set nowrap
+set mouse=a
+set scrolloff=4
+set sidescrolloff=8
+set splitbelow
+set splitright
+set hidden
+set confirm
+set autowrite
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+set showmode
+set showcmd
+set ruler
+set wildmenu
+set wildmode=longest:full,full
+set updatetime=200
+set timeoutlen=300
+set history=1000
+if exists("+inccommand")
+  set inccommand=nosplit
+endif
+if has("clipboard") && has("unnamedplus")
+  set clipboard=unnamedplus
+endif
+if executable("rg")
+  let &grepprg = "rg --vimgrep"
+  set grepformat=%f:%l:%c:%m
+endif
+set path+=**
+
+" Common navigation actions also available in the Neovim setup.
+nnoremap <C-s> :write<CR>
+inoremap <C-s> <Esc>:write<CR>
+xnoremap <C-s> <Esc>:write<CR>
+nnoremap <leader>e :Explore<CR>
+nnoremap <leader>ff :find<Space>
+nnoremap <leader>fg :grep<Space>
+nnoremap <leader>fb :buffers<CR>
+nnoremap <leader>bd :bdelete<CR>
+nnoremap <leader>qq :qa<CR>
+nnoremap <leader>fn :enew<CR>
+nnoremap <leader>h :nohlsearch<CR>
+nnoremap <S-h> :bprevious<CR>
+nnoremap <S-l> :bnext<CR>
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nnoremap <leader>- <C-w>s
+nnoremap <leader>v <C-w>v
+nnoremap <leader>ww <C-w>w

@@ -119,14 +119,17 @@ git push origin main
 
 发布后的配置应当能被另一台没有 `~/chezmoi` 的机器单独克隆并运行。若某项功能只有个人环境可用，应移到私有 Chezmoi，而不是在公开仓库中添加更多机器特判。
 
-## 8. Neovim 运行时要求与 Treesitter 注意事项
+## 8. Neovim 独立仓库与随 dotfiles 安装
 
-详细说明见 [config/nvim/TREESITTER.md](config/nvim/TREESITTER.md)，改动 Treesitter 相关配置前请先读它。必须记住的几条：
+Neovim 配置源码由公开仓库 [`iamcheyan/nvim`](https://github.com/iamcheyan/nvim)
+统一维护，并作为 `config/nvim` 子模块随 dotfiles 一起安装。完整运行 `init.sh` 会初始化
+子模块、调用其 `init.sh` 检查或安装 Neovim 及依赖，并建立原有的 `~/.config/nvim` 软链接。
+只使用 Neovim 的用户也可以直接克隆该仓库并运行它自己的 `init.sh`。
 
-- **最低 Neovim 版本为 0.11**。`nvim-treesitter` 固定 `main` 分支（`master` 已被上游归档），需要 0.11+ 与 ABI-15 parser。仍是 0.10 的机器**必须先升级 Neovim 再拉取本配置**，否则高亮整体失效。
-- **`nvim-treesitter` 与 `nvim-treesitter-textobjects` 都必须是 `main`**，且 textobjects 的 `opts` 用的是 `main` 的 schema（`move.keys.*`）。两者不要单独回退到 `master`。
-- **切换分支或跨大版本升级后必须重建 parser**。旧 grammar 与新查询不匹配时，打开文件会直接报 `Query error ... Invalid field name "..."` 并中断高亮；`:TSUpdate` 可修复，`lua/plugins/treesitter.lua` 的 `build` 步骤已覆盖（补装缺失 + 重建过期 + 等待异步完成）。
-- **parser 装在 `~/.local/share/nvim/site/parser`**（`opts.install_dir`），不要改到插件目录，否则 `:Lazy` 操作会清掉它们。
-- **`sh`/`zsh`、`javascriptreact`、`typescriptreact` 的 filetype 别名注册由本配置显式提供**（`main` 不再注册）。新增类似别名时改 `lua/plugins/treesitter.lua`，不要散落到其它插件。
-- **`config/nvim/lazy-lock.json` 已被 `.gitignore` 忽略、不入库**，插件分支与 commit 只钉在本机。
-- `gitsigns.nvim` 仍钉在 `v2.1.0`（原为 Neovim 0.10 兼容而加）；0.10 支持已废弃，如需跟进上游删掉该行即可。
+维护者本机只在 `~/nvim` 开发；dotlink 检测到该目录的 origin 为 `iamcheyan/nvim` 时，
+会把 `~/.config/nvim` 链接到 `~/nvim`。其他用户没有该工作副本时，链接使用 dotfiles
+内的 `config/nvim` 子模块。发布时在 `~/nvim` 提交并推送，然后更新 dotfiles 的子模块指针。
+最低版本为 **Neovim 0.12**，Treesitter 还需要 Tree-sitter CLI 0.26.1+。插件首次启动时由 lazy.nvim 安装。
+新用户和首次迁移者可运行 `git submodule update --init --recursive`。运行初始化后，
+普通 `git pull` 会跟随主仓库记录的版本。Treesitter 说明见
+[`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。
