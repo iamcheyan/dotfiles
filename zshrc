@@ -163,6 +163,10 @@ if [[ -r "$HOME/.atuin/bin/env" ]]; then
     source "$HOME/.atuin/bin/env"
 fi
 
+# Load the optional tool widgets after fzf and Atuin so Television owns its
+# documented Ctrl+R/Ctrl+T bindings.
+zsh_plugins_load_shell_tools
+
 
 # Added by Antigravity CLI installer
 export PATH="/home/tetsuya/.antigravity/bin:$PATH"
@@ -172,3 +176,9 @@ case ":$PATH:" in
   *) export PATH="$PATH:$HOME/.photon/bin" ;;
 esac
 # <<< Photon CLI <<<
+
+# Inshellisense recommends being the final shell integration. init.sh prepares
+# its local files; this hook stays optional when the npm package is unavailable.
+if command -v is >/dev/null 2>&1; then
+    eval "$(is init zsh)"
+fi

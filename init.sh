@@ -458,6 +458,22 @@ install_fnm() {
     ensure_fnm_node
 }
 
+# Install and prepare Inshellisense through npm. The other requested tools are
+# installed by zinit on the first interactive Zsh launch.
+install_inshellisense() {
+    if ! command_exists is; then
+        if ! command_exists npm; then
+            print_warning "npm is unavailable; skipping Inshellisense (run init.sh again after Node.js is available)"
+            return 0
+        fi
+        print_info "Installing Inshellisense with npm..."
+        npm install --global @microsoft/inshellisense || return 1
+    fi
+
+    is init
+    print_success "Inshellisense initialized"
+}
+
 # Install Fresh Terminal IDE
 install_fresh() {
     if command_exists fresh; then
@@ -1054,6 +1070,10 @@ EOF
     # 5. Install fnm
     print_info "Step 5/11: Checking and installing fnm"
     run_step "fnm install" install_fnm
+    echo ""
+
+    print_info "Preparing Inshellisense"
+    run_step "Inshellisense install/init" install_inshellisense
     echo ""
 
     # 6. Install Fresh Terminal IDE

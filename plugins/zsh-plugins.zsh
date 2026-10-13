@@ -69,7 +69,34 @@ zsh_plugins_load_main() {
   zinit light hlissner/zsh-autopair
   # you-should-use：提醒使用已经存在的别名。
   zinit light MichaelAquilina/zsh-you-should-use
+  # forgit：基于 fzf 的交互式 Git 命令；需要 fzf 0.60.0 或更新版本。
+  zinit light wfxr/forgit
 
   # zsh-users/zsh-syntax-highlighting：实时高亮命令语法，必须最后加载。
   zinit light zsh-users/zsh-syntax-highlighting
+}
+
+# 可选 CLI 工具的 shell 集成。工具缺失时跳过，保持最小环境可启动。
+zsh_plugins_load_shell_tools() {
+  if command -v tv >/dev/null 2>&1; then
+    eval "$(tv init zsh)"
+  fi
+
+  if command -v navi >/dev/null 2>&1; then
+    eval "$(navi widget zsh)"
+  fi
+
+  if command -v pay-respects >/dev/null 2>&1; then
+    eval "$(pay-respects zsh --alias)"
+  fi
+
+  if command -v pet >/dev/null 2>&1; then
+    function pet-select() {
+      BUFFER="$(pet search --query "$LBUFFER")"
+      CURSOR=$#BUFFER
+      zle redisplay
+    }
+    zle -N pet-select
+    bindkey '^X^R' pet-select
+  fi
 }

@@ -19,6 +19,11 @@ zi_cmd muesli/duf duf
 
 # Git / 开发
 zi_cmd jesseduffield/lazygit lazygit
+# Television, Navi, Pay Respects, and Pet CLI binaries.
+zi_cmd alexpasmantier/television tv
+zi_cmd denisidoro/navi navi
+zi_cmd iffse/pay-respects pay-respects
+zi_cmd knqyf263/pet pet
 # delta 的二进制在 release 子目录里，直接 pick 实际路径
 zinit ice as"command" from"gh-r" pick"delta-*/delta"
 zinit light dandavison/delta
