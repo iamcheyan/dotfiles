@@ -78,10 +78,6 @@ zsh_plugins_load_main() {
 
 # 可选 CLI 工具的 shell 集成。工具缺失时跳过，保持最小环境可启动。
 zsh_plugins_load_shell_tools() {
-  if command -v tv >/dev/null 2>&1; then
-    eval "$(tv init zsh)"
-  fi
-
   if command -v navi >/dev/null 2>&1; then
     eval "$(navi widget zsh)"
   fi

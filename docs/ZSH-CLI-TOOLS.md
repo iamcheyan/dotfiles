@@ -1,6 +1,6 @@
 # Zsh 交互式命令行工具
 
-本文说明本仓库接入的六个工具：forgit、Television、navi、Pay Respects、Pet 和 Inshellisense。它们分别覆盖 Git 交互操作、模糊查找、命令速查、命令纠错、命令片段管理和命令行补全。
+本文说明本仓库接入的五个工具：forgit、navi、Pay Respects、Pet 和 Inshellisense。它们分别覆盖 Git 交互操作、命令速查、命令纠错、命令片段管理和命令行补全。
 
 ## 安装与初始化
 
@@ -10,7 +10,7 @@
 bash init.sh
 ```
 
-`init.sh` 会在 Node.js/npm 可用时安装 `@microsoft/inshellisense` 并执行 `is init`。TV、navi、Pay Respects 和 Pet 作为 CLI 工具由 `plugins/tools/tools.zsh` 中的 Zinit 配置管理；forgit 由 `plugins/zsh-plugins.zsh` 加载。首次启动 Zsh 时，Zinit 会下载尚未安装的工具和插件。随后重新启动 shell：
+`init.sh` 会在 Node.js/npm 可用时安装 `@microsoft/inshellisense` 并执行 `is init`。navi、Pay Respects 和 Pet 作为 CLI 工具由 `plugins/tools/tools.zsh` 中的 Zinit 配置管理；forgit 由 `plugins/zsh-plugins.zsh` 加载。首次启动 Zsh 时，Zinit 会下载尚未安装的工具和插件。随后重新启动 shell：
 
 ```bash
 exec zsh
@@ -19,7 +19,7 @@ exec zsh
 工具都是可选的。shell 配置仅在检测到对应命令时执行集成，因此某个工具安装失败不会影响 Zsh 启动。手动检查：
 
 ```bash
-command -v fzf tv navi pay-respects pet is
+command -v fzf navi pay-respects pet is
 ```
 
 forgit 需要 Git、fzf 0.60.0 或更新版本。`init.sh` 会安装 fzf；如果系统仓库提供的版本过旧，请按 [fzf 官方安装说明](https://github.com/junegunn/fzf#installation)升级。Inshellisense 需要 Node.js/npm；本仓库先通过 fnm 准备 Node.js，再通过 npm 全局安装。NixOS 的 Node.js 由系统配置管理，如果初始化时 npm 不可用，可在系统环境提供 Node.js 后运行：
@@ -47,7 +47,6 @@ is reinit
 | 工具 | 主要用途 | 入口 |
 | --- | --- | --- |
 | [forgit](https://github.com/wfxr/forgit) | 用 fzf 交互选择 Git 对象并执行 Git 操作 | `ga`、`glo`、`gcb` 等 |
-| [Television](https://github.com/alexpasmantier/television) | 通用模糊查找器及 shell 历史/补全选择 | `tv`、`Ctrl+R`、`Ctrl+T` |
 | [navi](https://github.com/denisidoro/navi) | 搜索、填充并运行 cheatsheet 命令 | `navi` 和其 Zsh widget |
 | [Pay Respects](https://github.com/iffse/pay-respects) | 根据失败命令给出修正建议 | 输入 `f` |
 | [Pet](https://github.com/knqyf263/pet) | 保存、搜索和复用命令片段 | `pet`、`Ctrl+X` 后 `Ctrl+R` |
@@ -81,19 +80,6 @@ export FORGIT_ADD_GIT_OPTS='--others --cached --modified'
 ```
 
 默认快捷命令较短，可能与个人别名冲突。forgit 支持在加载插件前通过 `forgit_add`、`forgit_log` 等变量改名；也可以设置 `FORGIT_NO_ALIASES=1` 禁用这些别名，仅使用 `forgit::...` 函数。
-
-## Television：通用模糊查找
-
-直接运行：
-
-```zsh
-tv                 # 默认文件频道
-tv text            # 搜索文件内容
-tv git-repos       # 搜索 Git 仓库
-tv --help          # 查看参数
-```
-
-Zsh 集成由 `tv init zsh` 提供：`Ctrl+T` 用于补全/选择，`Ctrl+R` 用于历史搜索。选择结果会回填命令行，确认前仍可编辑。Television 的频道和配置位于 `~/.config/television/`；可在 `cable/` 下增加 TOML 自定义频道。它与 fzf 并存，forgit 仍然使用 fzf。
 
 ## navi：交互式命令速查
 
@@ -162,8 +148,7 @@ pet --help                 # 查看其他子命令
 
 ## 快捷键和排错
 
-- Television 使用 `Ctrl+R`/`Ctrl+T`；当前配置中 Atuin 的上箭头历史搜索仍然保留。
-- Pet 使用 `Ctrl+X`、再按 `Ctrl+R`，不占用 `Ctrl+R`。
+- Pet 使用 `Ctrl+X`、再按 `Ctrl+R`，不占用 Atuin 的上箭头历史搜索。
 - forgit 的选择和预览按键只在其 fzf 窗口内生效。
 - Inshellisense 的 `Tab` 只在建议显示时接受其建议，否则按键交还 shell。
 
@@ -178,7 +163,7 @@ exec zsh
 
 ```zsh
 zinit list
-command -v tv navi pay-respects pet
+command -v navi pay-respects pet
 ```
 
-如果 shell 启动报错，可临时注释 `plugins/zsh-plugins.zsh` 中对应工具 hook，或直接确认该可执行文件能运行其初始化子命令（例如 `tv init zsh`）。所有 hook 都有 `command -v` 检查；工具尚未安装时会被跳过。
+如果 shell 启动报错，可临时注释 `plugins/zsh-plugins.zsh` 中对应工具 hook，或确认该可执行文件能运行其初始化子命令（例如 `navi widget zsh`）。所有 hook 都有 `command -v` 检查；工具尚未安装时会被跳过。

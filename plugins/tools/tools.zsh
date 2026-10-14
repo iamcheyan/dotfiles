@@ -19,8 +19,7 @@ zi_cmd muesli/duf duf
 
 # Git / 开发
 zi_cmd jesseduffield/lazygit lazygit
-# Television, Navi, Pay Respects, and Pet CLI binaries.
-zi_cmd alexpasmantier/television tv
+# Navi, Pay Respects, and Pet CLI binaries.
 zi_cmd denisidoro/navi navi
 zi_cmd iffse/pay-respects pay-respects
 zi_cmd knqyf263/pet pet

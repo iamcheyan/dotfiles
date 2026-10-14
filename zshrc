@@ -163,8 +163,7 @@ if [[ -r "$HOME/.atuin/bin/env" ]]; then
     source "$HOME/.atuin/bin/env"
 fi
 
-# Load the optional tool widgets after fzf and Atuin so Television owns its
-# documented Ctrl+R/Ctrl+T bindings.
+# Load optional tool widgets after fzf, while preserving Atuin's history bindings.
 zsh_plugins_load_shell_tools
 
 
