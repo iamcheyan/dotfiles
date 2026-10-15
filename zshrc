@@ -176,6 +176,12 @@ case ":$PATH:" in
 esac
 # <<< Photon CLI <<<
 
+# fnm exposes Node/npm's global package bin directory only after its lazy
+# environment is activated. Warm it before checking for the npm-installed `is`.
+if (( $+functions[node] )); then
+    node --version >/dev/null 2>&1 || true
+fi
+
 # Inshellisense recommends being the final shell integration. init.sh prepares
 # its local files; this hook stays optional when the npm package is unavailable.
 if command -v is >/dev/null 2>&1; then

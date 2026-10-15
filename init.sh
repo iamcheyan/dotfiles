@@ -470,8 +470,12 @@ install_inshellisense() {
         npm install --global @microsoft/inshellisense || return 1
     fi
 
-    is init
-    print_success "Inshellisense initialized"
+    if is init >/dev/null 2>&1; then
+        print_success "Inshellisense installed and initialized"
+    else
+        print_warning "Inshellisense is installed, but initialization failed; check 'is init' output"
+        return 1
+    fi
 }
 
 # Install Fresh Terminal IDE

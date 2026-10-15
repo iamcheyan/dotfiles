@@ -69,6 +69,15 @@ __fnm_lazy_dispatch() {
     local command_name="$1"
     shift
 
+    if ! __fnm_bin >/dev/null; then
+        # NixOS and other declarative setups may provide Node.js directly
+        # without installing fnm. Remove wrappers and use that system runtime.
+        unfunction node npm npx corepack 2>/dev/null || true
+        hash -r 2>/dev/null || true
+        command "$command_name" "$@"
+        return $?
+    fi
+
     __fnm_lazy_load || return $?
     unfunction node npm npx corepack 2>/dev/null || true
     hash -r 2>/dev/null || true
