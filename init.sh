@@ -470,12 +470,11 @@ install_inshellisense() {
         npm install --global @microsoft/inshellisense || return 1
     fi
 
-    if is init >/dev/null 2>&1; then
-        print_success "Inshellisense installed and initialized"
-    else
-        print_warning "Inshellisense is installed, but initialization failed; check 'is init' output"
+    if ! is init zsh >/dev/null 2>&1; then
+        print_warning "Inshellisense is installed, but Zsh initialization failed; check 'is init zsh'"
         return 1
     fi
+    print_success "Inshellisense installed and Zsh integration initialized"
 }
 
 # Install Fresh Terminal IDE

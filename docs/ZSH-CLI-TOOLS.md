@@ -10,7 +10,7 @@
 bash init.sh
 ```
 
-`init.sh` 会在 Node.js/npm 可用时安装 `@microsoft/inshellisense` 并执行 `is init`。navi、Pay Respects 和 Pet 作为 CLI 工具由 `plugins/tools/tools.zsh` 中的 Zinit 配置管理；forgit 由 `plugins/zsh-plugins.zsh` 加载。首次启动 Zsh 时，Zinit 会下载尚未安装的工具和插件。随后重新启动 shell：
+`init.sh` 会在 Node.js/npm 可用时安装 `@microsoft/inshellisense` 并执行 `is init zsh`，生成 Zsh 集成资源。交互式 Zsh 启动时会确保 Node 全局命令目录可用，然后 source 生成的集成入口；`is init` 自身输出的是 source 命令，不应直接当 shell 代码 eval。navi、Pay Respects 和 Pet 作为 CLI 工具由 `plugins/tools/tools.zsh` 中的 Zinit 配置管理；forgit 由 `plugins/zsh-plugins.zsh` 加载。首次启动 Zsh 时，Zinit 会下载尚未安装的工具和插件。随后重新启动 shell：
 
 ```bash
 exec zsh

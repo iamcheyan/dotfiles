@@ -182,8 +182,16 @@ if (( $+functions[node] )); then
     node --version >/dev/null 2>&1 || true
 fi
 
-# Inshellisense recommends being the final shell integration. init.sh prepares
-# its local files; this hook stays optional when the npm package is unavailable.
-if command -v is >/dev/null 2>&1; then
-    eval "$(is init zsh)"
+# Inshellisense's `is init zsh` creates its integration file and prints a
+# source command; it does not print shell code that can be eval'd directly.
+# Generate the file once, then source it. The integration starts a managed
+# shell only for interactive terminals and preserves this user's ZDOTDIR.
+if [[ -o interactive ]] && [[ -z "${ISTERM:-}" ]] && command -v is >/dev/null 2>&1; then
+    if [[ ! -r "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh" ]]; then
+        is init zsh >/dev/null 2>&1 || true
+    fi
+    if [[ -r "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh" ]]; then
+        export USER_ZDOTDIR="${ZDOTDIR:-$HOME}"
+        source "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh"
+    fi
 fi
