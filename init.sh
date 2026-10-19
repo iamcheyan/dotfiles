@@ -974,6 +974,126 @@ install_extra_tools() {
 }
 
 
+# ==============================================================
+# ===  WSL integration: win32yank for tmux-yank clipboard     ===
+# ==============================================================
+#
+# Goal: remove the WSL dependency on `clip.exe`.
+#
+# Background: tmux-yank picks its copy command by probing the environment.
+# In WSL it falls back to `cat | clip.exe`, a Windows-side binary that must
+# cross the WSL interop boundary (measured at ~200-800ms per spawn). Mouse
+# drag-select then runs it while copy-mode is already exiting, so terminal
+# query replies can land in the zsh line editor and show up as garbled
+# prompt/status text. Verified: `tmux set -g mouse off` made it disappear.
+#
+# win32yank.exe is a small native helper and is the documented replacement.
+# tmux-wsl.conf sets `@override_copy_command 'win32yank.exe -i --lf'`, so
+# this binary must be present on PATH.
+
+# Detect WSL.
+# Order matters: WSL_DISTRO_NAME first (most explicit), then the kernel
+# release string. WSL_INTEROP is deliberately NOT used because it is absent
+# when interop is disabled via /etc/wsl.conf.
+is_wsl() {
+    [[ -n "${WSL_DISTRO_NAME:-}" ]] && return 0
+    grep -qiE "microsoft|wsl" /proc/sys/kernel/osrelease 2>/dev/null && return 0
+    return 1
+}
+
+# Ensure ~/.local/bin exists and is on PATH for zsh.
+ensure_local_bin_on_path() {
+    local local_bin="$HOME/.local/bin"
+    mkdir -p "$local_bin" || return 1
+
+    # Already effective in this shell?
+    case ":$PATH:" in
+        *":$local_bin:"*) return 0 ;;
+    esac
+
+    local zshrc="$HOME/.zshrc"
+    [[ -f "$zshrc" ]] || return 0
+
+    if grep -q '\.local/bin' "$zshrc" 2>/dev/null; then
+        print_info "~/.local/bin is already referenced in ~/.zshrc"
+        return 0
+    fi
+
+    print_info "Adding ~/.local/bin to PATH in ~/.zshrc"
+    printf '\n# Ensure user-local binaries are available (added by dotfiles init.sh)\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$zshrc"
+    print_success "Added ~/.local/bin to PATH in ~/.zshrc (restart your shell)"
+}
+
+# Install win32yank.exe into ~/.local/bin when running under WSL.
+install_win32yank() {
+    local install_dir="$HOME/.local/bin"
+    local target="$install_dir/win32yank.exe"
+
+    if ! is_wsl; then
+        return 0
+    fi
+
+    print_info "WSL detected; checking win32yank.exe for tmux-yank clipboard"
+
+    ensure_local_bin_on_path
+
+    if command_exists win32yank.exe || [[ -x "$target" ]]; then
+        print_success "win32yank.exe is already installed"
+        return 0
+    fi
+
+    if ! command_exists curl; then
+        print_warning "curl is unavailable; cannot download win32yank.exe"
+        return 1
+    fi
+
+    print_info "Downloading win32yank-x64.zip from GitHub releases"
+    local zip_url="https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip"
+    local tmp_dir
+    tmp_dir=$(mktemp -d) || return 1
+    # shellcheck disable=SC2064
+    trap "rm -rf '$tmp_dir'" RETURN
+
+    if ! curl -fsSL "$zip_url" -o "$tmp_dir/win32yank.zip"; then
+        print_warning "Failed to download win32yank"
+        return 1
+    fi
+
+    if command_exists unzip; then
+        if ! unzip -o -q "$tmp_dir/win32yank.zip" -d "$tmp_dir"; then
+            print_warning "Failed to extract win32yank.zip"
+            return 1
+        fi
+    elif command_exists python3; then
+        if ! python3 - "$tmp_dir/win32yank.zip" "$tmp_dir" <<'PY'
+import sys, zipfile
+zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])
+PY
+        then
+            print_warning "Failed to extract win32yank.zip"
+            return 1
+        fi
+    else
+        print_warning "Neither unzip nor python3 is available; cannot extract win32yank"
+        return 1
+    fi
+
+    local extracted
+    extracted=$(find "$tmp_dir" -type f -name 'win32yank.exe' | head -n 1)
+    if [[ -z "$extracted" ]]; then
+        print_warning "win32yank.exe not found in the downloaded archive"
+        return 1
+    fi
+
+    mkdir -p "$install_dir" || return 1
+    cp "$extracted" "$target" || return 1
+    chmod +x "$target" || return 1
+
+    print_success "win32yank.exe installed to $target"
+    print_info "tmux-wsl.conf uses 'win32yank.exe -i --lf'; reload tmux with: tmux source-file ~/.config/tmux/tmux.conf"
+}
+
+
 # Main function
 main() {
     # Parse arguments
@@ -1126,6 +1246,12 @@ EOF
     # 12. Install additional tools
     print_info "Step 12/12: Installing additional tools (Docker, Zellij)"
     run_step "extra tools install" install_extra_tools
+    echo ""
+
+    # WSL only: install win32yank.exe so tmux-yank stops using clip.exe.
+    # The guard lives inside the function, so non-WSL hosts do nothing.
+    print_info "WSL: Checking tmux-yank clipboard helper (win32yank.exe)"
+    run_step "win32yank install" install_win32yank
     echo ""
 
     # Completion message
