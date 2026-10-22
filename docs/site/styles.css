@@ -1,0 +1,188 @@
+@import url("https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i");
+
+/* ---------------------------------------------------------------------------
+   dotfiles.iamcheyan.com
+
+   Layout and typography follow dotfiles.github.io: a fixed 270px header column
+   on the left holding the title, tagline and stacked navigation, and a 500px
+   content column on the right. Lato throughout, black on white, blue links,
+   light grey code blocks, hairline rules. No dark theme, no accent colour
+   beyond the link blue — that restraint is the point of the reference.
+   --------------------------------------------------------------------------- */
+
+body {
+  padding: 50px;
+  font: 16px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #000;
+  font-weight: 500;
+}
+
+h1, h2, h3, h4, h5, h6 { color: #222; margin: 0 0 20px; }
+p, ul, ol, table, pre, dl { margin: 0 0 20px; }
+h1, h2, h3 { line-height: 1.4em; }
+h1 { font-size: 28px; }
+h2 { color: #393939; margin-top: 1.4em; }
+h3 { color: #393939; margin-bottom: .6em; }
+h4, h5, h6 { color: #494949; margin-bottom: 10px; }
+
+a { color: #0011cf; font-weight: 600; text-decoration: none; }
+a:hover { color: #069; }
+
+.wrapper { width: 860px; margin: 0 auto; }
+
+blockquote {
+  border-left: 1px solid #e5e5e5;
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-style: italic;
+}
+
+code {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal;
+  color: #333;
+  font-size: 12px;
+}
+
+pre {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal;
+  color: #333;
+  font-size: 12px;
+  padding: 8px 15px;
+  background: #f8f8f8;
+  border-radius: 5px;
+  border: 1px solid #e5e5e5;
+  overflow-x: auto;
+}
+
+pre code { padding: 0; border: 0; background: none; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 5px 10px; border-bottom: 1px solid #e5e5e5; }
+th { color: #444; }
+dt { color: #444; font-weight: 700; }
+dd { margin-bottom: 20px; }
+img { max-width: 100%; }
+strong { color: #222; font-weight: 700; }
+small { font-size: 11px; }
+hr { border: 0; background: #e5e5e5; height: 1px; margin: 0 0 20px; }
+li { margin-bottom: .4em; }
+
+h1 code, h2 code, h3 code {
+  font-size: .8em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal;
+}
+
+/* ------------------------------------------------------------------ header */
+
+header {
+  width: 270px;
+  float: left;
+  position: fixed;
+}
+
+.site-title { margin: 0 0 6px; font-size: 22px; font-weight: 700; line-height: 1.3; }
+.site-title a { color: #222; font-weight: 700; }
+.site-title a:hover { color: #069; }
+
+.site-tagline { margin: 0 0 22px; color: #666; font-size: 13px; line-height: 1.5; }
+
+header nav { font-size: 14px; max-height: calc(100vh - 210px); overflow-y: auto; }
+header nav::-webkit-scrollbar { width: 6px; }
+header nav::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+header nav::-webkit-scrollbar-track { background: transparent; }
+
+.nav-section {
+  display: block;
+  padding: 3px 0;
+  color: #0011cf;
+  font-weight: 600;
+}
+.nav-section:hover { color: #069; }
+.nav-section.active { color: #000; }
+.nav-section .nav-num {
+  display: inline-block;
+  width: 1.9em;
+  color: #999;
+  font-size: 11px;
+  font-weight: 500;
+}
+.nav-section.active .nav-num { color: #666; }
+
+.nav-docs {
+  margin: 4px 0 12px 1.9em;
+  padding-left: 10px;
+  border-left: 1px solid #e5e5e5;
+  max-height: 46vh;
+  overflow-y: auto;
+}
+.nav-docs::-webkit-scrollbar { width: 5px; }
+.nav-docs::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 3px; }
+.nav-doc {
+  display: block;
+  padding: 1px 0;
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+}
+.nav-doc:hover { color: #069; }
+.nav-doc.active { color: #000; font-weight: 700; }
+
+.site-meta {
+  margin: 26px 0 0;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #777;
+}
+.site-meta a { font-weight: 500; }
+
+/* ----------------------------------------------------------------- section */
+
+section {
+  width: 500px;
+  float: right;
+  padding-bottom: 50px;
+}
+
+section > h1:first-child { margin-bottom: 20px; }
+
+.pager {
+  margin-top: 34px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e5e5;
+  font-size: 13px;
+}
+.pager a { font-weight: 600; }
+.pager-sep { color: #ccc; }
+
+/* ------------------------------------------------------------- responsive */
+
+@media print, screen and (max-width: 960px) {
+  div.wrapper { width: auto; margin: 0; }
+  header, section { float: none; position: static; width: auto; }
+  header { padding-right: 320px; }
+  section { border: 1px solid #e5e5e5; border-width: 1px 0; padding: 20px 0; margin: 0 0 20px; }
+  .nav-docs { margin-bottom: 6px; }
+}
+
+@media print, screen and (max-width: 720px) {
+  body { word-wrap: break-word; }
+  header { padding: 0; }
+  pre, code { word-wrap: normal; }
+}
+
+@media print, screen and (max-width: 720px) {
+  .nav-docs { max-height: 200px; }
+}
+
+@media print, screen and (max-width: 480px) {
+  body { padding: 15px; }
+  header nav { max-height: 260px; }
+  .nav-docs { max-height: 180px; }
+  .site-meta { margin-top: 12px; }
+}
+
+@media print {
+  body { padding: .4in; font-size: 12pt; color: #444; }
+  header { display: none; }
+  section { width: auto; float: none; border: 0; padding: 0; }
+}

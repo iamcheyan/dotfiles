@@ -182,70 +182,62 @@ def render_md(text: str) -> str:
     return MD.convert(text)
 
 
-def top_nav(section: str, prefix: str = "../") -> str:
-    return "\n".join(
-        f'<a class="top-link{" current" if slug == section else ""}" href="{prefix}{slug}/index.html">'
-        f"<span>{num}</span>{esc(label)}</a>"
-        for slug, label, num in NAV
-    )
+# ---------------------------------------------------------------------------
+# Layout — modelled on dotfiles.github.io: a fixed 270px header column on the
+# left (site title, tagline, stacked navigation) and a 500px content column on
+# the right. Lato, black on white, blue links, light grey code blocks.
+# ---------------------------------------------------------------------------
+
+TAGLINE = "Your unofficial guide to this dotfiles setup."
 
 
-def rail(section: str, current_doc: str) -> str:
-    _slug, label, _scope, docs = BY_SLUG[section]
-    items = "\n".join(
-        f'<a class="rail-link{" current" if d[0] == current_doc else ""}" href="{d[0]}.html">'
-        f"<span>{esc(d[1])}</span></a>"
-        for d in docs
-    )
-    return f'''<aside class="side-rail">
-      <p class="rail-title">{esc(label)}</p>
-      <nav class="rail-nav">{items}</nav>
-      <div class="rail-note">
-        <p class="rail-note-k">来源</p>
-        <p><code>iamcheyan/dotfiles</code></p>
-        <p class="rail-note-k">正文依据</p>
-        <p>仓库中已跟踪的脚本与配置文件</p>
-      </div>
-    </aside>'''
+def side_nav(section: str, doc: str, prefix: str) -> str:
+    """Stacked navigation: the six sections, with the active one expanded."""
+    parts = []
+    for slug, label, num in NAV:
+        active = slug == section
+        parts.append(
+            f'<a class="nav-section{" active" if active else ""}" href="{prefix}{slug}/index.html">'
+            f"<span class=\"nav-num\">{num}</span>{esc(label)}</a>"
+        )
+        if active:
+            docs = BY_SLUG[slug][3]
+            links = "\n".join(
+                f'<a class="nav-doc{" active" if d[0] == doc else ""}" href="{prefix}{slug}/{d[0]}.html">{esc(d[1])}</a>'
+                for d in docs
+            )
+            parts.append(f'<div class="nav-docs">{links}</div>')
+    return "\n".join(parts)
 
 
-def masthead(section: str, prefix: str = "../") -> str:
-    return f'''<header class="masthead">
-  <div class="masthead-inner">
-    <a class="wordmark" href="{prefix}index.html">
-      <span class="wordmark-rule"></span>
-      <span class="wordmark-text">Dotfiles</span>
-      <span class="wordmark-sub">配置手册</span>
-    </a>
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">目录</button>
-    <nav class="top-nav" id="site-nav">{top_nav(section, prefix)}</nav>
-    <div class="masthead-actions">
-      <a class="ghost-link" href="https://github.com/{SITE["repo"]}">GitHub</a>
-      <button class="theme-toggle" type="button" aria-label="切换明暗主题"><span class="theme-glyph"></span></button>
-    </div>
-  </div>
+def header(section: str, doc: str, prefix: str) -> str:
+    return f'''<header>
+  <p class="site-title"><a href="{prefix}index.html">dotfiles</a></p>
+  <p class="site-tagline"><em>{TAGLINE}</em></p>
+  <nav>
+    {side_nav(section, doc, prefix)}
+  </nav>
+  <p class="site-meta"><a href="https://github.com/{SITE["repo"]}">GitHub repository</a><br>
+  <a href="https://nvim.iamcheyan.com">Neovim configuration</a></p>
 </header>'''
 
 
-def doc_pager(section: str, doc: str) -> str:
+def pager(section: str, doc: str, prefix: str) -> str:
     docs = BY_SLUG[section][3]
     i = next(n for n, d in enumerate(docs) if d[0] == doc)
     prev_d = docs[i - 1] if i > 0 else None
     next_d = docs[i + 1] if i + 1 < len(docs) else None
     left = (
-        f'<a href="{prev_d[0]}.html"><span class="pager-k">上一篇</span>'
-        f'<span class="pager-t">{esc(prev_d[1])}</span></a>'
+        f'<a href="{prefix}{section}/{prev_d[0]}.html">&larr; {esc(prev_d[1])}</a>'
         if prev_d
-        else '<span class="pager-empty"></span>'
+        else ""
     )
     right = (
-        f'<a class="pager-next" href="{next_d[0]}.html"><span class="pager-k">下一篇</span>'
-        f'<span class="pager-t">{esc(next_d[1])}</span></a>'
+        f'<a href="{prefix}{section}/{next_d[0]}.html">{esc(next_d[1])} &rarr;</a>'
         if next_d
-        else '<a class="pager-next" href="../index.html"><span class="pager-k">回到总目录</span>'
-        '<span class="pager-t">全部章节</span></a>'
+        else f'<a href="{prefix}{section}/index.html">{esc(BY_SLUG[section][1])} index &rarr;</a>'
     )
-    return f'<nav class="chapter-pager" aria-label="文档翻页">{left}{right}</nav>'
+    return f'<p class="pager">{left}<span class="pager-sep"> · </span>{right}</p>'
 
 
 def page(section: str, doc: str) -> tuple[dict, str]:
@@ -258,96 +250,59 @@ def page(section: str, doc: str) -> tuple[dict, str]:
     searchable = re.sub(r"\s+", " ", re.sub(r"[`#>*|]", " ", text))
     text = re.sub(r"^> 摘要：.+\n\n", "", text, count=1, flags=re.M)
     text = re.sub(r"^# .+\n+", "", text, count=1)
-    num = DOC_INDEX[f"{section}/{doc}"][5]
     body = render_md(text)
-    html = f'''<!doctype html>
-<html lang="zh-CN" data-theme="light">
+    html = f'''<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{esc(desc)}">
-  <meta name="theme-color" content="#f4efe4">
-  <title>{esc(title)} · {esc(BY_SLUG[section][1])} · Dotfiles</title>
-  <link rel="canonical" href="{SITE["url"]}/{section}/{doc}.html">
-  <link rel="stylesheet" href="../assets/site.css">
-  <script defer src="../assets/site.js"></script>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
+<title>{esc(title)} - dotfiles.iamcheyan.com</title>
+<meta name="description" content="{esc(desc)}">
+<link href="../stylesheets/styles.css" rel="stylesheet">
 </head>
-<body class="chapter-body">
-<a class="skip" href="#content">跳到正文</a>
-{masthead(section)}
-<div class="page-shell">
-  {rail(section, doc)}
-  <main id="content" class="chapter-main">
-    <nav class="breadcrumb"><a href="../index.html">总目录</a><span aria-hidden="true">/</span><a href="index.html">{esc(BY_SLUG[section][1])}</a></nav>
-    <header class="chapter-head">
-      <div class="chapter-num" aria-hidden="true">{num}</div>
-      <div class="chapter-heading">
-        <p class="chapter-kicker">{esc(BY_SLUG[section][1])} · {num} / 06</p>
-        <h1>{esc(title)}</h1>
-        <p class="standfirst">{esc(desc)}</p>
-      </div>
-    </header>
-    <article class="prose">{body}</article>
-    {doc_pager(section, doc)}
-    <footer class="colophon">
-      <p>Dotfiles 配置手册 · <code>iamcheyan/dotfiles</code></p>
-      <p><a href="https://github.com/{SITE["repo"]}">查看源文件</a> · <a href="../index.html">回到总目录</a></p>
-    </footer>
-  </main>
+<body>
+<div class="wrapper">
+{header(section, doc, "../")}
+<section>
+<h1 id="{esc(doc)}">{esc(title)}</h1>
+{body}
+{pager(section, doc, "../")}
+</section>
 </div>
-</body></html>'''
+</body>
+</html>'''
     meta = {"title": title, "description": desc, "section": section, "doc": doc, "search_text": searchable}
     return meta, html
 
 
 def section_index(section: str) -> tuple[dict, str]:
     slug, label, scope, docs = BY_SLUG[section]
-    num = next(n for s, _l, n in NAV if s == section)
-    rows = "\n".join(
-        f'''<a class="toc-row" href="{d[0]}.html">
-        <span class="toc-num">{i + 1:02d}</span>
-        <span class="toc-title">{esc(d[1])}</span>
-        <span class="toc-leader" aria-hidden="true"></span>
-        <span class="toc-note">{esc(d[2])}</span>
-        <span class="toc-arrow" aria-hidden="true">→</span>
-      </a>'''
-        for i, d in enumerate(docs)
+    items = "\n".join(
+        f'<li><a href="{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>'
+        for d in docs
     )
-    html = f'''<!doctype html>
-<html lang="zh-CN" data-theme="light">
+    html = f'''<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{esc(scope)}">
-  <meta name="theme-color" content="#f4efe4">
-  <title>{esc(label)} · Dotfiles 配置手册</title>
-  <link rel="canonical" href="{SITE["url"]}/{section}/">
-  <link rel="stylesheet" href="../assets/site.css">
-  <script defer src="../assets/site.js"></script>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
+<title>{esc(label)} - dotfiles.iamcheyan.com</title>
+<meta name="description" content="{esc(scope)}">
+<link href="../stylesheets/styles.css" rel="stylesheet">
 </head>
-<body class="chapter-body">
-<a class="skip" href="#content">跳到正文</a>
-{masthead(section)}
-<div class="page-shell">
-  {rail(section, "index")}
-  <main id="content" class="chapter-main">
-    <nav class="breadcrumb"><a href="../index.html">总目录</a><span aria-hidden="true">/</span><span>{esc(label)}</span></nav>
-    <header class="chapter-head">
-      <div class="chapter-num" aria-hidden="true">{num}</div>
-      <div class="chapter-heading">
-        <p class="chapter-kicker">Field guide · {num} / 06</p>
-        <h1>{esc(label)}</h1>
-        <p class="standfirst">{esc(scope)}。本章共 {len(docs)} 篇文档。</p>
-      </div>
-    </header>
-    <article class="prose"><div class="toc">{rows}</div></article>
-    <footer class="colophon">
-      <p>Dotfiles 配置手册 · <code>iamcheyan/dotfiles</code></p>
-      <p><a href="https://github.com/{SITE["repo"]}">查看源文件</a> · <a href="../index.html">回到总目录</a></p>
-    </footer>
-  </main>
+<body>
+<div class="wrapper">
+{header(section, "index", "../")}
+<section>
+<h1 id="{esc(slug)}">{esc(label)}</h1>
+<p>{esc(scope)}</p>
+<ul>
+{items}
+</ul>
+</section>
 </div>
-</body></html>'''
+</body>
+</html>'''
     return {"title": label, "description": scope, "section": section, "doc": "index", "search_text": scope}, html
 
 
@@ -356,128 +311,69 @@ def home(all_meta: list[dict]) -> str:
     for slug, label, num in NAV:
         _s, _l, scope, docs = BY_SLUG[slug]
         items = "\n".join(
-            f'<a class="doc-link" href="{slug}/{d[0]}.html">'
-            f'<span class="doc-num">{i + 1:02d}</span>'
-            f'<span class="doc-title">{esc(d[1])}</span>'
-            f'<span class="doc-note">{esc(d[2])}</span></a>'
-            for i, d in enumerate(docs)
+            f'<li><a href="{slug}/{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>'
+            for d in docs
         )
         sections_html.append(
-            f'''<section class="section-block">
-        <header class="section-block-head">
-          <span class="section-num">{num}</span>
-          <div class="section-meta">
-            <h2><a href="{slug}/index.html">{esc(label)}</a></h2>
-            <p>{esc(scope)}</p>
-          </div>
-          <span class="section-count">{len(docs)} 篇</span>
-        </header>
-        <div class="doc-list">{items}</div>
-      </section>'''
+            f'''<h2><a href="{slug}/index.html">{esc(label)}</a></h2>
+<p>{esc(scope)} — {len(docs)} documents.</p>
+<ul>
+{items}
+</ul>'''
         )
-    index = json.dumps(
-        [
-            {
-                "title": m["title"],
-                "description": m["description"],
-                "url": f'{m["section"]}/{m["doc"]}.html',
-                "text": m["search_text"][:9000],
-            }
-            for m in all_meta
-        ],
-        ensure_ascii=False,
-        separators=(",", ":"),
-    )
     total = sum(len(s[3]) for s in SECTIONS)
-    return f'''<!doctype html>
-<html lang="zh-CN" data-theme="light">
+    return f'''<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{esc(SITE["tagline"])}。{total} 篇文档，逐项说明 Zsh、命令行工具、配置文件和自研脚本。">
-  <meta name="theme-color" content="#f4efe4">
-  <title>Dotfiles · 配置手册</title>
-  <link rel="canonical" href="{SITE["url"]}/">
-  <link rel="stylesheet" href="assets/site.css">
-  <script defer src="assets/site.js"></script>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
+<title>dotfiles.iamcheyan.com</title>
+<meta name="description" content="{esc(SITE["tagline"])}">
+<link href="stylesheets/styles.css" rel="stylesheet">
 </head>
-<body class="home-body">
-<a class="skip" href="#content">跳到正文</a>
-{masthead("home", "")}
-<main id="content" class="home-main">
-
-  <section class="masthead-block">
-    <p class="masthead-line"><span>Public configuration</span><span>Edition 2026 · {total} documents</span></p>
-    <h1>把终端配置<br><em>写成一本可以查的手册。</em></h1>
-    <div class="masthead-body">
-      <p class="lead">{esc(SITE["tagline"])}。六个章节、{total} 篇文档：每个工具单独一篇，正文对应仓库里真实存在的脚本与配置，不写推测的用法。</p>
-      <dl class="colophon-list">
-        <div><dt>平台</dt><dd>Linux · macOS · WSL</dd></div>
-        <div><dt>入口</dt><dd><code>zshrc</code> + <code>dotlink</code></dd></div>
-        <div><dt>编辑器</dt><dd>Neovim 0.12+</dd></div>
-        <div><dt>文档</dt><dd>{total} 篇 / 6 章</dd></div>
-      </dl>
-    </div>
-    <p class="masthead-cta"><a class="cta" href="start/index.html">从第 01 章开始</a><a class="cta-quiet" href="https://github.com/{SITE["repo"]}">直接看仓库</a></p>
-  </section>
-
-  <section class="contents" aria-labelledby="contents-title">
-    <div class="contents-head">
-      <h2 id="contents-title">总目录</h2>
-      <label class="search"><span class="search-icon" aria-hidden="true">⌕</span><input id="site-search" type="search" placeholder="搜索 {total} 篇文档" autocomplete="off" aria-label="搜索文档"><kbd>/</kbd></label>
-    </div>
-    <p class="search-hint" id="search-hint">可以搜 <code>dotlink</code>、<code>fzf</code>、<code>nvim-update</code>、<code>Vifm</code>、<code>--minimal</code></p>
-    <div class="search-results" id="search-results" hidden></div>
-    <div class="section-grid" id="section-grid">
-      {"".join(sections_html)}
-    </div>
-    <p class="no-results" id="no-results" hidden>没有匹配的文档。试试工具名或命令名。</p>
-  </section>
-
-  <section class="boundary-note">
-    <p class="boundary-kicker">Scope</p>
-    <p class="boundary-text">本站只讲可公开复用的 Zsh、CLI 与应用配置。系统包、机器专属编排和凭据属于其它仓库，不在这里索引。</p>
-    <a class="boundary-link" href="maintenance/boundaries.html">仓库边界与更新方式 →</a>
-  </section>
-
-  <footer class="colophon colophon-home">
-    <p>Dotfiles 配置手册 · <code>iamcheyan/dotfiles</code></p>
-    <p><a href="https://github.com/{SITE["repo"]}">GitHub</a> · <a href="https://nvim.iamcheyan.com">Neovim 配置</a> · <a href="sitemap.xml">站点地图</a></p>
-  </footer>
-</main>
-<script type="application/json" id="search-index">{index}</script>
-</body></html>'''
+<body>
+<div class="wrapper">
+{header("home", "", "")}
+<section>
+<h1 id="dotfiles">dotfiles.iamcheyan.com</h1>
+<p>{esc(SITE["tagline"])}。{total} documents in six sections. Each tool has its own
+page: what it does, how to invoke it, which flags matter, and what this
+repository actually configures.</p>
+<p><a href="start/index.html">Start with installation &rarr;</a></p>
+{"".join(sections_html)}
+</section>
+</div>
+</body>
+</html>'''
 
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    assets = OUT / "assets"
-    assets.mkdir(exist_ok=True)
-    shutil.copy2(SITE_ROOT / "site.css", assets / "site.css")
-    shutil.copy2(SITE_ROOT / "site.js", assets / "site.js")
+    sheets = OUT / "stylesheets"
+    sheets.mkdir(exist_ok=True)
+    shutil.copy2(SITE_ROOT / "styles.css", sheets / "styles.css")
 
-    all_meta: list[dict] = []
     written = 0
     for slug, label, num in NAV:
         sdir = OUT / slug
         sdir.mkdir(exist_ok=True)
         for doc, _t, _s in BY_SLUG[slug][3]:
-            meta, html = page(slug, doc)
-            all_meta.append(meta)
+            _meta, html = page(slug, doc)
             (sdir / f"{doc}.html").write_text(
                 "\n".join(line.rstrip() for line in html.splitlines()) + "\n", encoding="utf-8"
             )
             written += 1
 
     (OUT / "index.html").write_text(
-        "\n".join(line.rstrip() for line in home(all_meta).splitlines()) + "\n", encoding="utf-8"
+        "\n".join(line.rstrip() for line in home([]).splitlines()) + "\n", encoding="utf-8"
     )
     (OUT / "CNAME").write_text("dotfiles.iamcheyan.com\n", encoding="utf-8")
     (OUT / "robots.txt").write_text(
         "User-agent: *\nAllow: /\nSitemap: https://dotfiles.iamcheyan.com/sitemap.xml\n",
         encoding="utf-8",
     )
-    urls = ["", *[f'{m["section"]}/{m["doc"]}.html' for m in all_meta], *[f"{s[0]}/" for s in SECTIONS]]
+    urls = ["", *[f"{s[0]}/" for s in SECTIONS]]
+    urls += [f"{s[0]}/{d[0]}.html" for s in SECTIONS for d in s[3]]
     sitemap = "".join(f'<url><loc>{SITE["url"]}/{u}</loc></url>' for u in urls)
     (OUT / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
