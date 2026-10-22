@@ -657,6 +657,70 @@ code, kbd, pre { font-family: var(--mono); }
   .prose table { font-size: .8rem; }
 }
 
+
+/* ------------------------------------------------ home: section blocks -- */
+
+.section-grid { display: grid; gap: 2.6rem; }
+
+.section-block { border-top: 1px solid var(--ink); padding-top: 1.1rem; }
+
+.section-block-head {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: .9rem;
+}
+.section-num {
+  font: 400 1.9rem/1 var(--serif);
+  color: var(--vermilion);
+  letter-spacing: -.03em;
+}
+.section-meta h2 { margin: 0; font: 500 1.22rem/1.3 var(--serif); }
+.section-meta h2 a { color: var(--ink); }
+.section-meta h2 a:hover { color: var(--vermilion); text-decoration: none; }
+.section-meta p { margin: .18rem 0 0; font: .78rem/1.5 var(--sans); color: var(--muted); }
+.section-count {
+  font: .7rem/1.4 var(--mono);
+  color: var(--faint);
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.doc-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2.4rem; }
+
+.doc-link {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, auto) minmax(0, 1fr);
+  align-items: baseline;
+  gap: .55rem;
+  padding: .42rem 0;
+  border-bottom: 1px dotted var(--rule-soft);
+  color: var(--body);
+}
+.doc-link:hover { text-decoration: none; }
+.doc-link:hover .doc-title { color: var(--vermilion); }
+.doc-num { font: .7rem/1.6 var(--mono); color: var(--faint); }
+.doc-title { font: .88rem/1.5 var(--sans); color: var(--ink); white-space: nowrap; }
+.doc-note {
+  font: .72rem/1.5 var(--sans);
+  color: var(--faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-results { display: grid; gap: .2rem; margin-bottom: 1.6rem; }
+.search-results .doc-link { grid-template-columns: 2rem minmax(0, auto) minmax(0, 1fr); }
+
+@media (max-width: 860px) {
+  .doc-list { grid-template-columns: 1fr; gap: 0; }
+  .doc-link { grid-template-columns: 1.7rem minmax(0, 1fr); }
+  .doc-note { display: none; }
+  .section-block-head { grid-template-columns: 2.4rem minmax(0, 1fr) auto; gap: .7rem; }
+  .section-num { font-size: 1.5rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; }

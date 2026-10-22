@@ -1,0 +1,155 @@
+> 摘要：atuin/config.toml 关闭自动同步与更新检查，其余用默认值。
+
+# Atuin 配置
+
+## 文件位置
+
+| 项目 | 路径 |
+|---|---|
+| 仓库源文件 | `config/atuin/config.toml` |
+| 部署目标 | `~/.config/atuin/`（整个目录） |
+| 是否自动链接 | 是 |
+| 数据文件 | `~/.local/share/atuin/history.db` |
+
+注意部署的是**整个目录**，不是单个文件。所以目录里如果有其它文件（比如 `atuin-receipt.json`），也会一起部署。
+
+## 实际生效的设置
+
+配置里只有三行是取消注释的：
+
+```toml
+auto_sync = false
+update_check = false
+enter_accept = true
+```
+
+| 设置 | 值 | 原因 |
+|---|---|---|
+| `auto_sync` | `false` | 不自动上传历史到 Atuin 服务器 |
+| `update_check` | `false` | 启动时不检查新版本，减少网络请求 |
+| `enter_accept` | `true` | 按 Enter 直接执行选中的命令 |
+
+`auto_sync = false` 是隐私相关的默认：历史里可能有 token、内部地址、临时命令，不主动上传。
+
+`enter_accept = true` 影响操作习惯：Enter 执行，Tab 才回到命令行编辑。
+
+## 被注释的选项
+
+文件保留了上游默认配置的完整注释，方便按需开启。几个值得注意的：
+
+### 搜索行为
+
+```toml
+# search_mode = "fuzzy"
+# filter_mode = "global"
+# filter_mode_shell_up_key_binding = "global"
+# search_mode_shell_up_key_binding = "fuzzy"
+```
+
+| 值 | 含义 |
+|---|---|
+| `prefix` | 前缀匹配 |
+| `fulltext` | 全文匹配 |
+| `fuzzy` | 模糊匹配 |
+| `skim` | skim 风格 |
+
+`filter_mode` 可选 `global`、`host`、`session`、`session-preload`、`directory`、`workspace`。
+
+### 界面
+
+```toml
+# style = "auto"
+# inline_height = 0
+# invert = false
+# show_preview = true
+# show_help = true
+# show_tabs = true
+```
+
+| 设置 | 说明 |
+|---|---|
+| `style` | `auto`、`full`、`compact` |
+| `inline_height` | 0 表示全屏 |
+| `invert` | 搜索框放底部 |
+| `show_preview` | 长命令预览 |
+
+### 隐私过滤
+
+```toml
+# history_filter = [
+#   "^secret-cmd",
+#   "^innocuous-cmd .*--secret=.+",
+# ]
+
+# cwd_filter = [
+#   "^/very/secret/area",
+# ]
+
+# secrets_filter = true
+```
+
+`secrets_filter` 默认开启，会过滤疑似 AWS key、GitHub token、Slack token、Stripe key 的命令。
+
+需要更严格时启用 `history_filter` 正则：
+
+```toml
+history_filter = [
+  "^export .*TOKEN",
+  "^curl .*Authorization",
+]
+```
+
+### 存储位置
+
+```toml
+# db_path = "~/.history.db"
+# key_path = "~/.key"
+# session_path = "~/.session"
+```
+
+默认在系统数据目录，符合 XDG 规范。
+
+## 同步配置
+
+启用同步需要：
+
+```toml
+auto_sync = true
+sync_address = "https://api.atuin.sh"
+sync_frequency = "10m"
+```
+
+然后：
+
+```bash
+atuin register -u <user> -e <email> -p
+atuin login -u <user> -p
+atuin sync
+```
+
+**同步是端到端加密的**，密钥不上传。但历史内容会存到 Atuin 服务器。启用前确认历史里没有敏感信息。
+
+## 验证
+
+```bash
+atuin info              # 显示配置和数据文件位置
+atuin doctor            # 健康检查
+atuin status            # 同步状态
+atuin default-config    # 打印完整默认配置
+```
+
+`atuin info` 会显示实际生效的配置文件路径，用于确认是否读到了本仓库的配置。
+
+## 排错
+
+**配置没生效**：`atuin info` 看路径。可能链接没建立，或 Atuin 读的是别的路径。
+
+**同步报错**：`auto_sync = false` 时不该有同步请求。如果看到同步错误，说明某处覆盖了配置。
+
+**历史没记录**：`atuin init zsh` 的 hook 没生效。
+
+**Enter 直接执行了不想执行的命令**：这是 `enter_accept = true` 的效果。改按 Tab，或把配置改成 `false`。
+
+**敏感命令进了历史**：启用 `history_filter` 正则，或事后 `atuin history delete`。
+
+**多机历史冲突**：`atuin status` 查看，必要时 `atuin sync --force`。
