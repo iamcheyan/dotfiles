@@ -61,9 +61,28 @@ exec zsh
 bash ~/dotfiles/dotlink/dotlink link
 ```
 
-## 4. 路径与跨平台规则
+## 4. 路径与跨平台规则（强制）
 
-- 使用 `$HOME`、`~` 和相对路径；禁止写死 `/Users/<name>` 或 `/home/<name>`。
+**任何 agent 写入本仓库的文件，一律使用环境变量，禁止硬编码个人路径。**
+
+- 使用 `$HOME`、`${HOME}`、`~` 和相对路径；**禁止写死任何具体用户目录**（各操作系统的「用户主目录 + 用户名」形式一律不允许出现在代码、配置和文档里）。
+- 需要引用本仓库位置时用 `${DOTFILES_DIR:-$HOME/dotfiles}`（init.sh 里已有此约定）。
+- 需要引用工具安装位置时用 `$HOME/.local/bin`、`$HOME/.config`、`${XDG_CONFIG_HOME:-$HOME/.config}` 等，不要展开成绝对路径。
+- 脚本里的用户名、机器名用 `$(whoami)`、`$(hostname)` 取，不要写死。
+- 这不仅是可移植性问题：硬编码路径会泄露用户名和机器结构。git pre-commit/pre-push 的隐私扫描会把「主目录 + 用户名」形式的路径作为 `personal-filesystem-path` 类别拦截。
+- 例外：文档中讲解「在本机上的实际路径」且该信息本身是公开内容（如 `~/.local/bin/diffnav`）时可用 `~` 写法；提交前自查没有真实用户名出现在任何新增行里。
+
+## 4.1 Git 隐私扫描 hook（自动拦截）
+
+本仓库装有 fail-closed 的隐私扫描 hook（与 nvim、chezmoi 仓库同一套）：
+
+- `pre-commit` — 扫描暂存文件：私钥、provider token（`ghp_`/`sk-`/`AKIA` 等）、凭据赋值（`*_KEY=`、`password=`）、Authorization 头、带凭据的 URL、「主目录 + 用户名」形式的个人路径、NAS/私有挂载路径、内网 IP、真实邮箱、手机号、个人标识（用户名/git identity）。
+- `commit-msg` — 扫描提交信息本身。
+- `pre-push` — 扫描待推送的全部提交（含提交人字段）。
+
+扫描是**只报类别和位置、不回显命中值**的；被拦截时按提示修改内容重新提交，不要绕过 hook（不要用 `--no-verify` 提交敏感内容）。误报可以用 `git config privacy.public-identifiers <value>` 加入白名单。
+
+**注意**：hook 装在 `.git/hooks/`（不入库）。换机器 clone 后需要重新安装——从 nvim 仓库的 `.git/hooks/privacy_scan.py` 复制，或等 chezmoi 自动部署。
 - 公共 Zsh 保留通用的 `TERM` terminfo 降级保护。
 - 不在公开 Zsh 中手动加载 Kitty shell integration。Kitty 自己的 shell integration 由私有 Kitty 配置管理。
 - 公共配置可以探测可选命令，例如 `command -v eza`，缺少时应保留可用的 fallback，而不是启动失败。
