@@ -187,17 +187,49 @@ header {
 .results .r-empty { padding: 8px 10px; font-size: 12px; color: var(--muted); }
 .results mark { background: var(--hit); color: inherit; }
 
-.toggles { margin-top: 8px; display: flex; gap: 12px; }
+/* icon dock: fixed top-right, survives sidebar hide and page scroll */
 
-.toggles button {
+.dock {
+  position: fixed;
+  top: 14px;
+  right: 16px;
+  z-index: 60;
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+}
+
+.dock-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border: 0;
+  border-radius: 4px;
   background: none;
-  color: var(--link);
-  font: 600 12px/1.6 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--muted);
   cursor: pointer;
 }
-.toggles button:hover { color: var(--link-hover); }
+.dock-btn:hover { color: var(--link); background: var(--code-bg); }
+.dock-btn:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+.dock-btn[aria-pressed="true"] { color: var(--link); }
+
+.dock-btn svg { width: 17px; height: 17px; display: block; }
+
+/* which glyph shows: sun in dark mode (switch to light), moon in light mode */
+.dock-btn .icon-moon { display: none; }
+:root[data-theme="dark"] .dock-btn .icon-sun { display: none; }
+:root[data-theme="dark"] .dock-btn .icon-moon { display: block; }
+
+/* sidebar icon: panel dots dim to a ghost when the sidebar is hidden */
+.dock-btn .icon-panel { stroke: var(--link); }
+body.no-sidebar .dock-btn .icon-panel { stroke: currentColor; opacity: .35; }
 
 /* navigation */
 
@@ -302,24 +334,6 @@ body.no-sidebar section {
   margin: 0 auto;
   padding-bottom: 50px;
 }
-
-.restore {
-  display: none;
-  position: fixed;
-  top: 14px;
-  left: 14px;
-  z-index: 50;
-  padding: 4px 10px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 4px;
-  color: var(--link);
-  font: 600 12px/1.6 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  cursor: pointer;
-}
-.restore:hover { color: var(--link-hover); }
-body.no-sidebar .restore { display: block; }
-
 
 /* ------------------------------------------------------------- identity ---- */
 
@@ -619,6 +633,6 @@ body.no-sidebar .restore { display: block; }
 
 @media print {
   body { padding: .4in; font-size: 12pt; color: #444; }
-  header, .restore { display: none; }
+  header, .dock { display: none; }
   section { width: auto; float: none; border: 0; padding: 0; }
 }

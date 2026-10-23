@@ -251,7 +251,10 @@ APP_JS = r"""
   function applyThemeLabel() {
     var dark = root.getAttribute('data-theme') === 'dark';
     var btn = document.getElementById('theme-toggle');
-    if (btn) btn.textContent = dark ? 'Light' : 'Dark';
+    if (btn) {
+      btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      btn.title = dark ? '切换到浅色' : '切换到深色';
+    }
   }
 
   document.addEventListener('click', function (event) {
@@ -268,13 +271,8 @@ APP_JS = r"""
     if (side) {
       var hidden = document.body.classList.toggle('no-sidebar');
       try { localStorage.setItem('dotfiles-sidebar', hidden ? 'off' : 'on'); } catch (e) {}
-      return;
-    }
-
-    var restore = event.target.closest('#sidebar-restore');
-    if (restore) {
-      document.body.classList.remove('no-sidebar');
-      try { localStorage.setItem('dotfiles-sidebar', 'on'); } catch (e) {}
+      side.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+      side.title = hidden ? '展开侧栏' : '收起侧栏';
       return;
     }
   });
@@ -482,10 +480,6 @@ def header(section: str, doc: str, prefix: str) -> str:
       <input id="q" type="search" placeholder="Search {sum(len(s[3]) for s in SECTIONS)} documents" autocomplete="off" spellcheck="false" aria-label="Search documents">
       <div class="results" id="results" hidden></div>
     </div>
-    <div class="toggles">
-      <button id="theme-toggle" type="button" aria-label="Toggle colour theme">Dark</button>
-      <button id="sidebar-toggle" type="button">Hide sidebar</button>
-    </div>
   </div>
 
   <nav>
@@ -511,8 +505,34 @@ def pager(section: str, doc: str, prefix: str) -> str:
     return f'<p class="pager">{left}<span class="pager-sep"> · </span>{right}</p>'
 
 
+def dock_html() -> str:
+    """Fixed top-right icon dock: theme and sidebar toggles.
+
+    Lives outside the left header so it stays reachable when the sidebar is
+    hidden; inline SVG line icons keep the page self-contained (no icon font).
+    """
+    return '''<div class="dock" role="group" aria-label="页面设置">
+  <button id="theme-toggle" type="button" class="dock-btn" aria-label="切换深浅主题" title="切换主题">
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4.4"/>
+      <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.2 14.5A8.4 8.4 0 0 1 9.5 3.8a8.4 8.4 0 1 0 10.7 10.7z"/>
+    </svg>
+  </button>
+  <button id="sidebar-toggle" type="button" class="dock-btn" aria-label="收起或展开侧栏" title="收起侧栏">
+    <svg class="icon-sidebar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3.2" y="4.2" width="17.6" height="15.6" rx="2"/>
+      <path d="M9.4 4.2v15.6"/>
+      <path class="icon-panel" d="M5.6 8.2h1.6M5.6 12h1.6M5.6 15.8h1.6"/>
+    </svg>
+  </button>
+</div>'''
+
+
 def tail_block(prefix: str) -> str:
-    return f'''<button class="restore" id="sidebar-restore" type="button">Show sidebar</button>
+    return f'''{dock_html()}
 <script id="search-index" type="application/json">{search_index(prefix)}</script>
 <script>
 {APP_JS}
