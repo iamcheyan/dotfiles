@@ -31,9 +31,23 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 插件按环境自动探测。
 
 本仓库不依赖插件自己的探测：`config/tmux/tmux.conf` 在 TPM 之后把
-copy-mode-vi 的 `y` 和 `Enter` 重新绑定到仓库脚本
+copy-mode-vi 的所有复制入口重新绑定到仓库脚本
 `scripts/tmux-clipboard-copy`，由脚本统一选择后端，优先级为
-WSL → Wayland → X11 → macOS。
+WSL → Wayland → X11 → macOS。绑定的键和各自保留的行为：
+
+| 键 | 行为 |
+|---|---|
+| `y` | 复制选区 |
+| `Enter` | 复制选区 |
+| `MouseDragEnd1Pane` | 鼠标拖选后自动复制 |
+| `M-y` | 复制后 `tmux paste-buffer -p` 粘贴 |
+| `!` | 先 `tr -d "\n"` 去掉换行再复制 |
+| `DoubleClick1Pane` | 按词选择后复制 |
+| `TripleClick1Pane` | 按行选择后复制 |
+
+配置里不允许再出现 `clip.exe`、`wl-copy`、`xclip`、`xsel`、`pbcopy` 的直接调用；
+`tmux list-keys -T copy-mode-vi | grep -E 'clip\.exe|wl-copy|xclip|xsel|pbcopy'`
+应该没有输出。
 
 ### 远程 / SSH
 

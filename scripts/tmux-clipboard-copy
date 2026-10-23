@@ -29,11 +29,14 @@ debug() {
 have() { command -v "$1" >/dev/null 2>&1; }
 
 # Some backends block forever when there is no compositor or X server.
+# xclip and wl-copy fork a helper that keeps serving the selection, so their
+# stdout/stderr must not stay attached to the caller (tmux run-shell would wait
+# for the pipe to close and appear to hang).
 run_guarded() {
     if have timeout; then
-        timeout 5 "$@"
+        timeout 5 "$@" >/dev/null 2>&1
     else
-        "$@"
+        "$@" >/dev/null 2>&1
     fi
 }
 
