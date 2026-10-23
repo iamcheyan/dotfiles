@@ -5,11 +5,8 @@ let $VIFM_SERVER_NAME = v:servername
 " Vifm config
 colorscheme papercolor-dark
 
-" 启动时设置右侧为 home
-autocmd VimEnter * wincmd l | cd ~
-
-" 每次切换焦点都强制保持
-autocmd WinEnter * if winnr() == 2 | cd ~ | endif
+" 启动时保持左侧为当前目录；右栏用 quick view 预览选中的文件
+set quickview
 
 " 常用设置
 set trash
@@ -26,7 +23,6 @@ set timefmt=%Y-%m-%d\ %H:%M
 set incsearch
 set statusline="%t%= %A %10u:%-7g %15s %20d  "
 
-only
 
 " Nerd Font icons. These are display-only prefixes; file names stay unchanged.
 set classify=" :dir:"

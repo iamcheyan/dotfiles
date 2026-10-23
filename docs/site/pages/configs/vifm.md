@@ -28,7 +28,7 @@ set vimhelp
 set timefmt=%Y-%m-%d\ %H:%M
 set incsearch
 set statusline="%t%= %A %10u:%-7g %15s %20d  "
-only
+set quickview
 ```
 
 | 选项 | 作用 |
@@ -44,18 +44,13 @@ only
 | `vimhelp` | 帮助用 Vim 风格导航 |
 | `timefmt` | 时间显示格式 |
 | `incsearch` | 搜索时实时跳转 |
-| `only` | 启动时单栏 |
+| `quickview` | 右栏显示选中文件的预览（双栏布局不变） |
 
 ## 启动行为
 
-```vim
-autocmd VimEnter * wincmd l | cd ~
-autocmd WinEnter * if winnr() == 2 | cd ~ | endif
-```
+启动时保持双栏：左栏是当前目录，右栏用 quick view 预览左栏选中的文件（文本、目录内容按 vifm 的预览规则显示）。不再有把右栏强制 `cd ~` 的自动命令，所以预览不会被打断。
 
-启动后光标移到右栏，右栏固定在 home。切换焦点时右栏始终回到 home。
-
-这让右栏成为「固定的参考目录」，左栏自由导航。
+启动时光标在左栏，右栏不再是固定目录，而是随左栏选择变化的预览区。需要临时单栏时按 `<Space>p`，再按一次恢复双栏。
 
 ## 状态行
 
