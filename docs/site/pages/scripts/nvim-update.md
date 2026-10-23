@@ -240,3 +240,197 @@ nvim --version
 **`NixOS detected`**：预期行为。用系统配置升级。
 
 **升级后插件报错**：新版本 Neovim 可能改变 API。检查 `:checkhealth`，必要时回退。
+
+<!-- lang:en -->
+> Summary: `nvim-update` upgrades Neovim to the latest stable version, verifies SHA-256, switches the symlink atomically, and keeps old versions for rollback.
+
+# nvim-update
+
+## Purpose
+
+`nvim-update` upgrades the user-level Neovim installation to the latest stable GitHub release. It does not touch system packages or damage the existing version, and it can roll back after a failure.
+
+## Usage
+
+`nvim-update` is an alias defined in `aliases.conf`. You can also run the script directly.
+
+## Installation Layout
+
+Old versions are retained, so rollback only requires changing the symlink.
+
+## Complete Process
+
+### 1. Prerequisite Checks
+
+NixOS is rejected directly because bypassing declarative package management can create conflicts between system and user installations.
+
+### 2. Platform Detection
+
+### 3. Symlink Safety Check
+
+Only symlinks pointing into the tool's own installation root are adopted. If `~/.local/bin/nvim` points to a system package or another location, execution is refused so you can handle it manually.
+
+### 4. Fetch Release Metadata
+
+`jq -e` makes parsing failures return a nonzero status; `select(test(...))` ensures the tag is a stable semantic version, excluding `nightly` and prereleases.
+
+### 5. Extract the Download URL and Digest
+
+**Both commands use `-e`**: if a field is missing or malformed, the script fails immediately instead of continuing with an empty value.
+
+### 6. Download and Verify
+
+A digest mismatch aborts installation. This is the key protection against tampering or a corrupted download.
+
+### 7. Extract to the Version Directory
+
+Three safeguards apply:
+
+1. The version directory cannot be a symlink (prevents redirection attacks).
+2. An existing version directory must be complete (it must contain `bin` and runtime files).
+3. The archive is extracted to a staging directory and moved to its final location only after validation.
+
+### 8. Verify the Binary
+
+The binary is run and its version is compared with the release tag. This catches a package that has the right download but the wrong contents.
+
+### 9. Switch the Symlink Atomically
+
+A temporary link is created first, then `mv -f` replaces the target. On the same filesystem, `mv` is atomic, avoiding a window where the link is missing.
+
+### 10. Final Verification
+
+Run it once more through `~/.local/bin/nvim` to confirm path resolution.
+
+## Environment Variables
+
+These can be overridden for tests and special deployments:
+
+| Variable | Default |
+|---|---|
+| `NVIM_UPDATE_RELEASE_API_URL` | `https://api.github.com/repos/neovim/neovim/releases/latest` |
+| `NVIM_UPDATE_INSTALL_ROOT` | `$HOME/.local/opt/neovim` |
+| `NVIM_UPDATE_BIN_DIR` | `$HOME/.local/bin` |
+| `NVIM_UPDATE_TMPDIR` | `${TMPDIR:-/tmp}` |
+
+## Tests
+
+The test uses a local fixture to simulate the GitHub API and does not download real files. It verifies:
+
+- The normal upgrade process
+- Refusal to install when SHA-256 does not match
+- `--help` output
+- Correct argument forwarding by the alias
+
+## Rollback
+
+## Troubleshooting
+
+**`Refusing to replace non-symlink file`**: `~/.local/bin/nvim` is a regular file. Move it out of the way first.
+
+**`Refusing to replace unrelated symlink`**: The link points elsewhere (for example, `/usr/bin/nvim`). Remove it and retry.
+
+**`SHA-256 mismatch`**: The download may be corrupted or altered by a proxy. Retry; if it continues, check network intermediaries.
+
+**`does not provide a valid SHA-256 digest`**: The GitHub API release has no digest field. Very old or very new releases may lack it; wait for an upstream fix or install manually.
+
+**`NixOS detected`**: This is expected. Upgrade through the system configuration.
+
+**Plugins fail after upgrading**: A new Neovim version may change APIs. Check `:checkhealth` and roll back if needed.
+
+<!-- lang:ja -->
+> 要約：`nvim-update` は Neovim を最新の安定版に更新し、SHA-256 を検証してシンボリックリンクをアトミックに切り替え、旧バージョンをロールバック用に保持します。
+
+# nvim-update
+
+## 用途
+
+`nvim-update` はユーザー用 Neovim を GitHub の最新安定版に更新します。システムパッケージには触れず、既存バージョンを壊さないようにし、失敗時にはロールバックできます。
+
+## 使い方
+
+`nvim-update` は `aliases.conf` で定義されたエイリアスです。スクリプトを直接実行することもできます。
+
+## インストール構成
+
+旧バージョンを保持するため、シンボリックリンクを変更するだけでロールバックできます。
+
+## 処理の全体像
+
+### 1. 事前確認
+
+NixOS では実行を拒否します。宣言的なパッケージ管理を迂回すると、システム用とユーザー用のインストールが競合する可能性があるためです。
+
+### 2. プラットフォームの判定
+
+### 3. シンボリックリンクの安全確認
+
+ツール自身のインストール先を指すシンボリックリンクだけを引き継ぎます。`~/.local/bin/nvim` がシステムパッケージなど別の場所を指している場合は、手動で対処できるよう実行を拒否します。
+
+### 4. release メタデータの取得
+
+`jq -e` により解析に失敗すると終了コードが 0 以外になります。`select(test(...))` により `nightly` や prerelease を除外し、安定版のセマンティックバージョン tag だけを受け入れます。
+
+### 5. ダウンロード URL と digest の抽出
+
+**どちらのコマンドにも `-e` を指定しています**。フィールドがない場合や形式が不正な場合、空の値で続行せず直ちに失敗します。
+
+### 6. ダウンロードと検証
+
+digest が一致しなければインストールを中止します。改ざんやダウンロード破損を防ぐ重要な手順です。
+
+### 7. バージョンディレクトリへの展開
+
+次の 3 点で保護します。
+
+1. バージョンディレクトリをシンボリックリンクにできません（別の場所へ誘導する攻撃を防ぎます）。
+2. 既存のバージョンディレクトリには `bin` と runtime ファイルが必要です。
+3. staging ディレクトリに展開し、検証後に最終位置へ移動します。
+
+### 8. バイナリの検証
+
+バイナリを実行し、バージョンを release tag と照合します。正しいアーカイブ名でも内容が異なる場合に検出できます。
+
+### 9. シンボリックリンクのアトミックな切り替え
+
+最初に一時リンクを作り、その後 `mv -f` で置き換えます。同じファイルシステム内の `mv` はアトミックなので、リンクが一時的に消える状態を避けられます。
+
+### 10. 最終確認
+
+最後に `~/.local/bin/nvim` 経由でもう一度実行し、パス解決を確認します。
+
+## 環境変数
+
+テストや特殊な配置では、次の値を上書きできます。
+
+| 変数 | デフォルト |
+|---|---|
+| `NVIM_UPDATE_RELEASE_API_URL` | `https://api.github.com/repos/neovim/neovim/releases/latest` |
+| `NVIM_UPDATE_INSTALL_ROOT` | `$HOME/.local/opt/neovim` |
+| `NVIM_UPDATE_BIN_DIR` | `$HOME/.local/bin` |
+| `NVIM_UPDATE_TMPDIR` | `${TMPDIR:-/tmp}` |
+
+## テスト
+
+ローカル fixture で GitHub API を模擬するため、実際のファイルはダウンロードしません。次を検証します。
+
+- 通常のアップグレード処理
+- SHA-256 が一致しない場合のインストール拒否
+- `--help` の出力
+- エイリアスによる引数の正しい引き渡し
+
+## ロールバック
+
+## トラブルシューティング
+
+**`Refusing to replace non-symlink file`**：`~/.local/bin/nvim` が通常ファイルです。まず別の場所へ移動してください。
+
+**`Refusing to replace unrelated symlink`**：リンクが別の場所（例：`/usr/bin/nvim`）を指しています。削除してから再試行してください。
+
+**`SHA-256 mismatch`**：ダウンロードの破損、またはプロキシによる変更が考えられます。再試行し、続く場合はネットワーク経路を確認してください。
+
+**`does not provide a valid SHA-256 digest`**：GitHub API の release に digest フィールドがありません。非常に古い release や新しい release では未提供の場合があります。上流の修正を待つか、手動でインストールしてください。
+
+**`NixOS detected`**：想定された動作です。システム設定からアップグレードしてください。
+
+**更新後にプラグインがエラーになる**：新しい Neovim で API が変わった可能性があります。`:checkhealth` を確認し、必要ならロールバックしてください。

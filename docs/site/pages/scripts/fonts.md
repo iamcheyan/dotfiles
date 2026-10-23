@@ -137,3 +137,287 @@ echo "   󰈙 󰊢 󰉋 󰡨 󰅩"
 **macOS 上字体不显示**：`~/Library/Fonts` 权限问题，或需要重启应用（不是重启系统）。
 
 **脚本报 `install:font: command not found`**：别名不存在，用完整路径 `bash scripts/install/install_font.sh`。
+
+<!-- lang:en -->
+
+> Summary: install_font.sh installs Meslo Nerd Font and Noto Serif CJK, for terminal icons and CJK display.
+
+# Font Installer
+
+## Purpose
+
+Installs two fonts:
+
+| Font | Use |
+|---|---|
+| Meslo Nerd Font | Icons in terminals and editors (Powerline, Devicons, Material) |
+| Noto Serif CJK | Glyphs for Chinese, Japanese and Korean text |
+
+Without Meslo, icons render as boxes; without Noto, Chinese may render as tofu.
+
+## Usage
+
+```bash
+bash scripts/install/install_font.sh
+bash scripts/install/install_font.sh --meslo
+bash scripts/install/install_font.sh --noto
+bash scripts/install/install_font.sh --all
+bash scripts/install/install_font.sh --all --force
+```
+
+**Note**: there is no `install:font` alias for this script. The repository's `scripts/install/README.md` says there is, but the current `aliases.conf` doesn't define it — run the script directly.
+
+## Arguments
+
+| Argument | Short | Effect |
+|---|---|---|
+| `--meslo` | `-m` | Install Meslo only |
+| `--noto` | `-n` | Install Noto Serif only |
+| `--all` | `-a` | Install both |
+| `--force` | `-f` | Force reinstall |
+| none | | Meslo by default |
+
+Without a font type specified, only Meslo is installed (for backward compatibility).
+
+## Meslo Download and Install
+
+```bash
+MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
+MESLO_TAR="$HOME/.cache/fonts/Meslo.tar.xz"
+```
+
+| Step | Description |
+|---|---|
+| Cache | Downloads to `~/.cache/fonts/Meslo.tar.xz`; skipped if already present |
+| Extract on Linux | `~/.fonts/`, then `fc-cache -fv` |
+| Extract on macOS | `~/Library/Fonts/`, loaded automatically by the system |
+
+The version is pinned to v3.4.0; upgrading requires changing the URL in the script.
+
+## Installing Noto Serif CJK
+
+Not a single file but four zip downloads:
+
+```bash
+download_links=(
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/07_NotoSerifCJKjp.zip"
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/12_NotoSerifJP.zip"
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip"
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/14_NotoSerifSC.zip"
+)
+```
+
+| File | Contents |
+|---|---|
+| `NotoSerifCJKjp` | CJK full set, Japanese-priority glyphs |
+| `NotoSerifJP` | Japanese glyph set |
+| `NotoSerifCJKsc` | CJK full set, Simplified Chinese-priority glyphs |
+| `NotoSerifSC` | Simplified Chinese glyph set |
+
+All four are installed because of regional differences in CJK glyphs: the same character can look different in Japanese and Simplified Chinese (e.g. 直 and 骨). Only with the matching regional glyph set installed does the typesetting come out right.
+
+The script also tries `git clone https://github.com/iamcheyan/fonts.git`; on failure it falls back to the download path only.
+
+## Installed Detection
+
+```bash
+check_meslo_installed() {
+    ...
+}
+```
+
+If already installed and `--force` wasn't given, it skips and prints "✓ Meslo font is installed; skipping installation".
+
+## Verify
+
+```bash
+# Linux
+fc-list | grep -i meslo
+fc-list | grep -i "noto serif cjk"
+
+# macOS
+ls ~/Library/Fonts | grep -i meslo
+```
+
+Select `MesloLGS Nerd Font` or `MesloLGS NF` in your terminal settings.
+
+## Icon Test
+
+After installing, test that icons render:
+
+```bash
+echo "   󰈙 󰊢 󰉋 󰡨 󰅩"
+```
+
+If they show as boxes, the font isn't in effect or the terminal hasn't selected the right font.
+
+## Why a Nerd Font Is Needed
+
+This repository uses Nerd Font private-use-area characters in several places:
+
+| Where | Characters |
+|---|---|
+| Starship prompt | `❯`、``、`` |
+| Vifm file icons | ``、``、`` |
+| Neovim statusline | ``、`` |
+| fzf prompt | none (plain text) |
+
+These characters live in the Unicode Private Use Area (PUA), which ordinary fonts have no glyphs for.
+
+## Troubleshooting
+
+**Icons render as boxes**: the terminal font isn't set correctly. Installing isn't enough — you must explicitly select the font in the terminal's configuration.
+
+**Chinese renders as tofu**: Noto Serif CJK isn't installed, or the terminal's fallback font chain doesn't include it.
+
+**`fc-cache` not found**: the `fontconfig` package is needed on Linux. `sudo apt install fontconfig`.
+
+**Downloads are slow**: Meslo is about 20 MB, and the four Noto packages together about 100 MB. `--meslo` installs only the former.
+
+**Old font still shows after `--force`**: the font cache wasn't refreshed. Run `fc-cache -fv` manually.
+
+**Font doesn't show on macOS**: a permissions problem with `~/Library/Fonts`, or the app needs a restart (not the system).
+
+**Script reports `install:font: command not found`**: the alias doesn't exist; use the full path `bash scripts/install/install_font.sh`.
+
+<!-- lang:ja -->
+
+> 要約：install_font.sh は Meslo Nerd Font と Noto Serif CJK をインストールし、ターミナルのアイコン表示と CJK 文字の表示に使います。
+
+# フォントインストーラー
+
+## 役割
+
+2 種類のフォントをインストールします：
+
+| フォント | 用途 |
+|---|---|
+| Meslo Nerd Font | ターミナルやエディタのアイコン（Powerline、Devicons、Material） |
+| Noto Serif CJK | 中日韓文字のグリフ |
+
+Meslo が欠けるとアイコンが四角に表示され、Noto が欠けると中国語が豆腐になることがあります。
+
+## 使い方
+
+```bash
+bash scripts/install/install_font.sh
+bash scripts/install/install_font.sh --meslo
+bash scripts/install/install_font.sh --noto
+bash scripts/install/install_font.sh --all
+bash scripts/install/install_font.sh --all --force
+```
+
+**注意**：このスクリプトには `install:font` エイリアスがありません。リポジトリの `scripts/install/README.md` には存在すると書いてありますが、現在の `aliases.conf` では定義されていないので、スクリプトを直接実行してください。
+
+## 引数
+
+| 引数 | 短い形 | 働き |
+|---|---|---|
+| `--meslo` | `-m` | Meslo だけインストール |
+| `--noto` | `-n` | Noto Serif だけインストール |
+| `--all` | `-a` | 両方インストール |
+| `--force` | `-f` | 強制再インストール |
+| なし | | デフォルトで Meslo |
+
+フォントの種類を指定しないときは Meslo だけ入ります（後方互換）。
+
+## Meslo のダウンロードとインストール
+
+```bash
+MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
+MESLO_TAR="$HOME/.cache/fonts/Meslo.tar.xz"
+```
+
+| 手順 | 説明 |
+|---|---|
+| キャッシュ | `~/.cache/fonts/Meslo.tar.xz` にダウンロード。既にあればスキップ |
+| Linux で展開 | `~/.fonts/`、その後 `fc-cache -fv` |
+| macOS で展開 | `~/Library/Fonts/`、システムが自動で読み込む |
+
+バージョンは v3.4.0 に固定されています。上げるにはスクリプト内の URL を書き換える必要があります。
+
+## Noto Serif CJK のインストール
+
+1 つのファイルではなく、4 つの zip をダウンロードします：
+
+```bash
+download_links=(
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/07_NotoSerifCJKjp.zip"
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/12_NotoSerifJP.zip"
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/09_NotoSerifCJKsc.zip"
+  "https://github.com/notofonts/noto-cjk/releases/download/Serif2.003/14_NotoSerifSC.zip"
+)
+```
+
+| ファイル | 中身 |
+|---|---|
+| `NotoSerifCJKjp` | 日本語優先の CJK 全字セット |
+| `NotoSerifJP` | 日本語の字セット |
+| `NotoSerifCJKsc` | 簡体字中国語優先の CJK 全字セット |
+| `NotoSerifSC` | 簡体字中国語の字セット |
+
+4 つとも入れるのは、CJK の字形には地域差があるからです。同じ漢字でも日本語と簡体字中国語では形が違います（「直」「骨」など）。対応する地域の字セットが入ってはじめて、組版が正しくなります。
+
+スクリプトは `git clone https://github.com/iamcheyan/fonts.git` も試みます。失敗したときはダウンロード経路だけにフォールバックします。
+
+## インストール済みの判定
+
+```bash
+check_meslo_installed() {
+    ...
+}
+```
+
+インストール済みで `--force` がなければスキップし、「✓ Meslo font is installed; skipping installation」と表示します。
+
+## 確認
+
+```bash
+# Linux
+fc-list | grep -i meslo
+fc-list | grep -i "noto serif cjk"
+
+# macOS
+ls ~/Library/Fonts | grep -i meslo
+```
+
+ターミナルの設定で `MesloLGS Nerd Font` か `MesloLGS NF` を選んでください。
+
+## アイコンのテスト
+
+インストール後にアイコンが正しく出るか確認します：
+
+```bash
+echo "   󰈙 󰊢 󰉋 󰡨 󰅩"
+```
+
+四角に表示されるなら、フォントが効いていないか、ターミナルで正しいフォントが選ばれていません。
+
+## なぜ Nerd Font が必要か
+
+このリポジトリでは複数の場所で Nerd Font の私的領域の文字を使っています：
+
+| 場所 | 文字 |
+|---|---|
+| Starship プロンプト | `❯`、``、`` |
+| Vifm のファイルアイコン | ``、``、`` |
+| Neovim のステータスライン | ``、`` |
+| fzf のプロンプト | なし（プレーンテキスト） |
+
+これらの文字は Unicode の私用面（PUA）にあり、普通のフォントには対応するグリフがありません。
+
+## トラブルシューティング
+
+**アイコンが四角に表示される**：ターミナルのフォント設定が合っていません。「入れたから OK」ではなく、ターミナルの設定で明示的に選ぶ必要があります。
+
+**中国語が豆腐になる**：Noto Serif CJK が入っていないか、ターミナルのフォールバック字体チェーンに含まれていません。
+
+**`fc-cache` が見つからない**：Linux では `fontconfig` パッケージが必要です。`sudo apt install fontconfig`。
+
+**ダウンロードが遅い**：Meslo は約 20MB、Noto の 4 パッケージは合計約 100MB です。`--meslo` なら前者だけ入れます。
+
+**`--force` を使っても古いフォントのまま**：フォントキャッシュが更新されていません。`fc-cache -fv` を手動で実行します。
+
+**macOS でフォントが出ない**：`~/Library/Fonts` の権限の問題か、アプリの再起動が必要です（システム再起動ではなく）。
+
+**スクリプトが `install:font: command not found` を出す**：エイリアスは存在しません。フルパスの `bash scripts/install/install_font.sh` を使ってください。

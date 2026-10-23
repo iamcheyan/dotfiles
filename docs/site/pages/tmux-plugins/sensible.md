@@ -93,3 +93,199 @@ tmux show -g escape-time
 # private.conf 里
 set -g escape-time 50
 ```
+
+<!-- lang:en -->
+
+> Summary: tmux-sensible provides a set of community-accepted sensible default options; it changes no behavior beyond filling in defaults.
+
+# tmux-sensible
+
+## Purpose
+
+Some of tmux's historical defaults look unreasonable today (for example, history-limit of only 2000 lines, or an overly long escape-time). `tmux-sensible` collects community consensus and sets these options to more appropriate values.
+
+It **does nothing fancy**: it just `set -g`s a batch of options. No new keybindings, no new commands.
+
+## How it is loaded
+
+```tmux
+set -g @plugin 'tmux-plugins/tmux-sensible'
+```
+
+It is the first feature plugin, declared right after TPM, so the defaults it sets get overridden by later plugins (in case of conflicts).
+
+## What it sets
+
+The upstream settings (may vary slightly between versions):
+
+| Option | Value | Why |
+|---|---|---|
+| `history-limit` | 50000 | The default 2000 is too small |
+| `escape-time` | 0 | Removes Esc delay in Vim |
+| `base-index` | 1 | Windows start at 1 |
+| `pane-base-index` | 1 | Panes start at 1 |
+| `renumber-windows` | on | No gaps left after closing a window |
+| `display-time` | 4000 | How long messages are shown |
+| `display-panes-time` | 2000 | How long pane numbers are shown |
+| `repeat-time` | 1000 | Window for repeatable key presses |
+| `status-interval` | 5 | Status bar refresh interval |
+| `set-titles` | on | Sets the terminal title |
+| `mouse` | on | Enables the mouse |
+
+## Relationship with this repository's config
+
+This repository **re-sets** several of these options in `tmux.conf`:
+
+```tmux
+set -g mouse on
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+set -g history-limit 200000
+```
+
+| Option | sensible sets | This repo sets | Result |
+|---|---|---|---|
+| mouse | on | on | Same |
+| base-index | 1 | 1 | Same |
+| renumber-windows | on | on | Same |
+| history-limit | 50000 | 200000 | This repo's is larger and wins |
+
+Setting something twice is not an error: the later one overrides the earlier. And even without the sensible plugin, these options take effect on their own — so the config works even when the plugin isn't installed.
+
+## Why it is still needed
+
+Even though this repository explicitly sets some of them, sensible still provides the options it doesn't cover:
+
+- `escape-time 0` (important for Vim users)
+- `display-time` / `display-panes-time`
+- `repeat-time`
+- `set-titles`
+- `status-interval`
+
+The config is usable without them, but setting them makes the experience better.
+
+## Why escape-time matters
+
+After receiving Esc, tmux waits briefly to judge whether it is the start of some function key sequence. The default is 500ms.
+
+Pressing Esc in Vim to leave insert mode, those 500ms make exiting feel "laggy". Setting it to 0 makes it respond immediately.
+
+The cost: some terminals' function key sequences may be misdetected. But on modern terminals this is rarely a problem.
+
+## Troubleshooting
+
+**Esc is still delayed in Vim**: sensible is not loaded, or was overridden by a later `set -g escape-time`.
+
+```bash
+tmux show -g escape-time
+```
+
+**Window numbering starts at 0**: `base-index` was overridden. This repository explicitly sets 1; check that `tmux.conf` is loaded correctly.
+
+**Cannot select panes with the mouse**: `mouse on` did not take effect. Confirm with `tmux show -g mouse`.
+
+**Want to disable one of sensible's settings**: re-`set -g` it in your own config to override. sensible loads after TPM and before the other plugins, so later settings override it.
+
+```tmux
+# private.conf 里
+set -g escape-time 50
+```
+
+<!-- lang:ja -->
+
+> 要約：tmux-sensible はコミュニティの合意による妥当なデフォルトオプションを提供します。デフォルト値を補う以外に動作を変えません。
+
+# tmux-sensible
+
+## 用途
+
+tmux の歴史的なデフォルト値には、今見ると妥当でないものがあります（たとえば history-limit が 2000 行しかない、escape-time が長すぎるなど）。`tmux-sensible` はコミュニティの合意を集め、これらのオプションをより適切な値に設定します。
+
+派手なことは**何もしません**：`set -g` でオプションを一括設定するだけです。新しいキーバインドも新コマンドもありません。
+
+## 読み込み方法
+
+```tmux
+set -g @plugin 'tmux-plugins/tmux-sensible'
+```
+
+最初の機能プラグインで、TPM の直後に宣言します。こうすることで、競合があった場合に後続のプラグインがこのデフォルトを上書きできます。
+
+## 設定される内容
+
+上流の設定項目（バージョンにより微妙に異なることがあります）：
+
+| オプション | 値 | 理由 |
+|---|---|---|
+| `history-limit` | 50000 | デフォルトの 2000 は少なすぎる |
+| `escape-time` | 0 | Vim での Esc 遅延をなくす |
+| `base-index` | 1 | ウィンドウを 1 から始める |
+| `pane-base-index` | 1 | pane を 1 から始める |
+| `renumber-windows` | on | ウィンドウを閉じた後に番号を空けない |
+| `display-time` | 4000 | メッセージの表示時間 |
+| `display-panes-time` | 2000 | pane 番号の表示時間 |
+| `repeat-time` | 1000 | 連続押下が有効な時間 |
+| `status-interval` | 5 | ステータスバーの更新間隔 |
+| `set-titles` | on | ターミナルのタイトルを設定 |
+| `mouse` | on | マウスを有効化 |
+
+## 本リポジトリの設定との関係
+
+本リポジトリは `tmux.conf` でそのうちのいくつかを**重ねて設定**しています：
+
+```tmux
+set -g mouse on
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+set -g history-limit 200000
+```
+
+| 項目 | sensible の設定 | 本リポジトリの設定 | 結果 |
+|---|---|---|---|
+| mouse | on | on | 一致 |
+| base-index | 1 | 1 | 一致 |
+| renumber-windows | on | on | 一致 |
+| history-limit | 50000 | 200000 | 本リポジトリの方が大きく、そちらが有効 |
+
+重ねて設定してもエラーではありません：後のものが前のものを上書きします。さらに、sensible プラグインがなくてもこれらのオプションは単独で効きます——そのため、プラグイン未導入でも設定が機能します。
+
+## それでも必要な理由
+
+本リポジトリが明示的に設定している項目以外にも、sensible は残りの項目を提供します：
+
+- `escape-time 0`（Vim ユーザーには重要）
+- `display-time` / `display-panes-time`
+- `repeat-time`
+- `set-titles`
+- `status-interval`
+
+設定しなくても使えますが、設定した方が体験が良くなります。
+
+## escape-time が重要な理由
+
+tmux は Esc を受け取ると、それが何らかのファンクションキーシーケンスの先頭かどうかを判断するため、短い時間待ちます。デフォルトは 500ms です。
+
+Vim で Esc を押してインサートモードを抜けるとき、この 500ms のせいで抜けるのが「もたつく」ように感じます。0 に設定すると即座に反応します。
+
+代償：一部のターミナルのファンクションキーシーケンスが誤判定される可能性があります。ただし現代のターミナルではまず問題になりません。
+
+## トラブルシュート
+
+**Vim で Esc が依然として遅い**：sensible が読み込まれていないか、後の `set -g escape-time` に上書きされています。
+
+```bash
+tmux show -g escape-time
+```
+
+**ウィンドウ番号が 0 から始まる**：`base-index` が上書きされています。本リポジトリは明示的に 1 を設定しているので、`tmux.conf` が正しく読み込まれているか確認します。
+
+**マウスで pane を選べない**：`mouse on` が効いていません。`tmux show -g mouse` で確認します。
+
+**sensible の設定の一部を無効化したい**：自分の設定で `set -g` し直して上書きします。sensible は TPM の後、他のプラグインより前に読み込まれるため、後の設定がそれを上書きします。
+
+```tmux
+# private.conf 里
+set -g escape-time 50
+```

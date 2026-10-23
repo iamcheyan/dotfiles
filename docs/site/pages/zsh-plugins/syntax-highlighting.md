@@ -110,3 +110,233 @@ ZSH_HIGHLIGHT_MAXLENGTH=512
 **中文显示异常**：着色按字节计算，CJK 字符可能让下划线错位。这是上游已知限制。
 
 **`zsh -x` 追踪时看不到高亮**：非交互模式下 `zle` 不工作，属预期。
+
+<!-- lang:en -->
+
+> Summary: zsh-syntax-highlighting colors the command line in real time; it must load last or its hooks get overwritten.
+
+# zsh-syntax-highlighting
+
+## Purpose
+
+It colors commands as you type: existing commands green, unknown ones red, with distinct colors for strings, variables, paths, and redirections. It lets you spot typos **before** pressing Enter.
+
+## How It Loads
+
+```zsh
+zsh_plugins_load_main() {
+  ...
+  # 必须是最后一行
+  zinit light zsh-users/zsh-syntax-highlighting
+}
+```
+
+**The position is a hard constraint**, not a stylistic preference.
+
+## Why It Must Be Last
+
+It works via the `zle` `line-pre-redraw` hook: before every redraw of the command line, it reads the buffer contents and computes the highlight ranges.
+
+Any plugin loaded after it that also sets a `line-pre-redraw` hook will **replace** rather than append, breaking the highlighting.
+
+Plugins commonly affected by this:
+
+| Plugin | Symptom of the conflict |
+|---|---|
+| zsh-autosuggestions | Suggestion text loses its gray color |
+| zsh-vi-mode | Colors scramble after mode switches |
+| fzf-tab | Highlighting residue remains after completion |
+
+Conversely, if syntax-highlighting loads first and these plugins overwrite its hook, the result is **no syntax highlighting at all**.
+
+## What It Can Highlight
+
+| Element | Default color |
+|---|---|
+| Existing command | Green |
+| Non-existent command | Red |
+| Alias | Cyan |
+| String `'...'` | Yellow |
+| Variable `$VAR` | Cyan |
+| Path (exists) | Underline |
+| Path (does not exist) | Red |
+| Redirection `>` | Purple |
+| Option `-x` | Blue |
+| Comment `#...` | Gray |
+
+The concrete colors are controlled by `ZSH_HIGHLIGHT_STYLES`.
+
+## Customizing Colors
+
+```zsh
+# 放在 zshrc 里，且在 zinit light 之前
+typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[command]='fg=green,bold'
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red,bold'
+ZSH_HIGHLIGHT_STYLES[path]='underline'
+ZSH_HIGHLIGHT_STYLES[alias]='fg=cyan'
+```
+
+This repository does not override them; it uses the upstream defaults.
+
+## Working with vi-mode
+
+Both modify `zle` behavior, but through different mechanisms:
+
+| | syntax-highlighting | vi-mode |
+|---|---|---|
+| Effect | Coloring | Keybindings |
+| Hook | `line-pre-redraw` | Keymap replacement |
+
+As long as the order is correct (vi-mode first, highlighting last), the two do not interfere.
+
+## Working with autosuggestions
+
+autosuggestions colors suggestion text with `fg=8`. syntax-highlighting colors the part you have already typed. Their ranges do not overlap:
+
+```text
+[已输入部分: 语法高亮] [建议部分: fg=8 灰]
+```
+
+If the suggestion part also shows up green, autosuggestions' highlight style has been overwritten.
+
+## Performance
+
+Every redraw parses the entire command line. Very long commands (thousands of characters) can cause noticeable lag.
+
+Mitigation:
+
+```zsh
+ZSH_HIGHLIGHT_MAXLENGTH=512
+```
+
+Anything beyond this length is no longer highlighted.
+
+## Troubleshooting
+
+**No colors at all**: the plugin did not load, or a later plugin overwrote it. Check that it is the last line of `zsh_plugins_load_main`.
+
+**Some elements lack color**: `ZSH_HIGHLIGHT_STYLES` has been modified. Inspect it with `echo ${(kv)ZSH_HIGHLIGHT_STYLES}`.
+
+**Colors clash with the terminal theme**: some color schemes have low green/red contrast. Change the values in `ZSH_HIGHLIGHT_STYLES`.
+
+**Lag when typing very long commands**: set `ZSH_HIGHLIGHT_MAXLENGTH`.
+
+**CJK characters render incorrectly**: highlighting is computed per byte, and CJK characters can misalign underlines. This is a known upstream limitation.
+
+**No highlighting visible under `zsh -x` tracing**: `zle` does not work in non-interactive mode; this is expected.
+
+<!-- lang:ja -->
+
+> 要約：zsh-syntax-highlighting はコマンドラインをリアルタイムに着色します。最後に読み込まないと hook が上書きされます。
+
+# zsh-syntax-highlighting
+
+## 用途
+
+入力中のコマンドをリアルタイムに着色します。存在するコマンドは緑、存在しないものは赤、文字列・変数・パス・リダイレクトにもそれぞれ色が付きます。Enter を押す**前に**タイプミスに気づけるのが利点です。
+
+## 読み込み方法
+
+```zsh
+zsh_plugins_load_main() {
+  ...
+  # 必须是最后一行
+  zinit light zsh-users/zsh-syntax-highlighting
+}
+```
+
+**位置はハードな制約**であり、スタイルの好みではありません。
+
+## なぜ最後でなければならないのか
+
+`zle` の `line-pre-redraw` hook を通じて動作します。コマンドラインが再描画されるたびに、バッファの内容を読み取り、ハイライト区間を計算します。
+
+それより後に読み込まれるプラグインが同じく `line-pre-redraw` hook を設定すると、追加ではなく**置き換え**になるため、ハイライトが壊れます。
+
+影響を受けやすいプラグインの例：
+
+| プラグイン | 衝突の症状 |
+|---|---|
+| zsh-autosuggestions | 補完候補の文字がグレーにならない |
+| zsh-vi-mode | モード切替後に色が乱れる |
+| fzf-tab | 補完後にハイライトの残りが出る |
+
+逆に syntax-highlighting が先に読み込まれると、これらのプラグインが hook を上書きし、結果として**シンタックスハイライトが一切効かなくなります**。
+
+## 何をハイライトできるか
+
+| 要素 | 既定の色 |
+|---|---|
+| 存在するコマンド | 緑 |
+| 存在しないコマンド | 赤 |
+| エイリアス | シアン |
+| 文字列 `'...'` | 黄 |
+| 変数 `$VAR` | シアン |
+| パス（存在する） | 下線 |
+| パス（存在しない） | 赤 |
+| リダイレクト `>` | 紫 |
+| オプション `-x` | 青 |
+| コメント `#...` | グレー |
+
+具体的な色は `ZSH_HIGHLIGHT_STYLES` で制御されます。
+
+## 色のカスタマイズ
+
+```zsh
+# 放在 zshrc 里，且在 zinit light 之前
+typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[command]='fg=green,bold'
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=red,bold'
+ZSH_HIGHLIGHT_STYLES[path]='underline'
+ZSH_HIGHLIGHT_STYLES[alias]='fg=cyan'
+```
+
+本リポジトリでは上書きせず、上流の既定値を使っています。
+
+## vi-mode との併用
+
+両方とも `zle` の挙動を変えますが、仕組みは異なります：
+
+| | syntax-highlighting | vi-mode |
+|---|---|---|
+| 役割 | 着色 | キーバインド |
+| hook | `line-pre-redraw` | キーマップの置き換え |
+
+順序さえ正しければ（vi-mode が先、highlighting が後）、両者は干渉しません。
+
+## autosuggestions との併用
+
+autosuggestions は `fg=8` で補完候補の文字に色を付けます。syntax-highlighting はすでに入力した部分に色を付けます。両者の適用区間は重なりません：
+
+```text
+[已输入部分: 语法高亮] [建议部分: fg=8 灰]
+```
+
+候補部分まで緑で表示されるなら、autosuggestions のハイライトスタイルが上書きされています。
+
+## パフォーマンス
+
+再描画のたびにコマンドライン全体を解析します。非常に長いコマンド（数千文字）では体感できる遅延が出ることがあります。
+
+緩和方法：
+
+```zsh
+ZSH_HIGHLIGHT_MAXLENGTH=512
+```
+
+この長さを超えるとハイライトしなくなります。
+
+## トラブルシューティング
+
+**まったく色が付かない**：プラグインが読み込まれていないか、後続のプラグインに上書きされています。`zsh_plugins_load_main` の最終行になっているか確認してください。
+
+**一部の要素に色が付かない**：`ZSH_HIGHLIGHT_STYLES` が変更されています。`echo ${(kv)ZSH_HIGHLIGHT_STYLES}` で確認できます。
+
+**色がターミナルテーマと合わない**：配色によっては緑/赤のコントラストが低いものがあります。`ZSH_HIGHLIGHT_STYLES` の値を変更してください。
+
+**非常に長いコマンドの入力時にカクつく**：`ZSH_HIGHLIGHT_MAXLENGTH` を設定してください。
+
+**CJK 文字の表示が崩れる**：着色はバイト単位で計算されるため、CJK 文字で下線がずれることがあります。上流の既知の制限です。
+
+**`zsh -x` でトレース中はハイライトが出ない**：非対話モードでは `zle` が動作しないためで、予期された挙動です。

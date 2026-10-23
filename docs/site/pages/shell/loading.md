@@ -117,3 +117,243 @@ zsh -x -i -c 'true' 2>&1 | head -50 # 追踪加载过程
 ```
 
 `zsh -x` 会打印每一行执行内容，能看出卡在哪个文件。
+<!-- lang:en -->
+> Summary: From the first line of zshrc to the fzf functions being available, a section-by-section explanation of what gets loaded and why it sits there.
+
+# Startup and Load Order
+
+## Section 1: TERM protection
+
+```zsh
+if [[ -n "$TERM" ]] && ! infocmp -- "$TERM" >/dev/null 2>&1; then
+    export TERM=xterm-256color
+fi
+```
+
+After Kitty is uninstalled, `TERM` may still be `xterm-kitty`, but the matching terminfo no longer exists on the system, and `tput` and TUI programs will report unknown terminal. This section probes availability first, then downgrades.
+
+Note: this does **not** unconditionally downgrade just because of SSH. `kitten ssh` transfers the terminfo to the remote host, so keeping `xterm-kitty` is what lets TUI programs use true color.
+
+## Section 2: history and shell options
+
+```zsh
+export HISTSIZE=100000
+export SAVEHIST=100000
+export HISTFILE=~/.zsh_history
+
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_VERIFY
+setopt INC_APPEND_HISTORY
+setopt AUTO_CD
+```
+
+| Option | Effect |
+|---|---|
+| `SHARE_HISTORY` | Multiple terminals share one history and see each other's entries immediately |
+| `HIST_IGNORE_ALL_DUPS` | Only one copy of a duplicated command is kept |
+| `HIST_REDUCE_BLANKS` | Strips redundant whitespace |
+| `HIST_VERIFY` | History expansion (`!!`) is shown before it executes |
+| `INC_APPEND_HISTORY` | Each command is written to disk immediately, not on exit |
+| `AUTO_CD` | Typing a directory name directly changes into it |
+
+## Section 3: deriving the repo path
+
+```zsh
+dotfiles_root="${${(%):-%x}:A:h}"
+```
+
+`%x` is the path of the file currently being sourced, `:A` resolves it to an absolute path, and `:h` takes the directory. This way the repo can live anywhere instead of hard-coding `~/dotfiles`. There is also a fallback further down: if the derived directory has no `plugins/`, it falls back to `$DOTFILES` or `~/dotfiles`.
+
+## Section 4: loading in order
+
+```text
+plugins/zinit/zinit.zsh          Zinit 本体 + zz 函数
+plugins/zsh-plugins.zsh          只定义三个加载函数，不执行
+plugins/prompt/prompt.zsh        Starship（仅交互终端）
+plugins/tools/tools.zsh          CLI 工具 + direnv/atuin 初始化
+zsh_plugins_load_pre_compinit    zsh-completions
+plugins/completion/completion.zsh
+zsh_plugins_load_post_compinit   fzf-tab + 其 zstyle
+scripts/setup/setup_fnm.sh       fnm 包装器
+zsh_plugins_load_main            vi-mode、autosuggestions、forgit、语法高亮
+plugins/fzf/fzf.zsh              f / ffd
+atuin / zoxide 的 shell hook
+vi 别名、EDITOR/VISUAL
+aliases.conf + ~/.config/aliases.conf
+local/*.zsh
+```
+
+Key points:
+
+- At this step `zsh-plugins.zsh` **only defines functions**; actual execution happens in the three later stages.
+- `prompt.zsh` is wrapped in `[[ -t 1 ]]`, so Starship isn't loaded in non-interactive contexts.
+- `local/` loads last, so private configuration can override everything above it.
+
+## Section 5: interactive enhancements
+
+```zsh
+if command -v atuin > /dev/null; then
+  _evalcache atuin init zsh
+fi
+if command -v zoxide > /dev/null; then
+  _evalcache zoxide init zsh
+  alias zi='z -i'
+fi
+```
+
+`_evalcache` comes from the `mroth/evalcache` plugin; it caches the output of `init` into a file, avoiding a subprocess on every startup. This is one of the main startup-speed optimizations.
+
+## Section 6: editor and aliases
+
+```zsh
+vi() { ... }   # 优先 nvim，其次 vim，最后 vi
+export EDITOR=nvim
+export VISUAL=nvim
+```
+
+`vi` is defined as a function rather than an alias, so tools like ranger that invoke `$EDITOR` also get nvim.
+
+## Section 7: private overrides
+
+```zsh
+[[ -f ~/.config/aliases.conf ]] && source ~/.config/aliases.conf
+[[ -f "$dotfiles_root/aliases.conf" ]] && source "$dotfiles_root/aliases.conf"
+
+for dotfiles_local_file in "$dotfiles_root"/local/*(N.D.); do
+    [[ "${dotfiles_local_file:t}" == "README.md" ]] && continue
+    source "$dotfiles_local_file"
+done
+```
+
+`(N.D.)` are zsh glob qualifiers: `N` means no error when there are no matches, `D` means include dot-files.
+
+## Debugging load problems
+
+```zsh
+zsh -d -n ~/dotfiles/zshrc          # 语法检查
+zsh -x -i -c 'true' 2>&1 | head -50 # 追踪加载过程
+```
+
+`zsh -x` prints every executed line, so you can see which file it stalls on.
+<!-- lang:ja -->
+> 要約：zshrc の最初の行から fzf 関数が使えるようになるまで、何がロードされ、なぜその位置にあるのかを順に説明します。
+
+# 起動とロード順序
+
+## 第 1 段：TERM 保護
+
+```zsh
+if [[ -n "$TERM" ]] && ! infocmp -- "$TERM" >/dev/null 2>&1; then
+    export TERM=xterm-256color
+fi
+```
+
+Kitty をアンインストールした後も `TERM` に `xterm-kitty` が残ることがありますが、システムには対応する terminfo がもうなく、`tput` や TUI プログラムが unknown terminal を出します。この段では先に可用性を確認してからダウングレードします。
+
+注意：ここでは SSH だからといって無条件にダウングレードはしません。`kitten ssh` は terminfo をリモートに転送するため、`xterm-kitty` を保持してこそ TUI がトゥルーカラーを使えます。
+
+## 第 2 段：履歴と shell オプション
+
+```zsh
+export HISTSIZE=100000
+export SAVEHIST=100000
+export HISTFILE=~/.zsh_history
+
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_VERIFY
+setopt INC_APPEND_HISTORY
+setopt AUTO_CD
+```
+
+| オプション | 効果 |
+|---|---|
+| `SHARE_HISTORY` | 複数ターミナルが同じ履歴を共有し、すぐに互いに見える |
+| `HIST_IGNORE_ALL_DUPS` | 重複コマンドは 1 件だけ残す |
+| `HIST_REDUCE_BLANKS` | 余分な空白を除去 |
+| `HIST_VERIFY` | 履歴展開（`!!`）は実行前に表示 |
+| `INC_APPEND_HISTORY` | 各コマンドを終了時ではなく即座にディスクに書き込む |
+| `AUTO_CD` | ディレクトリ名の直接入力で移動 |
+
+## 第 3 段：リポジトリパスの導出
+
+```zsh
+dotfiles_root="${${(%):-%x}:A:h}"
+```
+
+`%x` は現在 source 中のファイルパス、`:A` は絶対パスに解決、`:h` はディレクトリ部分を取ります。これによりリポジトリはどこに置いてもよく、`~/dotfiles` をハードコードしません。この後にもフォールバックがあります。導出されたディレクトリに `plugins/` がなければ、`$DOTFILES` や `~/dotfiles` に退避します。
+
+## 第 4 段：順番にロード
+
+```text
+plugins/zinit/zinit.zsh          Zinit 本体 + zz 函数
+plugins/zsh-plugins.zsh          只定义三个加载函数，不执行
+plugins/prompt/prompt.zsh        Starship（仅交互终端）
+plugins/tools/tools.zsh          CLI 工具 + direnv/atuin 初始化
+zsh_plugins_load_pre_compinit    zsh-completions
+plugins/completion/completion.zsh
+zsh_plugins_load_post_compinit   fzf-tab + 其 zstyle
+scripts/setup/setup_fnm.sh       fnm 包装器
+zsh_plugins_load_main            vi-mode、autosuggestions、forgit、语法高亮
+plugins/fzf/fzf.zsh              f / ffd
+atuin / zoxide 的 shell hook
+vi 别名、EDITOR/VISUAL
+aliases.conf + ~/.config/aliases.conf
+local/*.zsh
+```
+
+ポイント：
+
+- この時点で `zsh-plugins.zsh` は**関数を定義するだけ**で、実際の実行は後の 3 段階で行われます。
+- `prompt.zsh` は `[[ -t 1 ]]` で包まれており、非対話の場面では Starship をロードしません。
+- `local/` が最後にロードされるため、プライベート設定が前のすべての設定を上書きできます。
+
+## 第 5 段：インタラクティブ強化
+
+```zsh
+if command -v atuin > /dev/null; then
+  _evalcache atuin init zsh
+fi
+if command -v zoxide > /dev/null; then
+  _evalcache zoxide init zsh
+  alias zi='z -i'
+fi
+```
+
+`_evalcache` は `mroth/evalcache` プラグイン由来で、`init` の出力をファイルにキャッシュし、起動のたびにサブプロセスを実行するのを避けます。起動速度の主要な最適化ポイントの一つです。
+
+## 第 6 段：エディタとエイリアス
+
+```zsh
+vi() { ... }   # 优先 nvim，其次 vim，最后 vi
+export EDITOR=nvim
+export VISUAL=nvim
+```
+
+`vi` はエイリアスではなく関数として定義されます。これにより ranger などのツールが `$EDITOR` 経由で呼び出しても nvim が使われます。
+
+## 第 7 段：プライベート上書き
+
+```zsh
+[[ -f ~/.config/aliases.conf ]] && source ~/.config/aliases.conf
+[[ -f "$dotfiles_root/aliases.conf" ]] && source "$dotfiles_root/aliases.conf"
+
+for dotfiles_local_file in "$dotfiles_root"/local/*(N.D.); do
+    [[ "${dotfiles_local_file:t}" == "README.md" ]] && continue
+    source "$dotfiles_local_file"
+done
+```
+
+`(N.D.)` は zsh のグロブ修飾子です。`N` はマッチがなくてもエラーにしない、`D` はドットで始まるファイルも含めることを意味します。
+
+## ロード問題の調査
+
+```zsh
+zsh -d -n ~/dotfiles/zshrc          # 语法检查
+zsh -x -i -c 'true' 2>&1 | head -50 # 追踪加载过程
+```
+
+`zsh -x` は実行内容を 1 行ずつ表示するため、どのファイルで止まっているか分かります。

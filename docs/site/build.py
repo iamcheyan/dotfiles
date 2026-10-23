@@ -249,8 +249,9 @@ def doc_lang_meta(src: Path) -> tuple[dict[str, str], list[str]]:
     """
     blocks = split_langs(src.read_text(encoding="utf-8"))
     meta: dict[str, tuple[str, str]] = {}
+    summary_re = re.compile(r"^> (?:摘要|Summary|要約)：?(.+)$", re.M)
     for lang, text in blocks.items():
-        m_desc = re.search(r"^> 摘要：(.+)$", text, re.M)
+        m_desc = summary_re.search(text)
         m_title = re.search(r"^# (.+)$", text, re.M)
         desc = m_desc.group(1).strip() if m_desc else ""
         title = m_title.group(1).strip() if m_title else src.stem
@@ -736,9 +737,10 @@ def page(section: str, doc: str) -> tuple[dict, str]:
     langs_on_page = [l for l in LANGS if l in blocks]
     title = lang_meta.get("zh", (doc, ""))[0]
     desc = lang_meta.get("zh", ("", ""))[1]
-    # strip 摘要 line and H1 from each language block before rendering
+    # strip summary line (摘要/Summary/要約) and H1 from each block
+    summary_re = re.compile(r"^> (摘要|Summary|要約)：?.+\n\n", re.M)
     for lang in blocks:
-        t = re.sub(r"^> 摘要：.+\n\n", "", blocks[lang], count=1, flags=re.M)
+        t = summary_re.sub("", blocks[lang], count=1)
         t = re.sub(r"^# .+\n+", "", t, count=1)
         blocks[lang] = t
     body = render_md_langs(blocks, langs_on_page)

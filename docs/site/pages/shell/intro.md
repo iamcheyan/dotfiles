@@ -39,3 +39,87 @@ Zsh 插件对加载时机敏感：
 ## 一个原则
 
 shell 配置只做「探测后加载」：几乎所有可选集成都先用 `command -v` 判断命令是否存在。某个工具没装，shell 仍然能正常启动。这条规则在 `plugins/zsh-plugins.zsh` 的 `zsh_plugins_load_shell_tools` 里最明显。
+<!-- lang:en -->
+> Summary: Which files make up the shell environment, and why they are read in this order.
+
+# Guide to This Chapter
+
+## Composition
+
+The Zsh environment is stacked from four layers:
+
+1. **`zshrc`** — the entry point. Sets options, derives the repo path, and sources the other files in order.
+2. **`plugins/zsh-plugins.zsh`** — the plugin layer. Zinit loads completions, fzf-tab, vi-mode, autosuggestions, forgit, and syntax highlighting.
+3. **`plugins/tools/tools.zsh`** — the tool layer. Uses Zinit to download CLI binaries from GitHub Releases and initializes direnv/atuin.
+4. **`plugins/fzf/fzf.zsh`** — the interactive layer. The two functions `f` and `ffd`, plus `FZF_DEFAULT_OPTS`.
+
+The prompt (`plugins/prompt/prompt.zsh`) and completions (`plugins/completion/completion.zsh`) are each independent and are inserted at their positions in `zshrc`.
+
+## Why order matters
+
+Zsh plugins are sensitive to load timing:
+
+- `zsh-completions` must load **before** `compinit`, otherwise its completion definitions don't take effect.
+- `fzf-tab` must load **after** `compinit`, otherwise it can't reach the completion system.
+- `zsh-syntax-highlighting` must load **last**, otherwise its hooks get overwritten by later plugins.
+- `zsh-vi-mode` must load before `zsh-autosuggestions`, to avoid key-binding conflicts.
+
+`zsh-plugins.zsh` makes these constraints explicit with three functions: `zsh_plugins_load_pre_compinit`, `zsh_plugins_load_post_compinit`, and `zsh_plugins_load_main`. `zshrc` calls them at the right positions.
+
+## Suggested reading order
+
+| What you want to solve | Which page to read |
+|---|---|
+| Startup errors, a command not defined | [Startup and Load Order](loading.html) |
+| History search, vi mode, key bindings | [History and Command-Line Editing](history.html) |
+| Tab completion not working | [Completion System](completion.html) |
+| Adding/removing plugins | [Interactive Plugins](plugins.html) |
+| `f` or `ffd` behaving unexpectedly | [The f and ffd Functions](fzf-functions.html) |
+| Node versions, npm command issues | [fnm and the Node Toolchain](fnm-node.html) |
+| Prompt, terminal, tmux | [Terminal and Prompt](terminal.html) |
+
+## One principle
+
+The shell config only does "probe, then load": almost every optional integration first uses `command -v` to check whether the command exists. If a tool isn't installed, the shell still starts normally. This rule is most visible in `zsh_plugins_load_shell_tools` in `plugins/zsh-plugins.zsh`.
+<!-- lang:ja -->
+> 要約：shell 環境を構成するファイルと、その順序で読まれる理由。
+
+# 本章の読み方
+
+## 構成
+
+Zsh 環境は 4 層が積み重なってできています：
+
+1. **`zshrc`** — 入口。オプションの設定、リポジトリパスの導出、他のファイルの順番付き source を行います。
+2. **`plugins/zsh-plugins.zsh`** — プラグイン層。Zinit が補完、fzf-tab、vi-mode、autosuggestions、forgit、シンタックスハイライトをロードします。
+3. **`plugins/tools/tools.zsh`** — ツール層。Zinit で GitHub Release から CLI バイナリをダウンロードし、direnv/atuin を初期化します。
+4. **`plugins/fzf/fzf.zsh`** — インタラクティブ層。`f`、`ffd` の 2 関数と `FZF_DEFAULT_OPTS`。
+
+プロンプト（`plugins/prompt/prompt.zsh`）と補完（`plugins/completion/completion.zsh`）はそれぞれ独立しており、`zshrc` 内の位置に応じて挿入されます。
+
+## なぜ順序が重要か
+
+Zsh プラグインはロードタイミングに敏感です：
+
+- `zsh-completions` は `compinit` の**前**にロードする必要があります。そうしないと補完定義が有効になりません。
+- `fzf-tab` は `compinit` の**後**にロードする必要があります。そうしないと補完システムにアクセスできません。
+- `zsh-syntax-highlighting` は**最後**にロードする必要があります。そうしないと hook が後続のプラグインに上書きされます。
+- `zsh-vi-mode` は `zsh-autosuggestions` の前にロードし、キーバインドの競合を避けます。
+
+`zsh-plugins.zsh` はこれらの制約を 3 つの関数で明示化しています：`zsh_plugins_load_pre_compinit`、`zsh_plugins_load_post_compinit`、`zsh_plugins_load_main`。`zshrc` が正しい位置でそれらを呼び出します。
+
+## 推奨する読む順序
+
+| 解決したいこと | 読むページ |
+|---|---|
+| 起動時のエラー、コマンドが未定義 | [起動とロード順序](loading.html) |
+| 履歴検索、vi モード、キーバインド | [履歴とコマンドライン編集](history.html) |
+| Tab 補完が使いにくい | [補完システム](completion.html) |
+| プラグインの追加/削除 | [インタラクティブプラグイン](plugins.html) |
+| `f` や `ffd` の挙動が期待と違う | [f と ffd 関数](fzf-functions.html) |
+| Node バージョン、npm コマンドの異常 | [fnm と Node ツールチェーン](fnm-node.html) |
+| プロンプト、ターミナル、tmux | [ターミナルとプロンプト](terminal.html) |
+
+## 一つの原則
+
+shell 設定は「探してからロード」だけを行います。ほぼすべての任意の統合は、先に `command -v` でコマンドの存在を確認します。ツールがインストールされていなくても、shell は正常に起動します。このルールは `plugins/zsh-plugins.zsh` の `zsh_plugins_load_shell_tools` で最も分かりやすいでしょう。

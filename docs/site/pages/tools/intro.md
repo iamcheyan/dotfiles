@@ -81,3 +81,175 @@
 ## 读法建议
 
 先看表格定位工具，再进具体文档。每篇文档的结构一致：用途、来源与安装、基本用法、常用参数、本仓库的配置、排错。想快速上手只看前三节，想改配置看第五节。
+
+<!-- lang:en -->
+
+> Summary: Where every tool comes from, how it is invoked, and which page documents it. Read this table first, then jump to the specific doc.
+
+# Tool index
+
+## By source
+
+| Source | Meaning |
+|---|---|
+| **Zinit** | binary downloaded from a GitHub Release via `zinit ice from"gh-r"` in `plugins/tools/tools.zsh` |
+| **init.sh** | installed directly by the bootstrap script (system packages, npm, official installers) |
+| **System package** | provided by the distro package manager; the repo only adds config or aliases |
+| **Optional** | enabled only when detected; absence does not break startup |
+
+## Files & search
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| eza | system package (optional) | `l`, `ll`, `la` | [eza](eza.html) |
+| fd | Zinit | `fd`, `ffd` backend | [fd](fd.html) |
+| ripgrep | Zinit | `rg` | [ripgrep](ripgrep.html) |
+| fzf | init.sh | `f`, `ffd`, `Ctrl+T` | [fzf](fzf.html) |
+| zoxide | Zinit | `z`, `zi`, `za`, `zr` | [zoxide](zoxide.html) |
+| glow | Zinit | `glow` | [glow](glow.html) |
+| broot | Zinit | `broot`, `br` | [broot](broot.html) |
+
+## Text & data
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| jq | Zinit | `jq` | [jq](jq.html) |
+| sd | Zinit | `sd` | [sd](sd.html) |
+
+## History & environment
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| Atuin | system package / Zinit fallback | `atuin`, `↑` | [Atuin](atuin.html) |
+| direnv | Zinit | `direnv` | [direnv](direnv.html) |
+| fnm | init.sh | `fnm`, `node`, `npm` | [fnm](fnm.html) |
+| Starship | Zinit | prompt | [Starship](starship.html) |
+
+## Git
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| forgit | Zinit plugin | `ga`, `gd`, `glo`, … | [forgit](forgit.html) |
+| lazygit | Zinit | `lazygit` | [lazygit](lazygit.html) |
+| gitui | Zinit | `gitui` | [gitui](gitui.html) |
+| gh | Zinit | `gh` | [GitHub CLI](gh.html) |
+
+## System & network
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| btop | Zinit | `btop` | [btop](btop.html) |
+| bottom | Zinit | `btm` | [bottom](bottom.html) |
+| duf | Zinit | `duf` | [duf](duf.html) |
+| procs | Zinit | `procs` | [procs](procs.html) |
+| gping | system package (optional) | `gping` | [gping](gping.html) |
+| HTTPie | installer | `http` | [HTTPie](httpie.html) |
+
+## File management & reuse
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| Ranger | system package | `ra` | [Ranger](ranger.html) |
+| Vifm | system package | `v` | [Vifm](vifm.html) |
+| tmux | system package | `tmux` | [tmux](tmux.html) |
+| zellij | Zinit / installer | `zellij` | [zellij](zellij.html) |
+| Fresh | init.sh | `fr` | [Fresh](fresh.html) |
+| Neovim | separate repository | `nvim` | [Neovim](neovim.html) |
+
+## Snippets
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| navi | Zinit | `navi` | [navi](navi.html) |
+| Pet | Zinit | `pet`, `Ctrl+X Ctrl+R` | [Pet](pet.html) |
+| pay-respects | init.sh | `F` | [pay-respects](pay-respects.html) |
+
+## How to read this
+
+Find the tool in a table, then open its page. Every page follows the same structure: purpose, source and install, basic usage, common flags, this repo's config, troubleshooting. For a quick start read only the first three sections; to change configuration, see the fifth.
+
+<!-- lang:ja -->
+
+> 要約：全ツールの出所・入り口・担当ページの一覧。まずこの表を見てから各ドキュメントへ移動します。
+
+# ツール総表
+
+## 出所分類
+
+| 出所 | 意味 |
+|---|---|
+| **Zinit** | `plugins/tools/tools.zsh` 内で `zinit ice from"gh-r"` により GitHub Release からバイナリを取得 |
+| **init.sh** | 初期化スクリプトが直接インストール（システムパッケージ・npm・公式インストーラ） |
+| **システムパッケージ** | ディストロのパッケージマネージャが提供。リポジトリは設定やエイリアスのみ |
+| **任意** | 検出できた場合のみ有効。無くても起動に影響しない |
+
+## ファイルと検索
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| eza | システムパッケージ（任意） | `l`、`ll`、`la` | [eza](eza.html) |
+| fd | Zinit | `fd`、`ffd` バックエンド | [fd](fd.html) |
+| ripgrep | Zinit | `rg` | [ripgrep](ripgrep.html) |
+| fzf | init.sh | `f`、`ffd`、`Ctrl+T` | [fzf](fzf.html) |
+| zoxide | Zinit | `z`、`zi`、`za`、`zr` | [zoxide](zoxide.html) |
+| glow | Zinit | `glow` | [glow](glow.html) |
+| broot | Zinit | `broot`、`br` | [broot](broot.html) |
+
+## テキストとデータ
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| jq | Zinit | `jq` | [jq](jq.html) |
+| sd | Zinit | `sd` | [sd](sd.html) |
+
+## 履歴と環境
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| Atuin | システムパッケージ / Zinit フォールバック | `atuin`、`↑` | [Atuin](atuin.html) |
+| direnv | Zinit | `direnv` | [direnv](direnv.html) |
+| fnm | init.sh | `fnm`、`node`、`npm` | [fnm](fnm.html) |
+| Starship | Zinit | プロンプト | [Starship](starship.html) |
+
+## Git
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| forgit | Zinit プラグイン | `ga`、`gd`、`glo` など | [forgit](forgit.html) |
+| lazygit | Zinit | `lazygit` | [lazygit](lazygit.html) |
+| gitui | Zinit | `gitui` | [gitui](gitui.html) |
+| gh | Zinit | `gh` | [GitHub CLI](gh.html) |
+
+## システムとネットワーク
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| btop | Zinit | `btop` | [btop](btop.html) |
+| bottom | Zinit | `btm` | [bottom](bottom.html) |
+| duf | Zinit | `duf` | [duf](duf.html) |
+| procs | Zinit | `procs` | [procs](procs.html) |
+| gping | システムパッケージ（任意） | `gping` | [gping](gping.html) |
+| HTTPie | インストーラ | `http` | [HTTPie](httpie.html) |
+
+## ファイル管理と再利用
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| Ranger | システムパッケージ | `ra` | [Ranger](ranger.html) |
+| Vifm | システムパッケージ | `v` | [Vifm](vifm.html) |
+| tmux | システムパッケージ | `tmux` | [tmux](tmux.html) |
+| zellij | Zinit / インストーラ | `zellij` | [zellij](zellij.html) |
+| Fresh | init.sh | `fr` | [Fresh](fresh.html) |
+| Neovim | 独立リポジトリ | `nvim` | [Neovim](neovim.html) |
+
+## コマンドスニペット
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| navi | Zinit | `navi` | [navi](navi.html) |
+| Pet | Zinit | `pet`、`Ctrl+X Ctrl+R` | [Pet](pet.html) |
+| pay-respects | init.sh | `F` | [pay-respects](pay-respects.html) |
+
+## 読み方
+
+まず表でツールを探し、個別のページへ進みます。各ページの構成は共通です：役割、出所とインストール、基本的な使い方、主要なフラグ、このリポジトリでの設定、トラブルシュート。手早く始めるには最初の 3 節だけ、設定を変えるなら 5 節目を見てください。

@@ -193,3 +193,399 @@ bash dotlink/dotlink link
 **`~/.zshrc` 还是旧文件**：Step 9 失败。手动 `bash dotlink/dotlink link`。
 
 **NixOS 上装不了 Docker**：预期行为，脚本明确跳过。
+
+<!-- lang:en -->
+
+> Summary: init.sh's 11 steps, its failure strategy, its platform branches, and why the steps are ordered the way they are.
+
+# init.sh
+
+## Purpose
+
+`init.sh` is the one-shot bootstrap for a new machine: it checks/installs dependencies, configures the shell, and deploys the configuration. It strings a dozen scattered tasks into one flow.
+
+## Usage
+
+```bash
+bash init.sh                # 完整
+bash init.sh --minimal      # 跳过字体、Neovim、大型额外组件
+bash init.sh --repair       # 额外修复 zinit 插件
+```
+
+## Failure Strategy
+
+```bash
+run_step() {
+    local step_name="$1"; shift
+    if ! "$@"; then
+        print_warning "$step_name failed, skipping..."
+    fi
+}
+```
+
+Every step is wrapped in `run_step`: on failure it prints a warning and moves on to the next step. **It never aborts the whole run.**
+
+This means "the script finished" ≠ "everything succeeded". You must verify things yourself (see [Post-install Verification](../start/verify.html)).
+
+## The 11 Steps
+
+### Step 1: Locate the Repository
+
+```bash
+detect_dotfiles_dir
+```
+
+Finds the root of the repository the script lives in. On failure, the whole script exits.
+
+### Step 2: zsh
+
+```bash
+install_zsh
+```
+
+Picks the install command per distribution: apt, dnf, pacman, zypper, etc. Skipped if already installed. After installing, it asks whether to set zsh as the default shell.
+
+### Step 3: Essential Tools
+
+```bash
+install_essentials
+```
+
+git, curl, build-essential, unzip, tar, etc. These are the prerequisite for every later step.
+
+### Step 3.5: Submodules
+
+```bash
+init_git_submodules
+```
+
+`git submodule update --init --recursive`. Without this, `config/nvim` is an empty directory.
+
+### Step 4: zinit
+
+```bash
+install_zinit
+```
+
+Clones `zdharma-continuum/zinit` into `~/.zinit/bin`.
+
+### Step 4.5: Repair (optional)
+
+```bash
+if [[ "$REPAIR" == "true" ]]; then
+    repair_zinit_plugins
+fi
+```
+
+Runs only with `--repair`. Checks whether known-fragile plugin directories (atuin, broot) are intact, and re-pulls them if not.
+
+### Step 5: fnm
+
+```bash
+install_fnm
+```
+
+Installs the Node version manager. Skipped on NixOS, where the system config manages it.
+
+### Step 6: Fresh
+
+```bash
+install_fresh
+```
+
+Chooses the install method per platform: the official installer on Linux/WSL, Homebrew on macOS, winget on Windows. Skipped on NixOS.
+
+### Step 7: fzf
+
+```bash
+install_fzf
+```
+
+Checks the system fzf version and installs a newer one from GitHub if it's too old.
+
+### Step 8: dotlink
+
+```bash
+run_dotlink
+```
+
+Calls `dotlink` to create all symlinks. **After this step the configuration is live**, even if later steps fail.
+
+### Step 8.5: Ranger Plugins
+
+```bash
+install_ranger_devicons
+install_ranger_archives
+```
+
+Clones the two ranger plugins. They are also git submodules; this is a fallback check.
+
+### Step 9: The `.zshrc` Link
+
+Creates the `~/.zshrc` → `~/dotfiles/zshrc` link.
+
+## Extra Steps Afterwards
+
+The script then handles:
+
+| Component | Description |
+|---|---|
+| Fonts | Meslo Nerd Font + Noto Serif CJK (skipped with `--minimal`) |
+| Neovim | Calls the submodule's `init.sh --skip-plugins` (skipped with `--minimal`) |
+| Docker | Linux only |
+| Zellij | Check/install |
+| gh-dash | gh extension |
+| Herdr | Local AI assistant |
+
+## Platform Branches
+
+```bash
+case "$OS" in
+    debian|ubuntu) ... ;;
+    fedora) ... ;;
+    arch) ... ;;
+    void) ... ;;
+    darwin) ... ;;
+    nixos) ... ;;
+esac
+```
+
+The NixOS branch is special: **it installs no system packages at all**, only sets up the user directories, then prompts the user to declare dependencies in `nixos-config`.
+
+## Overwrite Warning
+
+```bash
+echo "This script will:"
+echo "  1. Create symlinks for config files (replacing existing files)"
+echo "  2. Create a ~/.zshrc symlink (replacing the existing file)"
+echo -e "${RED}Warning: existing config files will be overwritten.${NC}"
+for i in {3..1}; do
+    echo -ne "$i... \r"
+    sleep 1
+done
+```
+
+It clearly states that files will be overwritten and counts down 3 seconds. There is no interactive confirmation; when the countdown ends it just continues.
+
+## Why It's Not Idempotent
+
+The script is designed to be re-runnable, but **re-running still walks through every step**. Installed items are skipped, but the checks themselves are not skipped.
+
+To update only the configuration:
+
+```bash
+git pull --ff-only
+bash dotlink/dotlink link
+```
+
+There's no need to re-run `init.sh`.
+
+## Troubleshooting
+
+**A step failed but the script continued**: that's by design. Read the warning messages and redo that step manually.
+
+**Fonts weren't installed**: `--minimal` skipped them. Run `bash scripts/install/install_font.sh` on its own.
+
+**Neovim version is old**: the Neovim step after Step 9 may have failed. Run `bash config/nvim/init.sh` on its own.
+
+**`~/.zshrc` is still the old file**: Step 9 failed. Manually run `bash dotlink/dotlink link`.
+
+**Docker can't be installed on NixOS**: expected behavior; the script skips it deliberately.
+
+<!-- lang:ja -->
+
+> 要約：init.sh の 11 ステップ、失敗時の方針、プラットフォームごとの分岐、そして順序が今こうなっている理由。
+
+# init.sh
+
+## 役割
+
+`init.sh` は新しいマシンをワンショットで初期化します：依存の確認・インストール、シェルの設定、設定ファイルの配置。散らばった十数個の作業を 1 本の流れにつなげたものです。
+
+## 使い方
+
+```bash
+bash init.sh                # 完整
+bash init.sh --minimal      # 跳过字体、Neovim、大型额外组件
+bash init.sh --repair       # 额外修复 zinit 插件
+```
+
+## 失敗時の方針
+
+```bash
+run_step() {
+    local step_name="$1"; shift
+    if ! "$@"; then
+        print_warning "$step_name failed, skipping..."
+    fi
+}
+```
+
+各ステップは `run_step` で包まれています：失敗したら warning を出して次のステップへ進みます。**全体を中断することはありません。**
+
+つまり、スクリプトが最後まで走った ≠ 全部成功です。自分で確認する必要があります（[インストール後の確認](../start/verify.html) を参照）。
+
+## 11 のステップ
+
+### Step 1：リポジトリの場所特定
+
+```bash
+detect_dotfiles_dir
+```
+
+スクリプトが属するリポジトリのルートを見つけます。失敗した場合は全体が終了します。
+
+### Step 2：zsh
+
+```bash
+install_zsh
+```
+
+ディストリビューションに応じてインストールコマンドを選びます：apt、dnf、pacman、zypper など。インストール済みならスキップ。インストール後、デフォルトシェルにするか尋ねます。
+
+### Step 3：基本ツール
+
+```bash
+install_essentials
+```
+
+git、curl、build-essential、unzip、tar など。以降のすべてのステップの前提です。
+
+### Step 3.5：サブモジュール
+
+```bash
+init_git_submodules
+```
+
+`git submodule update --init --recursive`。これをしないと `config/nvim` は空のディレクトリのままです。
+
+### Step 4：zinit
+
+```bash
+install_zinit
+```
+
+`zdharma-continuum/zinit` を `~/.zinit/bin` にクローンします。
+
+### Step 4.5：修復（任意）
+
+```bash
+if [[ "$REPAIR" == "true" ]]; then
+    repair_zinit_plugins
+fi
+```
+
+`--repair` を付けたときだけ実行します。壊れやすい既知のプラグインディレクトリ（atuin、broot）が完全か確認し、不完全なら取り直します。
+
+### Step 5：fnm
+
+```bash
+install_fnm
+```
+
+Node のバージョンマネージャーをインストールします。NixOS ではスキップし、システム設定で管理するよう促します。
+
+### Step 6：Fresh
+
+```bash
+install_fresh
+```
+
+プラットフォームに応じてインストール方法を選びます：Linux/WSL は公式 installer、macOS は Homebrew、Windows は winget。NixOS ではスキップ。
+
+### Step 7：fzf
+
+```bash
+install_fzf
+```
+
+システムの fzf のバージョンを確認し、古すぎる場合は GitHub から新版を入れます。
+
+### Step 8：dotlink
+
+```bash
+run_dotlink
+```
+
+`dotlink` を呼んですべてのシンボリックリンクを作ります。**このステップの後には設定が有効になっています。**その後で失敗してもです。
+
+### Step 8.5：Ranger プラグイン
+
+```bash
+install_ranger_devicons
+install_ranger_archives
+```
+
+ranger の 2 つのプラグインをクローンします。どちらも git サブモジュールなので、ここでは念押しのチェックになります。
+
+### Step 9：`.zshrc` のリンク
+
+`~/.zshrc` → `~/dotfiles/zshrc` のリンクを作ります。
+
+## その後の追加ステップ
+
+スクリプトはさらに次を処理します：
+
+| コンポーネント | 説明 |
+|---|---|
+| フォント | Meslo Nerd Font + Noto Serif CJK（`--minimal` でスキップ） |
+| Neovim | サブモジュールの `init.sh --skip-plugins` を呼び出し（`--minimal` でスキップ） |
+| Docker | Linux のみ |
+| Zellij | 確認・インストール |
+| gh-dash | gh 拡張 |
+| Herdr | ローカル AI アシスタント |
+
+## プラットフォームの分岐
+
+```bash
+case "$OS" in
+    debian|ubuntu) ... ;;
+    fedora) ... ;;
+    arch) ... ;;
+    void) ... ;;
+    darwin) ... ;;
+    nixos) ... ;;
+esac
+```
+
+NixOS の分岐は特殊です：**システムパッケージは一切インストールせず**、ユーザーディレクトリの設定だけを行い、依存は `nixos-config` で宣言するよう促します。
+
+## 上書きの警告
+
+```bash
+echo "This script will:"
+echo "  1. Create symlinks for config files (replacing existing files)"
+echo "  2. Create a ~/.zshrc symlink (replacing the existing file)"
+echo -e "${RED}Warning: existing config files will be overwritten.${NC}"
+for i in {3..1}; do
+    echo -ne "$i... \r"
+    sleep 1
+done
+```
+
+上書きすることを明示し、3 秒カウントダウンします。対話的な確認はなく、カウントダウンが終わればそのまま進みます。
+
+## なべき等でないのか
+
+スクリプトは繰り返し実行できるように設計されていますが、**再実行でも全ステップを通しで走ります**。インストール済みのものはスキップされますが、確認そのものは省略されません。
+
+設定だけを更新したいとき：
+
+```bash
+git pull --ff-only
+bash dotlink/dotlink link
+```
+
+`init.sh` を再実行する必要はありません。
+
+## トラブルシューティング
+
+**あるステップが失敗したのにスクリプトが続いた**：設計どおりの動作です。warning の文面を読み、そのステップを手動でやり直します。
+
+**フォントが入っていない**：`--minimal` でスキップされました。`bash scripts/install/install_font.sh` を単独で実行します。
+
+**Neovim のバージョンが古い**：Step 9 の後の Neovim ステップが失敗した可能性があります。`bash config/nvim/init.sh` を単独で実行します。
+
+**`~/.zshrc` がまだ古いファイルのまま**：Step 9 が失敗しています。手動で `bash dotlink/dotlink link` を実行します。
+
+**NixOS で Docker を入れられない**：想定内の動作です。スクリプトは明示的にスキップします。

@@ -140,3 +140,291 @@ use node
 **加载很慢**：`.envrc` 里有耗时命令（比如 `nix develop`）。考虑把结果缓存，或改用更轻的方案。
 
 **和 tmux 会话冲突**：tmux 新建 pane 时继承的是创建时的环境，不会重新触发 direnv。在 pane 里手动 `direnv reload`。
+
+<!-- lang:en -->
+> Summary: direnv loads environment variables per directory — entering a project applies them automatically, leaving cleans them up.
+
+# direnv
+
+## Purpose
+
+`direnv` makes environment variables follow the directory. Put a `.envrc` in the project root and it is loaded automatically when you `cd` in, unloaded automatically when you leave. It solves the problem of "different projects needing different API keys, different Python virtual environments, different database addresses".
+
+## Source and installation
+
+| Item | Description |
+|---|---|
+| Source | Zinit, downloads a single binary from GitHub Release |
+| Load location | `plugins/tools/tools.zsh` |
+| Executable name | `direnv` |
+
+```zsh
+zinit ice as"command" from"gh-r" sbin"direnv"
+zinit light direnv/direnv
+```
+
+## Shell integration
+
+```zsh
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
+```
+
+The hook registers `chpwd`, and on every directory change checks the current path and all parent directories for an authorized `.envrc`.
+
+## Basic usage
+
+```bash
+cd ~/project
+echo 'export DATABASE_URL=postgres://localhost/dev' > .envrc
+direnv allow                 # 首次必须显式授权
+```
+
+From then on, every time you enter that directory `DATABASE_URL` is set automatically; after leaving it is unset automatically.
+
+## Subcommands
+
+| Command | Action |
+|---|---|
+| `direnv allow [path]` | Authorize loading |
+| `direnv deny [path]` | Revoke authorization |
+| `direnv edit [path]` | Edit and authorize automatically |
+| `direnv reload` | Reload the current directory |
+| `direnv status` | Show the current load state |
+| `direnv exec DIR CMD` | Run a command with the environment of a given directory |
+| `direnv export SHELL` | Print the environment diff (for debugging) |
+| `direnv prune` | Clean up stale authorization records |
+| `direnv stdlib` | Show the available stdlib functions |
+
+## Why allow is mandatory
+
+`.envrc` is an **executable shell script** that can run arbitrary commands. If it loaded automatically, cloning a malicious repo could execute code. That is why direnv requires an explicit authorization of each file's contents, recording the file hash in `~/.local/share/direnv/allow/`.
+
+After `.envrc` is modified, the hash becomes invalid and `direnv allow` is needed again. This is a security design, not a bug.
+
+## What can go in .envrc
+
+`.envrc` uses bash syntax, and direnv provides stdlib functions:
+
+```bash
+# 加载 .env 文件
+dotenv
+
+# 加载 .env 并允许缺失
+dotenv_if_exists
+
+# 使用 Python 虚拟环境
+layout python3
+layout python ~/.venv/myproject
+
+# 使用 Node 版本
+use node 20
+
+# 使用 nix shell
+use nix
+
+# 添加 PATH
+PATH_add bin
+
+# 设置变量
+export API_URL=https://api.example.com
+```
+
+`layout python3` automatically creates/activates a virtual environment under `.direnv/python-3.x.x` and sets both `VIRTUAL_ENV` and `PATH`.
+
+## Practical patterns
+
+### A separate Python environment per project
+
+```bash
+cd ~/projects/foo
+echo 'layout python3' > .envrc
+direnv allow
+```
+
+### Loading local secrets (not committed)
+
+```bash
+# .envrc
+dotenv_if_exists .env.local
+```
+
+Add `.env.local` to `.gitignore` and commit `.envrc` to the repo. That way others only need to create their own `.env.local` after cloning.
+
+### Pinning the Node version with fnm
+
+```bash
+# .envrc
+use node
+```
+
+It reads `.nvmrc` or `.node-version`.
+
+## Relationship with other tools
+
+| Tool | Role |
+|---|---|
+| fnm | Only switches Node versions |
+| direnv | Manages arbitrary environment variables, and can also call fnm |
+| Zsh `export` | Global effect, does not change with the directory |
+
+The two can be combined: direnv sets `PATH` in the project directory while fnm's `--use-on-cd` also listens for `cd`. If both change the Node version, the behavior depends on execution order — usually letting direnv take charge is more predictable.
+
+## Troubleshooting
+
+**Nothing happens when entering a directory**: `.envrc` has not been allowed. `direnv status` will explicitly say "not allowed".
+
+**Editing .envrc has no effect**: the hash changed; run `direnv allow` again.
+
+**Variables not cleaned up**: after leaving a directory they should be unset automatically. If not, the hook is not registered — check whether `direnv hook zsh` ran.
+
+**`direnv: error .envrc is blocked`**: a security block; follow the prompt and run `direnv allow`.
+
+**Slow loading**: `.envrc` contains slow commands (like `nix develop`). Consider caching the result or switching to something lighter.
+
+**Conflicts with tmux sessions**: a new tmux pane inherits the environment from the time it was created and does not re-trigger direnv. Run `direnv reload` manually in the pane.
+
+<!-- lang:ja -->
+> 要約：direnv はディレクトリごとに環境変数を読み込みます。プロジェクトに入ると自動で適用され、出ると自動でクリーンアップされます。
+
+# direnv
+
+## 用途
+
+`direnv` は環境変数をディレクトリに追従させます。プロジェクトのルートに `.envrc` を置くと、`cd` で入ったときに自動で読み込まれ、出るときに自動でアンロードされます。「プロジェクトごとに異なる API キー、異なる Python 仮想環境、異なるデータベースアドレスが必要」という問題を解決します。
+
+## ソースとインストール
+
+| 項目 | 説明 |
+|---|---|
+| ソース | Zinit、GitHub Release から単一バイナリをダウンロード |
+| 読み込み場所 | `plugins/tools/tools.zsh` |
+| 実行ファイル名 | `direnv` |
+
+```zsh
+zinit ice as"command" from"gh-r" sbin"direnv"
+zinit light direnv/direnv
+```
+
+## シェル統合
+
+```zsh
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+fi
+```
+
+フックは `chpwd` を登録し、ディレクトリを移動するたびに現在のパスとすべての親ディレクトリに許可済みの `.envrc` がないか確認します。
+
+## 基本的な使い方
+
+```bash
+cd ~/project
+echo 'export DATABASE_URL=postgres://localhost/dev' > .envrc
+direnv allow                 # 首次必须显式授权
+```
+
+以後、そのディレクトリに入るたびに `DATABASE_URL` が自動的に設定され、出た後に自動的に unset されます。
+
+## サブコマンド
+
+| コマンド | 動作 |
+|---|---|
+| `direnv allow [path]` | 読み込みを許可 |
+| `direnv deny [path]` | 許可を取り消す |
+| `direnv edit [path]` | 編集して自動的に許可 |
+| `direnv reload` | 現在のディレクトリを再読み込み |
+| `direnv status` | 現在の読み込み状態を表示 |
+| `direnv exec DIR CMD` | 指定ディレクトリの環境でコマンドを実行 |
+| `direnv export SHELL` | 環境の差分を出力（デバッグ用） |
+| `direnv prune` | 期限切れの許可記録を整理 |
+| `direnv stdlib` | 利用可能な標準ライブラリ関数を表示 |
+
+## allow が必須な理由
+
+`.envrc` は**実行可能なシェルスクリプト**であり、任意のコマンドを実行できます。自動で読み込まれると、悪意あるリポジトリをクローンしただけでコードが実行される可能性があります。そのため direnv は、ファイルの内容ごとに明示的な許可を求め、ファイルのハッシュを `~/.local/share/direnv/allow/` に記録します。
+
+`.envrc` が変更されるとハッシュが無効になり、再度 `direnv allow` が必要です。これはセキュリティ設計であり、バグではありません。
+
+## .envrc に書けること
+
+`.envrc` は bash 構文で、direnv が標準ライブラリ関数を提供します：
+
+```bash
+# 加载 .env 文件
+dotenv
+
+# 加载 .env 并允许缺失
+dotenv_if_exists
+
+# 使用 Python 虚拟环境
+layout python3
+layout python ~/.venv/myproject
+
+# 使用 Node 版本
+use node 20
+
+# 使用 nix shell
+use nix
+
+# 添加 PATH
+PATH_add bin
+
+# 设置变量
+export API_URL=https://api.example.com
+```
+
+`layout python3` は `.direnv/python-3.x.x` の下に仮想環境を自動作成/アクティベートし、`VIRTUAL_ENV` と `PATH` の両方を設定します。
+
+## 実用的なパターン
+
+### プロジェクトごとの独立した Python 環境
+
+```bash
+cd ~/projects/foo
+echo 'layout python3' > .envrc
+direnv allow
+```
+
+### ローカルのシークレットを読み込む（コミットしない）
+
+```bash
+# .envrc
+dotenv_if_exists .env.local
+```
+
+`.env.local` を `.gitignore` に追加し、`.envrc` をリポジトリにコミットします。これにより他の人がクローンした後は、自分の `.env.local` を作るだけで済みます。
+
+### fnm で Node バージョンを固定
+
+```bash
+# .envrc
+use node
+```
+
+`.nvmrc` か `.node-version` を読みます。
+
+## 他のツールとの関係
+
+| ツール | 役割 |
+|---|---|
+| fnm | Node バージョン切り替えのみ担当 |
+| direnv | 任意の環境変数を管理。fnm の呼び出しも可能 |
+| Zsh の `export` | グローバルに有効で、ディレクトリに追従しない |
+
+両者は併用できます。direnv がプロジェクトディレクトリで `PATH` を設定し、fnm の `--use-on-cd` も `cd` を監視します。両方が Node バージョンを変更する場合、挙動は実行順序に依存するため、通常は direnv に任せる方が制御しやすくなります。
+
+## トラブルシューティング
+
+**ディレクトリに入っても反応がない**：`.envrc` が allow されていません。`direnv status` が「not allowed」と明示的に表示します。
+
+**.envrc を変更しても効かない**：ハッシュが変わったので、再度 `direnv allow` してください。
+
+**変数がクリーンアップされない**：ディレクトリを出たら自動で unset されるはずです。されない場合はフックが登録されていないので、`direnv hook zsh` が実行されているか確認してください。
+
+**`direnv: error .envrc is blocked`**：セキュリティによるブロックです。表示に従い `direnv allow` してください。
+
+**読み込みが遅い**：`.envrc` に時間のかかるコマンド（例：`nix develop`）があります。結果をキャッシュするか、より軽い方法に切り替えてください。
+
+**tmux セッションとの競合**：tmux が新しい pane を作るとき、継承するのは作成時点の環境であり、direnv は再トリガされません。pane 内で手動で `direnv reload` してください。

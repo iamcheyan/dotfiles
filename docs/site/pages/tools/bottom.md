@@ -107,3 +107,225 @@ columns = ["pid", "name", "cpu", "mem"]
 **磁盘列表太长**：用 `[disk_filter]` 排除 loop 设备和网络挂载。
 
 **配置不生效**：确认 `-C` 指向的文件存在且是有效 TOML。TOML 语法错误时 bottom 会回退默认值，不报错。
+
+<!-- lang:en -->
+> Summary: bottom (btm) is a configurable terminal system monitor written in Rust, with TOML-based configuration.
+
+# bottom (btm)
+
+## Purpose
+
+`bottom` targets the same role as btop but with a different design philosophy: btop leans graphical, bottom leans configurable and script-friendly. It is written in Rust, starts quickly, and uses little memory.
+
+## Source and installation
+
+| Item | Description |
+|---|---|
+| Source | Zinit, downloaded from GitHub Release |
+| Executable name | `btm` |
+
+```zsh
+zi_cmd ClementTsang/bottom btm
+```
+
+Note that the command name is `btm`, not `bottom`.
+
+## Launching
+
+```bash
+btm                  # 默认布局
+btm --basic          # 简化外观，接近 htop
+btm --battery        # 显示电池
+btm -b               # 同上 --basic
+```
+
+## Common options
+
+| Option | Action |
+|---|---|
+| `-b` / `--basic` | Hide graphs, use plain-text bars |
+| `--battery` | Show battery level |
+| `-t` / `--default_time_value` | Default time window for graphs, e.g. `60s` |
+| `-C` / `--config_location` | Specify a config file path |
+| `--autohide_time` | Auto-hide the time axis after zooming |
+| `--hide_time` | Hide the time axis entirely |
+| `--default_widget_type` | Type of the panel focused by default |
+| `--default_widget_count` | Focus the Nth panel of that type |
+| `--rate` | Sampling interval (milliseconds) |
+
+`--basic` is especially useful over SSH or on low-bandwidth links, because graph refreshes produce a lot of terminal output.
+
+## Interface and keys
+
+| Key | Action |
+|---|---|
+| `q` / `Esc` | Quit |
+| `?` | Help |
+| `f` | Open filter |
+| `/` | Search processes |
+| `dd` | Kill the selected process |
+| `Tab` | Switch panels |
+| `+` / `-` | Zoom the time axis |
+| `e` | Expand/collapse |
+| `Ctrl+f` | Freeze/unfreeze refreshing |
+
+## Configuration
+
+```bash
+btm -C ~/.config/bottom/bottom.toml
+```
+
+Without `-C` the default location is used; the file is created automatically if missing.
+
+The config is TOML with these main sections:
+
+```toml
+[flags]
+rate = 1000
+dot_marker = false
+enable_gpu = false
+
+[colors]
+table_header_color = "LightCyan"
+
+[disk_filter]
+is_list_ignored = true
+list = ["/dev/loop"]
+
+[processes]
+columns = ["pid", "name", "cpu", "mem"]
+```
+
+`[processes].columns` lets you customize which columns the process table shows — this is bottom's advantage over btop: more compact output, better for small windows.
+
+## Choosing between bottom and btop
+
+| Scenario | Recommendation |
+|---|---|
+| Comfortable visuals, mouse support | btop |
+| SSH / low bandwidth | `btm --basic` |
+| Custom columns | bottom |
+| Scriptable output | `procs` or `ps` |
+
+## Troubleshooting
+
+**`btm: command not found`**: Zinit has not downloaded it. Remember the command name is `btm`.
+
+**Garbled graphics**: a font or `$TERM` problem. `--basic` works around it.
+
+**GPU not shown**: GPU support must be enabled at compile time and may be absent from release binaries. `enable_gpu = true` in the config also requires underlying support.
+
+**Disk list too long**: use `[disk_filter]` to exclude loop devices and network mounts.
+
+**Config not applied**: verify the file pointed to by `-C` exists and is valid TOML. On a TOML syntax error, bottom silently falls back to defaults without reporting an error.
+
+<!-- lang:ja -->
+> 要約：bottom（btm）は設定可能なターミナル用システムモニターで、Rust 実装、TOML 設定に対応しています。
+
+# bottom (btm)
+
+## 用途
+
+`bottom` は btop と同じ立ち位置ですが、設計の方向性が異なります。btop はグラフィカル寄り、bottom は設定可能性とスクリプト容易性寄りです。Rust で書かれており、起動が速くメモリ使用量も少ないです。
+
+## ソースとインストール
+
+| 項目 | 説明 |
+|---|---|
+| ソース | Zinit、GitHub Release からダウンロード |
+| 実行ファイル名 | `btm` |
+
+```zsh
+zi_cmd ClementTsang/bottom btm
+```
+
+コマンド名は `bottom` ではなく `btm` であることに注意してください。
+
+## 起動
+
+```bash
+btm                  # 默认布局
+btm --basic          # 简化外观，接近 htop
+btm --battery        # 显示电池
+btm -b               # 同上 --basic
+```
+
+## よく使うオプション
+
+| オプション | 動作 |
+|---|---|
+| `-b` / `--basic` | グラフを隠し、プレーンテキストのバーで表示 |
+| `--battery` | バッテリー残量を表示 |
+| `-t` / `--default_time_value` | グラフのデフォルト時間窓、例：`60s` |
+| `-C` / `--config_location` | 設定ファイルのパスを指定 |
+| `--autohide_time` | ズーム後に時間軸を自動的に隠す |
+| `--hide_time` | 時間軸を完全に隠す |
+| `--default_widget_type` | デフォルトでフォーカスするパネルの種類 |
+| `--default_widget_count` | 同種パネルの N 番目にフォーカス |
+| `--rate` | サンプリング間隔（ミリ秒） |
+
+`--basic` は SSH や低帯域環境で特に有用です。グラフの再描画が大量のターミナル出力を生成するためです。
+
+## インターフェースとキー操作
+
+| キー | 動作 |
+|---|---|
+| `q` / `Esc` | 終了 |
+| `?` | ヘルプ |
+| `f` | フィルタを開く |
+| `/` | プロセスを検索 |
+| `dd` | 選択したプロセスを終了 |
+| `Tab` | パネルを切り替え |
+| `+` / `-` | 時間軸をズーム |
+| `e` | 展開/折りたたみ |
+| `Ctrl+f` | 更新の凍結/解除 |
+
+## 設定
+
+```bash
+btm -C ~/.config/bottom/bottom.toml
+```
+
+`-C` を省略するとデフォルトの場所を使い、ファイルがなければ自動的に作成されます。
+
+設定は TOML で、主なセクションは次のとおりです：
+
+```toml
+[flags]
+rate = 1000
+dot_marker = false
+enable_gpu = false
+
+[colors]
+table_header_color = "LightCyan"
+
+[disk_filter]
+is_list_ignored = true
+list = ["/dev/loop"]
+
+[processes]
+columns = ["pid", "name", "cpu", "mem"]
+```
+
+`[processes].columns` でプロセステーブルの表示列をカスタマイズできます。これは bottom が btop に対して持つ利点で、出力がよりコンパクトになり、小さいウィンドウに向いています。
+
+## bottom と btop の使い分け
+
+| シーン | おすすめ |
+|---|---|
+| 見やすさ・マウス操作重視 | btop |
+| SSH / 低帯域 | `btm --basic` |
+| 列をカスタマイズしたい | bottom |
+| スクリプト向け出力 | `procs` か `ps` |
+
+## トラブルシューティング
+
+**`btm: command not found`**：Zinit がダウンロードしていません。コマンド名が `btm` であることに注意してください。
+
+**グラフィックが文字化けする**：フォントか `$TERM` の問題です。`--basic` で回避できます。
+
+**GPU が表示されない**：コンパイル時に GPU 機能を有効にする必要があり、release のバイナリには含まれていない場合があります。設定の `enable_gpu = true` も下層のサポートが前提です。
+
+**ディスク一覧が長すぎる**：`[disk_filter]` で loop デバイスやネットワークマウントを除外してください。
+
+**設定が反映されない**：`-C` が指すファイルが存在し、有効な TOML か確認してください。TOML の構文エラーがあると、bottom はエラーを出さずにデフォルト値へフォールバックします。

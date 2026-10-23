@@ -192,3 +192,199 @@ diskutil unmount ~/.sshfs/build-box     # macOS
 **macOS 上 sshfs 报 macFUSE 错误**：需要在系统设置里允许 macFUSE 扩展。
 
 **Vifm 打不开**：vifm 没装。`sudo apt install vifm`。
+
+<!-- lang:en -->
+> Summary: `vssh` selects a host from SSH config and connects; `vifm-sshfs` mounts a remote directory for browsing in Vifm.
+
+# SSH and SSHFS
+
+## The Two Scripts
+
+| Script | Purpose | Entry point |
+|---|---|---|
+| `plugins/sshfs/vssh.sh` | Choose a host and connect over SSH | `vssh` alias |
+| `plugins/sshfs/vifm-sshfs.sh` | Mount with SSHFS and browse in Vifm | Direct invocation |
+
+Both share the host-list logic, collecting Host entries from `~/.ssh/config`, `conf.d/`, and `config.d/`.
+
+## vssh
+
+### Usage
+
+`vssh` is an alias in `aliases.conf`.
+
+### Host List
+
+All three locations are read. awk extracts Host entries, **excluding wildcard patterns containing `*`, `?`, or `!`**, then sorts and removes duplicates.
+
+### Interactive Preview
+
+The preview pane shows:
+
+1. The resolved user/hostname/port from `ssh -G`
+2. A separator
+3. The output of `uptime` with a 1-second timeout
+
+The third item lets you check whether the host is reachable and see its load before connecting.
+
+`FZF_DEFAULT_OPTS=` clears global fzf options so this repository's default preview (bat/ls) does not interfere.
+
+### Without fzf
+
+The script falls back to bash's `select` menu.
+
+## vifm-sshfs
+
+### Usage
+
+| Option | Purpose |
+|---|---|
+| Positional argument | SSH host alias |
+| `-p` | Port |
+| `-d` | Remote path; defaults to the login directory |
+| `-h` / `--help` | Show usage |
+
+### Mount Point Naming
+
+The script replaces `/` and `:` in the host name with `_`, and appends `_p<port>` when a port is specified. For example:
+
+| Input | Mount point |
+|---|---|
+| `build-box` | `~/.sshfs/build-box` |
+| `build-box -p 2222` | `~/.sshfs/build-box_p2222` |
+| `user@host:22` | `~/.sshfs/user_host_22` |
+
+### Idempotent Mounting
+
+If the directory is already mounted, mounting is skipped.
+
+### Launch Vifm
+
+The remote directory opens in the left pane and the local home directory in the right pane, making file copying convenient.
+
+### Handling ~
+
+sshfs handles `~` differently from ssh, so it is changed to `.` to represent the login directory.
+
+## Dependencies
+
+| Script | Dependencies |
+|---|---|
+| vssh | ssh, fzf (optional) |
+| vifm-sshfs | ssh, sshfs, vifm, fzf (optional) |
+
+## Unmount
+
+## Troubleshooting
+
+**`vssh: command not found`**: `aliases.conf` has not been loaded.
+
+**「No ssh hosts found」**: There is no Host entry in `~/.ssh/config`, or all entries are wildcard patterns.
+
+**Preview shows `ssh: connect to host ... failed`**: The host is unreachable. You can still continue (ICMP/ping may simply be disabled).
+
+**SSHFS mount fails**: Check that `sshfs` is installed and SSH is configured for passwordless, non-interactive authentication.
+
+**Mount point exists but is empty**: The `mount` check says it is not mounted, but a leftover directory remains. Run `rmdir` and retry.
+
+**macFUSE error from sshfs on macOS**: Allow the macFUSE extension in System Settings.
+
+**Vifm will not open**: Vifm is not installed. Install it with `sudo apt install vifm`.
+
+<!-- lang:ja -->
+> 要約：`vssh` は SSH config からホストを選んで接続し、`vifm-sshfs` はリモートディレクトリをマウントして Vifm で閲覧します。
+
+# SSH と SSHFS
+
+## 2 つのスクリプト
+
+| スクリプト | 役割 | 起動方法 |
+|---|---|---|
+| `plugins/sshfs/vssh.sh` | ホストを選択して SSH 接続 | `vssh` エイリアス |
+| `plugins/sshfs/vifm-sshfs.sh` | SSHFS でマウントし、Vifm で閲覧 | 直接実行 |
+
+どちらも共通のホスト一覧処理を使い、`~/.ssh/config`、`conf.d/`、`config.d/` から Host 項目を集めます。
+
+## vssh
+
+### 使い方
+
+`vssh` は `aliases.conf` にあるエイリアスです。
+
+### ホスト一覧
+
+3 つの場所を読み込み、awk で Host 項目を抽出します。**`*`、`?`、`!` を含むワイルドカード項目は除外**し、重複を取り除いてソートします。
+
+### 対話型プレビュー
+
+プレビュー欄には次の内容が表示されます。
+
+1. `ssh -G` が解決した user/hostname/port
+2. 区切り線
+3. 1 秒でタイムアウトする `uptime` の出力
+
+3 番目の項目から、接続前にホストへ到達できるか、負荷がどの程度かを確認できます。
+
+`FZF_DEFAULT_OPTS=` でグローバルな fzf オプションを消去し、このリポジトリの標準プレビュー（bat/ls）が干渉しないようにします。
+
+### fzf がない場合
+
+bash の `select` メニューに切り替わります。
+
+## vifm-sshfs
+
+### 使い方
+
+| オプション | 役割 |
+|---|---|
+| 位置引数 | SSH ホストのエイリアス |
+| `-p` | ポート |
+| `-d` | リモートパス。デフォルトはログインディレクトリです |
+| `-h` / `--help` | 使い方を表示 |
+
+### マウントポイントの命名
+
+ホスト名に含まれる `/` と `:` を `_` に置き換え、ポートを指定した場合は `_p<port>` を追加します。例：
+
+| 入力 | マウントポイント |
+|---|---|
+| `build-box` | `~/.sshfs/build-box` |
+| `build-box -p 2222` | `~/.sshfs/build-box_p2222` |
+| `user@host:22` | `~/.sshfs/user_host_22` |
+
+### 冪等なマウント
+
+すでにマウントされている場合は、重複してマウントしません。
+
+### Vifm の起動
+
+左ペインにリモートディレクトリ、右ペインにローカルの home を開くため、ファイルを相互にコピーしやすくなります。
+
+### ~ の扱い
+
+sshfs は ssh と `~` の扱いが異なるため、ログインディレクトリを示す `.` に置き換えます。
+
+## 依存関係
+
+| スクリプト | 依存関係 |
+|---|---|
+| vssh | ssh、fzf（任意） |
+| vifm-sshfs | ssh、sshfs、vifm、fzf（任意） |
+
+## マウント解除
+
+## トラブルシューティング
+
+**`vssh: command not found`**：`aliases.conf` が読み込まれていません。
+
+**「No ssh hosts found」**：`~/.ssh/config` に Host 項目がないか、すべてワイルドカード項目です。
+
+**プレビューに `ssh: connect to host ... failed` と表示される**：ホストへ到達できません。接続を続けることはできます（ICMP/ping が無効なだけの場合があります）。
+
+**SSHFS のマウント失敗**：`sshfs` がインストール済みで、SSH が非対話のパスワードなし認証に設定されていることを確認してください。
+
+**マウントポイントはあるが空**：`mount` の確認では未マウントですが、ディレクトリだけ残っています。`rmdir` で削除してから再試行してください。
+
+**macOS で sshfs が macFUSE エラーになる**：システム設定で macFUSE 拡張を許可してください。
+
+**Vifm が起動しない**：Vifm が未インストールです。`sudo apt install vifm` でインストールしてください。

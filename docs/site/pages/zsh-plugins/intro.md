@@ -72,3 +72,157 @@ fi
 ```
 
 工具没装时什么也不做，shell 照常启动。这条规则让整个配置在没有 Zinit 缓存、没有额外工具的新机器上也能启动。
+
+<!-- lang:en -->
+
+> Summary: What each of the 13 plugins in the Zsh environment is responsible for, at which stage they load, and which page to read.
+
+## Chapter Guide
+
+## Plugin Overview
+
+`plugins/zsh-plugins.zsh` and `plugins/tools/tools.zsh` load 11 items in total. They are not loaded flat; instead they load in three segments according to Zsh's initialization constraints.
+
+| Stage | Plugin | Why it is at this position |
+|---|---|---|
+| Before compinit | zsh-completions | Completion definitions must enter `$fpath` first |
+| After compinit | fzf-tab | Requires the completion system built by `compinit` |
+| main stage | evalcache | Caches the output of later hooks |
+| main stage | zsh-vi-mode | Must come before autosuggestions to avoid keybinding conflicts |
+| main stage | zsh-autosuggestions | Depends on vi-mode's keybindings being in place |
+| main stage | zsh-autopair | No ordering dependency |
+| main stage | forgit | Depends on fzf |
+| main stage | zsh-syntax-highlighting | **Must be last**, otherwise hooks get overwritten |
+| Any | Zinit itself | The prerequisite for everything |
+| Any | fzf completion/keybinding snippet | Upstream script, not a plugin |
+| Runtime | navi / Pet hook | Wired in only when the tool is installed |
+
+## Why the Order Cannot Change
+
+Three hard constraints:
+
+1. **zsh-completions must come before compinit**. `compinit` scans `$fpath` to build the completion cache; completion definitions loaded afterwards do not take effect automatically.
+2. **fzf-tab must come after compinit**. It replaces the display layer of the completion menu; without the completion system there is nothing to replace.
+3. **syntax-highlighting must be last**. It colors the line via the `zle` `line-pre-redraw` hook; any plugin that sets a hook after it will interrupt the coloring.
+
+If any of these is violated, the symptoms are subtle: no error is raised, features just silently stop working.
+
+## Reading Order
+
+| If you want to know | Read |
+|---|---|
+| How plugins are installed and updated | [Zinit](zinit.html) |
+| Tab completion not working well | [zsh-completions](zsh-completions.html), [fzf-tab](fzf-tab.html) |
+| Startup is too slow | [evalcache](evalcache.html) |
+| Vim keybindings on the command line | [zsh-vi-mode](vi-mode.html) |
+| Suggestion text color/behavior | [zsh-autosuggestions](autosuggestions.html) |
+| Automatic bracket closing | [zsh-autopair](autopair.html) |
+| Interactive Git commands | [forgit](forgit.html) |
+| Syntax highlighting broken | [zsh-syntax-highlighting](syntax-highlighting.html) |
+| `Ctrl+T` / `Ctrl+R` | [fzf completion and keybindings](fzf-snippets.html) |
+| Where `f`, `Ctrl+X Ctrl+R` come from | [Optional tool integration](tool-hooks.html) |
+
+## How to Add a Plugin
+
+```bash
+$EDITOR ~/dotfiles/plugins/zsh-plugins.zsh
+```
+
+1. Determine which stage it belongs to and put it into the corresponding `zsh_plugins_load_*` function.
+2. Run `zinit light owner/repo`; use `zinit ice` first if parameters are needed.
+3. Write the plugin's environment variables, `zstyle`, and hooks right below it; do not scatter them into other files.
+4. Check:
+
+```bash
+zsh -d -n ~/dotfiles/plugins/zsh-plugins.zsh
+TERM=xterm-256color zsh -lic 'source ~/dotfiles/zshrc >/dev/null 2>&1; true'
+```
+
+## One Design Principle
+
+All optional integrations follow "probe first, then load":
+
+```zsh
+if command -v navi >/dev/null 2>&1; then
+  eval "$(navi widget zsh)"
+fi
+```
+
+When a tool is not installed, nothing happens and the shell starts as usual. This rule lets the whole configuration start even on a new machine without the Zinit cache or extra tools.
+
+<!-- lang:ja -->
+
+> 要約：Zsh 環境の 13 個のプラグインがそれぞれ何を担当し、どの段階で読み込まれ、どのページを読むべきか。
+
+## 本章のガイド
+
+## プラグイン全体像
+
+`plugins/zsh-plugins.zsh` と `plugins/tools/tools.zsh` は合計 11 項目を読み込みます。それらは平面的に並んでいるのではなく、Zsh の初期化制約に従って三つの区間に分けて読み込まれます。
+
+| 段階 | プラグイン | この位置にある理由 |
+|---|---|---|
+| compinit の前 | zsh-completions | 補完定義は先に `$fpath` に入る必要がある |
+| compinit の後 | fzf-tab | `compinit` が構築した補完システムが必要 |
+| main 段階 | evalcache | 後続の hook の出力をキャッシュ |
+| main 段階 | zsh-vi-mode | キーバインドの衝突を避けるため autosuggestions より前であること |
+| main 段階 | zsh-autosuggestions | vi-mode のキーバインドが整っていることに依存 |
+| main 段階 | zsh-autopair | 順序の依存なし |
+| main 段階 | forgit | fzf に依存 |
+| main 段階 | zsh-syntax-highlighting | **必ず最後**。そうでないと hook が上書きされる |
+| 任意 | Zinit 本体 | すべての前提 |
+| 任意 | fzf 補完/キーバインド snippet | 上流スクリプトでありプラグインではない |
+| 実行時 | navi / Pet hook | ツールが入っていれば接続 |
+
+## なぜ順序を変えてはいけないのか
+
+三つのハードな制約があります：
+
+1. **compinit の前に zsh-completions が必要**。`compinit` は `$fpath` を走査して補完キャッシュを生成します。その後に読み込まれた補完定義は自動的には有効になりません。
+2. **fzf-tab は compinit の後でなければならない**。置き換えるのは補完メニューの表示層であり、補完システムがなければ置き換える対象が存在しません。
+3. **syntax-highlighting は最後でなければならない**。`zle` の `line-pre-redraw` hook を通じて着色しており、それより後に hook を設定するプラグインは着色を壊します。
+
+いずれかに違反しても症状はわかりにくいです。エラーが出るのではなく、機能が黙って無効になるだけです。
+
+## 読む順序
+
+| 知りたいこと | 読むページ |
+|---|---|
+| プラグインの導入・更新方法 | [Zinit](zinit.html) |
+| Tab 補全が使いにくい | [zsh-completions](zsh-completions.html)、[fzf-tab](fzf-tab.html) |
+| 起動が遅い | [evalcache](evalcache.html) |
+| コマンドラインの Vim キーバインド | [zsh-vi-mode](vi-mode.html) |
+| 補完候補の文字色/挙動 | [zsh-autosuggestions](autosuggestions.html) |
+| 括弧の自動補完 | [zsh-autopair](autopair.html) |
+| Git の対話コマンド | [forgit](forgit.html) |
+| シンタックスハイライトが効かない | [zsh-syntax-highlighting](syntax-highlighting.html) |
+| `Ctrl+T` / `Ctrl+R` | [fzf 補完とキーバインド](fzf-snippets.html) |
+| `f`、`Ctrl+X Ctrl+R` の由来 | [オプションツール統合](tool-hooks.html) |
+
+## プラグイン追加の手順
+
+```bash
+$EDITOR ~/dotfiles/plugins/zsh-plugins.zsh
+```
+
+1. どの段階に属するかを判断し、対応する `zsh_plugins_load_*` 関数に入れます。
+2. `zinit light owner/repo` を実行します。パラメータが必要なら先に `zinit ice` を書きます。
+3. そのプラグインの環境変数・`zstyle`・hook は直下にまとめて書き、別のファイルに分散させません。
+4. チェックします：
+
+```bash
+zsh -d -n ~/dotfiles/plugins/zsh-plugins.zsh
+TERM=xterm-256color zsh -lic 'source ~/dotfiles/zshrc >/dev/null 2>&1; true'
+```
+
+## 一つの設計原則
+
+オプションの統合はすべて「先に検出してから読み込む」方式です：
+
+```zsh
+if command -v navi >/dev/null 2>&1; then
+  eval "$(navi widget zsh)"
+fi
+```
+
+ツールが入っていなければ何もせず、シェルは通常どおり起動します。このルールのおかげで、Zinit のキャッシュも追加ツールもない新しいマシンでも設定全体を起動できます。

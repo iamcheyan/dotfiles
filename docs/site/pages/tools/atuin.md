@@ -152,3 +152,315 @@ atuin history list --format '{command}' > history.txt
 **同步冲突**：多机同时写入时会有冲突。`atuin status` 查看状态，必要时 `atuin sync --force`。
 
 **搜索很慢**：数据库太大。`atuin history prune` 清理，或在配置里限制保留时间。
+
+<!-- lang:en -->
+> Summary: Atuin stores command history in SQLite, offering enhanced search, statistics, and optional cross-machine sync.
+
+# Atuin
+
+## Purpose
+
+Atuin moves shell history from plain-text files into a SQLite database, bringing four capabilities: structured queries, filtering by directory/session, statistics, and cross-machine sync. It also replaces the up-arrow history search experience.
+
+This repo uses it as the main interactive history search entry point.
+
+## Source and installation
+
+| Item | Description |
+|---|---|
+| Source | Prefer the system package; when absent, use Zinit to download a release |
+| Load location | `plugins/tools/tools.zsh` |
+| Config file | `config/atuin/config.toml` → `~/.config/atuin/` |
+| Data file | `~/.local/share/atuin/history.db` |
+
+```zsh
+# 系统没有 atuin 时的兜底
+if ! command -v atuin >/dev/null 2>&1; then
+  zinit ice as"command" from"gh-r" bpick"atuin-${atuin_arch}-unknown-linux-gnu.tar.gz" ...
+  zinit light atuinsh/atuin
+fi
+```
+
+Prefer the system version, because its updates follow the system and the "Zinit version fighting the system version" problem never appears.
+
+## Initialization
+
+```zsh
+if command -v atuin > /dev/null; then
+  _evalcache atuin init zsh
+fi
+```
+
+`atuin init zsh` injects a `precmd` hook that writes every executed command into the database and binds the up arrow.
+
+## Configuration in this repo
+
+The three settings explicitly set in `config/atuin/config.toml`:
+
+```toml
+auto_sync = false
+update_check = false
+enter_accept = true
+```
+
+| Setting | Meaning |
+|---|---|
+| `auto_sync = false` | Do not sync automatically to the Atuin server |
+| `update_check = false` | Do not check for new versions at startup |
+| `enter_accept = true` | Pressing Enter directly executes the selected command |
+
+`auto_sync = false` is a privacy-related default: history may contain tokens, internal addresses, or temporary commands, so nothing is uploaded proactively.
+
+All other settings are kept as comments for easy opt-in. Notable ones:
+
+```toml
+# search_mode = "fuzzy"          # prefix / fulltext / fuzzy / skim
+# filter_mode = "global"         # global / host / session / directory / workspace
+# style = "auto"                 # auto / full / compact
+# inline_height = 0              # 0 表示全屏
+# secrets_filter = true          # 默认开启，过滤疑似密钥
+```
+
+## Basic usage
+
+```bash
+atuin search                 # 交互式搜索
+atuin search git             # 带初始查询
+atuin search --limit 50      # 限制条数
+atuin search -i              # 只搜当前目录
+atuin stats                  # 使用统计
+atuin history list           # 列出全部历史
+atuin history last           # 最后一条
+atuin doctor                 # 诊断
+```
+
+## Keys in the search UI
+
+| Key | Action |
+|---|---|
+| `↑` / `↓` | Move the selection |
+| `Enter` | Execute (because `enter_accept = true`) |
+| `Tab` | Put the command back on the input line for further editing |
+| `Ctrl+O` | Cycle through filter modes |
+| `Ctrl+R` | Switch search mode |
+| `Esc` | Quit |
+
+**Key difference**: Enter executes directly; only Tab returns to the command line. If you want to edit before running, build the habit of pressing Tab.
+
+## Filter modes
+
+| Mode | Scope |
+|---|---|
+| `global` | All history |
+| `host` | Current host |
+| `session` | Current shell session |
+| `directory` | Current directory |
+| `workspace` | Inside the current Git repository tree |
+
+Press `Ctrl+O` to cycle through them. Using the `directory` mode inside a project directory lets you quickly rediscover commands related to that project.
+
+## Sync (disabled by default)
+
+To enable cross-machine sync:
+
+```bash
+atuin register -u <用户名> -e <邮箱> -p
+atuin login -u <用户名> -p
+atuin key                    # 打印加密密钥，用于其它机器
+atuin sync
+```
+
+Then set `auto_sync` to `true` in the config. Sync is end-to-end encrypted and the key is never uploaded, but **history content is uploaded to the Atuin server**. Before enabling it, make sure the history contains nothing sensitive.
+
+## Data maintenance
+
+```bash
+atuin history prune          # 清理旧条目
+atuin history delete         # 交互式删除
+atuin import auto            # 从其它 shell 历史导入
+atuin info                   # 显示数据文件位置和环境变量
+```
+
+## Relationship with native Zsh history
+
+Two stores coexist:
+
+| | Zsh native | Atuin |
+|---|---|---|
+| File | `~/.zsh_history` | `history.db` |
+| Writes | `INC_APPEND_HISTORY` | precmd hook |
+| Reads | `history` builtin | `atuin search` |
+
+So `grep ~/.zsh_history` not finding recently executed commands is normal. To export Atuin history:
+
+```bash
+atuin history list --format '{command}' > history.txt
+```
+
+## Troubleshooting
+
+**Up-arrow behaves incorrectly**: the `zvm_bindkey viins '^[[A' atuin-up-search` in `zvm_after_init` did not take effect. Check whether zsh-vi-mode is loaded and whether that function is being called.
+
+**`atuin doctor` reports database corruption**: back up and rebuild. `atuin info` shows the database path; rename it and restart the shell to create a new one.
+
+**History not recorded**: the precmd hook is not installed. Did `atuin init zsh` run successfully? The `_evalcache` cache file may be stale; delete the cache directory and retry.
+
+**Sync conflicts**: multiple machines writing at the same time cause conflicts. Check the state with `atuin status` and use `atuin sync --force` if necessary.
+
+**Search is slow**: the database is too large. Run `atuin history prune` to clean it, or limit the retention period in the config.
+
+<!-- lang:ja -->
+> 要約：Atuin はコマンド履歴を SQLite に保存し、強力な検索・統計・オプションのマシン間同期を提供します。
+
+# Atuin
+
+## 用途
+
+Atuin はシェル履歴をプレーンテキストファイルから SQLite データベースへ移し、構造化クエリ・ディレクトリ/セッション単位のフィルタリング・統計・マシン間同期という 4 つの機能をもたらします。上矢印の履歴検索体験も同時に置き換えます。
+
+本リポジトリでは、メインの対話型履歴検索の入口として使用しています。
+
+## ソースとインストール
+
+| 項目 | 説明 |
+|---|---|
+| ソース | 基本はシステムパッケージ。ない場合は Zinit で release をダウンロード |
+| 読み込み場所 | `plugins/tools/tools.zsh` |
+| 設定ファイル | `config/atuin/config.toml` → `~/.config/atuin/` |
+| データファイル | `~/.local/share/atuin/history.db` |
+
+```zsh
+# 系统没有 atuin 时的兜底
+if ! command -v atuin >/dev/null 2>&1; then
+  zinit ice as"command" from"gh-r" bpick"atuin-${atuin_arch}-unknown-linux-gnu.tar.gz" ...
+  zinit light atuinsh/atuin
+fi
+```
+
+システム版を優先します。更新がシステムに追従し、「Zinit 版とシステム版が競合する」事態が起きないためです。
+
+## 初期化
+
+```zsh
+if command -v atuin > /dev/null; then
+  _evalcache atuin init zsh
+fi
+```
+
+`atuin init zsh` は `precmd` フックを注入し、実行された各コマンドをデータベースに書き込み、上矢印をバインドします。
+
+## 本リポジトリの設定
+
+`config/atuin/config.toml` で明示的に設定している 3 項目：
+
+```toml
+auto_sync = false
+update_check = false
+enter_accept = true
+```
+
+| 設定 | 意味 |
+|---|---|
+| `auto_sync = false` | Atuin サーバーへ自動同期しない |
+| `update_check = false` | 起動時に新バージョンをチェックしない |
+| `enter_accept = true` | Enter で選択したコマンドをそのまま実行する |
+
+`auto_sync = false` はプライバシーに関わるデフォルト値です。履歴にはトークン・内部アドレス・一時的なコマンドが含まれる可能性があるため、自発的にはアップロードしません。
+
+その他の設定項目はすべてコメントのまま保持し、必要に応じて有効化できます。注目すべき項目：
+
+```toml
+# search_mode = "fuzzy"          # prefix / fulltext / fuzzy / skim
+# filter_mode = "global"         # global / host / session / directory / workspace
+# style = "auto"                 # auto / full / compact
+# inline_height = 0              # 0 表示全屏
+# secrets_filter = true          # 默认开启，过滤疑似密钥
+```
+
+## 基本的な使い方
+
+```bash
+atuin search                 # 交互式搜索
+atuin search git             # 带初始查询
+atuin search --limit 50      # 限制条数
+atuin search -i              # 只搜当前目录
+atuin stats                  # 使用统计
+atuin history list           # 列出全部历史
+atuin history last           # 最后一条
+atuin doctor                 # 诊断
+```
+
+## 検索画面のキー操作
+
+| キー | 動作 |
+|---|---|
+| `↑` / `↓` | 選択を移動 |
+| `Enter` | 実行（`enter_accept = true` のため） |
+| `Tab` | コマンドを入力行に戻して編集を続ける |
+| `Ctrl+O` | フィルタモードを順に切り替え |
+| `Ctrl+R` | 検索モードを切り替え |
+| `Esc` | 終了 |
+
+**重要な違い**：Enter はそのまま実行し、Tab のときだけコマンドラインに戻ります。実行前に編集したい場合は、Tab を押す習慣をつけてください。
+
+## フィルタモード
+
+| モード | 範囲 |
+|---|---|
+| `global` | 全履歴 |
+| `host` | 現在のホスト |
+| `session` | 現在のシェルセッション |
+| `directory` | 現在のディレクトリ |
+| `workspace` | 現在の Git リポジトリツリー内 |
+
+`Ctrl+O` で順に切り替わります。プロジェクトのディレクトリでは `directory` モードを使うと、そのプロジェクト関連のコマンドを素早く見つけ直せます。
+
+## 同期（デフォルトは無効）
+
+マシン間同期を有効にするには：
+
+```bash
+atuin register -u <用户名> -e <邮箱> -p
+atuin login -u <用户名> -p
+atuin key                    # 打印加密密钥，用于其它机器
+atuin sync
+```
+
+その後、設定で `auto_sync` を `true` に変更します。同期はエンドツーエンドで暗号化され、鍵はアップロードされませんが、**履歴の内容は Atuin サーバーにアップロードされます**。有効化する前に、履歴に機密情報が含まれていないか確認してください。
+
+## データのメンテナンス
+
+```bash
+atuin history prune          # 清理旧条目
+atuin history delete         # 交互式删除
+atuin import auto            # 从其它 shell 历史导入
+atuin info                   # 显示数据文件位置和环境变量
+```
+
+## Zsh ネイティブ履歴との関係
+
+2 つのストレージが併存します：
+
+| | Zsh ネイティブ | Atuin |
+|---|---|---|
+| ファイル | `~/.zsh_history` | `history.db` |
+| 書き込み | `INC_APPEND_HISTORY` | precmd フック |
+| 読み取り | `history` ビルトイン | `atuin search` |
+
+そのため、`grep ~/.zsh_history` で最近実行したコマンドが見つからないのは正常です。Atuin の履歴をエクスポートするには：
+
+```bash
+atuin history list --format '{command}' > history.txt
+```
+
+## トラブルシューティング
+
+**上矢印の挙動がおかしい**：`zvm_after_init` 内の `zvm_bindkey viins '^[[A' atuin-up-search` が効いていません。zsh-vi-mode が読み込まれているか、その関数が呼び出されているか確認してください。
+
+**`atuin doctor` がデータベース破損を報告**：バックアップしてから再構築します。`atuin info` でデータベースのパスが表示され、リネームしてシェルを再起動すると新しく作成されます。
+
+**履歴が記録されない**：precmd フックがインストールされていません。`atuin init zsh` は正常に実行されましたか？ `_evalcache` のキャッシュファイルが古くなっている可能性があるため、キャッシュディレクトリを削除して再試行してください。
+
+**同期の競合**：複数マシンから同時に書き込むと競合が発生します。`atuin status` で状態を確認し、必要に応じて `atuin sync --force` を使います。
+
+**検索が遅い**：データベースが大きすぎます。`atuin history prune` で整理するか、設定で保持期間を制限してください。
