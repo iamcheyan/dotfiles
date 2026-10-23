@@ -283,11 +283,11 @@ install_essentials() {
     print_info "Checking essential tools..."
 
     local common_packages="git curl wget unzip git-extras ffmpeg tmux"
-    local debian_packages="build-essential ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger"
-    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger"
-    local arch_packages="base-devel ripgrep fd eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger"
-    local void_packages="base-devel ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger"
-    local brew_packages="ripgrep fd eza zoxide translate-shell glow mdcat viu yt-dlp gping jq httpie broot htop ranger"
+    local debian_packages="build-essential ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local arch_packages="base-devel ripgrep fd eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local void_packages="base-devel ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local brew_packages="ripgrep fd eza zoxide translate-shell glow mdcat viu yt-dlp gping jq httpie broot htop ranger vifm"
 
     if [[ "$MINIMAL" == "true" ]]; then
         print_info "Minimal mode: skipping translate-shell, yt-dlp, jq, viu"

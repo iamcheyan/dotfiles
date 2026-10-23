@@ -12,11 +12,12 @@ Vifm 用 Vim 的键位习惯管理文件：`hjkl` 移动、`dd` 删除、`yy` �
 
 | 项目 | 说明 |
 |---|---|
-| 来源 | 系统包管理器 |
+| 来源 | 系统包管理器（`init.sh` 的必备工具清单已包含 vifm） |
 | 配置 | `config/vifm/` → `~/.config/vifm/` |
 | 包装函数 | `v`（定义在 `zshrc`） |
 
 ```bash
+# 已运行过 init.sh 的机器无需手动安装；单独安装：
 # Debian / Ubuntu
 sudo apt install vifm
 # Arch

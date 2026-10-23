@@ -8,6 +8,7 @@
 |---|---|
 | 仓库源文件 | `config/vifm/vifmrc` |
 | 部署目标 | `~/.config/vifm/vifmrc` |
+| 安装 | `init.sh` 必备工具清单（系统包管理器） |
 | 配色 | `config/vifm/colors/papercolor-dark.vifm` |
 | 脚本 | `config/vifm/scripts/vifm-copy` |
 | 是否自动链接 | 是（三条独立映射） |
