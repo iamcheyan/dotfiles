@@ -15,12 +15,15 @@
 
 ## 实际生效的设置
 
-配置里只有三行是取消注释的：
+当前显式设置同步、更新检查、Enter 行为和 Blue 配色：
 
 ```toml
 auto_sync = false
 update_check = false
 enter_accept = true
+
+[theme]
+name = "nostalgia-blue"
 ```
 
 | 设置 | 值 | 原因 |
@@ -32,6 +35,8 @@ enter_accept = true
 `auto_sync = false` 是隐私相关的默认：历史里可能有 token、内部地址、临时命令，不主动上传。
 
 `enter_accept = true` 影响操作习惯：Enter 执行，Tab 才回到命令行编辑。
+
+`nostalgia-blue` 使用 Neovim Blue / Nostalgia 的黄、青、绿、红前景色，保留终端蓝色背景。主题颜色见 `config/atuin/themes/nostalgia-blue.toml`。
 
 ## 被注释的选项
 

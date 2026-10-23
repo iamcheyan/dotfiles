@@ -32,6 +32,8 @@ right_format = """$status$cmd_duration$jobs"""
 
 ## 主行模块
 
+路径、分支和 Git 状态色沿用 Neovim Blue / Nostalgia 的黄、青、绿、红色板。
+
 ### hostname
 
 ```toml
@@ -50,7 +52,7 @@ disabled = false
 [directory]
 truncation_length = 3
 truncate_to_repo = true
-style = "bold #50fa7b"
+style = "bold #ffff55"
 ```
 
 | 键 | 效果 |
@@ -65,7 +67,7 @@ style = "bold #50fa7b"
 ```toml
 [git_branch]
 symbol = " "
-style = "bold purple"
+style = "bold #55ffff"
 ```
 
 `symbol` 是 Nerd Font 的分支图标。
@@ -74,15 +76,15 @@ style = "bold purple"
 
 ```toml
 [git_status]
-style = "bold yellow"
+style = "bold #ffff55"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-staged = "[+${count}](bold green)"
-modified = "[~${count}](bold yellow)"
-untracked = "[?${count}](bold red)"
-deleted = "[-${count}](bold red)"
-stashed = "[*${count}](bold blue)"
+staged = "[+${count}](bold #00ff00)"
+modified = "[~${count}](bold #ffff00)"
+untracked = "[?${count}](bold #ff5555)"
+deleted = "[-${count}](bold #ff5555)"
+stashed = "[*${count}](bold #55ffff)"
 ```
 
 | 符号 | 含义 | 颜色 |
@@ -91,7 +93,7 @@ stashed = "[*${count}](bold blue)"
 | `~N` | 已修改 N 个文件 | 黄 |
 | `?N` | 未跟踪 N 个文件 | 红 |
 | `-N` | 已删除 N 个文件 | 红 |
-| `*N` | N 个 stash | 蓝 |
+| `*N` | N 个 stash | 青 |
 | `⇡N` | 领先远端 N 个提交 | — |
 | `⇣N` | 落后远端 N 个提交 | — |
 
@@ -107,22 +109,22 @@ detect_folders = [".venv", "venv"]
 [nodejs]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold green"
+style = "bold #00ff00"
 
 [rust]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold red"
+style = "bold #ff5555"
 
 [golang]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold cyan"
+style = "bold #55ffff"
 
 [java]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold blue"
+style = "bold #5555ff"
 ```
 
 Python 的 `format` 里 `\($virtualenv\)` 会在激活虚拟环境时显示环境名。
@@ -133,12 +135,12 @@ Python 的 `format` 里 `\($virtualenv\)` 会在激活虚拟环境时显示环�
 [docker_context]
 symbol = " "
 format = "[$symbol$context]($style) "
-style = "bold blue"
+style = "bold #55ffff"
 
 [kubernetes]
 symbol = "󱃾 "
 format = '[$symbol$context( \($namespace\))]($style) '
-style = "bold cyan"
+style = "bold #55ffff"
 disabled = false
 
 [aws]
@@ -150,7 +152,7 @@ disabled = false
 [terraform]
 symbol = "󱁢 "
 format = "[$symbol$workspace]($style) "
-style = "bold purple"
+style = "bold #ff00ff"
 ```
 
 四个都显式 `disabled = false`，只要检测到对应配置就显示。不用这些工具时可以改成 `true` 减少提示符宽度。
@@ -161,7 +163,7 @@ style = "bold purple"
 [package]
 symbol = "󰏗 "
 format = "[$symbol$version]($style) "
-style = "bold 208"
+style = "bold #ffff00"
 
 [time]
 disabled = false
@@ -186,7 +188,7 @@ format = "[$duration](bold yellow) "
 
 [jobs]
 symbol = "󰒋 "
-style = "bold blue"
+style = "bold #55ffff"
 ```
 
 | 模块 | 触发 |
@@ -224,7 +226,7 @@ disabled = true
 
 **时间不需要**：`[time] disabled = true`。
 
-**想改配色**：所有 `style` 都接受颜色名（`bold red`）或十六进制（`bold #50fa7b`）。
+**想改配色**：所有 `style` 都接受颜色名（`bold red`）或十六进制（例如主题黄 `bold #ffff55`）。
 
 ## 验证
 

@@ -16,6 +16,8 @@
 config/ranger/
 ├── rc.conf          # 主配置
 ├── rifle.conf       # 文件打开规则
+├── colorschemes/
+│   └── blue.py      # Neovim Blue / Nostalgia 配色
 └── plugins/
     ├── ranger_devicons/   # git 子模块
     └── archives/          # git 子模块
@@ -28,6 +30,7 @@ alias alpine echo "sftp://student@localhost:2222 (密码: student)"
 
 set preview_images true
 set draw_borders both
+set colorscheme blue
 default_linemode devicons
 set show_hidden true
 set preview_files true
@@ -42,6 +45,7 @@ map ec compress
 |---|---|
 | `preview_images true` | 预览区显示图片（需终端支持） |
 | `draw_borders both` | 三栏都画边框 |
+| `colorscheme blue` | 蓝底下使用黄字、青色目录和青色选区 |
 | `default_linemode devicons` | 用 devicons 图标模式 |
 | `show_hidden true` | 默认显示隐藏文件 |
 | `preview_files true` | 预览区显示文件内容 |

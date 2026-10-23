@@ -33,47 +33,47 @@ Meslo 由 `scripts/install/install_font.sh` 安装。字体名必须完全匹配
 ## 配色
 
 ```text
-background = #000000
-foreground = #f8f8f2
-cursor-color = #50fa7b
-selection-background = #50fa7b
-selection-foreground = #000000
+background = #0000aa
+foreground = #ffff55
+cursor-color = #ffffff
+selection-background = #1e1ec8
+selection-foreground = #ffffff
 ```
 
-纯黑底、亮白字、绿色光标和选区。这是 Dracula 风格的变体。
+与 Neovim 内置 Blue 的 Nostalgia 配色一致：深蓝底、黄字、白色光标，选区用亮蓝底。
 
 ### 16 色板
 
 ```text
-palette = 0=#21222c
-palette = 1=#ff5555
-palette = 2=#50fa7b
-palette = 3=#f1fa8c
-palette = 4=#bd93f9
-palette = 5=#ff79c6
-palette = 6=#8be9fd
-palette = 7=#f8f8f2
-palette = 8=#6272a4
-palette = 9=#ff6e6e
-palette = 10=#69ff94
-palette = 11=#ffffa5
-palette = 12=#d6acff
-palette = 13=#ff92df
-palette = 14=#a4ffff
+palette = 0=#000080
+palette = 1=#aa0000
+palette = 2=#00aa00
+palette = 3=#aaaa00
+palette = 4=#0000aa
+palette = 5=#aa00aa
+palette = 6=#00aaaa
+palette = 7=#aaaaaa
+palette = 8=#555555
+palette = 9=#ff5555
+palette = 10=#00ff00
+palette = 11=#ffff55
+palette = 12=#5555ff
+palette = 13=#ff55ff
+palette = 14=#55ffff
 palette = 15=#ffffff
 ```
 
 | 索引 | 用途 | 颜色 |
 |---|---|---|
-| 0 | 黑 | `#21222c` |
-| 1 | 红 | `#ff5555` |
-| 2 | 绿 | `#50fa7b` |
-| 3 | 黄 | `#f1fa8c` |
-| 4 | 蓝 | `#bd93f9`（实际是紫） |
-| 5 | 品红 | `#ff79c6` |
-| 6 | 青 | `#8be9fd` |
-| 7 | 白 | `#f8f8f2` |
-| 8–15 | 亮色版本 | 对应上面的高亮变体 |
+| 0 | 深蓝 | `#000080` |
+| 1 | 红 | `#aa0000` |
+| 2 | 绿 | `#00aa00` |
+| 3 | 黄 | `#aaaa00` |
+| 4 | 蓝 | `#0000aa` |
+| 5 | 品红 | `#aa00aa` |
+| 6 | 青 | `#00aaaa` |
+| 7 | 灰白 | `#aaaaaa` |
+| 8–15 | 亮色版本 | 红、绿、黄、蓝、品红、青、白的亮色变体 |
 
 8–15 是 0–7 的明亮版本，程序用它们表示「加粗」或「高亮」。
 
@@ -94,7 +94,7 @@ window-padding-x = 5
 window-padding-y = 5
 window-decoration = auto
 window-theme = dark
-window-border-color = #000000
+window-border-color = #55ffff
 quit-after-last-window-closed = false
 ```
 

@@ -16,7 +16,7 @@
 set -g default-terminal "tmux-256color"
 set -as terminal-features ",*:RGB"
 set -as terminal-overrides ",*:Tc"
-set -g status-style "bg=#13a10e,fg=#000000"
+set -g status-style "bg=#00aaaa,fg=#000000"
 ```
 
 | 行 | 作用 |
@@ -24,7 +24,7 @@ set -g status-style "bg=#13a10e,fg=#000000"
 | `default-terminal` | 声明 tmux 使用 256 色 terminfo |
 | `terminal-features` | 告诉应用支持 RGB |
 | `terminal-overrides` | 覆盖终端能力检测 |
-| `status-style` | 状态栏绿底黑字 |
+| `status-style` | 状态栏青底黑字，与 Neovim Blue 的状态区一致 |
 
 三行真彩色配置缺一不可。只有 `default-terminal` 时，Neovim 的 `termguicolors` 可能不生效。
 
@@ -89,11 +89,11 @@ set -g automatic-rename-format '#{b:pane_current_path}'
 ## 边框
 
 ```tmux
-set -g pane-border-style fg=colour236
-set -g pane-active-border-style fg=colour236
+set -g pane-border-style fg=#000080
+set -g pane-active-border-style fg=#55ffff
 ```
 
-边框和活动边框同色（暗灰），靠内容区分而不是靠边框高亮。
+非活动边框用深蓝，活动边框用青色，和 Neovim Blue 的分隔线一致。
 
 ## 关闭 extended-keys
 

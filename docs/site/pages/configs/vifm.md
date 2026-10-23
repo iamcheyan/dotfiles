@@ -10,8 +10,10 @@
 | 部署目标 | `~/.config/vifm/vifmrc` |
 | 安装 | `init.sh` 必备工具清单（系统包管理器） |
 | 配色 | `config/vifm/colors/papercolor-dark.vifm` |
-| 脚本 | `config/vifm/scripts/vifm-copy` |
+| 脚本 | `config/vifm/scripts/`（剪贴板与目录预览） |
 | 是否自动链接 | 是（三条独立映射） |
+
+当前 `papercolor-dark` 配色文件已改为与 Neovim 内置 Blue 主题使用的 Nostalgia 蓝色调一致：主面板为蓝底黄字，光标行用深蓝与青色强调，活动面板标题为灰底黑字，状态行使用青绿色。Vifm 支持真彩色终端时使用精确色值；256 色终端使用近似色。
 
 ## 选项
 
@@ -52,6 +54,16 @@ set quickview
 启动时保持双栏：左栏是当前目录，右栏用 quick view 预览左栏选中的文件（文本、目录内容按 vifm 的预览规则显示）。不再有把右栏强制 `cd ~` 的自动命令，所以预览不会被打断。
 
 启动时光标在左栏，右栏不再是固定目录，而是随左栏选择变化的预览区。需要临时单栏时按 `<Space>p`，再按一次恢复双栏。
+
+### 目录预览
+
+Vifm 默认把右栏目录预览画成递归树，深层目录和 `.git` 文件会让画面很密。本仓库将目录预览改为一行一个项目的简洁清单：安装了 `eza` 时显示 Nerd Font 图标、把目录排在前面，并按主题将目录标成青色、可执行项标成绿色；没有 `eza` 时用 `ls -1pA` 显示目录标记。文件预览仍使用 Vifm 原有方式。
+
+```vim
+fileviewer */ vifm-preview-dir %"c
+```
+
+预览脚本位于 `config/vifm/scripts/vifm-preview-dir`，Vifm 会把自己的 `scripts/` 目录加入命令搜索路径。
 
 ## 状态行
 

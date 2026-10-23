@@ -24,6 +24,8 @@ Nano 的语法高亮和默认选项。适合在没有 Vim 的环境里应急编�
 
 本仓库的 `nanorc` 内容较短，主要是语法高亮包含和少量默认项。
 
+Nano 标题栏用蓝底黄字，状态栏用青色，选区和行号沿用 Neovim Blue 的蓝／青色强调。
+
 ### 验证
 
 ```bash
@@ -56,6 +58,8 @@ curl -fsSL https://herdr.dev/install.sh | sh
 ```
 
 配置是 TOML 格式，本仓库提供一个基础主题配置。
+
+Herdr 面板背景、青色强调色和绿色提示色与 Neovim Blue / Nostalgia 配色一致。
 
 ### 边界
 
