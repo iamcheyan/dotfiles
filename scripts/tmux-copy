@@ -1,0 +1,27 @@
+#!/bin/sh
+# Shared tmux copy helper: use tmux buffers for SSH OSC 52, local tools otherwise.
+#
+# During copy-pipe tmux has already captured the selected text in its buffer.
+# set-clipboard on makes tmux send that buffer to the attached terminal as OSC 52.
+# This helper must not write escape sequences to the pane PTY: that is the
+# application's input side, not a reliable route to the terminal client.
+
+set -u
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+if [ -n "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}${SSH_SESSION:-}" ] && [ -n "${TMUX_PANE:-}" ] && have tmux; then
+    # copy-pipe supplies the selected bytes; set-buffer triggers tmux's
+    # set-clipboard OSC 52 update for the attached client.
+    selected=$(cat) || exit 1
+    [ -n "$selected" ] || exit 0
+    tmux set-buffer "$selected"
+    exit $?
+fi
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 1
+if [ -x "$SCRIPT_DIR/tmux-clipboard-copy" ]; then
+    exec "$SCRIPT_DIR/tmux-clipboard-copy"
+fi
+printf 'tmux-copy: tmux-clipboard-copy helper not found\n' >&2
+exit 1

@@ -30,10 +30,10 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 
 插件按环境自动探测。
 
-本仓库不依赖插件自己的探测：`config/tmux/tmux.conf` 在 TPM 之后把
-copy-mode-vi 的所有复制入口重新绑定到仓库脚本
-`scripts/tmux-clipboard-copy`，由脚本统一选择后端，优先级为
-WSL → Wayland → X11 → macOS。绑定的键和各自保留的行为：
+`tmux-copy` is the shared `copy-pipe` command. On SSH it leaves the selected text in tmux's
+buffer and returns successfully; tmux `set-clipboard on` generates OSC 52 for the attached
+client. Locally it delegates to `scripts/tmux-clipboard-copy`, which chooses the platform
+backend. Copy-mode key overrides are documented below.
 
 | 键 | 行为 |
 |---|---|
@@ -63,18 +63,69 @@ set -g allow-passthrough on    # 本仓库已设置
 
 本仓库的 `allow-passthrough on` 正是为了让 OSC 52 序列穿过 tmux 到达外层终端。
 
-## 快捷键
+## 远程 / SSH：OSC 52
+
+在 SSH 场景，tmux 复制会更新 tmux buffer。`set-clipboard on` 让 tmux 将 buffer
+更新编码为 OSC 52 发给 terminal client；`allow-passthrough on` 允许应用发出的
+OSC/DCS 序列穿过 tmux。每一层嵌套 tmux 都需要相应配置，最外层终端还必须允许
+OSC 52 写剪贴板。OSC 52 没有确认回执，因此发送序列不代表终端已接受。
+
+`set-clipboard` 检查的是 tmux server option：
+
+```sh
+tmux show-options -g allow-passthrough
+tmux show-options -s set-clipboard
+```
+
+| 值 | 行为 | 本配置建议 |
+|---|---|---|
+| `external` | 不允许应用通过 tmux 写终端剪贴板；外部终端剪贴板更新可进入 tmux | 不用于本方案 |
+| `on` | 允许应用通过 tmux 读写终端剪贴板；tmux copy-mode 剪贴也会向客户端发送 OSC 52 | 推荐；主配置已启用 |
+| `off` | 禁止应用通过 tmux 访问终端剪贴板；仍可用 `copy-pipe` 的本地后端 | 远程 OSC 52 不推荐 |
+
+主配置设置 `allow-passthrough on` 与 `set-clipboard on`。SSH 环境下，
+`scripts/tmux-copy` 把 copy-pipe 收到的选区载入专用 tmux buffer，由 tmux 发 OSC 52；
+不会向 pane PTY 写转义序列。非 SSH 会话委托 `scripts/tmux-clipboard-copy` 选择本地后端：
+WSL 使用 `iconv -f UTF-8 -t UTF-16LE | clip.exe`，Wayland 用 `wl-copy`，X11 用
+`xclip`/`xsel`，macOS 用 `pbcopy`。OSC 52 没有接收回执，终端拒绝时无法检测或自动回退。
+
+### 五种连接场景验收
+
+每种场景都应复制下面完整文本，并粘贴到本地编辑器逐字核对（含多行与 emoji）：
+
+```text
+中文
+日本語
+😀
+𠮷野家
+第一行
+第二行
+```
+
+1. Windows Terminal → WSL → tmux：验证 OSC 52 接受策略；不支持时验证 WSL 本地 `clip.exe` 后端。
+2. Windows Terminal → WSL → SSH → Linux → tmux：验证远端 pane 的 SSH 环境变量与 tmux OSC 52。
+3. Windows Terminal → WSL → SSH → Bastion → SSH → Linux → tmux：逐层核实 tmux passthrough，最后粘贴到 Windows Terminal。
+4. Linux Desktop → tmux：本地复制使用 Wayland `wl-copy` 或 X11 `xclip`/`xsel`。
+5. macOS → tmux：本地复制使用 `pbcopy`。
+
+Windows Terminal、WezTerm、Kitty、iTerm2 均需按实际版本与剪贴板策略验收；终端策略可能要求用户确认。
 
 | 键 | 作用 |
 |---|---|
-| copy mode 里 `y` | 复制选区并退出 copy mode |
+| `y` | 复制选区（本地主配置通过共享脚本处理本地后端） |
 | copy mode 里 `Y` | 复制到行尾 |
 | `Prefix + ]` | 粘贴 tmux 缓冲区（tmux 自带） |
-| `Prefix + y` | 复制当前 pane 的命令行内容（部分版本） |
+| `Prefix + y` | tmux-yank 插件复制当前 pane 的命令行内容 |
 
 `y` 在 vi copy mode 下有效，因为本仓库设了 `setw -g mode-keys vi`。
 
-## 典型流程
+## Local helper check
+
+Outside SSH, `tmux-copy` delegates input unchanged to `tmux-clipboard-copy`. Confirm the
+selected bytes at the system clipboard. In SSH, the handler returns success and tmux `set-clipboard on` sends a copy-mode buffer
+update as OSC 52. Verify end-to-end by pasting in the outer terminal.
+
+## Typical workflow
 
 ```text
 1. Prefix + [              进入 copy mode
