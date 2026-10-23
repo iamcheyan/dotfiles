@@ -62,6 +62,12 @@ source "$dotfiles_root/plugins/zle/zle.zsh"
 # 其余 Shell 插件及其专属配置；语法高亮在此阶段最后加载
 zsh_plugins_load_main
 
+# zsh-abbr 的 Emacs 键位；viins 键位在 zvm_after_init 里补充。
+source "$dotfiles_root/plugins/abbr/abbr.zsh"
+
+# carapace-bin 的命令补全；必须在 compinit 和 zsh-vi-mode 之后加载。
+source "$dotfiles_root/plugins/carapace/carapace.zsh"
+
 # fzf 相关函数和默认选项：ff/rf/zd/zc/y 等交互工具
 # 这里必须同步加载，否则 ff/rf 在新 shell 中可能不存在
 source "$dotfiles_root/plugins/fzf/fzf.zsh"
@@ -159,6 +165,9 @@ fi
 
 # Added by Antigravity CLI installer
 export PATH="$HOME/.local/bin:$PATH"
+
+# hunk (installed by scripts/install/install_hunk.sh into ~/.hunk/bin)
+[ -d "$HOME/.hunk/bin" ] && export PATH="$HOME/.hunk/bin:$PATH"
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"

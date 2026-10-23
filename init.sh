@@ -975,6 +975,34 @@ install_extra_tools() {
     else
         print_success "pay-respects is already installed"
     fi
+
+    # delta — syntax-highlighting diff pager (dependency of diffnav)
+    if ! command_exists delta; then
+        print_info "Installing delta (diff pager used by diffnav)..."
+        [[ -f "$install_dir/install_delta.sh" ]] && bash "$install_dir/install_delta.sh"
+    else
+        print_success "delta is already installed"
+    fi
+
+    # diffnav — GitHub-style diff pager with a file tree
+    if ! command_exists diffnav; then
+        print_info "Installing diffnav..."
+        [[ -f "$install_dir/install_diffnav.sh" ]] && bash "$install_dir/install_diffnav.sh"
+    else
+        print_success "diffnav is already installed"
+    fi
+
+    # hunk — terminal diff viewer for agent-authored changesets
+    if ! command_exists hunk && [[ ! -x "$HOME/.hunk/bin/hunk" ]]; then
+        print_info "Installing hunk..."
+        [[ -f "$install_dir/install_hunk.sh" ]] && HUNK_NO_MODIFY_PATH=1 bash "$install_dir/install_hunk.sh"
+        # the upstream installer drops the binary in ~/.hunk/bin; make sure it is on PATH
+        if [[ -x "$HOME/.hunk/bin/hunk" ]] && [[ ":$PATH:" != *":$HOME/.hunk/bin:"* ]]; then
+            export PATH="$HOME/.hunk/bin:$PATH"
+        fi
+    else
+        print_success "hunk is already installed"
+    fi
 }
 
 
