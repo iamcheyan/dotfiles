@@ -123,6 +123,9 @@ SECTIONS = [
             ("pet", "Pet", "命令片段库。"),
             ("miru", "miru", "终端文件查看器：Markdown 走 glamour，源码与配置走 chroma，按 b 在浏览器预览。"),
             ("pay-respects", "pay-respects", "按 F 为错误命令提供修正建议。"),
+            ("delta", "delta", "git diff 的语法高亮分页器，diffnav 的渲染引擎。"),
+            ("diffnav", "diffnav", "基于 delta 的 git diff 分页器，带 GitHub 风格文件树与 watch 模式。"),
+            ("hunk", "hunk", "面向代码评审的终端 diff 查看器：多文件侧栏、agent 行内批注、GitHub PR 直连。"),
         ],
     ),
     (

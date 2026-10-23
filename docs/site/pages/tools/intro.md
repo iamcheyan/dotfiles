@@ -70,6 +70,14 @@
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | 独立仓库 | `nvim` | [Neovim](neovim.html) |
 
+## Diff 与评审
+
+| 工具 | 来源 | 入口 | 文档 |
+|---|---|---|---|
+| delta | 上游 Release | `delta`（diffnav 依赖） | [delta](delta.html) |
+| diffnav | 上游 Release | `git diff \| diffnav` | [diffnav](diffnav.html) |
+| hunk | 上游 Release | `hunk diff` | [hunk](hunk.html) |
+
 ## 命令片段
 
 | 工具 | 来源 | 入口 | 文档 |
@@ -156,6 +164,14 @@
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | separate repository | `nvim` | [Neovim](neovim.html) |
 
+## Diff & review
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| delta | upstream Release | `delta` (diffnav dependency) | [delta](delta.html) |
+| diffnav | upstream Release | `git diff \| diffnav` | [diffnav](diffnav.html) |
+| hunk | upstream Release | `hunk diff` | [hunk](hunk.html) |
+
 ## Snippets
 
 | Tool | Source | Entry | Doc |
@@ -241,6 +257,14 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | zellij | Zinit / インストーラ | `zellij` | [zellij](zellij.html) |
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | 独立リポジトリ | `nvim` | [Neovim](neovim.html) |
+
+## Diff とレビュー
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| delta | 上流 Release | `delta`（diffnav の依存） | [delta](delta.html) |
+| diffnav | 上流 Release | `git diff \| diffnav` | [diffnav](diffnav.html) |
+| hunk | 上流 Release | `hunk diff` | [hunk](hunk.html) |
 
 ## コマンドスニペット
 
