@@ -182,6 +182,7 @@ SECTIONS = [
         "每个配置文件的作用与键位",
         [
             ("intro", "本章导读", "dotlink 实际映射了哪些配置。"),
+            ("theme-standard", "终端统一配色标准", "Neovim Blue / Nostalgia 的颜色角色与应用规则。"),
             ("mapping", "映射清单", "源路径、目标路径与是否自动部署。"),
             ("starship", "Starship 配置", "两行提示符的模块与显示条件。"),
             ("atuin", "Atuin 配置", "关闭自动同步、数据库位置。"),
@@ -229,6 +230,33 @@ def render_md(text: str) -> str:
     return MD.convert(text)
 
 
+def render_md_langs(blocks: dict[str, str], langs_on_page: list[str]) -> str:
+    """Render each language block and wrap it in a language span."""
+    out = []
+    for lang in LANGS:
+        if lang not in blocks or lang not in langs_on_page:
+            continue
+        out.append(f'<div class="lb" data-lang="{lang}">{render_md(blocks[lang])}</div>')
+    return "".join(out)
+
+
+def doc_lang_meta(src: Path) -> tuple[dict[str, str], list[str]]:
+    """Per-language (title, description) for one markdown source.
+
+    Files without markers collapse to a single zh block, so old pages need
+    no changes.
+    """
+    blocks = split_langs(src.read_text(encoding="utf-8"))
+    meta: dict[str, tuple[str, str]] = {}
+    for lang, text in blocks.items():
+        m_desc = re.search(r"^> 摘要：(.+)$", text, re.M)
+        m_title = re.search(r"^# (.+)$", text, re.M)
+        desc = m_desc.group(1).strip() if m_desc else ""
+        title = m_title.group(1).strip() if m_title else src.stem
+        meta[lang] = (title, desc)
+    return blocks, meta
+
+
 # ---------------------------------------------------------------------------
 # Layout - modelled on dotfiles.github.io: a fixed 270px header column on the
 # left (site title, tagline, stacked navigation) and a 500px content column on
@@ -236,6 +264,100 @@ def render_md(text: str) -> str:
 # ---------------------------------------------------------------------------
 
 TAGLINE = "Your unofficial guide to this dotfiles setup."
+
+LANGS = ["zh", "en", "ja"]
+LANG_MARK = re.compile(r"^<!--\s*lang:(zh|en|ja)\s*-->\s*$", re.M)
+
+# UI chrome strings per language. Doc titles come from the per-language H1.
+UI = {
+    "zh": {"search": "搜索 {} 篇文档", "toggle": "切换语言"},
+    "en": {"search": "Search {} documents", "toggle": "Switch language"},
+    "ja": {"search": "{} 件のドキュメントを検索", "toggle": "言語を切り替える"},
+}
+
+# section slug -> label/scope per language, for nav and index pages
+SECTIONS_I18N = {
+    "start": {
+        "zh": ("开始使用", "安装、选项与安装后核对"),
+        "en": ("Getting started", "Install, options and post-install checks"),
+        "ja": ("はじめに", "インストール・オプション・導入確認"),
+    },
+    "shell": {
+        "zh": ("Zsh 与终端", "加载顺序、交互插件、搜索函数"),
+        "en": ("Zsh & terminal", "Load order, interactive plugins, search functions"),
+        "ja": ("Zsh とターミナル", "読み込み順・対話プラグイン・検索関数"),
+    },
+    "commands": {
+        "zh": ("Linux 命令手册", "本仓库日常用到的命令速查"),
+        "en": ("Linux commands", "Everyday command reference in this repo"),
+        "ja": ("Linux コマンド", "このリポジトリで常用するコマンド集"),
+    },
+    "tools": {
+        "zh": ("工具目录", "每个工具一页：做什么、怎么调、哪些选项要紧"),
+        "en": ("Tools", "One page per tool: what it does, how to call it, which flags matter"),
+        "ja": ("ツール", "ツールごとに 1 ページ：役割・呼び出し方・重要なフラグ"),
+    },
+    "scripts": {
+        "zh": ("自定义脚本", "scripts/ 下每个脚本的行为与用法"),
+        "en": ("Custom scripts", "Behaviour and usage of each script under scripts/"),
+        "ja": ("自作スクリプト", "scripts/ 配下の各スクリプトの動作と使い方"),
+    },
+    "zsh-plugins": {
+        "zh": ("Zsh 插件", "Zinit 管理的 Zsh 插件"),
+        "en": ("Zsh plugins", "Zinit-managed Zsh plugins"),
+        "ja": ("Zsh プラグイン", "Zinit で管理する Zsh プラグイン"),
+    },
+    "tmux-plugins": {
+        "zh": ("tmux 插件", "TPM 管理的 tmux 插件"),
+        "en": ("tmux plugins", "TPM-managed tmux plugins"),
+        "ja": ("tmux プラグイン", "TPM で管理する tmux プラグイン"),
+    },
+    "configs": {
+        "zh": ("应用配置", "各应用的配置文件与关键选项"),
+        "en": ("App configs", "Config files and the options that matter"),
+        "ja": ("アプリ設定", "各アプリの設定ファイルと重要なオプション"),
+    },
+    "maintenance": {
+        "zh": ("维护与边界", "更新、备份、检查与边界"),
+        "en": ("Maintenance", "Updates, backups, checks and boundaries"),
+        "ja": ("メンテナンス", "更新・バックアップ・確認と境界"),
+    },
+}
+
+# (section, doc) -> {lang: (title, description)}, filled while building pages
+LANG_TITLES: dict[tuple[str, str], dict[str, tuple[str, str]]] = {}
+
+
+def split_langs(text: str) -> dict[str, str]:
+    """Split one markdown file into per-language blocks.
+
+    A file without <!-- lang:xx --> markers is a single zh document, so the
+    110 existing pages keep working unchanged while translations are added
+    one block at a time.
+    """
+    if not LANG_MARK.search(text):
+        return {"zh": text}
+    out: dict[str, list[str]] = {}
+    cur = "zh"  # content before the first marker is the zh block
+    out.setdefault(cur, [])
+    for line in text.splitlines(keepends=True):
+        m = LANG_MARK.match(line.strip("\n"))
+        if m:
+            cur = m.group(1)
+            out.setdefault(cur, [])
+            continue
+        out[cur].append(line)
+    return {lang: "".join(lines).strip("\n") + "\n" for lang, lines in out.items()}
+
+
+def lang_span(value_by_lang: dict[str, str], langs_on_page: list[str]) -> str:
+    """One string, one span per available language, hidden by CSS elsewhere."""
+    spans = []
+    for lang in LANGS:
+        if lang in value_by_lang and lang in langs_on_page:
+            spans.append(f'<span class="lb" data-lang="{lang}">{esc(value_by_lang[lang])}</span>')
+    return "".join(spans)
+
 
 APP_JS = r"""
 (function () {
@@ -257,7 +379,42 @@ APP_JS = r"""
     }
   }
 
+  /* ---- language -------------------------------------------------------- */
+  var LANG_KEY = 'dotfiles-lang';
+  var LANGS = ['zh', 'en', 'ja'];
+  var LANG_LABEL = { zh: '中', en: 'EN', ja: '日' };
+
+  function applyLang(lang) {
+    if (LANGS.indexOf(lang) < 0) lang = 'zh';
+    root.setAttribute('data-lang', lang);
+    var btn = document.getElementById('lang-toggle');
+    if (btn) btn.textContent = LANG_LABEL[lang];
+    var q = document.getElementById('q');
+    if (q) q.placeholder = q.getAttribute('data-' + lang) || q.placeholder;
+    try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+  }
+
+  function detectLang() {
+    try {
+      var saved = localStorage.getItem(LANG_KEY);
+      if (saved) return saved;
+    } catch (e) {}
+    var nav = (navigator.language || navigator.browserLang || 'zh').toLowerCase();
+    if (nav.indexOf('zh') === 0) return 'zh';
+    if (nav.indexOf('ja') === 0) return 'ja';
+    return 'en';
+  }
+
+  applyLang(detectLang());
+
   document.addEventListener('click', function (event) {
+    var langBtn = event.target.closest('#lang-toggle');
+    if (langBtn) {
+      var cur = root.getAttribute('data-lang');
+      applyLang(LANGS[(LANGS.indexOf(cur) + 1) % LANGS.length]);
+      return;
+    }
+
     var theme = event.target.closest('#theme-toggle');
     if (theme) {
       var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -344,10 +501,14 @@ APP_JS = r"""
     var query = input.value.trim().toLowerCase();
     if (!query) { close(); return; }
 
+    var lang = root.getAttribute('data-lang') || 'zh';
+    var pool = index.filter(function (e) { return e.l === lang; });
+    if (!pool.length) pool = index.filter(function (e) { return e.l === 'zh'; });
+
     var hits = [];
-    for (var i = 0; i < index.length; i++) {
-      var s = score(index[i], query);
-      if (s >= 0) hits.push({ entry: index[i], score: s });
+    for (var i = 0; i < pool.length; i++) {
+      var s = score(pool[i], query);
+      if (s >= 0) hits.push({ entry: pool[i], score: s });
     }
     hits.sort(function (a, b) { return b.score - a.score; });
     hits = hits.slice(0, 24);
@@ -422,14 +583,20 @@ def search_index(prefix: str) -> str:
     for section in SECTIONS:
         slug, label, _scope, docs = section
         for doc, title, summary in docs:
-            rows.append(
-                {
-                    "t": title,
-                    "d": summary,
-                    "s": label,
-                    "u": f"{prefix}{slug}/{doc}.html",
-                }
-            )
+            for lang in LANGS:
+                t, d = title, summary
+                meta = LANG_TITLES.get((slug, doc), {}).get(lang)
+                if meta:
+                    t, d = meta
+                rows.append(
+                    {
+                        "l": lang,
+                        "t": t,
+                        "d": d,
+                        "s": SECTIONS_I18N.get(slug, {}).get(lang, (label, ""))[0],
+                        "u": f"{prefix}{slug}/{doc}.html",
+                    }
+                )
     return json.dumps(rows, ensure_ascii=False, separators=(",", ":"))
 
 
@@ -440,7 +607,7 @@ def inline_assets() -> tuple[str, str]:
 def head_block(title: str, description: str, prefix: str) -> str:
     css, _ = inline_assets()
     return f'''<!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="light" data-lang="zh">
 <head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
@@ -457,13 +624,16 @@ def side_nav(section: str, doc: str, prefix: str) -> str:
     parts = []
     for slug, label, num in NAV:
         active = slug == section
+        i18n = SECTIONS_I18N.get(slug, {})
+        labels = {lang: i18n.get(lang, (label, ""))[0] for lang in LANGS}
         parts.append(
             f'<a class="nav-section{" active" if active else ""}" href="{prefix}{slug}/index.html">'
-            f'<span class="nav-num">{num}</span>{esc(label)}</a>'
+            f'<span class="nav-num">{num}</span>{lang_span(labels, LANGS)}</a>'
         )
         if active:
             links = "\n".join(
-                f'<a class="nav-doc{" active" if d[0] == doc else ""}" href="{prefix}{slug}/{d[0]}.html">{esc(d[1])}</a>'
+                f'<a class="nav-doc{" active" if d[0] == doc else ""}" href="{prefix}{slug}/{d[0]}.html">'
+                f'{lang_span({l: LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], ""))[0] for l in LANGS}, LANGS)}</a>'
                 for d in BY_SLUG[slug][3]
             )
             parts.append(f'<div class="nav-docs">{links}</div>')
@@ -477,7 +647,7 @@ def header(section: str, doc: str, prefix: str) -> str:
 
   <div class="toolbar">
     <div class="search-box">
-      <input id="q" type="search" placeholder="Search {sum(len(s[3]) for s in SECTIONS)} documents" autocomplete="off" spellcheck="false" aria-label="Search documents">
+      <input id="q" type="search" data-zh="搜索 {sum(len(s[3]) for s in SECTIONS)} 篇文档" data-en="Search {sum(len(s[3]) for s in SECTIONS)} documents" data-ja="{sum(len(s[3]) for s in SECTIONS)} 件のドキュメントを検索" autocomplete="off" spellcheck="false" aria-label="Search documents">
       <div class="results" id="results" hidden></div>
     </div>
   </div>
@@ -491,17 +661,26 @@ def header(section: str, doc: str, prefix: str) -> str:
 </header>'''
 
 
+def _doc_titles(section: str, doc: str) -> dict[str, str]:
+    i = next(n for n, d in enumerate(BY_SLUG[section][3]) if d[0] == doc)
+    zh_title = BY_SLUG[section][3][i][1]
+    return {l: LANG_TITLES.get((section, doc), {}).get(l, (zh_title, ""))[0] for l in LANGS}
+
+
 def pager(section: str, doc: str, prefix: str) -> str:
     docs = BY_SLUG[section][3]
     i = next(n for n, d in enumerate(docs) if d[0] == doc)
     prev_d = docs[i - 1] if i > 0 else None
     next_d = docs[i + 1] if i + 1 < len(docs) else None
-    left = f'<a href="{prefix}{section}/{prev_d[0]}.html">&larr; {esc(prev_d[1])}</a>' if prev_d else ""
-    right = (
-        f'<a href="{prefix}{section}/{next_d[0]}.html">{esc(next_d[1])} &rarr;</a>'
-        if next_d
-        else f'<a href="{prefix}{section}/index.html">{esc(BY_SLUG[section][1])} index &rarr;</a>'
+    left = (
+        f'<a href="{prefix}{section}/{prev_d[0]}.html">&larr; {lang_span(_doc_titles(section, prev_d[0]), LANGS)}</a>'
+        if prev_d else ""
     )
+    if next_d:
+        right = f'<a href="{prefix}{section}/{next_d[0]}.html">{lang_span(_doc_titles(section, next_d[0]), LANGS)} &rarr;</a>'
+    else:
+        idx = {l: SECTIONS_I18N.get(section, {}).get(l, (BY_SLUG[section][1], ""))[0] for l in LANGS}
+        right = f'<a href="{prefix}{section}/index.html">{lang_span(idx, LANGS)} &rarr;</a>'
     return f'<p class="pager">{left}<span class="pager-sep"> · </span>{right}</p>'
 
 
@@ -528,6 +707,7 @@ def dock_html() -> str:
       <path class="icon-panel" d="M5.6 8.2h1.6M5.6 12h1.6M5.6 15.8h1.6"/>
     </svg>
   </button>
+  <button id="lang-toggle" type="button" class="dock-btn lang-btn" aria-label="切换语言" title="中文">中</button>
 </div>'''
 
 
@@ -543,20 +723,34 @@ def tail_block(prefix: str) -> str:
 
 def page(section: str, doc: str) -> tuple[dict, str]:
     src = SOURCE / section / f"{doc}.md"
-    text = src.read_text(encoding="utf-8")
-    match = re.search(r"^> 摘要：(.+)$", text, re.M)
-    desc = match.group(1).strip() if match else ""
-    title_match = re.search(r"^# (.+)$", text, re.M)
-    title = title_match.group(1).strip() if title_match else doc
-    text = re.sub(r"^> 摘要：.+\n\n", "", text, count=1, flags=re.M)
-    text = re.sub(r"^# .+\n+", "", text, count=1)
-    body = render_md(text)
+    blocks, lang_meta = doc_lang_meta(src)
+    # A language missing on this page falls back to zh content, so switching
+    # languages never blanks the page; translations then land block by block.
+    if "zh" in blocks:
+        for lang in LANGS:
+            if lang not in blocks:
+                blocks[lang] = blocks["zh"]
+                lang_meta[lang] = lang_meta["zh"]
+    LANG_TITLES[(section, doc)] = lang_meta
+    langs_on_page = [l for l in LANGS if l in blocks]
+    title = lang_meta.get("zh", (doc, ""))[0]
+    desc = lang_meta.get("zh", ("", ""))[1]
+    # strip 摘要 line and H1 from each language block before rendering
+    for lang in blocks:
+        t = re.sub(r"^> 摘要：.+\n\n", "", blocks[lang], count=1, flags=re.M)
+        t = re.sub(r"^# .+\n+", "", t, count=1)
+        blocks[lang] = t
+    body = render_md_langs(blocks, langs_on_page)
+    h1 = "".join(
+        f'<h1 id="{esc(doc)}" class="lb" data-lang="{l}">{esc(lang_meta[l][0])}</h1>'
+        for l in langs_on_page
+    )
     html = f'''{head_block(title, desc, "../")}
 <body>
 <div class="wrapper">
 {header(section, doc, "../")}
 <section>
-<h1 id="{esc(doc)}">{esc(title)}</h1>
+{h1}
 {body}
 {pager(section, doc, "../")}
 </section>
@@ -568,14 +762,37 @@ def page(section: str, doc: str) -> tuple[dict, str]:
 
 def section_index(section: str) -> tuple[dict, str]:
     slug, label, scope, docs = BY_SLUG[section]
-    items = "\n".join(f'<li><a href="{d[0]}.html">{esc(d[1])}</a> - {esc(d[2])}</li>' for d in docs)
+    i18n = SECTIONS_I18N.get(slug, {})
+    label_of = {l: i18n.get(l, (label, ""))[0] for l in LANGS}
+    scope_of = {l: i18n.get(l, (scope, ""))[1] for l in LANGS}
+    items = "\n".join(
+        "<li>"
+        + lang_span({l: f'{esc(d[1])} - {esc(d[2])}' for l in LANGS}, LANGS)
+        .replace("<span", f'<a href="{d[0]}.html" class="lb-link"', 1)
+        + "</li>"
+        for d in docs
+    )
+    # simpler: rebuild without the fragile replace
+    items = "\n".join(
+        "<li><a href=\"" + d[0] + ".html\" class=\"lb-link\">"
+        + "".join(
+            f'<span class="lb" data-lang="{l}">{esc(d[1])} - {esc(d[2])}</span>'
+            for l in LANGS
+        )
+        + "</a></li>"
+        for d in docs
+    )
+    h1 = "".join(f'<h1 id="{esc(slug)}" class="lb" data-lang="{l}">{esc(label_of[l])}</h1>' for l in LANGS)
+    scope_line = "".join(
+        f'<p class="lb" data-lang="{l}">{esc(scope_of[l])} - {len(docs)} documents.</p>' for l in LANGS
+    )
     html = f'''{head_block(label, scope, "../")}
 <body>
 <div class="wrapper">
 {header(section, "index", "../")}
 <section>
-<h1 id="{esc(slug)}">{esc(label)}</h1>
-<p>{esc(scope)} - {len(docs)} documents.</p>
+{h1}
+{scope_line}
 <ul>
 {items}
 </ul>
@@ -603,8 +820,12 @@ def changes_page() -> str:
 <div class="wrapper">
 {header("changes", "", "")}
 <section>
-<h1 id="changes">Recent changes</h1>
-<p>最近 {len(rows) if rows else 0} 次提交，直接读取本仓库的 git 历史。每次推送站点文件时，这个列表会随构建一起更新。</p>
+<h1 id="changes" class="lb" data-lang="zh">最近改动</h1>
+<h1 id="changes-en" class="lb" data-lang="en">Recent changes</h1>
+<h1 id="changes-ja" class="lb" data-lang="ja">最近の変更</h1>
+<p class="lb" data-lang="zh">最近 {len(rows) if rows else 0} 次提交，直接读取本仓库的 git 历史。每次推送站点文件时，这个列表会随构建一起更新。</p>
+<p class="lb" data-lang="en">The latest {len(rows) if rows else 0} commits, read straight from this repository's git history. The list updates on every push that touches the site.</p>
+<p class="lb" data-lang="ja">直近 {len(rows) if rows else 0} 件のコミット。リポジトリの git 履歴から直接読み込み、サイトファイルを含むプッシュのたびに更新されます。</p>
 {listing}
 <p><a href="index.html">Back to the index &rarr;</a></p>
 </section>
@@ -617,10 +838,24 @@ def home() -> str:
     sections_html = []
     for slug, label, num in NAV:
         _s, _l, scope, docs = BY_SLUG[slug]
-        items = "\n".join(f'<li><a href="{slug}/{d[0]}.html">{esc(d[1])}</a> - {esc(d[2])}</li>' for d in docs)
+        i18n = SECTIONS_I18N.get(slug, {})
+        label_of = {l: i18n.get(l, (label, ""))[0] for l in LANGS}
+        scope_of = {l: i18n.get(l, (scope, ""))[1] for l in LANGS}
+        items = "\n".join(
+            '<li><a href="' + slug + '/' + d[0] + '.html" class="lb-link">'
+            + "".join(f'<span class="lb" data-lang="{l}">{esc(d[1])} - {esc(d[2])}</span>' for l in LANGS)
+            + "</a></li>"
+            for d in docs
+        )
+        h2 = '<a href="' + slug + '/index.html" class="lb-link">' + "".join(
+            f'<span class="lb" data-lang="{l}">{esc(label_of[l])}</span>' for l in LANGS
+        ) + "</a>"
+        scope_line = "".join(
+            f'<p class="lb" data-lang="{l}">{esc(scope_of[l])} - {len(docs)} documents.</p>' for l in LANGS
+        )
         sections_html.append(
-            f'''<h2><a href="{slug}/index.html">{esc(label)}</a></h2>
-<p>{esc(scope)} - {len(docs)} documents.</p>
+            f'''<h2>{h2}</h2>
+{scope_line}
 <ul>
 {items}
 </ul>'''
@@ -632,9 +867,9 @@ def home() -> str:
 {header("home", "", "")}
 <section>
 <h1 id="dotfiles">dotfiles.iamcheyan.com</h1>
-<p>{esc(SITE["tagline"])}。{total} documents in {len(SECTIONS)} sections. Each tool has its own
-page: what it does, how to invoke it, which flags matter, and what this
-repository actually configures.</p>
+<p class="lb" data-lang="zh">{esc(SITE["tagline"])}。{total} 篇文档，分 {len(SECTIONS)} 章。每个工具一页：做什么、怎么调、哪些选项要紧、本仓库实际配置了什么。</p>
+<p class="lb" data-lang="en">{esc(SITE["tagline"])}. {total} documents in {len(SECTIONS)} sections. Each tool has its own page: what it does, how to invoke it, which flags matter, and what this repository actually configures.</p>
+<p class="lb" data-lang="ja">{esc(SITE["tagline"])}。{total} 件のドキュメントを {len(SECTIONS)} 章に分けています。ツールごとに 1 ページ：役割・呼び出し方・重要なフラグ・このリポジトリでの実際の設定。</p>
 <p><a href="start/index.html">Start with installation &rarr;</a> &nbsp;
 <a href="changes.html">Recent changes &rarr;</a></p>
 {"".join(sections_html)}

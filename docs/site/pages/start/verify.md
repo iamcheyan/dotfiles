@@ -93,3 +93,199 @@ nvim         # 应进入配置好的界面，而不是裸 Neovim
 | `~/.config/nvim` 为空 | 子模块未初始化 |
 
 逐项修好后重新 `exec zsh`，再从第一层核对。
+
+<!-- lang:en -->
+
+> 摘要：After installation, verify layer by layer that commands, symlinks, the Neovim version and shell integration actually work.
+
+# Post-install verification
+
+## Why this matters
+
+`init.sh` is best-effort: a failed step prints a warning and the run continues. "The script finished" therefore does not mean "the environment works". The checks below are ordered by dependency, bottom up.
+
+## Layer 1: do the commands exist
+
+```bash
+command -v zsh git curl
+command -v fzf fd rg
+command -v eza bat zoxide atuin
+command -v nvim tmux
+```
+
+Expected: every line prints an absolute path. A missing line means the tool is not installed or not on PATH.
+
+`eza` and `bat` are optional: `aliases.conf` guards with `command -v eza`, so without eza the `l`/`ll`/`la` aliases are simply never defined — no errors.
+
+## Layer 2: where the symlinks point
+
+```bash
+ls -l ~/.zshrc ~/.vimrc ~/.config/nvim ~/.config/starship.toml
+```
+
+Each should be a symlink (`->`) into `~/dotfiles/...`. A plain-file `~/.zshrc` means dotlink did not run or was skipped.
+
+Check the whole mapping list:
+
+```bash
+sed -n '/^\[link\]/,$p' ~/dotfiles/dotlink/dotlinkrc
+```
+
+## Layer 3: the Neovim version
+
+```bash
+nvim --version | head -1
+```
+
+Must be `NVIM v0.12.x` or newer. Below 0.12, Treesitter's main branch and several plugins fail.
+
+If `command -v nvim` resolves to `/usr/bin/nvim` and the system version is too old:
+
+```bash
+ls -l ~/.local/bin/nvim
+```
+
+Normally this is a symlink into `~/.local/opt/neovim/<version>/bin/nvim`. If it points at a system path instead, rebuild the user-level install with `nvim-update`.
+
+## Layer 4: is Zinit alive
+
+```bash
+zinit list
+```
+
+Should list installed plugins and tools. An empty list usually means zinit itself is missing or `zshrc` never loaded.
+
+## Layer 5: shell integration
+
+```bash
+echo $SHELL
+echo $FZF_DEFAULT_COMMAND
+type f ffd ra v vssh
+bindkey '^R'
+```
+
+- `$SHELL` should be the zsh path.
+- `$FZF_DEFAULT_COMMAND` should start with `fd` or `fdfind`.
+- `type` should report each name as a `function`.
+- `bindkey '^R'` shows what owns Ctrl+R now — fzf or Atuin.
+
+## Layer 6: actually use it
+
+```bash
+f            # should open the file picker
+z dotfiles   # should jump to the repository
+nvim         # should open the configured UI, not bare Neovim
+```
+
+If `nvim` opens without the plugin UI, `~/.config/nvim` most likely links to an empty directory (submodule not initialized).
+
+## Common failures and causes
+
+| Symptom | Cause |
+|---|---|
+| `command not found: zsh` | step 2 failed, or you did not re-login |
+| `~/.zshrc` is a plain file | dotlink not run or failed |
+| `nvim` older than 0.12 | user-level install missing, system package used |
+| `zinit list` empty | zinit directory missing or `zshrc` not loaded |
+| `f` undefined | `plugins/fzf/fzf.zsh` not loaded; check `zshrc` |
+| `~/.config/nvim` empty | submodule not initialized |
+
+Fix item by item, `exec zsh` again, then re-verify from layer 1.
+
+<!-- lang:ja -->
+
+> 摘要：インストール後、コマンド・シンボリックリンク・Neovim バージョン・シェル統合が本当に動くかを段階的に確認する。
+
+# インストール後の確認
+
+## なぜ必要か
+
+`init.sh` はベストエフォート方式で、失敗したステップは warning を出して続行します。つまり「スクリプトが終わった」は「環境が使える」を意味しません。以下の確認は依存の下から上へ順に並んでいます。
+
+## 第 1 層：コマンドの存在
+
+```bash
+command -v zsh git curl
+command -v fzf fd rg
+command -v eza bat zoxide atuin
+command -v nvim tmux
+```
+
+期待値：各行が絶対パスを 1 つ表示。表示されなければ未インストールか PATH 外です。
+
+`eza` と `bat` は任意です。`aliases.conf` は `command -v eza` で判定しており、eza がなければ `l`/`ll`/`la` エイリアスは定義されず、エラーも出ません。
+
+## 第 2 層：シンボリックリンクの向き
+
+```bash
+ls -l ~/.zshrc ~/.vimrc ~/.config/nvim ~/.config/starship.toml
+```
+
+すべて `->` で `~/dotfiles/...` を指すシンボリックリンクであるべきです。`~/.zshrc` が通常ファイルのままなら、dotlink が実行されていないか失敗しています。
+
+マッピング全体を確認するには：
+
+```bash
+sed -n '/^\[link\]/,$p' ~/dotfiles/dotlink/dotlinkrc
+```
+
+## 第 3 層：Neovim のバージョン
+
+```bash
+nvim --version | head -1
+```
+
+`NVIM v0.12.x` 以上が必須です。0.12 未満では Treesitter の main ブランチと一部プラグインが失敗します。
+
+`command -v nvim` が `/usr/bin/nvim` を指し、システム版が古い場合：
+
+```bash
+ls -l ~/.local/bin/nvim
+```
+
+本来は `~/.local/opt/neovim/<version>/bin/nvim` へのシンボリックリンクです。システムパスを指しているなら `nvim-update` でユーザー級インストールを作り直します。
+
+## 第 4 層：Zinit の状態
+
+```bash
+zinit list
+```
+
+インストール済みのプラグインとツールが列挙されるはずです。空リストは大抵、zinit 本体が無いか `zshrc` が読み込まれていないことを意味します。
+
+## 第 5 層：シェル統合
+
+```bash
+echo $SHELL
+echo $FZF_DEFAULT_COMMAND
+type f ffd ra v vssh
+bindkey '^R'
+```
+
+- `$SHELL` は zsh のパスであるべき。
+- `$FZF_DEFAULT_COMMAND` は `fd` か `fdfind` で始まるべき。
+- `type` は各名前を `function` と報告するべき。
+- `bindkey '^R'` は Ctrl+R の現在の持ち主（fzf か Atuin）を確認するためのもの。
+
+## 第 6 層：実際に使ってみる
+
+```bash
+f            # ファイルピッカーが開くはず
+z dotfiles   # リポジトリへジャンプするはず
+nvim         # 裸の Neovim ではなく設定済み UI が開くはず
+```
+
+`nvim` を開いてプラグイン UI が出ないなら、`~/.config/nvim` が空ディレクトリ（サブモジュール未初期化）にリンクしている可能性が高いです。
+
+## よくある失敗と原因
+
+| 症状 | 原因 |
+|---|---|
+| `command not found: zsh` | ステップ 2 の失敗、または再ログイン未実施 |
+| `~/.zshrc` が通常ファイル | dotlink 未実行または失敗 |
+| `nvim` が 0.12 未満 | ユーザー級インストール未構築、システムパッケージを使用 |
+| `zinit list` が空 | zinit ディレクトリ欠落または `zshrc` 未読み込み |
+| `f` が未定義 | `plugins/fzf/fzf.zsh` 未読み込み。`zshrc` を確認 |
+| `~/.config/nvim` が空 | サブモジュール未初期化 |
+
+1 つずつ直し、再度 `exec zsh` してから第 1 層から確認し直します。

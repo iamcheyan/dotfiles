@@ -636,3 +636,54 @@ body.no-sidebar section {
   header, .dock { display: none; }
   section { width: auto; float: none; border: 0; padding: 0; }
 }
+
+/* --------------------------------------------------------------- language -- */
+/* One source file carries zh/en/ja blocks. Only the active language renders;
+   every other span is display:none. Fallback content is zh, duplicated into
+   the missing language blocks by the generator. */
+
+.lb { display: none; }
+:root[data-lang="zh"] .lb[data-lang="zh"],
+:root[data-lang="en"] .lb[data-lang="en"],
+:root[data-lang="ja"] .lb[data-lang="ja"] { display: revert; }
+
+/* inline spans inside links/headings should not become blocks */
+.nav-section .lb, .nav-doc .lb, .pager .lb, a .lb, h1 .lb, h2 .lb { display: none; }
+:root[data-lang="zh"] .nav-section .lb[data-lang="zh"],
+:root[data-lang="en"] .nav-section .lb[data-lang="en"],
+:root[data-lang="ja"] .nav-section .lb[data-lang="ja"],
+:root[data-lang="zh"] .nav-doc .lb[data-lang="zh"],
+:root[data-lang="en"] .nav-doc .lb[data-lang="en"],
+:root[data-lang="ja"] .nav-doc .lb[data-lang="ja"],
+:root[data-lang="zh"] .pager .lb[data-lang="zh"],
+:root[data-lang="en"] .pager .lb[data-lang="en"],
+:root[data-lang="ja"] .pager .lb[data-lang="ja"],
+:root[data-lang="zh"] a .lb[data-lang="zh"],
+:root[data-lang="en"] a .lb[data-lang="en"],
+:root[data-lang="ja"] a .lb[data-lang="ja"],
+:root[data-lang="zh"] h1 .lb[data-lang="zh"],
+:root[data-lang="en"] h1 .lb[data-lang="en"],
+:root[data-lang="ja"] h1 .lb[data-lang="ja"],
+:root[data-lang="zh"] h2 .lb[data-lang="zh"],
+:root[data-lang="en"] h2 .lb[data-lang="en"],
+:root[data-lang="ja"] h2 .lb[data-lang="ja"] { display: inline; }
+
+/* body blocks (div.lb) render as block; h1.lb stays a heading */
+div.lb { display: none; }
+:root[data-lang="zh"] div.lb[data-lang="zh"],
+:root[data-lang="en"] div.lb[data-lang="en"],
+:root[data-lang="ja"] div.lb[data-lang="ja"] { display: block; }
+
+h1.lb, p.lb { display: none; }
+:root[data-lang="zh"] h1.lb[data-lang="zh"],
+:root[data-lang="en"] h1.lb[data-lang="en"],
+:root[data-lang="ja"] h1.lb[data-lang="ja"],
+:root[data-lang="zh"] p.lb[data-lang="zh"],
+:root[data-lang="en"] p.lb[data-lang="en"],
+:root[data-lang="ja"] p.lb[data-lang="ja"] { display: block; }
+
+/* language button in the dock */
+.lang-btn {
+  font: 700 12px/1 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .02em;
+}

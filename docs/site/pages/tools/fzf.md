@@ -164,3 +164,337 @@ printf 'a\t1\nb\t2\n' | fzf --delimiter='\t' --accept-nth=2
 **`Ctrl+R` 行为和预期不同**：Atuin 或 fzf 接管了。用 `bindkey '^R'` 确认当前绑定。
 
 **forgit 报版本太低**：`fzf --version` 检查，需要 0.60.0+。系统包太旧时用官方安装脚本升级。
+
+<!-- lang:en -->
+
+> 摘要：fzf is the foundation of this repository's interactive layer; f, ffd, forgit, fzf-tab and tmux-fzf all sit on top of it.
+
+# fzf
+
+## Purpose
+
+`fzf` is a general-purpose fuzzy filter: it reads a list of lines from stdin, lets you narrow them down with the keyboard, and prints the selected line(s). It knows nothing about "files", "branches" or "commands" — every meaning is supplied by the caller.
+
+Five places use it in this repository:
+
+| Consumer | Use |
+|---|---|
+| `f` / `ffd` | file and directory selection |
+| forgit | Git branch, commit and stash selection |
+| fzf-tab | filtering Tab-completion candidates |
+| tmux-fzf | session/window/pane selection |
+| vssh | SSH host selection |
+
+## Source and install
+
+| Item | Notes |
+|---|---|
+| Binary | checked/installed by init.sh; may also come from the system package |
+| Completion & keys | upstream scripts loaded as Zinit snippets in `plugins/tools/tools.zsh` |
+| Version floor | forgit needs 0.60.0+ |
+
+```zsh
+# completion
+zinit ice as"completion"
+zinit snippet https://github.com/junegunn/fzf/raw/master/shell/completion.zsh
+# key bindings
+zinit ice as"completion"
+zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
+```
+
+`fzf.zsh` adds a fallback: if the system `/usr/share/fzf/shell/key-bindings.zsh` exists, it is sourced too.
+
+## Basic usage
+
+```bash
+ls | fzf                    # select from a pipe
+fzf < file.txt              # read from a file
+vim "$(fzf)"                # hand the pick to another command
+fzf --multi                 # allow multi-select (Tab marks)
+fzf --preview 'cat {}'      # side preview
+```
+
+`{}` is the placeholder for the current selection, usable in `--preview` and `--bind`.
+
+## Core flags
+
+### Search
+
+| Flag | Effect |
+|---|---|
+| `-e` / `--exact` | exact match instead of fuzzy |
+| `-i` / `--ignore-case` | case-insensitive |
+| `+i` | case-sensitive |
+| `--smart-case` | ignore case when all-lower, respect when mixed (default) |
+| `-n` / `--nth` | search only the given fields |
+| `--with-nth` | display only the given fields |
+| `--accept-nth` | output only the given fields on accept |
+| `-d` / `--delimiter` | field delimiter |
+| `+s` / `--no-sort` | keep input order instead of match score |
+
+### Layout
+
+| Flag | Effect |
+|---|---|
+| `--height` | how much height to use, e.g. `90%` or `40` |
+| `--layout=reverse` | prompt at top, list grows down (more intuitive) |
+| `--border` | draw a border |
+| `--preview` | preview command |
+| `--preview-window` | preview position and size, e.g. `right:40%` |
+| `--header` | header text |
+| `--info` | info-line style |
+
+### Input/output
+
+| Flag | Effect |
+|---|---|
+| `--read0` | NUL-separated input |
+| `--print0` | NUL-separated output |
+| `--ansi` | parse ANSI colours in the input |
+| `--print-query` | include the user's query in the output |
+| `--expect=alt-enter` | capture a key, emit it on a second line |
+| `--multi` | multi-select |
+
+`--print-query` plus `--expect` is the core of this repository's `f` function; see [the f and ffd functions](../shell/fzf-functions.html).
+
+## Defaults in this repository
+
+```zsh
+export FZF_DEFAULT_COMMAND='fd --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+export FZF_DEFAULT_OPTS="--height 90% --layout=reverse --border --wrap \
+  --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
+  --preview-window=right:40%"
+```
+
+Piece by piece:
+
+- `--height 90%` — take nine tenths of the terminal, keeping a little context.
+- `--layout=reverse` — input on top, results growing downward.
+- `--border` — a border visually separates fzf from the terminal behind it.
+- `--wrap` — wrap long lines instead of scrolling sideways.
+- `--preview` — directories get a listing; files get bat highlighting for the first 300 lines.
+- `--preview-window=right:40%` — preview on the right, 40% of the width.
+
+Without bat, `fzf.zsh` falls back to a directory-preview-only variant.
+
+## Official key bindings
+
+| Key | Effect |
+|---|---|
+| `Ctrl+T` | insert the selected file path into the current command line |
+| `Alt+C` | pick a directory and `cd` into it |
+| `Ctrl+R` | search command history |
+
+`Ctrl+R` may be taken over by Atuin depending on load order.
+
+## Keys inside fzf
+
+| Key | Effect |
+|---|---|
+| `Tab` / `Shift+Tab` | mark / unmark in multi-select |
+| `Ctrl+J` / `Ctrl+K` | down / up |
+| `Ctrl+N` / `Ctrl+P` | same |
+| `Enter` | accept |
+| `Esc` / `Ctrl+C` | cancel |
+| `?` | help |
+| `Ctrl+/` | toggle the preview window |
+| `Alt+digit` | quick-select in multi-select |
+
+## In scripts
+
+```bash
+# delete after picking
+rm "$(ls | fzf)"
+
+# batch-process a multi-select
+ls *.log | fzf --multi | xargs rm
+
+# with preview
+git branch | fzf --preview 'git log --oneline -10 {}'
+
+# output only the second column
+printf 'a\t1\nb\t2\n' | fzf --delimiter='\t' --accept-nth=2
+```
+
+## Troubleshooting
+
+**Empty fzf list**: the command in `FZF_DEFAULT_COMMAND` does not exist. Check `command -v fd`.
+
+**Blank preview**: a tool used by the preview command is missing (bat, ls). Confirm with `command -v bat`.
+
+**Garbled preview**: the terminal cannot render that character, or the font lacks the glyph.
+
+**`Ctrl+T` dead**: key-bindings never loaded. Check the two snippets in `plugins/tools/tools.zsh`.
+
+**`Ctrl+R` behaves unexpectedly**: Atuin or fzf took over. `bindkey '^R'` shows the current owner.
+
+**forgit complains about version**: check `fzf --version`; 0.60.0+ required. When the system package is too old, upgrade via the official install script.
+
+<!-- lang:ja -->
+
+> 摘要：fzf はこのリポジトリの対話レイヤーの土台。f、ffd、forgit、fzf-tab、tmux-fzf がすべてその上に載っています。
+
+# fzf
+
+## 役割
+
+`fzf` は汎用のファジーフィルタです。標準入力から行のリストを受け取り、キーボードで絞り込み、選択した行を出力します。「ファイル」「ブランチ」「コマンド」といった意味は fzf 自体は知らず、すべて呼び出し側が与えます。
+
+このリポジトリでは 5 か所で使っています：
+
+| 使用元 | 用途 |
+|---|---|
+| `f` / `ffd` | ファイルとディレクトリ選択 |
+| forgit | Git のブランチ・コミット・stash 選択 |
+| fzf-tab | Tab 補完候補の絞り込み |
+| tmux-fzf | session/window/pane 選択 |
+| vssh | SSH ホスト選択 |
+
+## 入手とインストール
+
+| 項目 | 説明 |
+|---|---|
+| バイナリ | init.sh が確認／インストール。システムパッケージ由来でも可 |
+| 補完とキー | `plugins/tools/tools.zsh` で上游スクリプトを Zinit snippet として読み込み |
+| バージョン下限 | forgit は 0.60.0+ 必要 |
+
+```zsh
+# 補完
+zinit ice as"completion"
+zinit snippet https://github.com/junegunn/fzf/raw/master/shell/completion.zsh
+# キーバインド
+zinit ice as"completion"
+zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
+```
+
+`fzf.zsh` にはさらにフォールバックがあり、システムの `/usr/share/fzf/shell/key-bindings.zsh` が存在すれば source します。
+
+## 基本的な使い方
+
+```bash
+ls | fzf                    # パイプから選択
+fzf < file.txt              # ファイルから読み込み
+vim "$(fzf)"                # 選択結果を別コマンドへ
+fzf --multi                 # 複数選択（Tab でマーク）
+fzf --preview 'cat {}'      # 右側にプレビュー
+```
+
+`{}` は現在の選択項目のプレースホルダで、`--preview` と `--bind` で使えます。
+
+## 主要フラグ
+
+### 検索
+
+| フラグ | 効果 |
+|---|---|
+| `-e` / `--exact` | ファジーではなく完全一致 |
+| `-i` / `--ignore-case` | 大文字小文字を無視 |
+| `+i` | 大文字小文字を区別 |
+| `--smart-case` | 全小文字なら無視、大文字混じりなら区別（既定） |
+| `-n` / `--nth` | 指定フィールドのみ検索 |
+| `--with-nth` | 指定フィールドのみ表示 |
+| `--accept-nth` | 確定時に指定フィールドのみ出力 |
+| `-d` / `--delimiter` | フィールド区切り |
+| `+s` / `--no-sort` | スコア順ではなく入力順を維持 |
+
+### レイアウト
+
+| フラグ | 効果 |
+|---|---|
+| `--height` | 占有高。`90%` や `40` など |
+| `--layout=reverse` | 入力行を上に、リストを下へ（直感的） |
+| `--border` | 枠を描画 |
+| `--preview` | プレビューコマンド |
+| `--preview-window` | プレビューの位置と大きさ。`right:40%` など |
+| `--header` | 上部の説明文 |
+| `--info` | 情報行のスタイル |
+
+### 入出力
+
+| フラグ | 効果 |
+|---|---|
+| `--read0` | 入力を NUL 区切りに |
+| `--print0` | 出力を NUL 区切りに |
+| `--ansi` | 入力内の ANSI 色を解釈 |
+| `--print-query` | 出力にユーザーのクエリを含める |
+| `--expect=alt-enter` | 特定キーを捕まえ、2 行目に出力 |
+| `--multi` | 複数選択 |
+
+`--print-query` と `--expect` の組み合わせがこのリポジトリの `f` 関数の核です。[f と ffd 関数](../shell/fzf-functions.html) を参照。
+
+## このリポジトリの既定値
+
+```zsh
+export FZF_DEFAULT_COMMAND='fd --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+export FZF_DEFAULT_OPTS="--height 90% --layout=reverse --border --wrap \
+  --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
+  --preview-window=right:40%"
+```
+
+ばらして見ると：
+
+- `--height 90%` — ターミナルの 9 割を使い、文脈を少し残す。
+- `--layout=reverse` — 入力欄が上、結果が下へ伸びる。
+- `--border` — 枠で背後のターミナルと視覚的に区切る。
+- `--wrap` — 長い行は横スクロールではなく折り返す。
+- `--preview` — ディレクトリは内容一覧、ファイルは bat で先頭 300 行をハイライト。
+- `--preview-window=right:40%` — プレビューは右側、幅 40%。
+
+bat が無い環境では `fzf.zsh` がディレクトリプレビューのみの版に切り替えます。
+
+## 公式キーバインド
+
+| キー | 効果 |
+|---|---|
+| `Ctrl+T` | 選択したファイルパスを現在のコマンドラインに挿入 |
+| `Alt+C` | ディレクトリを選んで `cd` |
+| `Ctrl+R` | コマンド履歴を検索 |
+
+`Ctrl+R` は読み込み順によって Atuin に奪われていることがあります。
+
+## fzf 内のキー
+
+| キー | 効果 |
+|---|---|
+| `Tab` / `Shift+Tab` | 複数選択のマーク／解除 |
+| `Ctrl+J` / `Ctrl+K` | 下へ／上へ |
+| `Ctrl+N` / `Ctrl+P` | 同上 |
+| `Enter` | 確定 |
+| `Esc` / `Ctrl+C` | キャンセル |
+| `?` | ヘルプ表示 |
+| `Ctrl+/` | プレビューウィンドウの切り替え |
+| `Alt+数字` | 複数選択時に数字キーで即選択 |
+
+## スクリプト内で使う
+
+```bash
+# 選んでから削除
+rm "$(ls | fzf)"
+
+# 複数選択を一括処理
+ls *.log | fzf --multi | xargs rm
+
+# プレビュー付き
+git branch | fzf --preview 'git log --oneline -10 {}'
+
+# 2 列目だけ出力
+printf 'a\t1\nb\t2\n' | fzf --delimiter='\t' --accept-nth=2
+```
+
+## トラブルシュート
+
+**fzf のリストが空**：`FZF_DEFAULT_COMMAND` のコマンドが存在しない。`command -v fd` を確認。
+
+**プレビューが空白**：プレビューコマンドのツール（bat、ls）が不足。`command -v bat` で確認。
+
+**プレビューが文字化け**：ターミナルがその文字を表示できない、またはフォントにグリフが無い。
+
+**`Ctrl+T` が反応しない**：key-bindings が未読み込み。`plugins/tools/tools.zsh` の 2 つの snippet を確認。
+
+**`Ctrl+R` の挙動が違う**：Atuin か fzf が握っている。`bindkey '^R'` で現在の持ち主を確認。
+
+**forgit がバージョン不足を訴える**：`fzf --version` を確認。0.60.0+ が必要。システムパッケージが古い場合は公式インストールスクリプトで更新。
