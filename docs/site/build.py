@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import subprocess
 from html import escape
 from pathlib import Path
 
@@ -190,21 +191,236 @@ def render_md(text: str) -> str:
 
 TAGLINE = "Your unofficial guide to this dotfiles setup."
 
+APP_JS = r"""
+(function () {
+  var root = document.documentElement;
+
+  /* ---- theme ---------------------------------------------------------- */
+  var THEME_KEY = 'dotfiles-theme';
+  try {
+    var saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+  } catch (e) {}
+
+  function applyThemeLabel() {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = dark ? 'Light' : 'Dark';
+  }
+
+  document.addEventListener('click', function (event) {
+    var theme = event.target.closest('#theme-toggle');
+    if (theme) {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+      applyThemeLabel();
+      return;
+    }
+
+    var side = event.target.closest('#sidebar-toggle');
+    if (side) {
+      var hidden = document.body.classList.toggle('no-sidebar');
+      try { localStorage.setItem('dotfiles-sidebar', hidden ? 'off' : 'on'); } catch (e) {}
+      return;
+    }
+
+    var restore = event.target.closest('#sidebar-restore');
+    if (restore) {
+      document.body.classList.remove('no-sidebar');
+      try { localStorage.setItem('dotfiles-sidebar', 'on'); } catch (e) {}
+      return;
+    }
+  });
+
+  try {
+    if (localStorage.getItem('dotfiles-sidebar') === 'off') {
+      document.body.classList.add('no-sidebar');
+    }
+  } catch (e) {}
+
+  applyThemeLabel();
+
+  /* ---- search --------------------------------------------------------- */
+  var input = document.getElementById('q');
+  var box = document.getElementById('results');
+  var index = [];
+  var payload = document.getElementById('search-index');
+  if (payload) {
+    try { index = JSON.parse(payload.textContent); } catch (e) { index = []; }
+  }
+
+  if (!input || !box) return;
+
+  var selected = -1;
+  var items = [];
+
+  function esc(text) {
+    return String(text).replace(/[&<>"]/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch];
+    });
+  }
+
+  function mark(text, query) {
+    if (!query) return esc(text);
+    var at = text.toLowerCase().indexOf(query);
+    if (at < 0) return esc(text);
+    return esc(text.slice(0, at)) + '<mark>' + esc(text.slice(at, at + query.length)) +
+      '</mark>' + esc(text.slice(at + query.length));
+  }
+
+  function score(entry, query) {
+    var title = entry.t.toLowerCase();
+    var desc = (entry.d || '').toLowerCase();
+    var body = (entry.x || '').toLowerCase();
+    var at = title.indexOf(query);
+    if (at === 0) return 1000;
+    if (at > 0) return 800 - at;
+    if (desc.indexOf(query) >= 0) return 500;
+    if (body.indexOf(query) >= 0) return 200;
+    return -1;
+  }
+
+  function close() {
+    box.hidden = true;
+    box.innerHTML = '';
+    selected = -1;
+    items = [];
+  }
+
+  function highlight(next) {
+    if (!items.length) return;
+    if (selected >= 0 && items[selected]) items[selected].classList.remove('sel');
+    selected = (next + items.length) % items.length;
+    items[selected].classList.add('sel');
+    items[selected].scrollIntoView({ block: 'nearest' });
+  }
+
+  function render() {
+    var query = input.value.trim().toLowerCase();
+    if (!query) { close(); return; }
+
+    var hits = [];
+    for (var i = 0; i < index.length; i++) {
+      var s = score(index[i], query);
+      if (s >= 0) hits.push({ entry: index[i], score: s });
+    }
+    hits.sort(function (a, b) { return b.score - a.score; });
+    hits = hits.slice(0, 24);
+
+    if (!hits.length) {
+      box.innerHTML = '<div class="r-empty">No document matches &ldquo;' + esc(input.value.trim()) + '&rdquo;.</div>';
+      box.hidden = false;
+      items = [];
+      selected = -1;
+      return;
+    }
+
+    var html = '';
+    for (var j = 0; j < hits.length; j++) {
+      var e = hits[j].entry;
+      html += '<a href="' + e.u + '">' +
+        '<span class="r-section">' + esc(e.s) + '</span>' +
+        '<span class="r-title">' + mark(e.t, query) + '</span>' +
+        '<span class="r-desc">' + mark(e.d || '', query) + '</span>' +
+        '</a>';
+    }
+    box.innerHTML = html;
+    box.hidden = false;
+    items = Array.prototype.slice.call(box.querySelectorAll('a'));
+    selected = -1;
+    highlight(0);
+  }
+
+  input.addEventListener('input', render);
+  input.addEventListener('focus', function () { if (input.value.trim()) render(); });
+
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'ArrowDown') { event.preventDefault(); highlight(selected + 1); }
+    else if (event.key === 'ArrowUp') { event.preventDefault(); highlight(selected - 1); }
+    else if (event.key === 'Enter') {
+      if (selected >= 0 && items[selected]) { event.preventDefault(); window.location.href = items[selected].getAttribute('href'); }
+    } else if (event.key === 'Escape') { input.value = ''; close(); input.blur(); }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    var typing = ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(document.activeElement.tagName) >= 0;
+    if (event.key === '/' && !typing) { event.preventDefault(); input.focus(); input.select(); }
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!event.target.closest('.search-box')) close();
+  });
+})();
+"""
+
+
+def read_git_log(limit: int = 14) -> list[dict]:
+    """Recent commits touching the site or the configuration it documents."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(ROOT), "log", f"-{limit}", "--date=short",
+             "--pretty=format:%h%x1f%ad%x1f%s"],
+            capture_output=True, text=True, timeout=20, check=True,
+        ).stdout
+    except Exception:
+        return []
+    rows = []
+    for line in out.splitlines():
+        parts = line.split("\x1f")
+        if len(parts) == 3:
+            rows.append({"hash": parts[0], "date": parts[1], "subject": parts[2]})
+    return rows
+
+
+def search_index(prefix: str) -> str:
+    rows = []
+    for section in SECTIONS:
+        slug, label, _scope, docs = section
+        for doc, title, summary in docs:
+            rows.append(
+                {
+                    "t": title,
+                    "d": summary,
+                    "s": label,
+                    "u": f"{prefix}{slug}/{doc}.html",
+                }
+            )
+    return json.dumps(rows, ensure_ascii=False, separators=(",", ":"))
+
+
+def inline_assets() -> tuple[str, str]:
+    return (SITE_ROOT / "styles.css").read_text(encoding="utf-8"), APP_JS
+
+
+def head_block(title: str, description: str, prefix: str) -> str:
+    css, _ = inline_assets()
+    return f'''<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
+<title>{esc(title)} - dotfiles.iamcheyan.com</title>
+<meta name="description" content="{esc(description)}">
+<meta name="color-scheme" content="light dark">
+<style>
+{css}
+</style>
+</head>'''
+
 
 def side_nav(section: str, doc: str, prefix: str) -> str:
-    """Stacked navigation: the six sections, with the active one expanded."""
     parts = []
     for slug, label, num in NAV:
         active = slug == section
         parts.append(
             f'<a class="nav-section{" active" if active else ""}" href="{prefix}{slug}/index.html">'
-            f"<span class=\"nav-num\">{num}</span>{esc(label)}</a>"
+            f'<span class="nav-num">{num}</span>{esc(label)}</a>'
         )
         if active:
-            docs = BY_SLUG[slug][3]
             links = "\n".join(
                 f'<a class="nav-doc{" active" if d[0] == doc else ""}" href="{prefix}{slug}/{d[0]}.html">{esc(d[1])}</a>'
-                for d in docs
+                for d in BY_SLUG[slug][3]
             )
             parts.append(f'<div class="nav-docs">{links}</div>')
     return "\n".join(parts)
@@ -214,11 +430,24 @@ def header(section: str, doc: str, prefix: str) -> str:
     return f'''<header>
   <p class="site-title"><a href="{prefix}index.html">dotfiles</a></p>
   <p class="site-tagline"><em>{TAGLINE}</em></p>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <input id="q" type="search" placeholder="Search {sum(len(s[3]) for s in SECTIONS)} documents" autocomplete="off" spellcheck="false" aria-label="Search documents">
+      <div class="results" id="results" hidden></div>
+    </div>
+    <div class="toggles">
+      <button id="theme-toggle" type="button" aria-label="Toggle colour theme">Dark</button>
+      <button id="sidebar-toggle" type="button">Hide sidebar</button>
+    </div>
+  </div>
+
   <nav>
     {side_nav(section, doc, prefix)}
   </nav>
   <p class="site-meta"><a href="https://github.com/{SITE["repo"]}">GitHub repository</a><br>
-  <a href="https://nvim.iamcheyan.com">Neovim configuration</a></p>
+  <a href="https://nvim.iamcheyan.com">Neovim configuration</a><br>
+  <a href="{prefix}changes.html">Recent changes</a></p>
 </header>'''
 
 
@@ -227,17 +456,23 @@ def pager(section: str, doc: str, prefix: str) -> str:
     i = next(n for n, d in enumerate(docs) if d[0] == doc)
     prev_d = docs[i - 1] if i > 0 else None
     next_d = docs[i + 1] if i + 1 < len(docs) else None
-    left = (
-        f'<a href="{prefix}{section}/{prev_d[0]}.html">&larr; {esc(prev_d[1])}</a>'
-        if prev_d
-        else ""
-    )
+    left = f'<a href="{prefix}{section}/{prev_d[0]}.html">&larr; {esc(prev_d[1])}</a>' if prev_d else ""
     right = (
         f'<a href="{prefix}{section}/{next_d[0]}.html">{esc(next_d[1])} &rarr;</a>'
         if next_d
         else f'<a href="{prefix}{section}/index.html">{esc(BY_SLUG[section][1])} index &rarr;</a>'
     )
     return f'<p class="pager">{left}<span class="pager-sep"> · </span>{right}</p>'
+
+
+def tail_block(prefix: str) -> str:
+    return f'''<button class="restore" id="sidebar-restore" type="button">Show sidebar</button>
+<script id="search-index" type="application/json">{search_index(prefix)}</script>
+<script>
+{APP_JS}
+</script>
+</body>
+</html>'''
 
 
 def page(section: str, doc: str) -> tuple[dict, str]:
@@ -247,19 +482,10 @@ def page(section: str, doc: str) -> tuple[dict, str]:
     desc = match.group(1).strip() if match else ""
     title_match = re.search(r"^# (.+)$", text, re.M)
     title = title_match.group(1).strip() if title_match else doc
-    searchable = re.sub(r"\s+", " ", re.sub(r"[`#>*|]", " ", text))
     text = re.sub(r"^> 摘要：.+\n\n", "", text, count=1, flags=re.M)
     text = re.sub(r"^# .+\n+", "", text, count=1)
     body = render_md(text)
-    html = f'''<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
-<title>{esc(title)} - dotfiles.iamcheyan.com</title>
-<meta name="description" content="{esc(desc)}">
-<link href="../stylesheets/styles.css" rel="stylesheet">
-</head>
+    html = f'''{head_block(title, desc, "../")}
 <body>
 <div class="wrapper">
 {header(section, doc, "../")}
@@ -269,51 +495,63 @@ def page(section: str, doc: str) -> tuple[dict, str]:
 {pager(section, doc, "../")}
 </section>
 </div>
-</body>
-</html>'''
-    meta = {"title": title, "description": desc, "section": section, "doc": doc, "search_text": searchable}
+{tail_block("../")}'''
+    meta = {"title": title, "description": desc, "section": section, "doc": doc}
     return meta, html
 
 
 def section_index(section: str) -> tuple[dict, str]:
     slug, label, scope, docs = BY_SLUG[section]
-    items = "\n".join(
-        f'<li><a href="{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>'
-        for d in docs
-    )
-    html = f'''<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
-<title>{esc(label)} - dotfiles.iamcheyan.com</title>
-<meta name="description" content="{esc(scope)}">
-<link href="../stylesheets/styles.css" rel="stylesheet">
-</head>
+    items = "\n".join(f'<li><a href="{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>' for d in docs)
+    html = f'''{head_block(label, scope, "../")}
 <body>
 <div class="wrapper">
 {header(section, "index", "../")}
 <section>
 <h1 id="{esc(slug)}">{esc(label)}</h1>
-<p>{esc(scope)}</p>
+<p>{esc(scope)} — {len(docs)} documents.</p>
 <ul>
 {items}
 </ul>
 </section>
 </div>
-</body>
-</html>'''
-    return {"title": label, "description": scope, "section": section, "doc": "index", "search_text": scope}, html
+{tail_block("../")}'''
+    return {"title": label, "description": scope, "section": section, "doc": "index"}, html
 
 
-def home(all_meta: list[dict]) -> str:
+def changes_page() -> str:
+    rows = read_git_log()
+    if rows:
+        items = "\n".join(
+            f'<li><span class="c-hash">{esc(r["hash"])}</span>'
+            f'<span class="c-date">{esc(r["date"])}</span>'
+            f'<span class="c-subject">{esc(r["subject"])}</span></li>'
+            for r in rows
+        )
+        listing = f'<ul class="changes">\n{items}\n</ul>'
+    else:
+        listing = '<ul class="changes"><li class="c-empty">Git history is unavailable in this build.</li></ul>'
+
+    html = f'''{head_block("Recent changes", "最近提交记录，来自本仓库的 git 历史。", "")}
+<body>
+<div class="wrapper">
+{header("changes", "", "")}
+<section>
+<h1 id="changes">Recent changes</h1>
+<p>最近 {len(rows) if rows else 0} 次提交，直接读取本仓库的 git 历史。每次推送站点文件时，这个列表会随构建一起更新。</p>
+{listing}
+<p><a href="index.html">Back to the index &rarr;</a></p>
+</section>
+</div>
+{tail_block("")}'''
+    return html
+
+
+def home() -> str:
     sections_html = []
     for slug, label, num in NAV:
         _s, _l, scope, docs = BY_SLUG[slug]
-        items = "\n".join(
-            f'<li><a href="{slug}/{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>'
-            for d in docs
-        )
+        items = "\n".join(f'<li><a href="{slug}/{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>' for d in docs)
         sections_html.append(
             f'''<h2><a href="{slug}/index.html">{esc(label)}</a></h2>
 <p>{esc(scope)} — {len(docs)} documents.</p>
@@ -322,15 +560,7 @@ def home(all_meta: list[dict]) -> str:
 </ul>'''
         )
     total = sum(len(s[3]) for s in SECTIONS)
-    return f'''<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1, user-scalable=yes" name="viewport">
-<title>dotfiles.iamcheyan.com</title>
-<meta name="description" content="{esc(SITE["tagline"])}">
-<link href="stylesheets/styles.css" rel="stylesheet">
-</head>
+    html = f'''{head_block("dotfiles.iamcheyan.com", SITE["tagline"], "")}
 <body>
 <div class="wrapper">
 {header("home", "", "")}
@@ -339,24 +569,26 @@ def home(all_meta: list[dict]) -> str:
 <p>{esc(SITE["tagline"])}。{total} documents in six sections. Each tool has its own
 page: what it does, how to invoke it, which flags matter, and what this
 repository actually configures.</p>
-<p><a href="start/index.html">Start with installation &rarr;</a></p>
+<p><a href="start/index.html">Start with installation &rarr;</a> &nbsp;
+<a href="changes.html">Recent changes &rarr;</a></p>
 {"".join(sections_html)}
 </section>
 </div>
-</body>
-</html>'''
+{tail_block("")}'''
+    return html
 
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    sheets = OUT / "stylesheets"
-    sheets.mkdir(exist_ok=True)
-    shutil.copy2(SITE_ROOT / "styles.css", sheets / "styles.css")
-
     written = 0
     for slug, label, num in NAV:
         sdir = OUT / slug
         sdir.mkdir(exist_ok=True)
+        _meta, idx = section_index(slug)
+        (sdir / "index.html").write_text(
+            "\n".join(line.rstrip() for line in idx.splitlines()) + "\n", encoding="utf-8"
+        )
+        written += 1
         for doc, _t, _s in BY_SLUG[slug][3]:
             _meta, html = page(slug, doc)
             (sdir / f"{doc}.html").write_text(
@@ -365,14 +597,17 @@ def main() -> None:
             written += 1
 
     (OUT / "index.html").write_text(
-        "\n".join(line.rstrip() for line in home([]).splitlines()) + "\n", encoding="utf-8"
+        "\n".join(line.rstrip() for line in home().splitlines()) + "\n", encoding="utf-8"
+    )
+    (OUT / "changes.html").write_text(
+        "\n".join(line.rstrip() for line in changes_page().splitlines()) + "\n", encoding="utf-8"
     )
     (OUT / "CNAME").write_text("dotfiles.iamcheyan.com\n", encoding="utf-8")
     (OUT / "robots.txt").write_text(
         "User-agent: *\nAllow: /\nSitemap: https://dotfiles.iamcheyan.com/sitemap.xml\n",
         encoding="utf-8",
     )
-    urls = ["", *[f"{s[0]}/" for s in SECTIONS]]
+    urls = ["", "changes.html", *[f"{s[0]}/" for s in SECTIONS]]
     urls += [f"{s[0]}/{d[0]}.html" for s in SECTIONS for d in s[3]]
     sitemap = "".join(f'<url><loc>{SITE["url"]}/{u}</loc></url>' for u in urls)
     (OUT / "sitemap.xml").write_text(
@@ -380,7 +615,7 @@ def main() -> None:
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + sitemap + "</urlset>\n",
         encoding="utf-8",
     )
-    print(f"Built {written} documents + index into {OUT.relative_to(ROOT)}")
+    print(f"Built {written} pages + index + changes into {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
