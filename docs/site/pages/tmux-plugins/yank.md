@@ -79,15 +79,14 @@ tmux show-options -g allow-passthrough
 tmux show-options -s set-clipboard
 ```
 
-`set-clipboard` 三种值：
+`set-clipboard` 取值：
 
 | 值 | 行为 | 本配置建议 |
 |---|---|---|
-| `external` | 外部剪贴板更新可进入 tmux；不对终端客户端发送 OSC 52 | 不适合本方案 |
-| `on` | tmux copy-mode 复制向终端客户端发送 OSC 52 | 推荐，主配置已启用 |
-| `off` | 不通过 tmux 同步剪贴板 | 远程 OSC 52 不可用；本地 copy-pipe 仍可用 |
+| `external` | 外部剪贴板更新可进入 tmux；应用不能经 tmux 发 OSC 52 | 不适合 OSC 52 |
+| `on` | tmux copy-mode 剪贴向终端客户端发送 OSC 52 | 推荐；主配置已启用 |
+| `off` | 禁用 tmux 剪贴板同步 | 本地 copy-pipe 可用，SSH OSC 52 不可用 |
 
-主配置设置 `allow-passthrough on` 与 `set-clipboard on`。SSH copy-mode 由 tmux 的
 `set-clipboard on` 向客户端发 OSC 52；绑定同时运行 `scripts/tmux-copy`，将选区
 写入 tmux buffer 并确认 copy-pipe 已成功。此脚本不向 pane PTY 写转义序列。非 SSH
 会话委托 `scripts/tmux-clipboard-copy` 选择本地后端：WSL 使用
