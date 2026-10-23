@@ -11,11 +11,10 @@ set -u
 have() { command -v "$1" >/dev/null 2>&1; }
 
 if [ -n "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}${SSH_SESSION:-}" ] && [ -n "${TMUX_PANE:-}" ] && have tmux; then
-    # copy-pipe supplies the selected bytes; set-buffer triggers tmux's
-    # set-clipboard OSC 52 update for the attached client.
-    selected=$(cat) || exit 1
-    [ -n "$selected" ] || exit 0
-    tmux set-buffer "$selected"
+    # Load stdin byte-for-byte to a dedicated buffer; setting the same content
+    # triggers tmux's OSC 52 clipboard update when set-clipboard is on.
+    tmux load-buffer -b tmux-copy-osc52 - || exit 1
+    tmux set-buffer -b tmux-copy-osc52 -a ''
     exit $?
 fi
 
