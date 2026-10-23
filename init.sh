@@ -1003,6 +1003,62 @@ install_extra_tools() {
     else
         print_success "hunk is already installed"
     fi
+
+    # visidata — terminal spreadsheet for exploring CSV/TSV/JSON (pipx)
+    if ! command_exists visidata; then
+        print_info "Installing visidata..."
+        [[ -f "$install_dir/install_pipx_tool.sh" ]] && bash "$install_dir/install_pipx_tool.sh" visidata visidata vd
+    else
+        print_success "visidata is already installed"
+    fi
+
+    # tabiew — TUI to view and query CSV/TSV/parquet files
+    if ! command_exists tw; then
+        print_info "Installing tabiew..."
+        [[ -f "$install_dir/install_tabiew.sh" ]] && bash "$install_dir/install_tabiew.sh"
+    else
+        print_success "tabiew is already installed"
+    fi
+
+    # qsv — blazing-fast CSV data-wrangling toolkit
+    if ! command_exists qsv; then
+        print_info "Installing qsv..."
+        [[ -f "$install_dir/install_qsv.sh" ]] && bash "$install_dir/install_qsv.sh"
+    else
+        print_success "qsv is already installed"
+    fi
+
+    # toolong — view/tail/merge/search log files and JSONL (pipx, command: tl)
+    if ! command_exists tl; then
+        print_info "Installing toolong..."
+        [[ -f "$install_dir/install_pipx_tool.sh" ]] && bash "$install_dir/install_pipx_tool.sh" toolong tl
+    else
+        print_success "toolong is already installed"
+    fi
+
+    # harlequin — terminal SQL IDE (pipx)
+    if ! command_exists harlequin; then
+        print_info "Installing harlequin..."
+        [[ -f "$install_dir/install_pipx_tool.sh" ]] && bash "$install_dir/install_pipx_tool.sh" harlequin harlequin
+    else
+        print_success "harlequin is already installed"
+    fi
+
+    # dekit — process manager for dev and prod
+    if ! command_exists dekit; then
+        print_info "Installing dekit..."
+        [[ -f "$install_dir/install_dekit.sh" ]] && bash "$install_dir/install_dekit.sh"
+    else
+        print_success "dekit is already installed"
+    fi
+
+    # topgrade — upgrade everything (run manually with: topgrade)
+    if ! command_exists topgrade; then
+        print_info "Installing topgrade..."
+        [[ -f "$install_dir/install_topgrade.sh" ]] && bash "$install_dir/install_topgrade.sh"
+    else
+        print_success "topgrade is already installed"
+    fi
 }
 
 
