@@ -137,3 +137,287 @@ chmod 600 key      # 仅本人可读写（私钥、凭据文件用这个）
 ```
 
 详见[权限与提权](permissions.html)。
+
+<!-- lang:en -->
+
+> Summary: Common usage of files and directories — ls, cd, cp, mv, rm, mkdir, ln, and more — plus how the aliases differ once eza takes over.
+
+# Files and Directories
+
+## ls and eza
+
+`ls` lists directory contents. On this machine, when `eza` is detected, three aliases are defined that take over everyday use of `ls`:
+
+| Alias | Expands to | Effect |
+|---|---|---|
+| `l` | `eza --icons --group-directories-first --sort=modified --reverse` | Most recently modified on top |
+| `ll` | `eza -lh --icons --group-directories-first --git --sort=modified --reverse` | Long format + Git status |
+| `la` | `eza -a ...` | Includes hidden files |
+
+Without eza installed these aliases do not exist; you get the system `ls` directly:
+
+```bash
+ls -lah            # 长格式、人类可读大小、含隐藏文件
+ls -lt             # 按时间排序，最新在前
+ls -R              # 递归列出子目录
+ls -d */           # 只列目录
+```
+
+`eza`-only but commonly used:
+
+```bash
+eza -T --level=2   # 两层树状视图
+eza -lh --git      # 看每个文件的 Git 状态
+eza --sort=size -l # 按大小排
+```
+
+## cd and jumping between directories
+
+```bash
+cd /path           # 绝对路径
+cd ..              # 上一级
+cd -               # 回上一个目录（OLDPWD）
+cd ~               # 回家，~ 就是 $HOME
+cd                 # 不带参数也是回家
+```
+
+This machine has **zoxide** installed (the `z` command), which remembers the directories you have visited and jumps by frequency:
+
+```bash
+z dotfiles        # 跳到 ~/dotfiles（匹配路径任意一段）
+z dev cindy       # 多关键词，匹配 ~/development/cindy
+zi                # 交互式选择（fzf 列表）
+zr                 # zoxide 数据库里删掉已不存在的目录
+```
+
+Mixing `z` and `cd` is fine — zoxide also records directories reached via `cd`.
+
+## mkdir
+
+```bash
+mkdir newdir                  # 建一个目录
+mkdir -p a/b/c                # 递归建，已存在不报错（最常用）
+mkdir -m 700 secret           # 建的时候直接设权限
+```
+
+`-p` is an everyday essential: without it, `a/b/c` fails if `a` does not exist.
+
+## touch
+
+```bash
+touch file.txt        # 文件不存在则创建空文件；存在则更新修改时间
+touch -d '2026-01-01' file   # 把时间戳改成指定时间
+```
+
+Common uses on this machine: `.keep` placeholder files, triggering file watchers (e.g. making Vite reload); another way to empty a file is `: > file`.
+
+## cp
+
+```bash
+cp src dst                   # 复制文件
+cp -r dir/ dest/             # 复制目录（-r 必需）
+cp -a dir/ dest/             # 归档模式：保留权限、时间戳、符号链接
+cp -i file dest              # 覆盖前询问
+cp -n file dest              # 不覆盖已存在的文件
+cp -u file dest              # 只在源比目标新时复制（增量）
+```
+
+For copying across machines use `rsync` or `scp`; see [Network and Transfer](network.html). `cp -a` is the first choice for backing up config directories — it preserves all metadata.
+
+## mv
+
+```bash
+mv old new          # 移动或重命名（同一个命令）
+mv -i a b           # 覆盖前询问
+mv *.log logs/      # 移动一批
+```
+
+Across filesystems, `mv` is "copy + delete"; a power loss mid-move of a large directory across partitions can lose data. For important data, `cp` first and delete after.
+
+## rm
+
+```bash
+rm file             # 删文件
+rm -i file          # 询问确认
+rm -r dir/          # 递归删目录
+rm -rf dir/         # 强制递归删（没有确认，慎用）
+```
+
+Local Zsh safety habit: run `ls` on the glob expansion before `rm`. When Zsh expands `*.log` and nothing matches, it errors out immediately (unlike Bash, which passes the literal `*.log` to `rm`) — this layer of protection has prevented many accidents.
+
+**Deleted files do not go to a trash can.** After accidental deletion, the only recovery path is ext4's `extundelete` (stop writing to that partition immediately); day to day, rely on backups: this repo has a daily backup cron, and the repos under `~/development` rely on Git.
+
+## ln symbolic links
+
+```bash
+ln -s /path/to/target linkname      # 建软链接（最常用）
+ln -sfn /new/target linkname        # 覆盖已存在的链接（-f 强制，-n 把链接当文件）
+ls -l linkname                      # 看链接指向哪里
+readlink -f linkname                # 解析到最终真实路径
+```
+
+The deployment core of these dotfiles is symlinks: `scripts/dotlink` links the config files in the repo to `~/.config/` and similar locations. When editing config, run `readlink -f` first to confirm you are editing the real file in the repo, not some stale broken link.
+
+**Troubleshooting: `too many levels of symbolic links`** — the links form a loop; follow them with `ls -l` a few levels up and you will find it.
+
+## stat and file
+
+```bash
+stat file          # 看大小、权限、inode、三个时间戳（mtime/atime/ctime）
+file archive.unk   # 靠内容判断文件类型，不看扩展名
+file -i archive    # 连 MIME 类型一起输出
+```
+
+`stat`'s ctime is the "metadata change time"; `chmod` also updates it. `touch` changes the mtime.
+
+## Permissions cheatsheet
+
+```bash
+ls -l file         # -rw-r--r--：所有者/组/其他人 的读写执行位
+chmod +x script.sh # 加执行权限
+chmod 600 key      # 仅本人可读写（私钥、凭据文件用这个）
+```
+
+See [Permissions and Privilege Escalation](permissions.html) for details.
+
+<!-- lang:ja -->
+
+> 摘要：ls・cd・cp・mv・rm・mkdir・ln などのファイルとディレクトリ操作の定番の使い方と、eza 導入後のエイリアスの違い。
+
+# ファイルとディレクトリ
+
+## ls と eza
+
+`ls` はディレクトリ内容を一覧表示します。本機では `eza` が検出されると 3 つのエイリアスが定義され、日常の `ls` を置き換えます：
+
+| エイリアス | 展開 | 効果 |
+|---|---|---|
+| `l` | `eza --icons --group-directories-first --sort=modified --reverse` | 最近変更したものが上に |
+| `ll` | `eza -lh --icons --group-directories-first --git --sort=modified --reverse` | 長形式 + Git 状態 |
+| `la` | `eza -a ...` | 隠しファイルも含む |
+
+eza が入っていなければこれらのエイリアスは存在せず、システムの `ls` をそのまま使います：
+
+```bash
+ls -lah            # 长格式、人类可读大小、含隐藏文件
+ls -lt             # 按时间排序，最新在前
+ls -R              # 递归列出子目录
+ls -d */           # 只列目录
+```
+
+`eza` 固有だがよく使うもの：
+
+```bash
+eza -T --level=2   # 两层树状视图
+eza -lh --git      # 看每个文件的 Git 状态
+eza --sort=size -l # 按大小排
+```
+
+## cd とディレクトリ移動
+
+```bash
+cd /path           # 绝对路径
+cd ..              # 上一级
+cd -               # 回上一个目录（OLDPWD）
+cd ~               # 回家，~ 就是 $HOME
+cd                 # 不带参数也是回家
+```
+
+本機には **zoxide**（`z` コマンド）が入っており、訪れたディレクトリを記憶して頻度に応じてジャンプします：
+
+```bash
+z dotfiles        # 跳到 ~/dotfiles（匹配路径任意一段）
+z dev cindy       # 多关键词，匹配 ~/development/cindy
+zi                # 交互式选择（fzf 列表）
+zr                 # zoxide 数据库里删掉已不存在的目录
+```
+
+`z` と `cd` の混用は問題ありません。zoxide は `cd` で移動したディレクトリも記録します。
+
+## mkdir
+
+```bash
+mkdir newdir                  # 建一个目录
+mkdir -p a/b/c                # 递归建，已存在不报错（最常用）
+mkdir -m 700 secret           # 建的时候直接设权限
+```
+
+`-p` は日常必須です。付けないと、`a/b/c` は `a` が存在しない時点で失敗します。
+
+## touch
+
+```bash
+touch file.txt        # 文件不存在则创建空文件；存在则更新修改时间
+touch -d '2026-01-01' file   # 把时间戳改成指定时间
+```
+
+本機でのよくある使い道：`.keep` のプレースホルダファイル、ファイル監視の発火（例：Vite のリロード）。ファイルを空にする別の方法は `: > file` です。
+
+## cp
+
+```bash
+cp src dst                   # 复制文件
+cp -r dir/ dest/             # 复制目录（-r 必需）
+cp -a dir/ dest/             # 归档模式：保留权限、时间戳、符号链接
+cp -i file dest              # 覆盖前询问
+cp -n file dest              # 不覆盖已存在的文件
+cp -u file dest              # 只在源比目标新时复制（增量）
+```
+
+マシン間のコピーには `rsync` か `scp` を使います。[ネットワークと転送](network.html) を参照。`cp -a` は設定ディレクトリのバックアップの第一候補で、すべてのメタデータを保持します。
+
+## mv
+
+```bash
+mv old new          # 移动或重命名（同一个命令）
+mv -i a b           # 覆盖前询问
+mv *.log logs/      # 移动一批
+```
+
+ファイルシステムをまたぐ `mv` は「コピー + 削除」です。大きなディレクトリをパーティション越しに移動中に電源が落ちるとデータを失うことがあります。大事なデータは先に `cp` してから消します。
+
+## rm
+
+```bash
+rm file             # 删文件
+rm -i file          # 询问确认
+rm -r dir/          # 递归删目录
+rm -rf dir/         # 强制递归删（没有确认，慎用）
+```
+
+本機の Zsh の安全習慣：`rm` の前にグロブ展開の結果を `ls` で一度確認します。Zsh は `*.log` が何にもマッチしないと即エラーになります（Bash はリテラルの `*.log` をそのまま `rm` に渡します）。この保護層が多くの事故を防いできました。
+
+**削除したファイルはゴミ箱に入りません。** 誤って消した後の唯一の復旧手段は ext4 の `extundelete`（ただちにそのパーティションへの書き込みを止めること）。日常はバックアップに頼ります：このリポジトリには毎日バックアップする cron があり、`~/development` 配下のリポジトリは Git に頼ります。
+
+## ln シンボリックリンク
+
+```bash
+ln -s /path/to/target linkname      # 建软链接（最常用）
+ln -sfn /new/target linkname        # 覆盖已存在的链接（-f 强制，-n 把链接当文件）
+ls -l linkname                      # 看链接指向哪里
+readlink -f linkname                # 解析到最终真实路径
+```
+
+この dotfiles のデプロイの中核はシンボリックリンクです：`scripts/dotlink` がリポジトリ内の設定ファイルを `~/.config/` などへリンクします。設定を編集するときは先に `readlink -f` で、リポジトリ内の実物を編集しているのか、切れた古いリンクではないのかを確認します。
+
+**トラブルシューティング：`too many levels of symbolic links`** — リンクがループになっています。`ls -l` で指し先を何段階か辿れば見つかります。
+
+## stat と file
+
+```bash
+stat file          # 看大小、权限、inode、三个时间戳（mtime/atime/ctime）
+file archive.unk   # 靠内容判断文件类型，不看扩展名
+file -i archive    # 连 MIME 类型一起输出
+```
+
+`stat` の ctime は「メタデータ変更時刻」で、`chmod` でも更新されます。`touch` が変えるのは mtime です。
+
+## パーミッション速査
+
+```bash
+ls -l file         # -rw-r--r--：所有者/组/其他人 的读写执行位
+chmod +x script.sh # 加执行权限
+chmod 600 key      # 仅本人可读写（私钥、凭据文件用这个）
+```
+
+詳細は [パーミッションと権限昇格](permissions.html) を参照。

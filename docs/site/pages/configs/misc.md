@@ -77,3 +77,167 @@ ls -l ~/.config/herdr/config.toml
 **配置不生效**：确认 Herdr 读的是这个路径。
 
 **认证失败**：key 不在公开配置里，需要自己在私有配置或环境变量里提供。
+
+<!-- lang:en -->
+
+> Summary: The boundaries and deployment of two smaller configurations, nano and Herdr.
+
+# nano and Herdr
+
+These configuration files are small, or only partially deployed, so they are described together.
+
+## nano
+
+### Location
+
+| Item | Path |
+|---|---|
+| Repository source file | `config/nano/nanorc` |
+| Deployment target | `~/.nanorc` |
+| Auto-linked | Yes |
+
+### Purpose
+
+Syntax highlighting and default options for Nano. Useful for quick edits in environments without Vim.
+
+### Notes
+
+Nano reads `~/.nanorc`; if the file contains a syntax error, Nano reports it but usually still starts.
+
+The `nanorc` in this repository is short, consisting mainly of syntax highlighting includes and a few default options.
+
+The Nano title bar uses yellow on blue, the status bar cyan, and the selection and line numbers follow Neovim Blue's blue/cyan accents.
+
+### Verification
+
+```bash
+nano --version
+nano /tmp/test.txt
+```
+
+### Troubleshooting
+
+**Nano reports a syntax error on startup**: the `nanorc` contains a directive incompatible with the current Nano version. Comment out the offending line.
+
+**No syntax highlighting**: the `include` path is wrong, or Nano was built without syntax support.
+
+## Herdr
+
+### Location
+
+| Item | Path |
+|---|---|
+| Repository source file | `config/herdr/config.toml` |
+| Deployment target | `~/.config/herdr/config.toml` |
+| Auto-linked | Yes |
+
+### Purpose
+
+Herdr is a local AI coding assistant; `init.sh` installs it via the official script:
+
+```bash
+curl -fsSL https://herdr.dev/install.sh | sh
+```
+
+The configuration is in TOML format, and this repository provides a basic theme configuration.
+
+Herdr's panel background, cyan accent, and green hint colors match the Neovim Blue / Nostalgia color scheme.
+
+### Boundaries
+
+Herdr's API keys and provider configuration are private and are **not here**. The public configuration only contains interface and general options.
+
+### Verification
+
+```bash
+herdr --version
+ls -l ~/.config/herdr/config.toml
+```
+
+### Troubleshooting
+
+**Configuration not taking effect**: confirm Herdr reads this path.
+
+**Authentication fails**: the key is not in the public configuration; provide it yourself in a private configuration or environment variables.
+
+<!-- lang:ja -->
+
+> 要約：nano と Herdr という小規模な 2 つの設定の境界とデプロイ方法。
+
+# nano と Herdr
+
+これらの設定ファイルは容量が小さいか、一部だけデプロイされるため、まとめて説明します。
+
+## nano
+
+### 場所
+
+| 項目 | パス |
+|---|---|
+| リポジトリのソースファイル | `config/nano/nanorc` |
+| デプロイ先 | `~/.nanorc` |
+| 自動リンクの対象 | はい |
+
+### 用途
+
+Nano のシンタックスハイライトとデフォルトオプションです。Vim のない環境での応急編集に適しています。
+
+### 注意
+
+`~/.nanorc` は Nano に読み込まれます。ファイルに文法エラーがあると、Nano はエラーを報告しますが、通常は起動自体はできます。
+
+本リポジトリの `nanorc` は短く、主にシンタックスハイライトの include と少数のデフォルト項目からなります。
+
+Nano のタイトルバーは青地に黄色、ステータスバーはシアンを使い、選択範囲と行番号は Neovim Blue の青／シアンのアクセントに合わせています。
+
+### 検証
+
+```bash
+nano --version
+nano /tmp/test.txt
+```
+
+### トラブルシューティング
+
+**Nano 起動時に文法エラーが出る**：`nanorc` に現在の Nano バージョンと互換性のないディレクティブがあります。該当行をコメントアウトしてください。
+
+**シンタックスハイライトが出ない**：`include` のパスが間違っているか、Nano がシンタックスサポート無しでビルドされています。
+
+## Herdr
+
+### 場所
+
+| 項目 | パス |
+|---|---|
+| リポジトリのソースファイル | `config/herdr/config.toml` |
+| デプロイ先 | `~/.config/herdr/config.toml` |
+| 自動リンクの対象 | はい |
+
+### 用途
+
+Herdr はローカルの AI コーディングアシスタントで、`init.sh` が公式スクリプトでインストールします：
+
+```bash
+curl -fsSL https://herdr.dev/install.sh | sh
+```
+
+設定は TOML 形式で、本リポジトリは基本的なテーマ設定を提供しています。
+
+Herdr のパネル背景・シアンのアクセント・緑のヒント色は、Neovim Blue / Nostalgia の配色と一致しています。
+
+### 境界
+
+Herdr の API キーやプロバイダ設定はプライベートな内容であり、**ここにはありません**。公開設定にはインターフェースと一般オプションのみが含まれます。
+
+### 検証
+
+```bash
+herdr --version
+ls -l ~/.config/herdr/config.toml
+```
+
+### トラブルシューティング
+
+**設定が効かない**：Herdr がこのパスを読んでいるか確認します。
+
+**認証に失敗する**：キーは公開設定に含まれていないため、プライベート設定か環境変数で自分で用意する必要があります。

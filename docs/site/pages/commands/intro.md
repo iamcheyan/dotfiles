@@ -53,3 +53,119 @@ rg -l 'TODO' ~/dotfiles | head -5        # 找含 TODO 的文件，看前 5 个
 | 脚本里（`#!/bin/bash`） | 没有别名，必须写完整命令 |
 
 最后一条经常咬人：`init.sh` 和 cron 里的脚本是 `#!/usr/bin/env bash`，**别名不生效**。写脚本时不要依赖 `l`、`ll`、`f` 这些别名。
+
+<!-- lang:en -->
+
+> Summary: This chapter collects the usage of common Linux commands and explains, command by command, how they are actually used on this Debian 13 workstation with this dotfiles setup.
+
+# Linux Command Handbook
+
+## What this handbook solves
+
+Command tutorials on the web assume you are on stock Bash, the system's `ls`/`cat`/`grep`, and a freshly installed distro. This environment is not that:
+
+- The distro is **Debian 13 (trixie)**, running as a PVE VM with no physical display; the desktop is a remote Xvnc + Xfce session.
+- The shell is **Zsh**, loading zinit, completions, fzf, and a set of aliases; the behavior of many commands has been changed by this setup (`l` is not `ls`, `f` is not `find`).
+- Many GNU tools have been taken over by modern replacements: `eza` replaces `ls`, `fd` replaces `find`, `ripgrep` replaces `grep`, `bat` replaces `cat`, `zoxide` replaces `cd`, `btop` replaces `top`.
+- The other machine we deal with often is **NixOS** (HX90), whose package management and service commands differ completely from Debian.
+
+So for every command, this handbook answers three questions: **what the command does**, **what the common usage is**, and **what differs in this environment**.
+
+## How to read this
+
+| What you need | Go read |
+|---|---|
+| Copy, move, delete, view files | [Files and Directories](files.html) |
+| View, edit, count text | [Text Processing](text.html) |
+| Find files, search content | [Search](search.html) |
+| View/kill processes, background jobs | [Processes and Jobs](process.html) |
+| chmod, sudo, file ownership | [Permissions and Privilege Escalation](permissions.html) |
+| Disk full, mounting the NAS | [Disks and Mounting](disk.html) |
+| IP, ports, downloads, file transfer | [Network and Transfer](network.html) |
+| System status, logs | [System Info and Logs](system.html) |
+| Install software (apt / pacman / nix) | [Package Management](packages.html) |
+| tar, zip, compression | [Compression and Archiving](archives.html) |
+| Machine-specific operations (gh, tmux, desktop) | [Our Environment in Practice](our-environment.html) |
+| Forgot the flags, quick lookup | [Cheatsheet](cheatsheet.html) |
+
+## Three universal habits
+
+**1. Read the help before acting.** `command --help` is the quick reference; `man command` is the full manual. On this machine the `man` pager is `less`: `/keyword` to search, `q` to quit.
+
+**2. Pipes are the soul of Linux.** One command's output is the next command's input:
+
+```bash
+rg -l 'TODO' ~/dotfiles | head -5        # 找含 TODO 的文件，看前 5 个
+```
+
+**3. Confirm the path before destructive operations.** Commands like `rm -rf`, `dd`, `mkfs`, and `chmod -R` offer no second chance. The troubleshooting section of each page notes the pitfalls this machine has actually hit.
+
+## Which shell a command runs in
+
+| Scenario | Notes |
+|---|---|
+| Normal terminal | Zsh; all the aliases and functions in this handbook apply here |
+| Inside tmux | Same Zsh, but the clipboard goes through OSC 52; see [Our Environment in Practice](our-environment.html) |
+| SSH login | The Zsh config is loaded as well (login shells read `.zshrc`) |
+| Remote workspace | Commands execute on the remote machine; local aliases may not exist |
+| In scripts (`#!/bin/bash`) | No aliases; write the full commands |
+
+The last row bites often: the scripts in `init.sh` and cron are `#!/usr/bin/env bash`, so **aliases do not work**. Do not rely on aliases like `l`, `ll`, or `f` when writing scripts.
+
+<!-- lang:ja -->
+
+> 摘要：本章ではよく使う Linux コマンドの使い方を集め、この Debian 13 ワークステーションとこの dotfiles 構成のもとで実際にどう使うかを 1 つずつ説明します。
+
+# Linux コマンドハンドブック
+
+## このハンドブックが解決すること
+
+ウェブ上のコマンドチュートリアルは、素の Bash・システム標準の `ls`/`cat`/`grep`・インストールしたてのディストロを想定しています。この環境は違います：
+
+- ディストロは **Debian 13（trixie）**。PVE の仮想マシンで動き、物理ディスプレイはなく、デスクトップは Xvnc + Xfce のリモートセッションです。
+- シェルは **Zsh**。zinit、補完、fzf、一式のエイリアスを読み込みます。多くのコマンドの挙動がこの設定で変更されています（`l` は `ls` ではない、`f` は `find` ではない）。
+- 多くの GNU ツールはモダンな代替に置き換えられています：`eza` が `ls` を、`fd` が `find` を、`ripgrep` が `grep` を、`bat` が `cat` を、`zoxide` が `cd` を、`btop` が `top` を置き換えます。
+- よく一緒に使うもう 1 台のマシンは **NixOS**（HX90）で、パッケージ管理やサービスのコマンドは Debian とまったく違います。
+
+そこでこのハンドブックは、すべてのコマンドに対して 3 つの問いに答えます：**このコマンドは何をするか**、**定番の使い方は何か**、**この環境では何が違うか**。
+
+## 読み方
+
+| やりたいこと | 参照先 |
+|---|---|
+| コピー・移動・削除・ファイル表示 | [ファイルとディレクトリ](files.html) |
+| 表示・編集・集計 | [テキスト処理](text.html) |
+| ファイル検索・内容検索 | [検索](search.html) |
+| プロセス表示・終了・バックグラウンドジョブ | [プロセスとジョブ](process.html) |
+| chmod・sudo・ファイル所有権 | [パーミッションと権限昇格](permissions.html) |
+| ディスク満杯・NAS マウント | [ディスクとマウント](disk.html) |
+| IP・ポート・ダウンロード・ファイル転送 | [ネットワークと転送](network.html) |
+| システム状態・ログ | [システム情報とログ](system.html) |
+| ソフトウェア導入（apt / pacman / nix） | [パッケージ管理](packages.html) |
+| tar・zip・圧縮 | [圧縮とアーカイブ](archives.html) |
+| 本機固有の操作（gh・tmux・デスクトップ） | [本機環境の実践](our-environment.html) |
+| オプションを忘れた、手早く調べたい | [速査表](cheatsheet.html) |
+
+## 三つの普遍的な習慣
+
+**1. 手を動かす前にヘルプを読む。** `コマンド --help` が速査、`man コマンド` が完全なマニュアルです。本機の `man` ページャは `less` で、`/キーワード` で検索、`q` で終了します。
+
+**2. パイプは Linux の魂です。** あるコマンドの出力が次のコマンドの入力になります：
+
+```bash
+rg -l 'TODO' ~/dotfiles | head -5        # 找含 TODO 的文件，看前 5 个
+```
+
+**3. 破壊的操作の前にパスを確認する。** `rm -rf`、`dd`、`mkfs`、`chmod -R` といったコマンドに 2 度目のチャンスはありません。各ページのトラブルシューティング節には、本機が実際に踏んだ落とし穴を記録してあります。
+
+## コマンドはどのシェルで動くか
+
+| シナリオ | 説明 |
+|---|---|
+| 普通のターミナル | Zsh。このハンドブックのすべてのエイリアスと関数はここで有効 |
+| tmux 内 | 同じ Zsh。ただしクリップボードは OSC 52 経由。[本機環境の実践](our-environment.html) を参照 |
+| SSH ログイン | 同様に Zsh 設定を読み込む（ログインシェルは `.zshrc` を読む） |
+| リモートワークスペース | コマンドは遠隔マシンで実行され、ローカルのエイリアスは存在しないことも |
+| スクリプト内（`#!/bin/bash`） | エイリアスなし。完全なコマンドを書くこと |
+
+最後の行はよく人を咬みます：`init.sh` や cron 内のスクリプトは `#!/usr/bin/env bash` で、**エイリアスは効きません**。スクリプトを書くときは `l`、`ll`、`f` といったエイリアスに頼らないでください。
