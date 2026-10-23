@@ -40,7 +40,7 @@ SECTIONS = [
         "开始使用",
         "安装、选项与安装后核对",
         [
-            ("index", "本章导读", "这套配置由什么组成，按什么顺序读。"),
+            ("intro", "本章导读", "这套配置由什么组成，按什么顺序读。"),
             ("install", "安装流程", "克隆、子模块、init.sh、dotlink 的实际执行顺序。"),
             ("options", "init.sh 选项", "--minimal 与 --repair 各自跳过或修复什么。"),
             ("verify", "安装后核对", "逐项检查命令、链接和 Neovim 版本。"),
@@ -52,7 +52,7 @@ SECTIONS = [
         "Zsh 与终端",
         "加载顺序、交互插件、搜索函数",
         [
-            ("index", "本章导读", "shell 环境的组成与阅读顺序。"),
+            ("intro", "本章导读", "shell 环境的组成与阅读顺序。"),
             ("loading", "启动与加载顺序", "zshrc 到 zinit、补全、插件、fzf 的完整链路。"),
             ("history", "历史与命令行编辑", "vi-mode、Atuin、历史选项与绑定检查。"),
             ("completion", "补全系统", "compinit、zsh-completions、fzf-tab 三个阶段。"),
@@ -68,7 +68,7 @@ SECTIONS = [
         "工具目录",
         "每个工具一篇，用途、用法、参数、配置",
         [
-            ("index", "工具总表", "全部工具与它们的来源、入口、所属章节。"),
+            ("intro", "工具总表", "全部工具与它们的来源、入口、所属章节。"),
             ("eza", "eza", "带图标与 Git 状态的 ls 替代。"),
             ("bat", "bat", "带语法高亮的 cat，同时是 fzf 预览器。"),
             ("fd", "fd", "按文件名查找，fzf 的默认枚举器。"),
@@ -116,7 +116,7 @@ SECTIONS = [
         "自定义脚本",
         "自研工具与安装器",
         [
-            ("index", "本章导读", "哪些脚本是自研的，哪些是上游安装器。"),
+            ("intro", "本章导读", "哪些脚本是自研的，哪些是上游安装器。"),
             ("dotlink", "dotlink", "软链接管理器：规则、备份、参数。"),
             ("init", "init.sh", "跨平台初始化：11 个步骤与失败策略。"),
             ("nvim-install", "Neovim 安装器", "install_nvim.sh 的平台与版本处理。"),
@@ -131,11 +131,31 @@ SECTIONS = [
         ],
     ),
     (
+        "zsh-plugins",
+        "Zsh 插件",
+        "每个插件的加载方式、配置与用法",
+        [
+            ("intro", "本章导读", "13 个插件各自的职责与加载阶段。"),
+            ("zinit", "Zinit", "插件管理器本体：ice、light、snippet、update。"),
+            ("zsh-completions", "zsh-completions", "额外命令补全定义，compinit 前加载。"),
+            ("fzf-tab", "fzf-tab", "用 fzf 替代补全菜单，含预览与分组切换。"),
+            ("evalcache", "evalcache", "缓存 shell hook 输出，加快启动。"),
+            ("vi-mode", "zsh-vi-mode", "命令行 Vim 编辑模式与按键表。"),
+            ("autosuggestions", "zsh-autosuggestions", "历史与补全的异步建议。"),
+            ("autopair", "zsh-autopair", "自动配对括号与引号。"),
+            ("you-should-use", "you-should-use", "提醒使用已有别名。"),
+            ("forgit", "forgit", "fzf 驱动的 Git 交互命令。"),
+            ("syntax-highlighting", "zsh-syntax-highlighting", "实时命令语法高亮，必须最后加载。"),
+            ("fzf-snippets", "fzf 补全与键绑定", "通过 Zinit snippet 加载的两个上游脚本。"),
+            ("tool-hooks", "可选工具集成", "navi、Pay Respects、Pet 的 hook 接入。"),
+        ],
+    ),
+    (
         "configs",
         "应用配置",
         "每个配置文件的作用与键位",
         [
-            ("index", "本章导读", "dotlink 实际映射了哪些配置。"),
+            ("intro", "本章导读", "dotlink 实际映射了哪些配置。"),
             ("mapping", "映射清单", "源路径、目标路径与是否自动部署。"),
             ("starship", "Starship 配置", "两行提示符的模块与显示条件。"),
             ("atuin", "Atuin 配置", "关闭自动同步、数据库位置。"),
@@ -153,7 +173,7 @@ SECTIONS = [
         "维护与边界",
         "更新、检查与私人覆盖",
         [
-            ("index", "本章导读", "维护这套配置需要知道的事。"),
+            ("intro", "本章导读", "维护这套配置需要知道的事。"),
             ("boundaries", "仓库边界", "公开层、系统层、私有层各自负责什么。"),
             ("update", "更新流程", "git pull、子模块、dotlink 与 Neovim 升级。"),
             ("checks", "检查与测试", "静态检查、脚本测试、站点构建。"),
@@ -566,7 +586,7 @@ def home() -> str:
 {header("home", "", "")}
 <section>
 <h1 id="dotfiles">dotfiles.iamcheyan.com</h1>
-<p>{esc(SITE["tagline"])}。{total} documents in six sections. Each tool has its own
+<p>{esc(SITE["tagline"])}。{total} documents in {len(SECTIONS)} sections. Each tool has its own
 page: what it does, how to invoke it, which flags matter, and what this
 repository actually configures.</p>
 <p><a href="start/index.html">Start with installation &rarr;</a> &nbsp;
