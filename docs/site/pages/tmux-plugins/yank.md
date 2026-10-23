@@ -30,10 +30,12 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 
 插件按环境自动探测。
 
-`tmux-copy` is the shared `copy-pipe` command. On SSH it leaves the selected text in tmux's
-buffer and returns successfully; tmux `set-clipboard on` generates OSC 52 for the attached
-client. Locally it delegates to `scripts/tmux-clipboard-copy`, which chooses the platform
-backend. Copy-mode key overrides are documented below.
+copy-mode-vi copy-pipe bindings call `scripts/tmux-copy`. SSH detection checks `SSH_SESSION`,
+`SSH_CONNECTION`, `SSH_CLIENT`, `SSH_TTY`, and tmux context; WSL, Wayland and X11 detection
+remains in the existing local helper. The SSH helper captures the UTF-8 selection and runs
+`tmux set-buffer`, letting the tmux server emit OSC 52. It does not write escape sequences
+to the pane PTY. Local sessions delegate to `scripts/tmux-clipboard-copy`.
+
 
 | 键 | 行为 |
 |---|---|
@@ -77,17 +79,20 @@ tmux show-options -g allow-passthrough
 tmux show-options -s set-clipboard
 ```
 
+`set-clipboard` 三种值：
+
 | 值 | 行为 | 本配置建议 |
 |---|---|---|
-| `external` | 不允许应用通过 tmux 写终端剪贴板；外部终端剪贴板更新可进入 tmux | 不用于本方案 |
-| `on` | 允许应用通过 tmux 读写终端剪贴板；tmux copy-mode 剪贴也会向客户端发送 OSC 52 | 推荐；主配置已启用 |
-| `off` | 禁止应用通过 tmux 访问终端剪贴板；仍可用 `copy-pipe` 的本地后端 | 远程 OSC 52 不推荐 |
+| `external` | 外部剪贴板更新可进入 tmux；不对终端客户端发送 OSC 52 | 不适合本方案 |
+| `on` | tmux copy-mode 复制向终端客户端发送 OSC 52 | 推荐，主配置已启用 |
+| `off` | 不通过 tmux 同步剪贴板 | 远程 OSC 52 不可用；本地 copy-pipe 仍可用 |
 
-主配置设置 `allow-passthrough on` 与 `set-clipboard on`。SSH 环境下，
-`scripts/tmux-copy` 把 copy-pipe 收到的选区载入专用 tmux buffer，由 tmux 发 OSC 52；
-不会向 pane PTY 写转义序列。非 SSH 会话委托 `scripts/tmux-clipboard-copy` 选择本地后端：
-WSL 使用 `iconv -f UTF-8 -t UTF-16LE | clip.exe`，Wayland 用 `wl-copy`，X11 用
-`xclip`/`xsel`，macOS 用 `pbcopy`。OSC 52 没有接收回执，终端拒绝时无法检测或自动回退。
+主配置设置 `allow-passthrough on` 与 `set-clipboard on`。SSH copy-mode 由 tmux 的
+`set-clipboard on` 向客户端发 OSC 52；绑定同时运行 `scripts/tmux-copy`，将选区
+写入 tmux buffer 并确认 copy-pipe 已成功。此脚本不向 pane PTY 写转义序列。非 SSH
+会话委托 `scripts/tmux-clipboard-copy` 选择本地后端：WSL 使用
+`iconv -f UTF-8 -t UTF-16LE | clip.exe`，Wayland 用 `wl-copy`，X11 用 `xclip`/`xsel`，
+macOS 用 `pbcopy`。OSC 52 没有接收回执，终端拒绝时无法检测或自动回退。
 
 ### 五种连接场景验收
 
