@@ -81,6 +81,6 @@ config/
 
 ## 文档位置
 
-- `docs/ZSH-CLI-TOOLS.md`：forgit、navi、Pet、Inshellisense 的详细说明。
+- `docs/ZSH-CLI-TOOLS.md`：forgit、navi、Pet 的详细说明。
 - `docs/site/`：本站的源文件（Markdown + 构建脚本 + CSS/JS）。
 - `config/nvim/docs/`：Neovim 自己的文档，子模块内。

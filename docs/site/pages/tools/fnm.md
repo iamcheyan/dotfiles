@@ -86,18 +86,6 @@ node --version              # v20.x.x
 
 内容可以是 `20`、`20.11`、`20.11.0`、`lts/*`、`latest`。
 
-## 与 Inshellisense 的关系
-
-Inshellisense 通过 npm 全局安装。npm 的全局 bin 目录只有在 fnm 环境激活后才进 PATH。所以 `zshrc` 里有一段预热：
-
-```zsh
-if (( $+functions[node] )); then
-    node --version >/dev/null 2>&1 || true
-fi
-```
-
-先触发一次 `node`，让 fnm 完成初始化，之后才能找到 `is` 命令。
-
 ## 与 direnv 的关系
 
 两者都能在 `cd` 时改变环境：

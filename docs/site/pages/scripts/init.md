@@ -89,14 +89,6 @@ install_fnm
 
 安装 Node 版本管理器。NixOS 上跳过，提示由系统配置管理。
 
-### Step 5.5：Inshellisense
-
-```bash
-install_inshellisense
-```
-
-需要 npm 可用。通过 `npm install --global @microsoft/inshellisense` 安装，然后 `is init zsh` 生成集成。
-
 ### Step 6：Fresh
 
 ```bash

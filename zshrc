@@ -174,26 +174,3 @@ case ":$PATH:" in
   *) export PATH="$PATH:$HOME/.photon/bin" ;;
 esac
 # <<< Photon CLI <<<
-
-# fnm adds npm's global bin directory lazily; warm it before finding `is`.
-if (( $+functions[node] )); then
-    node --version >/dev/null 2>&1 || true
-fi
-
-# Inshellisense must be the last Zsh startup integration. Its generated script
-# starts a managed child shell and exits this shell. Preserve TMUX for pane sizing.
-if [[ -o interactive ]] && [[ -z "${ISTERM:-}" ]] && command -v is >/dev/null 2>&1; then
-    local inshellisense_init="${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh"
-    if [[ ! -r "$inshellisense_init" ]]; then
-        is init zsh >/dev/null 2>&1 || true
-    fi
-    if [[ -r "$inshellisense_init" ]]; then
-        export USER_ZDOTDIR="${ZDOTDIR:-$HOME}"
-        if [[ -n "${TMUX:-}" ]]; then
-            export TMUX="${TMUX%%,*}"
-            export TMUX_PANE
-        fi
-        source "$inshellisense_init"
-    fi
-    unset inshellisense_init
-fi

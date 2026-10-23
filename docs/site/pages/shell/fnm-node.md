@@ -1,4 +1,4 @@
-> 摘要：fnm 的惰性加载包装器如何工作，以及 Inshellisense 的生成式集成。
+> 摘要：fnm 的惰性加载包装器如何工作，以及它如何为 npm 全局命令提供 PATH。
 
 # fnm 与 Node 工具链
 
@@ -74,57 +74,6 @@ node --version
 ```
 
 `.nvmrc` 或 `.node-version` 文件存在时，`--use-on-cd` 会在 `cd` 进目录时自动切换版本。
-
-## Inshellisense
-
-init.sh 在 Node/npm 可用时安装：
-
-```bash
-npm install --global @microsoft/inshellisense
-```
-
-它需要在交互式 shell 里生成集成脚本。注意 `is init zsh` 输出的是**一条 source 命令**，不是可直接 eval 的 shell 代码：
-
-```zsh
-if [[ -o interactive ]] && [[ -z "${ISTERM:-}" ]] && command -v is >/dev/null 2>&1; then
-    if [[ ! -r "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh" ]]; then
-        is init zsh >/dev/null 2>&1 || true
-    fi
-    source "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh"
-fi
-```
-
-先检查文件是否存在，不存在才生成，然后 source。`ISTERM` 变量用于防止在它自己启动的子 shell 里递归加载。
-
-### 用法
-
-```bash
-is                # 进入 Inshellisense 会话
-is doctor         # 检查集成健康度
-is complete 'git '  # 查看某前缀的补全
-exit              # 退出会话
-```
-
-在普通输入时，它会在命令下方浮出参数建议：
-
-| 键 | 动作 |
-|---|---|
-| `Tab` | 接受当前建议 |
-| `↑` / `↓` | 切换建议 |
-| `Esc` | 关闭建议 |
-
-### 与 Zsh 补全的关系
-
-Inshellisense 不替代 `compinit` 或 fzf-tab。它读取自己的 completion specs，覆盖范围取决于该项目的定义。两者同时存在时，Tab 的行为取决于当前是否显示建议：有建议时 Tab 归它，否则交回 Zsh。
-
-### 更新
-
-```bash
-npm install --global @microsoft/inshellisense
-is reinit
-```
-
-`is reinit` 重新生成集成文件，升级后必须跑一次。
 
 ## 排错
 

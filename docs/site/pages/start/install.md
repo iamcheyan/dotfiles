@@ -36,7 +36,6 @@ bash init.sh
 | 3.5 | 初始化 git 子模块 |
 | 4 | 检查/安装 zinit |
 | 5 | 检查/安装 fnm |
-| 5.5 | 安装并初始化 Inshellisense |
 | 6 | 检查/安装 Fresh |
 | 7 | 检查/安装 fzf |
 | 8 | 调用 dotlink 建立软链接 |

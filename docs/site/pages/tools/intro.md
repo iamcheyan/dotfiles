@@ -38,7 +38,6 @@
 | direnv | Zinit | `direnv` | [direnv](direnv.html) |
 | fnm | init.sh | `fnm`、`node`、`npm` | [fnm](fnm.html) |
 | Starship | Zinit | 提示符 | [Starship](starship.html) |
-| Inshellisense | npm (`init.sh`) | `is` | [Inshellisense](inshellisense.html) |
 
 ## Git
 
