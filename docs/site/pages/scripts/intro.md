@@ -20,6 +20,7 @@
 | `tools/unzip_here.sh` 等 | 批量解压 |
 | `scripts/setup/setup_fnm.sh` | fnm 惰性加载 |
 | `scripts/tmux-new` | tmux 会话恢复 |
+| `scripts/tmux-clipboard-copy` | 跨平台剪贴板复制（WSL/Wayland/X11/macOS） |
 
 **上游安装器**——包装第三方工具的安装流程：
 

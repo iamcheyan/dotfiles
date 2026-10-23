@@ -12,7 +12,12 @@ elif command -v xsel >/dev/null 2>&1; then
 elif command -v pbcopy >/dev/null 2>&1; then
   printf '%s' "$value" | pbcopy
 elif command -v clip.exe >/dev/null 2>&1; then
-  printf '%s' "$value" | clip.exe
+  # Windows expects UTF-16LE; raw UTF-8 mangles CJK and emoji.
+  if command -v iconv >/dev/null 2>&1; then
+    printf '%s' "$value" | iconv -f UTF-8 -t UTF-16LE | clip.exe
+  else
+    printf '%s' "$value" | clip.exe
+  fi
 else
   printf 'vifm-copy: no clipboard command found\n' >&2
   exit 1

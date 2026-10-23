@@ -1,0 +1,127 @@
+#!/bin/sh
+# Copy stdin to the system clipboard on any supported platform.
+#
+# Backend priority (matches the documented requirement):
+#   1. WSL          -> iconv -f UTF-8 -t UTF-16LE | clip.exe
+#   2. Linux Wayland -> wl-copy
+#   3. Linux X11     -> xclip -selection clipboard -in, else xsel --clipboard --input
+#   4. macOS         -> pbcopy
+#
+# The Windows clipboard expects UTF-16LE; piping raw UTF-8 into clip.exe
+# mangles CJK text and emoji, which is why WSL goes through iconv first.
+#
+# stdin is buffered once, so a failing backend can fall back to the next one.
+# Set TMUX_CLIPBOARD_DEBUG=1 to log the chosen backend to stderr, or
+# TMUX_CLIPBOARD_BACKEND=<wsl|wayland|x11|mac> to force one (for tests).
+
+set -u
+
+CLIPBOARD_TMP="${TMPDIR:-/tmp}/tmux-clipboard-copy.$$"
+trap 'rm -f "$CLIPBOARD_TMP"' EXIT INT TERM
+cat > "$CLIPBOARD_TMP"
+
+debug() {
+    if [ "${TMUX_CLIPBOARD_DEBUG:-0}" = "1" ]; then
+        printf 'tmux-clipboard-copy: %s\n' "$1" >&2
+    fi
+}
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# Some backends block forever when there is no compositor or X server.
+run_guarded() {
+    if have timeout; then
+        timeout 5 "$@"
+    else
+        "$@"
+    fi
+}
+
+is_wsl() {
+    [ -n "${WSL_DISTRO_NAME:-}" ] && return 0
+    [ -n "${WSL_INTEROP:-}" ] && return 0
+    grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null && return 0
+    return 1
+}
+
+copy_wsl() {
+    have clip.exe || return 1
+    have iconv || return 1
+    iconv -f UTF-8 -t UTF-16LE < "$CLIPBOARD_TMP" | run_guarded clip.exe
+}
+
+copy_wayland() {
+    have wl-copy || return 1
+    run_guarded wl-copy < "$CLIPBOARD_TMP"
+}
+
+copy_x11() {
+    if have xclip; then
+        run_guarded xclip -selection clipboard -in < "$CLIPBOARD_TMP"
+        return $?
+    fi
+    if have xsel; then
+        run_guarded xsel --clipboard --input < "$CLIPBOARD_TMP"
+        return $?
+    fi
+    return 1
+}
+
+copy_mac() {
+    have pbcopy || return 1
+    run_guarded pbcopy < "$CLIPBOARD_TMP"
+}
+
+run_backend() {
+    case "$1" in
+        wsl) copy_wsl ;;
+        wayland) copy_wayland ;;
+        x11) copy_x11 ;;
+        mac) copy_mac ;;
+        *) return 1 ;;
+    esac
+}
+
+backend_order() {
+    forced="${TMUX_CLIPBOARD_BACKEND:-}"
+    if [ -n "$forced" ]; then
+        printf '%s\n' "$forced"
+        return 0
+    fi
+
+    case "$(uname -s)" in
+        Darwin)
+            printf '%s\n' mac x11
+            ;;
+        Linux)
+            if is_wsl; then
+                printf '%s\n' wsl wayland x11
+            elif [ -n "${WAYLAND_DISPLAY:-}" ] && have wl-copy; then
+                printf '%s\n' wayland x11
+            elif have wl-copy && [ -z "${DISPLAY:-}" ]; then
+                printf '%s\n' wayland x11
+            else
+                printf '%s\n' x11 wayland
+            fi
+            ;;
+        *)
+            printf '%s\n' x11
+            ;;
+    esac
+}
+
+rc=1
+for backend in $(backend_order); do
+    if run_backend "$backend"; then
+        debug "copied with $backend"
+        rc=0
+        break
+    fi
+    debug "backend $backend unavailable or failed"
+done
+
+if [ "$rc" -ne 0 ]; then
+    printf 'tmux-clipboard-copy: no working clipboard backend (wsl/wayland/x11/mac)\n' >&2
+fi
+
+exit "$rc"

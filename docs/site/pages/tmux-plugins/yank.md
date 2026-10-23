@@ -30,6 +30,11 @@ set -g @plugin 'tmux-plugins/tmux-yank'
 
 插件按环境自动探测。
 
+本仓库不依赖插件自己的探测：`config/tmux/tmux.conf` 在 TPM 之后把
+copy-mode-vi 的 `y` 和 `Enter` 重新绑定到仓库脚本
+`scripts/tmux-clipboard-copy`，由脚本统一选择后端，优先级为
+WSL → Wayland → X11 → macOS。
+
 ### 远程 / SSH
 
 通过 **OSC 52** 转义序列：把文本编码后发给终端，由终端写入本地剪贴板。
