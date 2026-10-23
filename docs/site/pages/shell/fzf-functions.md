@@ -4,16 +4,19 @@
 
 两个函数都在 `plugins/fzf/fzf.zsh`，共用一套 fzf 选项和剪贴板逻辑。
 
-## f：当前目录选择器
+## f：当前目录选择器 / 管道选择器
 
 ```zsh
-f              # 列当前目录
-ls | f         # 消费管道输入
+f                                   # 列当前目录
+find . -iname '*keyword*' | f       # 选择 find 结果
+grep -rn 'keyword' . | f            # 选择 grep 结果（带行号）
 ```
 
 ### 行为
 
-1. 如果没有管道输入，用 `ls` 生成候选列表。
+**无管道**（`f` 单独使用）：
+
+1. 用 `ls` 生成候选列表。
 2. 弹出 fzf，右侧预览：目录用 `ls -F --color=always`，文件用 `bat --style=numbers --line-range :300`。
 3. 根据选择执行动作：
 
@@ -23,11 +26,23 @@ ls | f         # 消费管道输入
 | 目录 | `ra <dir>`（Ranger） |
 | 按 `Alt+Enter` | 强制交给 Ranger，文件用 `ra --selectfile` |
 
+**有管道**（`... | f`）：沿用同一套 fzf 界面（左侧列表、右侧预览），但从管道读取候选行：
+
+| 选择 | 动作 |
+|---|---|
+| 文件路径 | `nvim <file>` |
+| `path:line:text`（`grep -n`） | `nvim +<line> <file>` |
+| `path:line:col:text`（`rg`） | `nvim +<line> <file>` |
+| 目录 | `cd <dir>`（在当前 shell 里真正切换目录） |
+| 不是路径的普通文本 | 原样打印回终端 |
+
+预览会先把 `path:line:col:text` 剥成真实路径再渲染；路径含空格、相对路径、绝对路径都按同样规则处理。
+
 ### 按键
 
 | 键 | 动作 |
 |---|---|
-| `Enter` | 打开（文件进 nvim，目录进 ranger） |
+| `Enter` | 无管道：文件进 nvim、目录进 ranger；有管道：文件进 nvim、目录 `cd` |
 | `Alt+Enter` | 强制用 Ranger 打开 |
 | `Alt+C` | 复制当前选中路径到剪贴板 |
 | `Tab` / `Shift+Tab` | 下移 / 上移 |
@@ -47,7 +62,7 @@ fzf 顶部的 header 会实时显示这些提示。
 第 3 行：选中的条目
 ```
 
-代码里分别读 `sed -n '1p'`、`'2p'`、`'3p'`，再按「有没有特殊键」「是文件还是目录」分支处理。
+代码里分别读 `sed -n '1p'`、`'2p'`、`'3p'`，再按「有没有特殊键」「是文件还是目录」分支处理。管道模式额外用 `_fzf_line_path` 从 `path:line:text` 里还原路径，用 `_fzf_line_number` 取行号；还原失败的条目按普通文本处理。
 
 复制路径用的 `_fzf_copy_path_cmd` 会把剪贴板命令序列化成字符串传给 fzf 的 `execute-silent`，因为 fzf 的 bind 动作在子 shell 里执行，不能直接调用父 shell 的函数。
 

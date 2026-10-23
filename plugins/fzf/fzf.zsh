@@ -108,30 +108,82 @@ _fzf_file_opts() {
         --bind alt-d:half-page-down \
         --bind alt-u:half-page-up \
         --bind alt-g:first \
-        --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- $copy_target)+change-header(Copied)+bg-transform-header(sleep 1; printf '%s' \"$header\")" \
+        --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- $copy_target)+change-header(Copied)" \
         --header "$header" \
         --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
         --preview-window=right:40%
 }
 
+# 从一行候选里解析真实路径。
+# 支持纯路径，以及 grep -n / rg 的 "path:line[:col]:text" 形式。
+_fzf_line_path() {
+    local line="$1" rest
+    [[ -z "$line" ]] && return 1
+    rest="$line"
+    while [[ "$rest" == *:* ]]; do
+        [[ -e "$rest" ]] && { print -r -- "$rest"; return 0; }
+        rest="${rest%:*}"
+    done
+    [[ -e "$rest" ]] && { print -r -- "$rest"; return 0; }
+    return 1
+}
+
+# 从 "path:line..." 里取行号；没有行号时输出空。
+_fzf_line_number() {
+    local line="$1" file="$2" tail
+    tail="${line#"$file"}"
+    [[ "$tail" == :<->* ]] || return 0
+    tail="${tail#:}"
+    print -r -- "${tail%%:*}"
+}
+
+# 管道模式的预览命令：先剥掉 :line:col:text，再按文件/目录预览。
+_fzf_pipe_preview_cmd() {
+    printf '%s' 'p={}; while :; do if [ -d "$p" ]; then ls -F --color=always "$p" | head -n 300; break; fi; if [ -f "$p" ]; then if command -v bat >/dev/null 2>&1; then bat --style=numbers --color=always --line-range :300 "$p"; else sed -n "1,300p" "$p"; fi; break; fi; case "$p" in *:*) p=${p%:*};; *) printf "No preview for: %s\n" "$p"; break;; esac; done'
+}
+
+# 管道模式复用交互模式的按键与剪贴板设置，只替换预览与提示。
+_fzf_pipe_opts() {
+    local copy_cmd="$1"
+    local header="$2"
+
+    printf '%s\n' \
+        --print-query \
+        --expect=alt-enter \
+        --bind tab:down \
+        --bind btab:up \
+        --bind alt-j:down \
+        --bind alt-k:up \
+        --bind alt-J:down \
+        --bind alt-K:up \
+        --bind alt-d:half-page-down \
+        --bind alt-u:half-page-up \
+        --bind alt-g:first \
+        --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- {})+change-header(Copied)" \
+        --header "$header" \
+        --preview "$(_fzf_pipe_preview_cmd)" \
+        --preview-window=right:40%
+}
+
 # f
-# 弹出 fzf 文件列表
-# 用键盘搜索文件
-# 回车直接用 nvim 打开文件
-# 选中目录则进入 ranger
-# Alt+Enter 强制用 ranger 打开
-# 某个快捷键可以复制路径
+# 无参数：弹出当前目录列表，回车用 nvim 打开文件、进入 ranger 浏览目录
+# 管道：`find ... | f`、`grep -n ... | f` 等，回车打开文件（带行号）或 cd 到目录
+# Alt+Enter 强制用 ranger 打开，Alt+C 复制路径
 f() {
-    local out query key target header copy_cmd
+    local out query key target header copy_cmd target_path line_no piped
     local -a fzf_opts
 
     copy_cmd="$(_fzf_copy_path_cmd)"
-    header='Alt: Enter=ranger, j/k or Shift-j/k=move, U/D=half-page, G=top, C=copy path'
-    fzf_opts=("${(@f)$(_fzf_file_opts '{}' "$copy_cmd" "$header")}")
+    piped=0
+    [[ -t 0 ]] || piped=1
 
-    if [ -p /dev/stdin ]; then
+    if [[ $piped -eq 1 ]]; then
+        header='Enter: file=nvim, dir=cd | Alt-Enter=ranger | C=copy path'
+        fzf_opts=("${(@f)$(_fzf_pipe_opts "$copy_cmd" "$header")}")
         out=$(command fzf "$@" "${fzf_opts[@]}") || return
     else
+        header='Alt: Enter=ranger, j/k or Shift-j/k=move, U/D=half-page, G=top, C=copy path'
+        fzf_opts=("${(@f)$(_fzf_file_opts '{}' "$copy_cmd" "$header")}")
         out=$(ls | command fzf "$@" "${fzf_opts[@]}") || return
     fi
 
@@ -143,8 +195,33 @@ f() {
         target="$key"
         key=""
     fi
+    [[ -z "$target" ]] && return
 
-    if [[ "$key" == "alt-enter" && -n "$target" ]]; then
+    if [[ $piped -eq 1 ]]; then
+        target_path="$(_fzf_line_path "$target")"
+        if [[ -z "$target_path" ]]; then
+            printf '%s\n' "$target"
+            return
+        fi
+        line_no="$(_fzf_line_number "$target" "$target_path")"
+
+        if [[ "$key" == "alt-enter" ]]; then
+            if [[ -d "$target_path" ]]; then
+                ra "$target_path"
+            else
+                ra --selectfile "$target_path"
+            fi
+        elif [[ -d "$target_path" ]]; then
+            cd "$target_path"
+        elif [[ -n "$line_no" ]]; then
+            nvim "+$line_no" "$target_path"
+        else
+            nvim "$target_path"
+        fi
+        return
+    fi
+
+    if [[ "$key" == "alt-enter" ]]; then
         if [[ -d "$target" ]]; then
             ra "$target"
         else
