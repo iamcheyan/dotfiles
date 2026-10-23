@@ -16,6 +16,10 @@ Neovim 配置源码由独立公开仓库 [`iamcheyan/nvim`](https://github.com/i
 Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓库，单独运行它自己的 `init.sh`。
 本机维护时只编辑 `~/nvim`；dotlink 会识别它并让 `~/.config/nvim` 直接指向该工作树。其他用户没有这份工作树时，自动使用 dotfiles 内的子模块。
 
+## 🎨 终端配色标准
+
+本仓库的终端工具统一遵循 **Neovim Blue / Nostalgia** 色板。新增或调整配色前，请先看醒目的[终端统一配色标准](docs/site/pages/configs/theme-standard.md)，并按颜色角色保持界面一致、语义清楚。
+
 ---
 
 ## 🌟 核心卖点
@@ -33,6 +37,7 @@ Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓�
   * `fzf-tab`：可视化的模糊搜索交互补全界面。
   * `zsh-autosuggestions` + `zsh-autopair`：智能历史建议与括号自动配对。
   * `Atuin`（`Ctrl+R`）：支持上下文关联的增强版命令历史搜索。
+  * `pay-respects`（`F`）：为错误命令查找可执行的修正建议。
   * `Zoxide`（`z`）：智能目录学习与快速跳转。
 * **现代 CLI 替换传统命令**：
   * `ls` $\rightarrow$ `eza`（带色彩与图标的高颜值文件列表，支持 `l`, `ll`, `la`）
@@ -96,7 +101,8 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 4. 初始化 `config/nvim` 子模块，并运行其中的 `init.sh` 检查或安装 Neovim 0.12+、准备依赖、把 `~/.config/nvim` 链接到子模块源码；插件由首次启动时的 lazy.nvim 安装。NixOS 软件包由 `~/nixos-config` 管理。
 > 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
 > 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
-> 7. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
+> 7. 在支持的非 NixOS 平台安装 pay-respects 并配置 Zsh 的 `F` 快捷键；NixOS 系统包由 `~/nixos-config` 管理。
+> 8. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
 
 ### Fresh Terminal IDE
 

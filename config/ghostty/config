@@ -2,28 +2,28 @@
 font-family = MesloLGS Nerd Font Mono
 font-size = 11
 
-# ===== Colors (Zellij Green/Dracula) =====
-background = #000000
-foreground = #f8f8f2
-cursor-color = #50fa7b
-selection-background = #50fa7b
-selection-foreground = #000000
+# ===== Colors (Neovim Blue / Nostalgia) =====
+background = #0000aa
+foreground = #ffff55
+cursor-color = #ffffff
+selection-background = #1e1ec8
+selection-foreground = #ffffff
 
-palette = 0=#21222c
-palette = 1=#ff5555
-palette = 2=#50fa7b
-palette = 3=#f1fa8c
-palette = 4=#bd93f9
-palette = 5=#ff79c6
-palette = 6=#8be9fd
-palette = 7=#f8f8f2
-palette = 8=#6272a4
-palette = 9=#ff6e6e
-palette = 10=#69ff94
-palette = 11=#ffffa5
-palette = 12=#d6acff
-palette = 13=#ff92df
-palette = 14=#a4ffff
+palette = 0=#000080
+palette = 1=#aa0000
+palette = 2=#00aa00
+palette = 3=#aaaa00
+palette = 4=#0000aa
+palette = 5=#aa00aa
+palette = 6=#00aaaa
+palette = 7=#aaaaaa
+palette = 8=#555555
+palette = 9=#ff5555
+palette = 10=#00ff00
+palette = 11=#ffff55
+palette = 12=#5555ff
+palette = 13=#ff55ff
+palette = 14=#55ffff
 palette = 15=#ffffff
 
 # ===== Clipboard =====
@@ -34,7 +34,7 @@ window-padding-x = 5
 window-padding-y = 5
 window-decoration = auto
 window-theme = dark
-window-border-color = #000000
+window-border-color = #55ffff
 quit-after-last-window-closed = false
 
 # Window management

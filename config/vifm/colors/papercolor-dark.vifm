@@ -1,29 +1,46 @@
-highlight   clear
+" Nostalgia Blue palette shared with the Neovim Blue theme.
+" GUI colors provide exact truecolor; cterm colors are 256-color fallbacks.
+highlight clear
 
-highlight   Win          cterm=none           ctermfg=252   ctermbg=234
-highlight   OtherWin     cterm=none           ctermfg=252   ctermbg=234
-highlight   Border       cterm=none           ctermfg=252   ctermbg=234
-highlight   AuxWin       cterm=none           ctermfg=252   ctermbg=234
+" Main panes and inactive pane use Neovim's document-blue surface.
+highlight Win          cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
+highlight OtherWin     cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
+highlight AuxWin       cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
+highlight Border       cterm=none       ctermfg=14 ctermbg=19 guifg=#55ffff guibg=#0000aa
 
-highlight   TopLine      cterm=bold           ctermfg=71   ctermbg=235
-highlight   TopLineSel   cterm=bold           ctermfg=234   ctermbg=149
+" Pane headers: muted blue for the other pane, gray for the active pane.
+highlight TopLine      cterm=none       ctermfg=11 ctermbg=18 guifg=#ffff55 guibg=#000080
+highlight TopLineSel   cterm=bold       ctermfg=0  ctermbg=249 guifg=#000000 guibg=#aaaaaa
+highlight TabLine      cterm=none       ctermfg=11 ctermbg=18 guifg=#ffff55 guibg=#000080
+highlight TabLineSel   cterm=bold       ctermfg=0  ctermbg=249 guifg=#000000 guibg=#aaaaaa
 
-highlight   CmdLine      cterm=none           ctermfg=252   ctermbg=234
-highlight   ErrorMsg     cterm=bold           ctermfg=160   ctermbg=234
-highlight   StatusLine   cterm=bold           ctermfg=71    ctermbg=235
-highlight   JobLine      cterm=bold           ctermfg=71    ctermbg=235
-highlight   SuggestBox   cterm=bold           ctermfg=71    ctermbg=235
-highlight   WildMenu     cterm=bold           ctermfg=71    ctermbg=235
+" Status and command areas follow Neovim's teal/green status surfaces.
+highlight CmdLine      cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
+highlight ErrorMsg     cterm=bold       ctermfg=15 ctermbg=1  guifg=#ffffff guibg=#aa0000
+highlight StatusLine   cterm=bold       ctermfg=0  ctermbg=37 guifg=#000000 guibg=#00aaaa
+highlight JobLine      cterm=bold       ctermfg=15 ctermbg=2  guifg=#ffffff guibg=#00aa00
+highlight SuggestBox   cterm=bold       ctermfg=15 ctermbg=2  guifg=#ffffff guibg=#00aa00
+highlight WildBox      cterm=bold       ctermfg=15 ctermbg=2  guifg=#ffffff guibg=#00aa00
+highlight WildMenu     cterm=bold       ctermfg=0  ctermbg=249 guifg=#000000 guibg=#aaaaaa
 
-highlight   CurrLine     cterm=bold,inverse ctermfg=default  ctermbg=default
-highlight   OtherLine    cterm=bold         ctermfg=default ctermbg=235
-highlight   Selected     cterm=bold           ctermfg=173   ctermbg=235
-highlight   LineNr       cterm=none           ctermfg=244   ctermbg=234
+" Cursor, selection, and line numbers mirror Neovim's Blue accents.
+highlight CurrLine     cterm=bold       ctermfg=14 ctermbg=18 guifg=#55ffff guibg=#000080
+highlight OtherLine    cterm=none       ctermfg=11 ctermbg=18 guifg=#ffff55 guibg=#000080
+highlight OddLine      cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
+highlight Selected     cterm=bold       ctermfg=15 ctermbg=20 guifg=#ffffff guibg=#1e1ec8
+highlight LineNr       cterm=none       ctermfg=14 ctermbg=19 guifg=#55ffff guibg=#0000aa
 
-highlight   Directory    cterm=bold           ctermfg=74    ctermbg=234
-highlight   Link         cterm=none           ctermfg=173   ctermbg=234
-highlight   BrokenLink   cterm=none           ctermfg=160   ctermbg=234
-highlight   Socket       cterm=bold           ctermfg=140   ctermbg=234
-highlight   Device       cterm=none           ctermfg=125   ctermbg=234
-highlight   Fifo         cterm=none           ctermfg=74    ctermbg=234
-highlight   Executable   cterm=bold           ctermfg=70    ctermbg=234
+" File types use the theme's cyan, green, yellow, and red accents.
+highlight Directory    cterm=bold       ctermfg=14 ctermbg=19 guifg=#00ffff guibg=#0000aa
+highlight Link         cterm=none       ctermfg=14 ctermbg=19 guifg=#55ffff guibg=#0000aa
+highlight BrokenLink   cterm=bold       ctermfg=203 ctermbg=19 guifg=#ff5555 guibg=#0000aa
+highlight HardLink     cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
+highlight Socket       cterm=bold       ctermfg=13 ctermbg=19 guifg=#ff00ff guibg=#0000aa
+highlight Device       cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
+highlight Fifo         cterm=none       ctermfg=14 ctermbg=19 guifg=#55ffff guibg=#0000aa
+highlight Executable   cterm=bold       ctermfg=10 ctermbg=19 guifg=#00ff00 guibg=#0000aa
+
+" Side-by-side comparison states.
+highlight CmpMismatch  cterm=bold       ctermfg=15 ctermbg=124 guifg=#ffffff guibg=#aa0000
+highlight CmpUnmatched cterm=bold       ctermfg=15 ctermbg=22 guifg=#ffffff guibg=#006400
+highlight CmpBlank     cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa

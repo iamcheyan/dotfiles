@@ -90,4 +90,7 @@ zsh_plugins_load_shell_tools() {
     zle -N pet-select
     bindkey '^X^R' pet-select
   fi
+  if command -v pay-respects >/dev/null 2>&1; then
+    eval "$(pay-respects zsh --alias F)"
+  fi
 }

@@ -76,6 +76,7 @@
 |---|---|---|---|
 | navi | Zinit | `navi` | [navi](navi.html) |
 | Pet | Zinit | `pet`、`Ctrl+X Ctrl+R` | [Pet](pet.html) |
+| pay-respects | init.sh | `F` | [pay-respects](pay-respects.html) |
 
 ## 读法建议
 

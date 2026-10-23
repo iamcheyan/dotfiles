@@ -5,6 +5,9 @@ let $VIFM_SERVER_NAME = v:servername
 " Vifm config
 colorscheme papercolor-dark
 
+" Show a compact, icon-led listing instead of Vifm's recursive directory tree.
+fileviewer */ vifm-preview-dir %"c
+
 " 启动时保持左侧为当前目录；右栏用 quick view 预览选中的文件
 set quickview
 

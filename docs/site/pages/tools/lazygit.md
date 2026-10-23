@@ -98,13 +98,7 @@ gui:
   theme:
     lightTheme: false
   nerdFontsVersion: "3"
-git:
-  paging:
-    colorArg: always
-    pager: delta --dark --paging=never
 ```
-
-把 pager 设成 delta，可以让 lazygit 里的 diff 也用 delta 渲染。
 
 ## 与 forgit 的分工
 

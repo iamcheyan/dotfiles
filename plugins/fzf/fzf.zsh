@@ -108,6 +108,7 @@ _fzf_file_opts() {
         --bind alt-d:half-page-down \
         --bind alt-u:half-page-up \
         --bind alt-g:first \
+        --color 'fg:#ffffff,hl:#ffff00,fg+:#00ffff:bold,hl+:#ffff00:bold,info:#00ffff,prompt:#00ffff,pointer:#ffff00,marker:#ffff00,border:#00ffff' \
         --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- $copy_target)+change-header(Copied)" \
         --header "$header" \
         --preview '([[ -d {} ]] && ls -F --color=always {}) || ([[ -f {} ]] && bat --style=numbers --color=always --line-range :300 {})' \
@@ -159,6 +160,7 @@ _fzf_pipe_opts() {
         --bind alt-d:half-page-down \
         --bind alt-u:half-page-up \
         --bind alt-g:first \
+        --color 'fg:#ffffff,hl:#ffff00,fg+:#00ffff:bold,hl+:#ffff00:bold,info:#00ffff,prompt:#00ffff,pointer:#ffff00,marker:#ffff00,border:#00ffff' \
         --bind "alt-c:execute-silent(zsh -c '$copy_cmd' -- {})+change-header(Copied)" \
         --header "$header" \
         --preview "$(_fzf_pipe_preview_cmd)" \

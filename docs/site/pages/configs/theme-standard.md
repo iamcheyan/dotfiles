@@ -68,3 +68,147 @@ Ghostty 的 ANSI 色板影响 `ls`、Ranger、编辑器和其它读取终端色�
 | Neovim | 主题由独立的 `iamcheyan/nvim` 仓库维护；以其 Blue / Nostalgia 调色板为来源 |
 
 修改现有配置时同步更新对应配置说明；新增终端工具时先给它映射上面的颜色角色，并把新配置链接到本标准。
+
+<!-- lang:en -->
+> Summary: The shared color standard for terminal interfaces in this repository, based on the Nostalgia palette used by Neovim Blue.
+
+# Unified Terminal Color Standard
+
+This page is the **single source of truth** for terminal tool colors in dotfiles. When adding or changing a terminal interface, choose colors according to the roles here. Neovim Blue / Nostalgia is the standard source; Ghostty, tmux, Ranger, Vifm, Atuin, fzf, Starship, Nano, and Herdr configurations should coordinate with it.
+
+## Core Colors
+
+| Role | Color | Use |
+|---|---|---|
+| Main background | `#0000aa` | Editing areas, main TUI canvas |
+| Main text | `#ffff55` | General text on blue backgrounds |
+| Current line / secondary blue surface | `#000080` | Current line, inactive panes, tab backgrounds |
+| Selection background | `#1e1ec8` | Search or text selections |
+| Cyan accent | `#55ffff` | Line numbers, separators, navigation and borders |
+| Bright cyan | `#00ffff` | Accent text such as directories and clickable items |
+| Active title surface | `#aaaaaa` | Active tabs and title bars; use `#000000` for text |
+| Status bar cyan surface | `#00aaaa` | Status bars; use `#000000` for text |
+| Status green surface | `#00aa00` | Success states or primary confirmation actions; use `#ffffff` for text |
+| Bright green | `#00ff00` | Positive states such as staged files and executables |
+| Warning yellow | `#ffff55` / `#ffff00` | Warnings, matches, important information |
+| Error red | `#ff5555` | Errors, failures, conflicts |
+| Error background | `#aa0000` | Error areas needing clear emphasis; use white text |
+| Neutral gray | `#aaaaaa` | Secondary, unavailable, or low-priority text |
+| Structural dark blue | `#000064` | Decorative lines and other non-text details only; never body text on a blue background |
+
+These colors represent roles. When an interface does not support background colors, preserve the terminal's default background and apply foreground colors only. Do not force every program to paint a background for visual uniformity. Use the main background and text only for TUIs that need a solid canvas.
+
+## Color Semantics
+
+- Keep success/staged states green, warnings/changes yellow, and errors/deletions/conflicts red.
+- Use cyan for navigation, directories, boundaries, and interactive emphasis; use yellow for general text and information that needs attention.
+- Make active items clearly distinct in both foreground and background. Do not put dark blue text on the main blue background. Use neutral gray for muted text and ensure it remains legible.
+- New color combinations should have sufficient contrast. If text is hard to read in a screenshot, increase foreground brightness first; do not rely on bold alone.
+- Applications may adjust color mappings to fit their capabilities (for example, Nano only has ANSI color names, while Ranger uses 16 terminal colors), but must preserve these role relationships.
+
+## Ghostty ANSI 16-Color Mapping
+
+Ghostty's ANSI palette affects `ls`, Ranger, editors, and other programs that read the terminal palette. The color indices are:
+
+| Index | Color | Index | Color |
+|---:|---|---:|---|
+| 0 | `#000080` | 8 | `#555555` |
+| 1 | `#aa0000` | 9 | `#ff5555` |
+| 2 | `#00aa00` | 10 | `#00ff00` |
+| 3 | `#aaaa00` | 11 | `#ffff55` |
+| 4 | `#0000aa` | 12 | `#5555ff` |
+| 5 | `#aa00aa` | 13 | `#ff55ff` |
+| 6 | `#00aaaa` | 14 | `#55ffff` |
+| 7 | `#aaaaaa` | 15 | `#ffffff` |
+
+For programs without RGB support, prefer this 16-color mapping. Programs with RGB support should use the exact role colors listed above.
+
+## Existing Implementations
+
+| Configuration | Color entry point |
+|---|---|
+| Ghostty | `config/ghostty/config` |
+| tmux | `config/tmux/tmux.conf` |
+| Ranger | `config/ranger/colorschemes/blue.py` |
+| Vifm | `config/vifm/colors/papercolor-dark.vifm` |
+| Atuin | `config/atuin/themes/nostalgia-blue.toml` |
+| fzf | `plugins/fzf/fzf.zsh`; preserve terminal background |
+| Starship | `config/starship/starship.toml` |
+| Nano | `config/nano/nanorc` |
+| Herdr | `config/herdr/config.toml` |
+| Vim | `config/vim/vimrc`; uses Vim's built-in `blue` |
+| Neovim | Theme maintained in the separate `iamcheyan/nvim` repository; its Blue / Nostalgia palette is the source |
+
+When changing an existing configuration, update its documentation as well. When adding a terminal tool, first map these color roles to it, then link its configuration to this standard.
+
+<!-- lang:ja -->
+> 要約：Neovim Blue が使う Nostalgia パレットを基準とする、本リポジトリの端末インターフェース共通配色規格です。
+
+# 端末共通配色規格
+
+このページは dotfiles における端末ツール配色の**唯一の基準**です。端末インターフェースを追加・変更するときは、ここに示す色の役割に沿って選んでください。基準となるのは Neovim Blue / Nostalgia です。Ghostty、tmux、Ranger、Vifm、Atuin、fzf、Starship、Nano、Herdr の設定も調和させてください。
+
+## 基本色
+
+| 役割 | 色値 | 用途 |
+|---|---|---|
+| メイン背景 | `#0000aa` | 編集領域、TUI のメイン画面 |
+| メイン文字 | `#ffff55` | 青い背景上の一般的な文字 |
+| 現在行／サブの青い面 | `#000080` | 現在行、非アクティブな pane、タブの背景 |
+| 選択背景 | `#1e1ec8` | 検索またはテキストの選択範囲 |
+| シアンの強調色 | `#55ffff` | 行番号、区切り線、ナビゲーション、境界線 |
+| 明るいシアン | `#00ffff` | ディレクトリやクリック可能項目などの強調文字 |
+| アクティブなタイトル面 | `#aaaaaa` | アクティブなタブとタイトルバー。文字色は `#000000` |
+| ステータスバーのシアン面 | `#00aaaa` | ステータスバー。文字色は `#000000` |
+| ステータスの緑色面 | `#00aa00` | 成功状態や主要な確認操作。文字色は `#ffffff` |
+| 明るい緑 | `#00ff00` | ステージ済みや実行可能ファイルなどの肯定的な状態 |
+| 警告の黄色 | `#ffff55` / `#ffff00` | 警告、一致項目、重要な情報 |
+| エラーの赤 | `#ff5555` | エラー、失敗、競合 |
+| エラー背景 | `#aa0000` | 明確に示す必要があるエラー領域。文字色は白 |
+| ニュートラルグレー | `#aaaaaa` | 補助的、使用不可、優先度の低い文字 |
+| 構造用ダークブルー | `#000064` | 装飾線など文字以外の細部だけに使い、青い背景上の本文には使いません |
+
+これらは色の役割を示します。背景色に対応していない画面では、端末の既定背景を維持し、前景色だけを適用してください。見た目を統一するために、すべてのプログラムへ背景色を強制しないでください。メイン背景とメイン文字を使うのは、塗りつぶし画面が必要な TUI です。
+
+## 色の意味
+
+- 成功／ステージ済みは緑、警告／変更は黄色、エラー／削除／競合は赤にします。
+- シアンはナビゲーション、ディレクトリ、境界、操作可能項目の強調に使い、黄色は一般的な文字と注意が必要な情報に使います。
+- アクティブ項目は前景と背景を明確に区別します。メインの青い背景にダークブルーの文字を置かないでください。控えめな文字にはニュートラルグレーを使い、十分に読めることを確認します。
+- 新しい色の組み合わせには十分なコントラストを確保してください。スクリーンショットで文字が読みにくい場合は、太字だけに頼らず、まず前景色を明るくします。
+- Nano は ANSI 色名のみ、Ranger は端末の 16 色を使うなど、各アプリは機能に合わせて色値の割り当てを調整できます。ただし、色の役割の関係は保ってください。
+
+## Ghostty ANSI 16 色の割り当て
+
+Ghostty の ANSI パレットは `ls`、Ranger、エディターなど、端末パレットを読むプログラムに影響します。色番号は次のとおりです。
+
+| 色番号 | 色値 | 色番号 | 色値 |
+|---:|---|---:|---|
+| 0 | `#000080` | 8 | `#555555` |
+| 1 | `#aa0000` | 9 | `#ff5555` |
+| 2 | `#00aa00` | 10 | `#00ff00` |
+| 3 | `#aaaa00` | 11 | `#ffff55` |
+| 4 | `#0000aa` | 12 | `#5555ff` |
+| 5 | `#aa00aa` | 13 | `#ff55ff` |
+| 6 | `#00aaaa` | 14 | `#55ffff` |
+| 7 | `#aaaaaa` | 15 | `#ffffff` |
+
+RGB 非対応のプログラムでは、この 16 色の割り当てを優先してください。RGB 対応のプログラムでは、上記の役割に示した正確な色値を使います。
+
+## 現在の実装
+
+| 設定 | 配色の設定場所 |
+|---|---|
+| Ghostty | `config/ghostty/config` |
+| tmux | `config/tmux/tmux.conf` |
+| Ranger | `config/ranger/colorschemes/blue.py` |
+| Vifm | `config/vifm/colors/papercolor-dark.vifm` |
+| Atuin | `config/atuin/themes/nostalgia-blue.toml` |
+| fzf | `plugins/fzf/fzf.zsh`。端末の背景を維持します |
+| Starship | `config/starship/starship.toml` |
+| Nano | `config/nano/nanorc` |
+| Herdr | `config/herdr/config.toml` |
+| Vim | `config/vim/vimrc`。Vim 内蔵の `blue` を使います |
+| Neovim | テーマは独立した `iamcheyan/nvim` リポジトリで管理し、Blue / Nostalgia パレットを基準にします |
+
+既存の設定を変更したら、対応する説明も更新してください。端末ツールを追加するときは、まずこの色の役割を割り当て、その設定から本規格へリンクしてください。

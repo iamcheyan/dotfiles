@@ -75,7 +75,12 @@ process_section_line() {
         nvim_remote=$(git -C "$HOME/nvim" remote get-url origin 2>/dev/null || true)
         if [[ "$nvim_remote" =~ (^|[:/])iamcheyan/nvim(\.git)?$ ]]; then
             src="$HOME/nvim"
+            echo "  Neovim 源码：使用维护者工作树 $src"
+        else
+            echo "  Neovim 源码：使用 dotfiles 子模块 $src（~/nvim 的 origin 不是 iamcheyan/nvim）"
         fi
+    elif [[ "$dest" == "$HOME/.config/nvim" ]]; then
+        echo "  Neovim 源码：使用 dotfiles 子模块 $src"
     fi
     
     # 检查是否包含通配符

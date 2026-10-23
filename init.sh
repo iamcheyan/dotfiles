@@ -287,7 +287,7 @@ install_essentials() {
     local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
     local arch_packages="base-devel ripgrep fd eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
     local void_packages="base-devel ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local brew_packages="ripgrep fd eza zoxide translate-shell glow mdcat viu yt-dlp gping jq httpie broot htop ranger vifm"
+    local brew_packages="ripgrep fd eza zoxide translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm"
 
     if [[ "$MINIMAL" == "true" ]]; then
         print_info "Minimal mode: skipping translate-shell, yt-dlp, jq, viu"
@@ -917,6 +917,21 @@ install_docker() {
     fi
 }
 
+install_gh_dash() {
+    if ! command_exists gh; then
+        print_warning "GitHub CLI (gh) is not installed; skipping gh-dash"
+        return 0
+    fi
+
+    if gh extension list | awk '$2 == "gh-dash" { found = 1 } END { exit !found }'; then
+        print_success "gh-dash is already installed"
+    else
+        print_info "Installing gh-dash GitHub CLI extension..."
+        gh extension install dlvhdr/gh-dash
+        print_success "gh-dash installed successfully"
+    fi
+}
+
 # Install additional tools (Docker, Zellij)
 install_extra_tools() {
     local install_dir="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install"
@@ -942,6 +957,8 @@ install_extra_tools() {
     else
         print_success "Zellij is already installed"
     fi
+    # gh-dash (requires GitHub CLI)
+    install_gh_dash
     # Herdr — local AI coding assistant
     if ! command_exists herdr; then
         print_info "Installing Herdr..."
@@ -951,6 +968,13 @@ install_extra_tools() {
         print_success "Herdr is already installed"
     fi
 
+    # pay-respects shell correction tool
+    if ! command_exists pay-respects; then
+        print_info "Installing pay-respects..."
+        curl -fsSL https://raw.githubusercontent.com/iffse/pay-respects/main/install.sh | sh
+    else
+        print_success "pay-respects is already installed"
+    fi
 }
 
 

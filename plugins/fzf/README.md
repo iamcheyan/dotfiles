@@ -100,6 +100,28 @@ ffd . main.py  # 在当前目录按名搜索 "main.py"
 
 可在 `fzf.zsh` 中修改 fzf 的默认选项（边框、预览窗口、高度等）。
 
+### fzf 配色
+
+`f` 的配色通过 `--color` 选项设置。每个逗号分隔项由“界面元素:颜色”组成，
+颜色可以使用常见名称（如 `blue`）或十六进制色值。当前蓝色系配色定义在
+`_fzf_file_opts` 和 `_fzf_pipe_opts` 两处，分别供普通列表和管道输入使用：
+
+当前颜色参考 Neovim 内置 `blue` 主题的界面：普通和选中行文字为白色/青色，匹配项、
+光标和标记为亮黄，提示和计数信息为青色，边框为青色。配置没有指定 `bg` / `bg+`，
+保留终端背景。
+
+```zsh
+--color 'fg:#ffffff,hl:#ffff00,fg+:#00ffff:bold,hl+:#ffff00:bold,info:#00ffff,prompt:#00ffff,pointer:#ffff00,marker:#ffff00,border:#00ffff'
+```
+
+- `fg` / `fg+`：普通 / 当前选中行文字
+- `hl` / `hl+`：普通 / 当前选中行中的匹配文字
+- `info`、`prompt`、`pointer`、`marker`：计数信息、输入提示、光标、标记
+- `border`：边框
+
+没有设置 `bg` 或 `bg+`，所以 fzf 保留终端的默认背景。调整配色时请同步修改
+上述两个函数中的 `--color` 参数，确保 `f` 的两种输入模式颜色一致。
+
 ### 搜索命令配置
 
 `f` / `ffd` 自动选择搜索命令：

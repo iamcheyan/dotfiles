@@ -77,12 +77,9 @@ colorscheme papercolor-dark
 | `incsearch` | 搜索时实时跳转 |
 | `colorscheme papercolor-dark` | 配色 |
 
-启动时右栏固定在 home：
+右栏目录预览使用简洁清单：
 
-```vim
-autocmd VimEnter * wincmd l | cd ~
-autocmd WinEnter * if winnr() == 2 | cd ~ | endif
-```
+装有 `eza` 时每项带 Nerd Font 图标、目录排在前面，并使用主题的青色目录／绿色可执行文件颜色；没有时回退到带 `/` 目录标记的 `ls`。文件预览仍由 Vifm 原有规则处理。
 
 ## 本仓库的键位
 

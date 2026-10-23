@@ -239,3 +239,489 @@ ls -l ~/.config/vifm/
 **trash 在哪**：`~/.local/share/vifm/Trash/`。
 
 **右栏总是跳回 home**：这是 `autocmd WinEnter` 的设计，不是 bug。
+
+<!-- lang:en -->
+> Summary: The options and full key-binding table in `vifmrc`, icon rules, and the `vifm-copy` clipboard script.
+
+# Vifm Configuration
+
+## File Locations
+
+| Item | Path |
+|---|---|
+| Repository source | `config/vifm/vifmrc` |
+| Deployment target | `~/.config/vifm/vifmrc` |
+| Installation | Required tools list in `init.sh` (system package manager) |
+| Colorscheme | `config/vifm/colors/papercolor-dark.vifm` |
+| Scripts | `config/vifm/scripts/` (clipboard and directory preview) |
+| Automatically linked | Yes (three separate mappings) |
+
+The current `papercolor-dark` colorscheme has been aligned with the Nostalgia blue tones used by Neovim's built-in Blue theme: the main panes use yellow text on a blue background, the cursor line is emphasized with dark blue and cyan, the active pane title uses black text on gray, and the status line is cyan-green. Vifm uses exact color values in true-color terminals and approximations in 256-color terminals.
+
+## Options
+
+```vim
+colorscheme papercolor-dark
+set trash
+set dotdirs=
+set vicmd=nvim
+set syscalls
+set history=200
+set followlinks
+set number
+set sortnumbers
+set vimhelp
+set timefmt=%Y-%m-%d\ %H:%M
+set incsearch
+set statusline="%t%= %A %10u:%-7g %15s %20d  "
+set quickview
+```
+
+| Option | Effect |
+|---|---|
+| `trash` | Move deleted items to trash instead of deleting them directly |
+| `dotdirs=` | Controls display of hidden directories (an empty value uses the default) |
+| `vicmd=nvim` | Use nvim for `:` commands and as the editor |
+| `syscalls` | Allow system calls (used for copying/moving) |
+| `history=200` | Number of command-history entries |
+| `followlinks` | Enter directories targeted by symlinks |
+| `number` | Show line numbers |
+| `sortnumbers` | Sort numbers numerically (`file2` before `file10`) |
+| `vimhelp` | Use Vim-style navigation in help |
+| `timefmt` | Time display format |
+| `incsearch` | Jump as you type a search |
+| `quickview` | Preview the selected file in the right pane (keeps the two-pane layout) |
+
+## Startup Behavior
+
+Startup keeps the two-pane layout: the left pane shows the current directory, and the right pane previews the file selected in the left pane (text and directory contents are shown according to Vifm's preview rules). There is no longer an automatic command that forces the right pane to `cd ~`, so it does not interrupt previews.
+
+The cursor starts in the left pane. The right pane is no longer fixed to a directory; it becomes a preview area that follows the left-pane selection. Press `<Space>p` to temporarily use a single pane, then press it again to restore the two-pane view.
+
+### Directory Preview
+
+By default, Vifm renders directory previews in the right pane as a recursive tree, which can become cluttered with deeply nested directories and `.git` files. This repository changes directory previews to a simple one-item-per-line list: when `eza` is installed, it shows Nerd Font icons, sorts directories first, and colors directories cyan and executables green according to the theme; without `eza`, it uses `ls -1pA` to mark directories. File previews continue to use Vifm's original behavior.
+
+```vim
+fileviewer */ vifm-preview-dir %"c
+```
+
+The preview script is at `config/vifm/scripts/vifm-preview-dir`. Vifm adds its own `scripts/` directory to the command search path.
+
+## Status Line
+
+```vim
+set statusline="%t%= %A %10u:%-7g %15s %20d  "
+```
+
+| Placeholder | Meaning |
+|---|---|
+| `%t` | Filename |
+| `%=` | Left/right separator |
+| `%A` | Current mode |
+| `%10u` | User |
+| `%-7g` | Group |
+| `%15s` | Size |
+| `%20d` | Date |
+
+## Icons
+
+```vim
+set classify=" :dir:"
+set classify+=" :link:"
+set classify+=" :exe:"
+set classify+="󰈔 :reg:"
+set classify+=" ::*.lua::"
+set classify+=" ::*.rs::"
+set classify+=" ::*.go::"
+set classify+=" ::*.py::"
+set classify+=" ::*.js::"
+set classify+=" ::*.ts::"
+set classify+=" ::*.html::"
+set classify+=" ::*.css::"
+set classify+=" ::.git::"
+set classify+=" ::*.zip::"
+set classify+=" ::*.tar::"
+set classify+=" ::*.png::"
+set classify+=" ::*.mp4::"
+set classify+=" ::*.mp3::"
+set classify+="󰈙 ::*.md::"
+set classify+=" ::*.json::"
+```
+
+`classify` syntax: `icon :type:` or `icon ::wildcard::`.
+
+Icons are display prefixes only; they do **not** change filenames. Use the actual filename when copying or renaming.
+
+## Key Bindings
+
+### Navigation
+
+| Key | Action |
+|---|---|
+| `j` / `k` | Move down / up |
+| `h` / `l` | Parent directory / enter |
+| `o` | Mapped to `l` (enter) |
+| `O` | `:edit` |
+| `<Tab>` | Next tab |
+| `<S-Tab>` | Previous tab |
+| `T` | Create a tab |
+| `X` | Close a tab |
+| `<Space>p` | Toggle single-/two-pane view |
+| `q` | Quit |
+| `Q` | Force quit |
+
+### File Operations
+
+| Key | Action |
+|---|---|
+| `a` | Create a file (`:touch`) |
+| `r` | Rename |
+| `d` | Move to trash |
+| `D` | Delete directly |
+| `y` | Copy (`yy`) |
+| `x` | Cut (`dd`) |
+| `p` / `P` | Paste |
+| `.` | Toggle dotfiles |
+| `s` | Open a shell |
+| `f` | Search (`/`) |
+| `F` | Filter by type (`=`) |
+| `n` / `N` | Next / previous match |
+
+### Bookmarks
+
+| Key | Action |
+|---|---|
+| `m` | Add a bookmark |
+| `'` | List bookmarks |
+| `b` | Delete a bookmark |
+| `B` | Force-delete a bookmark |
+
+### Clipboard
+
+| Key | Copies |
+|---|---|
+| `cc` | Full path |
+| `cf` | Filename |
+| `cd` | Parent directory |
+| `cn` | Filename without extension |
+
+Implementation:
+
+```vim
+nnoremap cc :!vifm-copy %"c:p &<cr>
+nnoremap cf :!vifm-copy %"c:t &<cr>
+nnoremap cd :!vifm-copy %"c:p:h &<cr>
+nnoremap cn :!vifm-copy %"c:t:r &<cr>
+```
+
+| Placeholder | Meaning |
+|---|---|
+| `%c` | Current file |
+| `:p` | Full path |
+| `:t` | Filename component |
+| `:h` | Remove the last component (parent directory) |
+| `:r` | Remove the extension |
+
+## vifm-copy
+
+```sh
+#!/usr/bin/env sh
+set -eu
+
+value=${1-}
+
+if [ -n "${WAYLAND_DISPLAY-}" ] && command -v wl-copy >/dev/null 2>&1; then
+  printf '%s' "$value" | wl-copy
+elif [ -n "${DISPLAY-}" ] && command -v xclip >/dev/null 2>&1; then
+  printf '%s' "$value" | xclip -selection clipboard
+elif command -v xsel >/dev/null 2>&1; then
+  printf '%s' "$value" | xsel -ib
+elif command -v pbcopy >/dev/null 2>&1; then
+  printf '%s' "$value" | pbcopy
+elif command -v clip.exe >/dev/null 2>&1; then
+  printf '%s' "$value" | clip.exe
+else
+  printf 'vifm-copy: no clipboard command found\n' >&2
+  exit 1
+fi
+```
+
+It checks both the environment variable and the command's availability:
+
+| Backend | Condition |
+|---|---|
+| `wl-copy` | `$WAYLAND_DISPLAY` is set and the command is available |
+| `xclip` | `$DISPLAY` is set and the command is available |
+| `xsel` | The command is available (no environment check) |
+| `pbcopy` | The command is available (macOS) |
+| `clip.exe` | The command is available (WSL) |
+
+If none are available, it **reports an error and exits** instead of failing silently.
+
+## Verification
+
+```bash
+vifm --version
+ls -l ~/.config/vifm/
+~/.config/vifm/scripts/vifm-copy "test"
+```
+
+The last command should copy "test" to the clipboard.
+
+## Troubleshooting
+
+**Icons are garbled**: The font is not a Nerd Font.
+
+**`cc` does nothing**: `vifm-copy` cannot find a clipboard backend. Check with `command -v wl-copy xclip xsel pbcopy clip.exe`.
+
+**Colors are wrong**: `config/vifm/colors/papercolor-dark.vifm` has not been deployed.
+
+**The directory does not change after quitting with `v`**: Vifm did not exit normally (it was killed).
+
+**Where is trash?**: `~/.local/share/vifm/Trash/`.
+
+**The right pane always jumps back to home**: This is the design of `autocmd WinEnter`, not a bug.
+
+<!-- lang:ja -->
+> 要約：`vifmrc` のオプションと全キー割り当て、アイコン規則、`vifm-copy` クリップボードスクリプトについて説明します。
+
+# Vifm の設定
+
+## ファイルの場所
+
+| 項目 | パス |
+|---|---|
+| リポジトリのソース | `config/vifm/vifmrc` |
+| 配置先 | `~/.config/vifm/vifmrc` |
+| インストール | `init.sh` の必須ツール一覧（システムのパッケージマネージャー） |
+| 配色 | `config/vifm/colors/papercolor-dark.vifm` |
+| スクリプト | `config/vifm/scripts/`（クリップボードとディレクトリプレビュー） |
+| 自動リンク | はい（個別に 3 つマッピング） |
+
+現在の `papercolor-dark` 配色は、Neovim 内蔵 Blue テーマの Nostalgia ブルー系に揃えています。メイン pane は青背景に黄色文字、カーソル行はダークブルーとシアンで強調し、アクティブ pane のタイトルはグレー背景に黒文字、ステータス行はシアングリーンです。Vifm は True color 端末では正確な色値を使い、256 色端末では近似色を使います。
+
+## オプション
+
+```vim
+colorscheme papercolor-dark
+set trash
+set dotdirs=
+set vicmd=nvim
+set syscalls
+set history=200
+set followlinks
+set number
+set sortnumbers
+set vimhelp
+set timefmt=%Y-%m-%d\ %H:%M
+set incsearch
+set statusline="%t%= %A %10u:%-7g %15s %20d  "
+set quickview
+```
+
+| オプション | 効果 |
+|---|---|
+| `trash` | 削除した項目を直接消さず、ゴミ箱へ移動します |
+| `dotdirs=` | 隠しディレクトリの表示を制御します（空値では既定値を使います） |
+| `vicmd=nvim` | `:` コマンドとエディターに nvim を使います |
+| `syscalls` | システムコールを許可します（コピー／移動に使います） |
+| `history=200` | コマンド履歴の件数 |
+| `followlinks` | シンボリックリンク先のディレクトリへ移動します |
+| `number` | 行番号を表示します |
+| `sortnumbers` | 数字を数値として並べます（`file2` が `file10` より前） |
+| `vimhelp` | ヘルプで Vim 形式のナビゲーションを使います |
+| `timefmt` | 時刻の表示形式 |
+| `incsearch` | 検索中に逐次移動します |
+| `quickview` | 右 pane に選択ファイルをプレビューします（2 pane レイアウトを維持） |
+
+## 起動時の動作
+
+起動時は 2 pane を維持します。左 pane に現在のディレクトリを表示し、右 pane では左側で選択したファイルをプレビューします（テキストやディレクトリ内容は Vifm のプレビュー規則に従います）。右 pane を強制的に `cd ~` する自動コマンドはなくなったため、プレビューが中断されません。
+
+起動時のカーソルは左 pane にあります。右 pane は固定ディレクトリではなく、左側の選択に応じて変わるプレビュー領域です。一時的に 1 pane にするには `<Space>p` を押し、もう一度押すと 2 pane に戻ります。
+
+### ディレクトリプレビュー
+
+既定では Vifm は右 pane のディレクトリプレビューを再帰ツリーで描画するため、深いディレクトリや `.git` ファイルが多いと画面が混み合います。本リポジトリでは、1 項目を 1 行で表示する簡潔な一覧に変更しています。`eza` がインストールされている場合は Nerd Font アイコンを表示し、ディレクトリを先に並べ、テーマに従ってディレクトリをシアン、実行可能項目を緑で示します。`eza` がない場合は `ls -1pA` でディレクトリを示します。ファイルプレビューは Vifm 本来の方式を使います。
+
+```vim
+fileviewer */ vifm-preview-dir %"c
+```
+
+プレビュースクリプトは `config/vifm/scripts/vifm-preview-dir` にあります。Vifm は独自の `scripts/` ディレクトリをコマンド検索パスに追加します。
+
+## ステータス行
+
+```vim
+set statusline="%t%= %A %10u:%-7g %15s %20d  "
+```
+
+| プレースホルダー | 意味 |
+|---|---|
+| `%t` | ファイル名 |
+| `%=` | 左右の区切り |
+| `%A` | 現在のモード |
+| `%10u` | ユーザー |
+| `%-7g` | グループ |
+| `%15s` | サイズ |
+| `%20d` | 日付 |
+
+## アイコン
+
+```vim
+set classify=" :dir:"
+set classify+=" :link:"
+set classify+=" :exe:"
+set classify+="󰈔 :reg:"
+set classify+=" ::*.lua::"
+set classify+=" ::*.rs::"
+set classify+=" ::*.go::"
+set classify+=" ::*.py::"
+set classify+=" ::*.js::"
+set classify+=" ::*.ts::"
+set classify+=" ::*.html::"
+set classify+=" ::*.css::"
+set classify+=" ::.git::"
+set classify+=" ::*.zip::"
+set classify+=" ::*.tar::"
+set classify+=" ::*.png::"
+set classify+=" ::*.mp4::"
+set classify+=" ::*.mp3::"
+set classify+="󰈙 ::*.md::"
+set classify+=" ::*.json::"
+```
+
+`classify` の構文は `アイコン :種類:` または `アイコン ::ワイルドカード::` です。
+
+アイコンは表示用の接頭辞にすぎず、ファイル名は**変わりません**。コピーや名前変更には実際のファイル名を使います。
+
+## キー割り当て
+
+### ナビゲーション
+
+| キー | 動作 |
+|---|---|
+| `j` / `k` | 下／上へ移動 |
+| `h` / `l` | 親ディレクトリへ移動／開く |
+| `o` | `l`（開く）に割り当てています |
+| `O` | `:edit` |
+| `<Tab>` | 次の tab |
+| `<S-Tab>` | 前の tab |
+| `T` | tab を作成します |
+| `X` | tab を閉じます |
+| `<Space>p` | 1 pane／2 pane を切り替えます |
+| `q` | 終了 |
+| `Q` | 強制終了 |
+
+### ファイル操作
+
+| キー | 動作 |
+|---|---|
+| `a` | ファイルを作成します（`:touch`） |
+| `r` | 名前を変更します |
+| `d` | ゴミ箱へ移動します |
+| `D` | 直接削除します |
+| `y` | コピーします（`yy`） |
+| `x` | 切り取ります（`dd`） |
+| `p` / `P` | 貼り付けます |
+| `.` | dotfiles の表示を切り替えます |
+| `s` | シェルを開きます |
+| `f` | 検索します（`/`） |
+| `F` | 種類で絞り込みます（`=`） |
+| `n` / `N` | 次／前の一致項目へ移動します |
+
+### ブックマーク
+
+| キー | 動作 |
+|---|---|
+| `m` | ブックマークを追加します |
+| `'` | ブックマーク一覧を表示します |
+| `b` | ブックマークを削除します |
+| `B` | ブックマークを強制削除します |
+
+### クリップボード
+
+| キー | コピーする内容 |
+|---|---|
+| `cc` | 絶対パス |
+| `cf` | ファイル名 |
+| `cd` | 親ディレクトリ |
+| `cn` | 拡張子を除いたファイル名 |
+
+実装：
+
+```vim
+nnoremap cc :!vifm-copy %"c:p &<cr>
+nnoremap cf :!vifm-copy %"c:t &<cr>
+nnoremap cd :!vifm-copy %"c:p:h &<cr>
+nnoremap cn :!vifm-copy %"c:t:r &<cr>
+```
+
+| プレースホルダー | 意味 |
+|---|---|
+| `%c` | 現在のファイル |
+| `:p` | 絶対パス |
+| `:t` | ファイル名部分 |
+| `:h` | 最後の要素を除去します（親ディレクトリ） |
+| `:r` | 拡張子を除去します |
+
+## vifm-copy
+
+```sh
+#!/usr/bin/env sh
+set -eu
+
+value=${1-}
+
+if [ -n "${WAYLAND_DISPLAY-}" ] && command -v wl-copy >/dev/null 2>&1; then
+  printf '%s' "$value" | wl-copy
+elif [ -n "${DISPLAY-}" ] && command -v xclip >/dev/null 2>&1; then
+  printf '%s' "$value" | xclip -selection clipboard
+elif command -v xsel >/dev/null 2>&1; then
+  printf '%s' "$value" | xsel -ib
+elif command -v pbcopy >/dev/null 2>&1; then
+  printf '%s' "$value" | pbcopy
+elif command -v clip.exe >/dev/null 2>&1; then
+  printf '%s' "$value" | clip.exe
+else
+  printf 'vifm-copy: no clipboard command found\n' >&2
+  exit 1
+fi
+```
+
+バックエンドは、環境変数とコマンドの有無の両方で判定します。
+
+| バックエンド | 条件 |
+|---|---|
+| `wl-copy` | `$WAYLAND_DISPLAY` が設定され、コマンドが使えます |
+| `xclip` | `$DISPLAY` が設定され、コマンドが使えます |
+| `xsel` | コマンドが使えます（環境変数の確認なし） |
+| `pbcopy` | コマンドが使えます（macOS） |
+| `clip.exe` | コマンドが使えます（WSL） |
+
+どれも使えない場合は、黙って失敗せず**エラーを表示して終了します**。
+
+## 確認
+
+```bash
+vifm --version
+ls -l ~/.config/vifm/
+~/.config/vifm/scripts/vifm-copy "test"
+```
+
+最後のコマンドで "test" がクリップボードに入ります。
+
+## トラブルシューティング
+
+**アイコンが文字化けします**：フォントが Nerd Font ではありません。
+
+**`cc` が動作しません**：`vifm-copy` がクリップボードのバックエンドを見つけられません。`command -v wl-copy xclip xsel pbcopy clip.exe` で確認してください。
+
+**配色が正しくありません**：`config/vifm/colors/papercolor-dark.vifm` が配置されていません。
+
+**`v` で終了してもディレクトリが変わりません**：Vifm が正常終了していません（kill されています）。
+
+**ゴミ箱の場所**：`~/.local/share/vifm/Trash/` です。
+
+**右 pane がいつも home に戻ります**：これは `autocmd WinEnter` の設計であり、不具合ではありません。

@@ -16,10 +16,10 @@ set historylog          # 検索や開いたファイルの履歴を保存する
 set regexp              # 検索に正規表現を使用できるようにする
 
 ## === ファイル表示の設定 ===
-set titlecolor brightwhite,blue      # タイトルバー（上部）の色設定
-set statuscolor brightwhite,magenta  # ステータスバー（下部）の色設定
-set selectedcolor black,cyan         # 選択中のテキストの背景色
-set numbercolor brightyellow         # 行番号の色
+set titlecolor brightyellow,blue     # Blue 主题的蓝底黄字标题栏
+set statuscolor black,cyan           # 青色状态栏对应 Nostalgia palette
+set selectedcolor black,brightblue   # 蓝色强调选区
+set numbercolor brightcyan           # 行号使用青色
 
 ## === ファイル操作の設定 ===
 set nowrap          # 行を自動的に折り返さない

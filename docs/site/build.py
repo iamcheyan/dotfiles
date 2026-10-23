@@ -121,6 +121,7 @@ SECTIONS = [
             ("navi", "navi", "cheatsheet 搜索与填参。"),
             ("pet", "Pet", "命令片段库。"),
             ("miru", "miru", "终端文件查看器：Markdown 走 glamour，源码与配置走 chroma，按 b 在浏览器预览。"),
+            ("pay-respects", "pay-respects", "按 F 为错误命令提供修正建议。"),
         ],
     ),
     (

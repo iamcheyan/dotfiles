@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Start or attach to a tmux session, recovering only a confirmed stale server.
+set -u
+
+socket_dir="${TMUX_TMPDIR:-/tmp}/tmux-$(id -u)"
+socket="$socket_dir/default"
+
+if [[ -S "$socket" ]] && ! tmux -S "$socket" list-sessions >/dev/null 2>&1; then
+  # The socket exists but the server does not answer the protocol. Verify that
+  # its listening process is tmux and that no live client is attached before
+  # stopping it; never kill a responsive server with active clients.
+  listener="$(ss -xlpn 2>/dev/null | awk -v path="$socket" '$5 == path { if (match($0, /pid=[0-9]+/)) { print substr($0, RSTART + 4, RLENGTH - 4); exit } }')"
+  if [[ "$listener" =~ ^[0-9]+$ ]] \
+    && [[ "$(cat "/proc/$listener/comm" 2>/dev/null)" == "tmux: server" ]]; then
+    clients="$(ps -eo pid=,comm=,args= | awk -v server="$listener" '$2 == "tmux:" && $3 == "client" { print $1 }')"
+    if [[ -z "$clients" ]]; then
+      kill -KILL "$listener" 2>/dev/null || true
+      for _ in {1..20}; do
+        kill -0 "$listener" 2>/dev/null || break
+        sleep 0.05
+      done
+      if kill -0 "$listener" 2>/dev/null; then
+        echo "tmux recovery failed: stale server $listener is still running" >&2
+        exit 1
+      fi
+    else
+      echo "tmux recovery skipped: server $listener has connected clients ($clients)" >&2
+      exit 1
+    fi
+    # A dead server leaves a socket inode but no kernel listener. Removing
+    # that orphaned inode lets tmux bind the same default socket again.
+    if [[ ! -S "$socket" ]] || ss -xlpn 2>/dev/null | awk -v path="$socket" '$5 == path { found = 1 } END { exit !found }'; then
+      echo "tmux recovery skipped: socket listener could not be safely identified" >&2
+      exit 1
+    fi
+    rm -f -- "$socket"
+    if [[ -e "$socket" || -S "$socket" ]]; then
+      echo "tmux recovery failed: could not remove orphaned socket $socket" >&2
+      exit 1
+    fi
+  fi
+fi
+
+if [[ $# -eq 0 ]]; then
+  exec /usr/bin/tmux new-session -A -s main
+fi
+
+if [[ "$1" == "new" || "$1" == "new-session" ]]; then
+  shift
+  exec /usr/bin/tmux new-session -A "$@"
+fi
+
+if [[ "$1" == -* ]]; then
+  exec /usr/bin/tmux new-session -A "$@"
+fi
+
+exec /usr/bin/tmux "$@"

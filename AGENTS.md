@@ -133,3 +133,9 @@ Neovim 配置源码由公开仓库 [`iamcheyan/nvim`](https://github.com/iamchey
 新用户和首次迁移者可运行 `git submodule update --init --recursive`。运行初始化后，
 普通 `git pull` 会跟随主仓库记录的版本。Treesitter 说明见
 [`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。
+
+## 9. 终端配色标准
+
+新增或修改终端工具的界面配色时，遵循 [`docs/site/pages/configs/theme-standard.md`](docs/site/pages/configs/theme-standard.md) 中的 Neovim Blue / Nostalgia 色板、颜色语义和对比要求。应用可以按自身支持的色彩能力做映射，但要保留颜色角色；fzf 等覆盖终端的选取器默认保留终端背景。修改配色时同步更新对应工具文档。
+
+Neovim 调色板的源代码在独立的 `iamcheyan/nvim` 仓库中；维护时遵循上述颜色角色，不要在 dotfiles 子模块副本中编辑 Neovim 源文件。
