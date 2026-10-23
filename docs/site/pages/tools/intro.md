@@ -16,13 +16,13 @@
 | 工具 | 来源 | 入口 | 文档 |
 |---|---|---|---|
 | eza | 系统包（可选） | `l`、`ll`、`la` | [eza](eza.html) |
-| bat | Zinit | `bat` | [bat](bat.html) |
+| bat | init.sh / system package | `bat` | [bat](bat.html) |
 | fd | Zinit | `fd`、`ffd` 后端 | [fd](fd.html) |
 | ripgrep | Zinit | `rg` | [ripgrep](ripgrep.html) |
 | fzf | init.sh | `f`、`ffd`、`Ctrl+T` | [fzf](fzf.html) |
 | zoxide | Zinit | `z`、`zi`、`za`、`zr` | [zoxide](zoxide.html) |
 | glow | Zinit | `glow` | [glow](glow.html) |
-| tldr | Zinit | `tldr` | [tldr](tldr.html) |
+| tldr | system package (optional) | `tldr` | [tldr](tldr.html) |
 | broot | Zinit | `broot`、`br` | [broot](broot.html) |
 
 ## 文本与数据处理
@@ -42,7 +42,7 @@
 | direnv | Zinit | `direnv` | [direnv](direnv.html) |
 | fnm | init.sh | `fnm`、`node`、`npm` | [fnm](fnm.html) |
 | Starship | Zinit | 提示符 | [Starship](starship.html) |
-| Inshellisense | init.sh（npm） | `is` | [Inshellisense](inshellisense.html) |
+| Inshellisense | npm (`init.sh`) | `is` | [Inshellisense](inshellisense.html) |
 
 ## Git
 
@@ -62,7 +62,7 @@
 | bottom | Zinit | `btm` | [bottom](bottom.html) |
 | duf | Zinit | `duf` | [duf](duf.html) |
 | procs | Zinit | `procs` | [procs](procs.html) |
-| gping | Zinit | `gping` | [gping](gping.html) |
+| gping | system package (optional) | `gping` | [gping](gping.html) |
 | xh | Zinit | `xh` | [xh](xh.html) |
 | HTTPie | 安装器 | `http` | [HTTPie](httpie.html) |
 
