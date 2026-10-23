@@ -4,7 +4,7 @@
 
 ## 插件全景
 
-`plugins/zsh-plugins.zsh` 和 `plugins/tools/tools.zsh` 一共加载 12 项。它们不是平铺的，而是按 Zsh 的初始化约束分三段加载。
+`plugins/zsh-plugins.zsh` 和 `plugins/tools/tools.zsh` 一共加载 11 项。它们不是平铺的，而是按 Zsh 的初始化约束分三段加载。
 
 | 阶段 | 插件 | 为什么在这个位置 |
 |---|---|---|
@@ -14,7 +14,6 @@
 | main 阶段 | zsh-vi-mode | 必须在 autosuggestions 之前，避免键位冲突 |
 | main 阶段 | zsh-autosuggestions | 依赖 vi-mode 的键位已就位 |
 | main 阶段 | zsh-autopair | 无顺序依赖 |
-| main 阶段 | you-should-use | 无顺序依赖 |
 | main 阶段 | forgit | 依赖 fzf |
 | main 阶段 | zsh-syntax-highlighting | **必须最后**，否则 hook 被覆盖 |
 | 任意 | Zinit 本体 | 一切的前提 |
@@ -41,7 +40,6 @@
 | 命令行 Vim 键位 | [zsh-vi-mode](vi-mode.html) |
 | 建议文字颜色/行为 | [zsh-autosuggestions](autosuggestions.html) |
 | 括号自动补全 | [zsh-autopair](autopair.html) |
-| 别名提醒烦人 | [you-should-use](you-should-use.html) |
 | Git 交互命令 | [forgit](forgit.html) |
 | 语法高亮失效 | [zsh-syntax-highlighting](syntax-highlighting.html) |
 | `Ctrl+T` / `Ctrl+R` | [fzf 补全与键绑定](fzf-snippets.html) |

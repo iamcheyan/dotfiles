@@ -67,8 +67,6 @@ zsh_plugins_load_main() {
 
   # zsh-autopair：自动补全括号和引号。
   zinit light hlissner/zsh-autopair
-  # you-should-use：提醒使用已经存在的别名。
-  zinit light MichaelAquilina/zsh-you-should-use
   # forgit：基于 fzf 的交互式 Git 命令；需要 fzf 0.60.0 或更新版本。
   zinit light wfxr/forgit
 

@@ -1,4 +1,4 @@
-> 摘要：zsh-autosuggestions、autopair、you-should-use、forgit、syntax-highlighting 的加载与用法。
+> 摘要：zsh-autosuggestions、autopair、forgit、syntax-highlighting 的加载与用法。
 
 # 交互插件
 
@@ -32,16 +32,6 @@ zinit light hlissner/zsh-autopair
 ```
 
 输入 `(` 自动补 `)`，输入 `"` 自动补 `"`，在已有配对前按退格会一起删除。它只作用于命令行，不影响普通文本编辑。
-
-## zsh-you-should-use
-
-```zsh
-zinit light MichaelAquilina/zsh-you-should-use
-```
-
-当你输入的命令已有别名时，它会在执行后提示「你本可以用 `ll`」。默认只在命令结束后提示，不打断输入。
-
-关掉提示：在 `local/` 里设 `export YSU_MESSAGE_POSITION="after"` 或按上游文档改 `YSU_MODE`。
 
 ## forgit
 

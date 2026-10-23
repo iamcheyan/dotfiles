@@ -132,10 +132,6 @@ fzf、Atuin、Zsh 原生三方都可能接管。要在 `local/` 里显式覆盖�
 bindkey '^R' fzf-history-widget
 ```
 
-### 命令执行后提示「你本可以用 xxx」
-
-这是 `zsh-you-should-use` 的正常行为。想关掉，在 `local/` 里设置对应变量。
-
 ## 最后手段
 
 如果确认是配置本身损坏，而 `--repair` 无效：
