@@ -70,6 +70,18 @@
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | 独立仓库 | `nvim` | [Neovim](neovim.html) |
 
+## 数据与日志
+
+| 工具 | 来源 | 入口 | 文档 |
+|---|---|---|---|
+| VisiData | pipx | `vd file.csv` | [VisiData](visidata.html) |
+| tabiew | 上游 install.sh | `tw file.csv` | [tabiew](tabiew.html) |
+| qsv | 上游 Release | `qsv stats data.csv` | [qsv](qsv.html) |
+| toolong | pipx | `tl app.log` | [toolong](toolong.html) |
+| harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
+| dekit | 上游 install.sh | `dekit up` | [dekit](dekit.html) |
+| topgrade | 上游 Release | `topgrade` | [topgrade](topgrade.html) |
+
 ## Diff 与评审
 
 | 工具 | 来源 | 入口 | 文档 |
@@ -164,6 +176,18 @@
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | separate repository | `nvim` | [Neovim](neovim.html) |
 
+## Data & logs
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| VisiData | pipx | `vd file.csv` | [VisiData](visidata.html) |
+| tabiew | upstream install.sh | `tw file.csv` | [tabiew](tabiew.html) |
+| qsv | upstream Release | `qsv stats data.csv` | [qsv](qsv.html) |
+| toolong | pipx | `tl app.log` | [toolong](toolong.html) |
+| harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
+| dekit | upstream install.sh | `dekit up` | [dekit](dekit.html) |
+| topgrade | upstream Release | `topgrade` | [topgrade](topgrade.html) |
+
 ## Diff & review
 
 | Tool | Source | Entry | Doc |
@@ -257,6 +281,18 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | zellij | Zinit / インストーラ | `zellij` | [zellij](zellij.html) |
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | 独立リポジトリ | `nvim` | [Neovim](neovim.html) |
+
+## データとログ
+
+| ツール | 出所 | 入口 | ドキュメント |
+|---|---|---|---|
+| VisiData | pipx | `vd file.csv` | [VisiData](visidata.html) |
+| tabiew | 上流 install.sh | `tw file.csv` | [tabiew](tabiew.html) |
+| qsv | 上流 Release | `qsv stats data.csv` | [qsv](qsv.html) |
+| toolong | pipx | `tl app.log` | [toolong](toolong.html) |
+| harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
+| dekit | 上流 install.sh | `dekit up` | [dekit](dekit.html) |
+| topgrade | 上流 Release | `topgrade` | [topgrade](topgrade.html) |
 
 ## Diff とレビュー
 
