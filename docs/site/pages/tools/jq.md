@@ -121,15 +121,6 @@ jq -e 'has("error")' response.json
 jq -S '.' data.json
 ```
 
-## 与 yq 的分工
-
-| | jq | yq |
-|---|---|---|
-| 格式 | 只处理 JSON | YAML、JSON、XML |
-| 语法 | 自己的表达式 | 兼容 jq 语法 |
-| 典型用途 | API 响应 | 配置文件 |
-
-处理 `.json` 用 jq，处理 `.yaml`/`.yml` 用 yq。yq 能读 jq 的表达式，所以两者概念相通。
 
 ## 排错
 

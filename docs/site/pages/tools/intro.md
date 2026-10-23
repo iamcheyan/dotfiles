@@ -16,13 +16,11 @@
 | 工具 | 来源 | 入口 | 文档 |
 |---|---|---|---|
 | eza | 系统包（可选） | `l`、`ll`、`la` | [eza](eza.html) |
-| bat | init.sh / system package | `bat` | [bat](bat.html) |
 | fd | Zinit | `fd`、`ffd` 后端 | [fd](fd.html) |
 | ripgrep | Zinit | `rg` | [ripgrep](ripgrep.html) |
 | fzf | init.sh | `f`、`ffd`、`Ctrl+T` | [fzf](fzf.html) |
 | zoxide | Zinit | `z`、`zi`、`za`、`zr` | [zoxide](zoxide.html) |
 | glow | Zinit | `glow` | [glow](glow.html) |
-| tldr | system package (optional) | `tldr` | [tldr](tldr.html) |
 | broot | Zinit | `broot`、`br` | [broot](broot.html) |
 
 ## 文本与数据处理
@@ -30,9 +28,7 @@
 | 工具 | 来源 | 入口 | 文档 |
 |---|---|---|---|
 | jq | Zinit | `jq` | [jq](jq.html) |
-| yq | Zinit | `yq` | [yq](yq.html) |
 | sd | Zinit | `sd` | [sd](sd.html) |
-| choose | Zinit | `choose` | [choose](choose.html) |
 
 ## 历史与环境
 
@@ -51,7 +47,6 @@
 | forgit | Zinit 插件 | `ga`、`gd`、`glo` 等 | [forgit](forgit.html) |
 | lazygit | Zinit | `lazygit` | [lazygit](lazygit.html) |
 | gitui | Zinit | `gitui` | [gitui](gitui.html) |
-| delta | Zinit | `delta` | [delta](delta.html) |
 | gh | Zinit | `gh` | [GitHub CLI](gh.html) |
 
 ## 系统与网络
@@ -63,7 +58,6 @@
 | duf | Zinit | `duf` | [duf](duf.html) |
 | procs | Zinit | `procs` | [procs](procs.html) |
 | gping | system package (optional) | `gping` | [gping](gping.html) |
-| xh | Zinit | `xh` | [xh](xh.html) |
 | HTTPie | 安装器 | `http` | [HTTPie](httpie.html) |
 
 ## 文件管理与复用
@@ -72,7 +66,6 @@
 |---|---|---|---|
 | Ranger | 系统包 | `ra` | [Ranger](ranger.html) |
 | Vifm | 系统包 | `v` | [Vifm](vifm.html) |
-| Yazi | 系统包（可选） | `yazi` | [Yazi](yazi.html) |
 | tmux | 系统包 | `tmux` | [tmux](tmux.html) |
 | zellij | Zinit / 安装器 | `zellij` | [zellij](zellij.html) |
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
@@ -84,7 +77,6 @@
 |---|---|---|---|
 | navi | Zinit | `navi` | [navi](navi.html) |
 | Pet | Zinit | `pet`、`Ctrl+X Ctrl+R` | [Pet](pet.html) |
-| Pay Respects | Zinit | `f`（命令失败后） | [Pay Respects](pay-respects.html) |
 
 ## 读法建议
 

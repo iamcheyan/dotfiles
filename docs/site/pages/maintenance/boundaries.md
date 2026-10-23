@@ -24,7 +24,7 @@
 |---|---|
 | AI Agent | provider 配置、quota |
 | 输入法 | Fcitx5、Karabiner |
-| 终端 | Kitty、Yazi 主配置、Zellij |
+| 终端 | Kitty、Zellij |
 | Shell 私有扩展 | `~/.config/aliases.conf` |
 | 凭据 | API key、token、`.env` |
 | 机器专属 | 私有服务器地址、专属脚本 |

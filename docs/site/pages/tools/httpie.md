@@ -6,7 +6,7 @@
 
 HTTPie 是人性化的 HTTP 客户端。相比 `curl -X POST -H ... -d ...`，它的语法更接近自然语言：`http POST url key=value`。
 
-本仓库同时提供 `xh`（Rust）和 `http`（HTTPie），语法相近。
+本仓库通过安装器提供 `http`（HTTPie）。
 
 ## 来源与安装
 
@@ -119,17 +119,6 @@ http :/api/users        # http://localhost/api/users
 ```
 
 冒号开头自动补 `localhost`，省去写完整地址。
-
-## 与 xh 的选择
-
-| | http（HTTPie） | xh |
-|---|---|---|
-| 语言 | Python | Rust |
-| 启动 | 较慢（Python 启动） | 快 |
-| 语法 | 原版 | 兼容 |
-| 依赖 | Python | 单二进制 |
-
-脚本里频繁调用选 xh，交互式随手用选 http 都行。
 
 ## 排错
 

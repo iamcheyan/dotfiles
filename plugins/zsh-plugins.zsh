@@ -82,9 +82,6 @@ zsh_plugins_load_shell_tools() {
     eval "$(navi widget zsh)"
   fi
 
-  if command -v pay-respects >/dev/null 2>&1; then
-    eval "$(pay-respects zsh --alias)"
-  fi
 
   if command -v pet >/dev/null 2>&1; then
     function pet-select() {

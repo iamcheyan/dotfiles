@@ -19,13 +19,9 @@ zi_cmd muesli/duf duf
 
 # Git / 开发
 zi_cmd jesseduffield/lazygit lazygit
-# Navi, Pay Respects, and Pet CLI binaries.
+# Navi and Pet CLI binaries.
 zi_cmd denisidoro/navi navi
-zi_cmd iffse/pay-respects pay-respects
 zi_cmd knqyf263/pet pet
-# delta 的二进制在 release 子目录里，直接 pick 实际路径
-zinit ice as"command" from"gh-r" pick"delta-*/delta"
-zinit light dandavison/delta
 zi_cmd cli/cli gh
 if [[ "$OSTYPE" == "darwin"* ]]; then
   local gitui_asset="gitui-mac.tar.gz"
@@ -44,44 +40,14 @@ zinit light gitui-org/gitui
 
 # 文本处理
 zi_cmd jqlang/jq jq
-zi_cmd mikefarah/yq yq
 zi_cmd chmln/sd sd
-zi_cmd theryangeary/choose choose
 zi_cmd charmbracelet/glow glow
-# tealdeer: 高性能 tldr 客户端
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS (arm64 or x86_64)
-  local tldr_arch="aarch64"
-  [[ "$(uname -m)" == "x86_64" ]] && tldr_arch="x86_64"
-  zinit ice as"command" from"gh-r" bpick"tealdeer-macos-${tldr_arch}" mv"tealdeer* -> tldr" pick"tldr"
-else
-  # Linux (x86_64 or aarch64)
-  local tldr_arch="x86_64"
-  [[ "$(uname -m)" == "aarch64" ]] && tldr_arch="aarch64"
-  zinit ice as"command" from"gh-r" bpick"tealdeer-linux-${tldr_arch}-musl" mv"tealdeer* -> tldr" pick"tldr"
-fi
-zinit light tealdeer-rs/tealdeer
-
-# 网络工具
-zi_cmd ducaale/xh xh
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  # macOS (arm64 or x86_64)
-  local gping_arch="arm64"
-  [[ "$(uname -m)" == "x86_64" ]] && gping_arch="x86_64"
-  zinit ice as"command" from"gh-r" bpick"gping-macOS-${gping_arch}.tar.gz" pick"gping"
-else
-  # Linux (x86_64 or aarch64)
-  local gping_arch="x86_64"
-  [[ "$(uname -m)" == "aarch64" ]] && gping_arch="arm64"
-  zinit ice as"command" from"gh-r" bpick"gping-Linux-musl-${gping_arch}.tar.gz" pick"gping"
-fi
-zinit light orf/gping
 # dog: 没有 arm64 版本，使用系统包管理器安装: sudo apt install dog
 # zi_cmd ogham/dog dog
 # httpie: 使用 pip 安装: pip install httpie
 
 # 文件工具
-zi_cmd sharkdp/bat bat
+# bat is installed by init.sh on supported platforms; do not download a second copy here.
 if [[ "$OSTYPE" == "darwin"* ]]; then
   zinit ice as"command" from"gh-r" bpick"broot_*.zip" mv"broot_*/aarch64-apple-darwin/broot -> broot" pick"broot"
 else
@@ -115,6 +81,8 @@ zinit ice as"completion"
 zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
 
 # 其他核心工具
+# Inshellisense is installed by init.sh through npm. Keep its initialization
+# in the final section of zshrc, after the public shell integrations are loaded.
 # zi_cmd eza-community/eza eza
 zi_cmd dalance/procs procs
 zi_cmd zellij-org/zellij zellij

@@ -1,6 +1,6 @@
-> 摘要：nano、Herdr、Yazi 三个较小配置的边界与部署方式。
+> 摘要：nano 与 Herdr 两个较小配置的边界与部署方式。
 
-# nano、Herdr 与 Yazi
+# nano 与 Herdr
 
 三个配置文件体量小，或只部分部署，放在一起说明。
 
@@ -73,67 +73,3 @@ ls -l ~/.config/herdr/config.toml
 **配置不生效**：确认 Herdr 读的是这个路径。
 
 **认证失败**：key 不在公开配置里，需要自己在私有配置或环境变量里提供。
-
-## Yazi
-
-### 位置
-
-| 项目 | 路径 |
-|---|---|
-| 仓库内容 | `config/yazi/flavors/kanagawa.yazi/` |
-| 部署目标 | 无（未列入 dotlink） |
-| 是否自动链接 | **否** |
-
-### 内容
-
-只有一个 flavor：
-
-```text
-kanagawa.yazi/
-├── flavor.toml
-├── tmtheme.xml
-├── LICENSE
-├── LICENSE-tmtheme
-└── preview.png
-```
-
-它是 Kanagawa 配色的 Yazi 主题，本身是一个嵌套的 git 仓库。
-
-### 为什么只有 flavor
-
-Yazi 主配置（`yazi.toml`、`keymap.toml`、`theme.toml`）通常包含个人路径、常用目录、私有预览命令。这些属于私有配置边界。
-
-Flavor 是纯样式文件，可以安全分享。
-
-### 手动使用
-
-```bash
-mkdir -p ~/.config/yazi/flavors
-ln -s ~/dotfiles/config/yazi/flavors/kanagawa.yazi ~/.config/yazi/flavors/kanagawa.yazi
-```
-
-然后在 `~/.config/yazi/theme.toml`：
-
-```toml
-[flavor]
-dark = "kanagawa"
-light = "kanagawa"
-```
-
-### 排错
-
-**flavor 不生效**：确认软链接和 `theme.toml` 的引用名。
-
-**Yazi 没装**：本仓库不安装它。`cargo install --locked yazi-fm yazi-cli` 或包管理器。
-
-**嵌套 git 仓库警告**：`config/yazi/flavors/kanagawa.yazi/` 有自己的 `.git`，Git 会提示。它作为 vendored 内容存在，不参与本仓库的提交。
-
-## 三个配置的共同点
-
-| 配置 | 部署 | 完整度 |
-|---|---|---|
-| nano | 自动 | 完整 |
-| Herdr | 自动 | 部分（无凭据） |
-| Yazi | 手动 | 只有 flavor |
-
-这体现了公开仓库的分层原则：能完整公开的自动部署，涉及个人的只放可分享部分，需要判断的手动处理。

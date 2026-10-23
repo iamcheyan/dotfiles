@@ -4,7 +4,7 @@
 
 ## 插件全景
 
-`plugins/zsh-plugins.zsh` 和 `plugins/tools/tools.zsh` 一共加载 13 项。它们不是平铺的，而是按 Zsh 的初始化约束分三段加载。
+`plugins/zsh-plugins.zsh` 和 `plugins/tools/tools.zsh` 一共加载 12 项。它们不是平铺的，而是按 Zsh 的初始化约束分三段加载。
 
 | 阶段 | 插件 | 为什么在这个位置 |
 |---|---|---|
@@ -19,7 +19,7 @@
 | main 阶段 | zsh-syntax-highlighting | **必须最后**，否则 hook 被覆盖 |
 | 任意 | Zinit 本体 | 一切的前提 |
 | 任意 | fzf 补全/键绑定 snippet | 上游脚本，非插件 |
-| 运行时 | navi / Pay Respects / Pet hook | 工具装了才接入 |
+| 运行时 | navi / Pet hook | 工具装了才接入 |
 
 ## 为什么顺序不能乱
 

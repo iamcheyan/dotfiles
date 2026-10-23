@@ -74,8 +74,8 @@ zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
 | `from"gh-r"` | 从 GitHub Release 下载 | 所有 CLI 工具 |
 | `pick"name"` | 指定解压后取哪个文件 | fd、bat、jq 等 |
 | `sbin"name"` | 把二进制放进 Zinit 的 bin 目录 | direnv、fd |
-| `mv"src -> dst"` | 解压后重命名/移动 | fd、ripgrep、tealdeer |
-| `bpick"pattern"` | 按模式选择 Release 资产 | starship、gping、gitui |
+| `mv"src -> dst"` | 解压后重命名/移动 | fd、ripgrep |
+| `bpick"pattern"` | 按模式选择 Release 资产 | starship、gitui |
 
 ## 本仓库的封装
 

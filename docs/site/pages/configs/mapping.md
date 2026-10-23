@@ -28,7 +28,6 @@
 | 文件 | 说明 |
 |---|---|
 | `config/ghostty/config` | Ghostty 终端配置，需手动链接 |
-| `config/yazi/flavors/` | Yazi 配色，需手动使用 |
 | `config/vim/tests/` | 测试文件，不需要部署 |
 
 要手动链接 Ghostty：

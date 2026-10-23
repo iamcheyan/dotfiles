@@ -166,7 +166,6 @@ fi
 # Load optional tool widgets after fzf, while preserving Atuin's history bindings.
 zsh_plugins_load_shell_tools
 
-
 # Added by Antigravity CLI installer
 export PATH="/home/tetsuya/.antigravity/bin:$PATH"
 # >>> Photon CLI >>>
@@ -176,22 +175,25 @@ case ":$PATH:" in
 esac
 # <<< Photon CLI <<<
 
-# fnm exposes Node/npm's global package bin directory only after its lazy
-# environment is activated. Warm it before checking for the npm-installed `is`.
+# fnm adds npm's global bin directory lazily; warm it before finding `is`.
 if (( $+functions[node] )); then
     node --version >/dev/null 2>&1 || true
 fi
 
-# Inshellisense's `is init zsh` creates its integration file and prints a
-# source command; it does not print shell code that can be eval'd directly.
-# Generate the file once, then source it. The integration starts a managed
-# shell only for interactive terminals and preserves this user's ZDOTDIR.
+# Inshellisense must be the last Zsh startup integration. Its generated script
+# starts a managed child shell and exits this shell. Preserve TMUX for pane sizing.
 if [[ -o interactive ]] && [[ -z "${ISTERM:-}" ]] && command -v is >/dev/null 2>&1; then
-    if [[ ! -r "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh" ]]; then
+    local inshellisense_init="${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh"
+    if [[ ! -r "$inshellisense_init" ]]; then
         is init zsh >/dev/null 2>&1 || true
     fi
-    if [[ -r "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh" ]]; then
+    if [[ -r "$inshellisense_init" ]]; then
         export USER_ZDOTDIR="${ZDOTDIR:-$HOME}"
-        source "${XDG_DATA_HOME:-$HOME/.local/share}/inshellisense/init/zsh/init.zsh"
+        if [[ -n "${TMUX:-}" ]]; then
+            export TMUX="${TMUX%%,*}"
+            export TMUX_PANE
+        fi
+        source "$inshellisense_init"
     fi
+    unset inshellisense_init
 fi

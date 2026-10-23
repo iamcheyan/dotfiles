@@ -92,14 +92,11 @@ zinit light zsh-users/zsh-syntax-highlighting
 
 ## 可选工具的 shell 集成
 
-`zsh_plugins_load_shell_tools` 处理三个「装了才启用」的工具：
+`zsh_plugins_load_shell_tools` 处理两个「装了才启用」的工具：
 
 ```zsh
 if command -v navi >/dev/null 2>&1; then
   eval "$(navi widget zsh)"
-fi
-if command -v pay-respects >/dev/null 2>&1; then
-  eval "$(pay-respects zsh --alias)"
 fi
 if command -v pet >/dev/null 2>&1; then
   function pet-select() {
@@ -115,10 +112,9 @@ fi
 | 工具 | 集成效果 |
 |---|---|
 | navi | 注册 widget，可在命令行呼出 cheatsheet |
-| pay-respects | 启用 `f` 别名和命令未找到处理 |
 | Pet | `Ctrl+X` 再 `Ctrl+R` 把片段填进命令行 |
 
-三者都缺失时，这段代码什么也不做，shell 照常启动。
+两个工具都缺失时，这段代码什么也不做，shell 照常启动。
 
 ## 加一个新插件
 
