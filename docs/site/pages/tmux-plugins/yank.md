@@ -83,15 +83,18 @@ tmux show-options -s set-clipboard
 
 | 值 | 行为 | 本配置建议 |
 |---|---|---|
-| `external` | 外部剪贴板更新可进入 tmux；应用不能经 tmux 发 OSC 52 | 不适合 OSC 52 |
-| `on` | tmux copy-mode 剪贴向终端客户端发送 OSC 52 | 推荐；主配置已启用 |
-| `off` | 禁用 tmux 剪贴板同步 | 本地 copy-pipe 可用，SSH OSC 52 不可用 |
+| `external` | tmux 接受应用发来的 OSC 52 并据此创建内部 buffer；不把 buffer 复制到终端剪贴板 | 不适合本方案 |
+| `on` | tmux 接受应用发来的 OSC 52，并把 copy-mode buffer 发到终端剪贴板 | 推荐；主配置已启用 |
+| `off` | 忽略应用发来的 OSC 52，也不把 copy-mode buffer 发给终端 | 远程剪贴板不可用 |
 
-`set-clipboard on` 向客户端发 OSC 52；绑定同时运行 `scripts/tmux-copy`，将选区
-写入 tmux buffer 并确认 copy-pipe 已成功。此脚本不向 pane PTY 写转义序列。非 SSH
-会话委托 `scripts/tmux-clipboard-copy` 选择本地后端：WSL 使用
-`iconv -f UTF-8 -t UTF-16LE | clip.exe`，Wayland 用 `wl-copy`，X11 用 `xclip`/`xsel`，
-macOS 用 `pbcopy`。OSC 52 没有接收回执，终端拒绝时无法检测或自动回退。
+主配置设置 `allow-passthrough on` 与 `set-clipboard on`。`set-clipboard on` 配合终端的
+`Ms` terminfo 能力，让 tmux 在复制 buffer 时给当前 client 发 OSC 52；`external`
+只接受应用发来的 OSC 52 更新 tmux 内部 buffer，`off` 两者都禁用。SSH copy-mode
+由 tmux 处理 clipboard 上送；`scripts/tmux-copy` 通过 `tmux load-buffer` 更新选区
+并保留末尾换行。它不向 pane PTY 写转义序列。非 SSH 会话委托
+`scripts/tmux-clipboard-copy` 选择本地后端：WSL 使用 `iconv -f UTF-8 -t UTF-16LE | clip.exe`，
+Wayland 用 `wl-copy`，X11 用 `xclip`/`xsel`，macOS 用 `pbcopy`。
+外层终端可能拒绝 OSC 52，协议没有接收回执，脚本无法据此自动回退。
 
 ### 五种连接场景验收
 
@@ -123,11 +126,11 @@ Windows Terminal、WezTerm、Kitty、iTerm2 均需按实际版本与剪贴板策
 
 `y` 在 vi copy mode 下有效，因为本仓库设了 `setw -g mode-keys vi`。
 
-## Local helper check
+## Local clipboard helper check
 
-Outside SSH, `tmux-copy` delegates input unchanged to `tmux-clipboard-copy`. Confirm the
-selected bytes at the system clipboard. In SSH, the handler returns success and tmux `set-clipboard on` sends a copy-mode buffer
-update as OSC 52. Verify end-to-end by pasting in the outer terminal.
+Outside SSH, `tmux-copy` delegates unchanged input to `tmux-clipboard-copy`; verify the
+selected bytes by pasting from the host clipboard. OSC 52 cannot be proven by a detached
+tmux server because it needs an attached terminal client with `Ms` capability.
 
 ## Typical workflow
 
