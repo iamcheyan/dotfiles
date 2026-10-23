@@ -170,7 +170,7 @@ _fzf_pipe_opts() {
 # 管道：`find ... | f`、`grep -n ... | f` 等，回车打开文件（带行号）或 cd 到目录
 # Alt+Enter 强制用 ranger 打开，Alt+C 复制路径
 f() {
-    local out query key target header copy_cmd target_path line_no piped
+    local out query key target header copy_cmd target_path line_no piped result_file
     local -a fzf_opts
 
     copy_cmd="$(_fzf_copy_path_cmd)"
@@ -180,12 +180,24 @@ f() {
     if [[ $piped -eq 1 ]]; then
         header='Enter: file=nvim, dir=cd | Alt-Enter=ranger | C=copy path'
         fzf_opts=("${(@f)$(_fzf_pipe_opts "$copy_cmd" "$header")}")
-        out=$(command fzf "$@" "${fzf_opts[@]}") || return
     else
         header='Alt: Enter=ranger, j/k or Shift-j/k=move, U/D=half-page, G=top, C=copy path'
         fzf_opts=("${(@f)$(_fzf_file_opts '{}' "$copy_cmd" "$header")}")
-        out=$(ls | command fzf "$@" "${fzf_opts[@]}") || return
     fi
+
+    # Run the TUI in the foreground. In an interactive Zsh pipeline, capturing
+    # fzf with $(...) can race terminal job control and fail with EIO.
+    result_file=$(mktemp "${TMPDIR:-/tmp}/dotfiles-f.XXXXXXXXXX") || return
+    {
+        if [[ $piped -eq 1 ]]; then
+            command fzf "$@" "${fzf_opts[@]}" > "$result_file" || return
+        else
+            ls | command fzf "$@" "${fzf_opts[@]}" > "$result_file" || return
+        fi
+        out=$(<"$result_file")
+    } always {
+        command rm -f -- "$result_file"
+    }
 
     query=$(printf '%s\n' "$out" | sed -n '1p')
     key=$(printf '%s\n' "$out" | sed -n '2p')

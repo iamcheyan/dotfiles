@@ -117,6 +117,11 @@ ffd . main.py  # 在当前目录按名搜索 "main.py"
 
 ### f 命令不工作
 
+`f` 在前台运行 fzf，并通过自动清理的临时文件读取选择结果。避免在交互式
+Zsh 管道中用 `$(fzf ...)` 捕获结果：这可能触发终端作业控制的时序问题，
+在界面出现前报 `input/output error`。修改配置后可用
+`source ~/dotfiles/plugins/fzf/fzf.zsh` 更新当前终端的函数定义。
+
 1. **检查 fzf**:
    ```bash
    command -v fzf
