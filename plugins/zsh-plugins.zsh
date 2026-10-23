@@ -56,6 +56,8 @@ zsh_plugins_load_main() {
   function zvm_after_init() {
     zvm_bindkey viins '^[[A' atuin-up-search
     zvm_bindkey viins '^[OA' atuin-up-search
+    zvm_bindkey viins '^X^E' edit-command-line
+    zvm_bindkey viins '^O' insert-newline
   }
 
   # zsh-autosuggestions：根据历史和补全结果显示命令建议。

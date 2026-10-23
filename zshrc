@@ -55,6 +55,10 @@ zsh_plugins_load_post_compinit
 # 首次调用 node/npm/npx/corepack/fnm 时才初始化 fnm 环境
 source "$dotfiles_root/scripts/setup/setup_fnm.sh"
 
+# ZLE 长命令编辑：Ctrl+X Ctrl+E 交给 Neovim，Ctrl+O 插入换行。
+# 必须在 zsh-vi-mode 初始化前注册 widget，zvm_after_init 再补 vi 键位绑定。
+source "$dotfiles_root/plugins/zle/zle.zsh"
+
 # 其余 Shell 插件及其专属配置；语法高亮在此阶段最后加载
 zsh_plugins_load_main
 

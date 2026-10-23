@@ -30,6 +30,7 @@ Zsh 插件对加载时机敏感：
 |---|---|
 | 启动报错、某个命令没定义 | [启动与加载顺序](loading.html) |
 | 历史搜索、vi 模式、按键 | [历史与命令行编辑](history.html) |
+| 在 Neovim 中编辑长命令、命令行换行 | [长命令编辑](long-command-editing.html) |
 | Tab 补全不好用 | [补全系统](completion.html) |
 | 想加/删插件 | [交互插件](plugins.html) |
 | `f` 或 `ffd` 行为不符预期 | [f 与 ffd 函数](fzf-functions.html) |
@@ -72,6 +73,7 @@ Zsh plugins are sensitive to load timing:
 |---|---|
 | Startup errors, a command not defined | [Startup and Load Order](loading.html) |
 | History search, vi mode, key bindings | [History and Command-Line Editing](history.html) |
+| Edit long commands in Neovim, insert newlines | [Editing Long Commands](long-command-editing.html) |
 | Tab completion not working | [Completion System](completion.html) |
 | Adding/removing plugins | [Interactive Plugins](plugins.html) |
 | `f` or `ffd` behaving unexpectedly | [The f and ffd Functions](fzf-functions.html) |
@@ -114,6 +116,7 @@ Zsh プラグインはロードタイミングに敏感です：
 |---|---|
 | 起動時のエラー、コマンドが未定義 | [起動とロード順序](loading.html) |
 | 履歴検索、vi モード、キーバインド | [履歴とコマンドライン編集](history.html) |
+| Neovim で長いコマンドを編集、改行を挿入 | [長いコマンドの編集](long-command-editing.html) |
 | Tab 補完が使いにくい | [補完システム](completion.html) |
 | プラグインの追加/削除 | [インタラクティブプラグイン](plugins.html) |
 | `f` や `ffd` の挙動が期待と違う | [f と ffd 関数](fzf-functions.html) |

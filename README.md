@@ -33,6 +33,7 @@ Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓�
 * **Zinit 异步加载**：零延迟秒开，告别臃肿缓慢的 oh-my-zsh。
 * **Starship 智能 Prompt**：优雅、信息丰富、极速渲染的终端提示符。
 * **zsh-vi-mode 深度整合**：原生 Vim 命令行编辑模式，在终端直接享受 `hjkl`。
+* **长命令编辑**：`Ctrl+X Ctrl+E` 在 Neovim 中编辑当前命令行，`Ctrl+O` 插入换行而不执行；见[长命令编辑](docs/site/pages/shell/long-command-editing.md)。
 * **强大的补全与历史**：
   * `fzf-tab`：可视化的模糊搜索交互补全界面。
   * `zsh-autosuggestions` + `zsh-autopair`：智能历史建议与括号自动配对。

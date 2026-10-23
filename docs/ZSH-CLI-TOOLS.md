@@ -38,6 +38,15 @@ zinit update
 | [navi](https://github.com/denisidoro/navi) | 搜索、填充并运行 cheatsheet 命令 | `navi` 和其 Zsh widget |
 | [Pet](https://github.com/knqyf263/pet) | 保存、搜索和复用命令片段 | `pet`、`Ctrl+X` 后 `Ctrl+R` |
 
+## 长命令编辑
+
+ZLE 里内置两个长命令编辑入口：
+
+- `Ctrl+X`、`Ctrl+E`：把当前命令行交给 `$EDITOR` / `$VISUAL`（本仓库为 Neovim），保存退出后回到输入行，确认后再执行。
+- `Ctrl+O`：在光标处插入换行，不执行命令。
+
+实现见 `plugins/zle/zle.zsh`；`zsh-vi-mode` 的 Insert 键位在 `plugins/zsh-plugins.zsh` 的 `zvm_after_init` 中注册。完整说明与排错见 [长命令编辑](site/pages/shell/long-command-editing.md)。
+
 ## forgit：交互式 Git
 
 forgit 基于 fzf，把文件、分支、提交、stash 和 worktree 放进交互选择器。常用命令：

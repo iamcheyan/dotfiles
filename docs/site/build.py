@@ -55,6 +55,7 @@ SECTIONS = [
             ("intro", "本章导读", "shell 环境的组成与阅读顺序。"),
             ("loading", "启动与加载顺序", "zshrc 到 zinit、补全、插件、fzf 的完整链路。"),
             ("history", "历史与命令行编辑", "vi-mode、Atuin、历史选项与绑定检查。"),
+            ("long-command-editing", "长命令编辑", "Ctrl+X Ctrl+E 打开 Neovim，Ctrl+O 插入换行。"),
             ("completion", "补全系统", "compinit、zsh-completions、fzf-tab 三个阶段。"),
             ("plugins", "交互插件", "autosuggestions、autopair、forgit、语法高亮。"),
             ("fzf-functions", "f 与 ffd 函数", "两个文件搜索函数的行为、按键与回退逻辑。"),
