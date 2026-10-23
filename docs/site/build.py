@@ -253,7 +253,7 @@ def doc_lang_meta(src: Path) -> tuple[dict[str, str], list[str]]:
     for lang, text in blocks.items():
         m_desc = summary_re.search(text)
         m_title = re.search(r"^# (.+)$", text, re.M)
-        desc = m_desc.group(1).strip() if m_desc else ""
+        desc = m_desc.group(1).strip().lstrip(":： ").strip() if m_desc else ""
         title = m_title.group(1).strip() if m_title else src.stem
         meta[lang] = (title, desc)
     return blocks, meta
@@ -779,7 +779,7 @@ def section_index(section: str) -> tuple[dict, str]:
     items = "\n".join(
         "<li><a href=\"" + d[0] + ".html\" class=\"lb-link\">"
         + "".join(
-            f'<span class="lb" data-lang="{l}">{esc(d[1])} - {esc(d[2])}</span>'
+            f'<span class="lb" data-lang="{l}">{esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[0])} - {esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[1])}</span>'
             for l in LANGS
         )
         + "</a></li>"
@@ -846,7 +846,10 @@ def home() -> str:
         scope_of = {l: i18n.get(l, (scope, ""))[1] for l in LANGS}
         items = "\n".join(
             '<li><a href="' + slug + '/' + d[0] + '.html" class="lb-link">'
-            + "".join(f'<span class="lb" data-lang="{l}">{esc(d[1])} - {esc(d[2])}</span>' for l in LANGS)
+            + "".join(
+                f'<span class="lb" data-lang="{l}">{esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[0])} - {esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[1])}</span>'
+                for l in LANGS
+            )
             + "</a></li>"
             for d in docs
         )
@@ -882,8 +885,22 @@ def home() -> str:
     return html
 
 
+def prescan_titles() -> None:
+    """Fill LANG_TITLES for every (section, doc) before anything renders."""
+    for slug, _label, _scope, docs in SECTIONS:
+        for doc, _t, _s in docs:
+            src = SOURCE / slug / f"{doc}.md"
+            if not src.exists():
+                continue
+            _blocks, lang_meta = doc_lang_meta(src)
+            existing = LANG_TITLES.get((slug, doc), {})
+            existing.update(lang_meta)
+            LANG_TITLES[(slug, doc)] = existing
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    prescan_titles()
     written = 0
     for slug, label, num in NAV:
         sdir = OUT / slug
