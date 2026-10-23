@@ -64,6 +64,26 @@ SECTIONS = [
         ],
     ),
     (
+        "commands",
+        "Linux 命令手册",
+        "常用命令的用法，以及它们在这台 Debian 13 工作机上的实际差异",
+        [
+            ("intro", "本章导读", "这份手册覆盖什么，命令在本机环境下的三个问题。"),
+            ("files", "文件与目录", "ls/eza、cd/zoxide、cp、mv、rm、ln 与权限速查。"),
+            ("text", "文本处理", "cat/bat、grep/ripgrep、sed/sd、awk、sort/uniq、jq。"),
+            ("search", "查找", "find/fd、locate、which/type 与 fzf 交互式筛选。"),
+            ("process", "进程与作业", "ps/procs、btop、kill 信号、后台任务与内存视角。"),
+            ("permissions", "权限与提权", "chmod 两种记法、chown、umask、sudo 与 polkit 审查。"),
+            ("disk", "磁盘与挂载", "df/duf、ncdu、lsblk、NAS 挂载与 SMART 健康。"),
+            ("network", "网络与传输", "ip、ss、curl、ssh、scp/rsync 与 Tailscale。"),
+            ("system", "系统信息与日志", "hostnamectl、free、dmesg、journalctl 与服务排查。"),
+            ("packages", "软件包管理", "apt、pacman、nixos-rebuild、cargo/npm/pipx 与 Docker。"),
+            ("archives", "压缩与归档", "tar/zstd、zip、7z 与解压陌生包的安全习惯。"),
+            ("our-environment", "本机环境实战", "内存纪律、Zsh 差异、tmux OSC 52、gh 环境变量、无头桌面。"),
+            ("cheatsheet", "速查表", "高频组合、管道模式、危险命令清单与打印卡片。"),
+        ],
+    ),
+    (
         "tools",
         "工具目录",
         "已接入工具的用途、用法、参数与配置",
@@ -209,7 +229,7 @@ def render_md(text: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Layout — modelled on dotfiles.github.io: a fixed 270px header column on the
+# Layout - modelled on dotfiles.github.io: a fixed 270px header column on the
 # left (site title, tagline, stacked navigation) and a 500px content column on
 # the right. Lato, black on white, blue links, light grey code blocks.
 # ---------------------------------------------------------------------------
@@ -527,14 +547,14 @@ def page(section: str, doc: str) -> tuple[dict, str]:
 
 def section_index(section: str) -> tuple[dict, str]:
     slug, label, scope, docs = BY_SLUG[section]
-    items = "\n".join(f'<li><a href="{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>' for d in docs)
+    items = "\n".join(f'<li><a href="{d[0]}.html">{esc(d[1])}</a> - {esc(d[2])}</li>' for d in docs)
     html = f'''{head_block(label, scope, "../")}
 <body>
 <div class="wrapper">
 {header(section, "index", "../")}
 <section>
 <h1 id="{esc(slug)}">{esc(label)}</h1>
-<p>{esc(scope)} — {len(docs)} documents.</p>
+<p>{esc(scope)} - {len(docs)} documents.</p>
 <ul>
 {items}
 </ul>
@@ -576,10 +596,10 @@ def home() -> str:
     sections_html = []
     for slug, label, num in NAV:
         _s, _l, scope, docs = BY_SLUG[slug]
-        items = "\n".join(f'<li><a href="{slug}/{d[0]}.html">{esc(d[1])}</a> — {esc(d[2])}</li>' for d in docs)
+        items = "\n".join(f'<li><a href="{slug}/{d[0]}.html">{esc(d[1])}</a> - {esc(d[2])}</li>' for d in docs)
         sections_html.append(
             f'''<h2><a href="{slug}/index.html">{esc(label)}</a></h2>
-<p>{esc(scope)} — {len(docs)} documents.</p>
+<p>{esc(scope)} - {len(docs)} documents.</p>
 <ul>
 {items}
 </ul>'''
