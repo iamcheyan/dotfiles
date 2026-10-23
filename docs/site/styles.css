@@ -3,7 +3,7 @@
 /* ---------------------------------------------------------------------------
    dotfiles.iamcheyan.com
 
-   Layout and typography follow dotfiles.github.io: a fixed 270px header column
+   Layout and typography follow dotfiles.github.io: a fixed 220px header column
    on the left holding the title, tagline and stacked navigation, and a 500px
    content column on the right. Lato, blue links, light grey code blocks.
 
@@ -117,7 +117,7 @@ h1 code, h2 code, h3 code {
 /* ------------------------------------------------------------------ header */
 
 header {
-  width: 270px;
+  width: 220px;
   float: left;
   position: fixed;
 }
@@ -286,7 +286,7 @@ header nav::-webkit-scrollbar-track { background: transparent; }
 /* ----------------------------------------------------------------- section */
 
 section {
-  width: 500px;
+  width: 560px;
   float: right;
   padding-bottom: 50px;
 }
@@ -607,7 +607,7 @@ body.no-sidebar section {
 @media print, screen and (max-width: 960px) {
   div.wrapper { width: auto; margin: 0; }
   header, section { float: none; position: static; width: auto; }
-  header { padding-right: 320px; }
+  header { padding-right: 300px; }
   section { border: 1px solid var(--rule); border-width: 1px 0; padding: 20px 0; margin: 0 0 20px; }
   .nav-docs { margin-bottom: 6px; }
   .results { width: 100%; max-width: 380px; }
