@@ -58,12 +58,25 @@ zsh_plugins_load_main() {
     zvm_bindkey viins '^[OA' atuin-up-search
     zvm_bindkey viins '^X^E' edit-command-line
     zvm_bindkey viins '^O' insert-newline
+    if (( $+widgets[abbr-expand-and-insert] )); then
+      zvm_bindkey viins ' ' abbr-expand-and-insert
+      zvm_bindkey viins '^ ' magic-space
+      zvm_bindkey viins '^M' abbr-expand-and-accept
+    fi
   }
+
+  # zsh-abbr：fish 风格的自动展开缩写。
+  # 不使用插件自带的键位，统一在 zvm_after_init 和 plugins/abbr/abbr.zsh
+  # 里按 emacs / viins 分别绑定，避免被 zsh-vi-mode 重置。
+  export ABBR_DEFAULT_BINDINGS=0
+  export ABBR_USER_ABBREVIATIONS_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/zsh-abbr/user-abbreviations"
+  zinit ice atclone"git submodule update --init --recursive" atpull"%atclone"
+  zinit light olets/zsh-abbr
 
   # zsh-autosuggestions：根据历史和补全结果显示命令建议。
   zinit light zsh-users/zsh-autosuggestions
   ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=10'
   ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=100
   ZSH_AUTOSUGGEST_USE_ASYNC=1
 

@@ -65,9 +65,6 @@ zsh_plugins_load_main
 # zsh-abbr 的 Emacs 键位；viins 键位在 zvm_after_init 里补充。
 source "$dotfiles_root/plugins/abbr/abbr.zsh"
 
-# carapace-bin 的命令补全；必须在 compinit 和 zsh-vi-mode 之后加载。
-source "$dotfiles_root/plugins/carapace/carapace.zsh"
-
 # fzf 相关函数和默认选项：ff/rf/zd/zc/y 等交互工具
 # 这里必须同步加载，否则 ff/rf 在新 shell 中可能不存在
 source "$dotfiles_root/plugins/fzf/fzf.zsh"
@@ -179,8 +176,14 @@ fi
 # Load optional tool widgets after fzf, while preserving Atuin's history bindings.
 zsh_plugins_load_shell_tools
 
+# carapace-bin 的命令补全。放在最后，避免被后面的 compinit/fzf 补全覆盖。
+source "$dotfiles_root/plugins/carapace/carapace.zsh"
+
+# zsh-abbr 的补全文件由插件加载后加入 fpath，这里在 compinit 之后显式注册。
+source "$dotfiles_root/plugins/abbr/abbr-completion.zsh"
+
 # Added by Antigravity CLI installer
-export PATH="/home/tetsuya/.antigravity/bin:$PATH"
+export PATH="$HOME/.antigravity/bin:$PATH"
 # >>> Photon CLI >>>
 case ":$PATH:" in
   *:"$HOME/.photon/bin":*) ;;

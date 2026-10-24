@@ -85,6 +85,28 @@ zinit snippet https://github.com/junegunn/fzf/raw/master/shell/key-bindings.zsh
 zi_cmd dalance/procs procs
 zi_cmd zellij-org/zellij zellij
 
+# carapace-bin：为大量 CLI 命令提供统一的参数补全。
+# Release 资产按 OS/架构命名，需显式 bpick，避免选到 deb/rpm/apk。
+case "$OSTYPE" in
+  darwin*)
+    local carapace_asset="darwin_amd64"
+    [[ "$(uname -m)" == "arm64" ]] && carapace_asset="darwin_arm64"
+    ;;
+  linux*)
+    case "$(uname -m)" in
+      aarch64|arm64) carapace_asset="linux_arm64" ;;
+      i386|i686) carapace_asset="linux_386" ;;
+      armv7l|armv6l|arm) carapace_asset="" ;;
+      *) carapace_asset="linux_amd64" ;;
+    esac
+    ;;
+  *) carapace_asset="" ;;
+esac
+if [[ -n "$carapace_asset" ]]; then
+  zinit ice as"command" from"gh-r" bpick"carapace-bin_*_${carapace_asset}.tar.gz" pick"carapace"
+  zinit light carapace-sh/carapace-bin
+fi
+
 # direnv (GitHub release is a single binary)
 zinit ice as"command" from"gh-r" sbin"direnv"
 zinit light direnv/direnv
