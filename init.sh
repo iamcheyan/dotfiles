@@ -65,6 +65,7 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+
 # Detect the operating system
 detect_os() {
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -991,7 +992,7 @@ install_extra_tools() {
     print_info "Checking and installing additional tools..."
 
     if [[ "$(detect_os)" == "nixos" ]]; then
-        print_info "NixOS detected; Docker, Zellij, and Herdr are not installed by this bootstrap. Manage system packages and services through nixos-config."
+        print_info "NixOS detected; Docker, Zellij, Herdr, and database/data TUI tools are managed by nixos-config. Skipping bootstrap installs."
         return 0
     fi
 
@@ -1094,6 +1095,22 @@ install_extra_tools() {
         [[ -f "$install_dir/install_pipx_tool.sh" ]] && bash "$install_dir/install_pipx_tool.sh" harlequin harlequin
     else
         print_success "harlequin is already installed"
+    fi
+
+    # lazysql — cross-platform database management TUI
+    if ! command_exists lazysql; then
+        print_info "Installing lazysql..."
+        [[ -f "$install_dir/install_lazysql.sh" ]] && bash "$install_dir/install_lazysql.sh"
+    else
+        print_success "lazysql is already installed"
+    fi
+
+    # rainfrog — terminal database client
+    if ! command_exists rainfrog; then
+        print_info "Installing rainfrog..."
+        [[ -f "$install_dir/install_rainfrog.sh" ]] && bash "$install_dir/install_rainfrog.sh"
+    else
+        print_success "rainfrog is already installed"
     fi
 
     # dekit — process manager for dev and prod
