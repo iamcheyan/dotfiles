@@ -1105,6 +1105,14 @@ install_extra_tools() {
         print_success "lazysql is already installed"
     fi
 
+    # sqlmux — tmux-style terminal database client
+    if ! command_exists sqlmux; then
+        print_info "Installing sqlmux..."
+        [[ -f "$install_dir/install_sqlmux.sh" ]] && bash "$install_dir/install_sqlmux.sh"
+    else
+        print_success "sqlmux is already installed"
+    fi
+
     # rainfrog — terminal database client
     if ! command_exists rainfrog; then
         print_info "Installing rainfrog..."

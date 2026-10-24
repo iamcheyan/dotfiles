@@ -66,12 +66,13 @@ install:nvim --version 0.11.4   # 安装指定版本
 
 ### 数据库与数据 TUI
 
-`init.sh` 使用 pipx 安装 Harlequin 和 VisiData，使用上游架构感知脚本安装 Tabiew，并通过专用脚本安装 LazySQL 和 Rainfrog。LazySQL 使用 Linux/macOS 官方 release；Rainfrog 在 macOS 使用 Homebrew、Arch 使用 pacman，其他支持架构的 Linux 使用官方 release。NixOS 工具由 `nixos-config` 管理。
+`init.sh` 使用 pipx 安装 Harlequin 和 VisiData，使用上游架构感知脚本安装 Tabiew，并通过专用脚本安装 LazySQL、sqlmux 和 Rainfrog。LazySQL、sqlmux 使用 Linux/macOS 官方 release；Rainfrog 在 macOS 使用 Homebrew、Arch 使用 pacman，其他支持架构的 Linux 使用官方 release。NixOS 工具由 `nixos-config` 管理。
 
 可单独运行新增安装器：
 
 ```bash
 bash scripts/install/install_lazysql.sh
+bash scripts/install/install_sqlmux.sh
 bash scripts/install/install_rainfrog.sh
 ```
 
