@@ -63,6 +63,7 @@ Ghostty 的 ANSI 色板影响 `ls`、Ranger、编辑器和其它读取终端色�
 | fzf | `plugins/fzf/fzf.zsh`；保留终端背景 |
 | Starship | `config/starship/starship.toml` |
 | Nano | `config/nano/nanorc` |
+| eza | 继承终端 ANSI 16 色与默认高亮 |
 | Herdr | `config/herdr/config.toml` |
 | Vim | `config/vim/vimrc`；使用 Vim 内置 `blue` |
 | Neovim | 主题由独立的 `iamcheyan/nvim` 仓库维护；以其 Blue / Nostalgia 调色板为来源 |
@@ -135,6 +136,7 @@ For programs without RGB support, prefer this 16-color mapping. Programs with RG
 | fzf | `plugins/fzf/fzf.zsh`; preserve terminal background |
 | Starship | `config/starship/starship.toml` |
 | Nano | `config/nano/nanorc` |
+| eza | Inherits terminal ANSI 16 colors and default highlights |
 | Herdr | `config/herdr/config.toml` |
 | Vim | `config/vim/vimrc`; uses Vim's built-in `blue` |
 | Neovim | Theme maintained in the separate `iamcheyan/nvim` repository; its Blue / Nostalgia palette is the source |
@@ -207,6 +209,7 @@ RGB 非対応のプログラムでは、この 16 色の割り当てを優先し
 | fzf | `plugins/fzf/fzf.zsh`。端末の背景を維持します |
 | Starship | `config/starship/starship.toml` |
 | Nano | `config/nano/nanorc` |
+| eza | 端末の ANSI 16 色とデフォルトのハイライトを継承 |
 | Herdr | `config/herdr/config.toml` |
 | Vim | `config/vim/vimrc`。Vim 内蔵の `blue` を使います |
 | Neovim | テーマは独立した `iamcheyan/nvim` リポジトリで管理し、Blue / Nostalgia パレットを基準にします |

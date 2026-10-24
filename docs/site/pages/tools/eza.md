@@ -32,6 +32,13 @@ if command -v eza >/dev/null 2>&1; then
     alias l="eza --icons --group-directories-first --sort=modified --reverse"
     alias ll="eza -lh --icons --group-directories-first --git --sort=modified --reverse"
     alias la="eza -a --icons --group-directories-first --sort=modified --reverse"
+    alias lsd="eza -lha --no-permissions --no-user --time-style=relative --icons"
+    alias lt="eza --tree --icons"
+    alias lt1="lt --level=1"
+    alias lt2="lt --level=2"
+    alias lt3="lt --level=3"
+    alias lt4="lt --level=4"
+    alias lt5="lt --level=5"
 fi
 ```
 
@@ -40,6 +47,9 @@ fi
 | `l` | 图标 + 目录优先 + 按修改时间倒序 |
 | `ll` | 同上 + 长格式（权限、大小）+ Git 状态 |
 | `la` | 同上 + 包含隐藏文件 |
+| `lsd` | 简洁模式：隐藏权限与属主，显示相对时间 |
+| `lt` | 递归树状视图（`--tree`） |
+| `lt1`~`lt5` | 限制递归深度的树状视图（`--level=1` 到 `--level=5`） |
 
 三个都用了 `--sort=modified --reverse`，即**最近修改的排在最上面**。这和 `ls` 默认按名字排序不同，是为了让刚编辑过的文件浮到顶部。
 
@@ -124,6 +134,13 @@ if command -v eza >/dev/null 2>&1; then
     alias l="eza --icons --group-directories-first --sort=modified --reverse"
     alias ll="eza -lh --icons --group-directories-first --git --sort=modified --reverse"
     alias la="eza -a --icons --group-directories-first --sort=modified --reverse"
+    alias lsd="eza -lha --no-permissions --no-user --time-style=relative --icons"
+    alias lt="eza --tree --icons"
+    alias lt1="lt --level=1"
+    alias lt2="lt --level=2"
+    alias lt3="lt --level=3"
+    alias lt4="lt --level=4"
+    alias lt5="lt --level=5"
 fi
 ```
 
@@ -132,6 +149,9 @@ fi
 | `l` | Icons + directories first + by modification time, newest shown via reverse order |
 | `ll` | Same as above + long format (permissions, size) + Git status |
 | `la` | Same as above + hidden files included |
+| `lsd` | Concise listing without permissions/user, showing relative times |
+| `lt` | Recursive tree view (`--tree`) |
+| `lt1`~`lt5` | Tree view restricted to level 1 through 5 (`--level=N`) |
 
 All three use `--sort=modified --reverse`, i.e. **the most recently modified appear at the top**. This differs from `ls`'s default name sorting and exists so recently edited files float to the top.
 
@@ -216,6 +236,13 @@ if command -v eza >/dev/null 2>&1; then
     alias l="eza --icons --group-directories-first --sort=modified --reverse"
     alias ll="eza -lh --icons --group-directories-first --git --sort=modified --reverse"
     alias la="eza -a --icons --group-directories-first --sort=modified --reverse"
+    alias lsd="eza -lha --no-permissions --no-user --time-style=relative --icons"
+    alias lt="eza --tree --icons"
+    alias lt1="lt --level=1"
+    alias lt2="lt --level=2"
+    alias lt3="lt --level=3"
+    alias lt4="lt --level=4"
+    alias lt5="lt --level=5"
 fi
 ```
 
@@ -224,6 +251,9 @@ fi
 | `l` | アイコン + ディレクトリ優先 + 更新時刻の降順 |
 | `ll` | 上記 + 長形式（権限・サイズ）+ Git ステータス |
 | `la` | 上記 + 隠しファイルを含む |
+| `lsd` | 簡潔表示：権限や所有者を省き、相対時間を表示 |
+| `lt` | 再帰的ツリービュー（`--tree`） |
+| `lt1`~`lt5` | 指定階層（1〜5 階層）までのツリービュー |
 
 3 つとも `--sort=modified --reverse` を使っており、**最近変更したものが一番上に来ます**。`ls` のデフォルトである名前順とは異なり、編集したばかりのファイルを上部に浮かせるためです。
 

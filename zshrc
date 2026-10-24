@@ -14,6 +14,16 @@ setopt HIST_REDUCE_BLANKS   # 移除历史记录中的多余空格
 setopt HIST_VERIFY          # 执行前允许编辑历史扩展
 setopt INC_APPEND_HISTORY   # 立即追加历史（而不是退出时）
 setopt AUTO_CD              # 启用 AUTO_CD：输入目录路径时自动 cd
+setopt AUTO_PUSHD           # 自动记录访问过的目录到目录栈
+setopt PUSHD_IGNORE_DUPS    # 目录栈不记录重复项
+setopt PUSHD_MINUS          # 交换 + 和 - 在目录栈切换时的含义
+setopt INTERACTIVE_COMMENTS # 允许在交互式命令行中使用 # 注释
+
+# 保持 PATH 和 fpath 元素唯一，避免反复 source 时路径重复累积
+typeset -U path fpath
+
+# 配置 GPG tty，确保签名与 pinentry 正常绑定当前终端
+export GPG_TTY=$TTY
 
 # 不要因为处于 SSH 会话就无条件降级 TERM。
 # `kitten ssh` 会把 Kitty 的 terminfo 传到远端；保留 xterm-kitty/tmux-256color
@@ -83,6 +93,11 @@ if command -v zoxide > /dev/null; then
   alias zi='z -i'      # 交互式选择
   alias za='z -a'      # 添加目录
   alias zr='z -r'      # 移除目录
+fi
+
+# mise: 多语言开发环境与工具版本管理
+if command -v mise > /dev/null; then
+  _evalcache mise activate zsh
 fi
 
 

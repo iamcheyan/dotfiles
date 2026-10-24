@@ -21,10 +21,12 @@ ls -R              # 递归列出子目录
 ls -d */           # 只列目录
 ```
 
-`eza` 独有但常用的：
+`eza` 独有但常用的别名与参数：
 
 ```bash
-eza -T --level=2   # 两层树状视图
+lt                 # 完整树状视图（eza --tree）
+lt1 / lt2 / lt3    # 限制递归层级的树状视图（--level=1/2/3）
+lsd                # 简洁时间视图（隐藏权限与属主，相对时间）
 eza -lh --git      # 看每个文件的 Git 状态
 eza --sort=size -l # 按大小排
 ```
@@ -46,6 +48,7 @@ z dotfiles        # 跳到 ~/dotfiles（匹配路径任意一段）
 z dev cindy       # 多关键词，匹配 ~/development/cindy
 zi                # 交互式选择（fzf 列表）
 zr                 # zoxide 数据库里删掉已不存在的目录
+wt                 # 交互式选择并切换 Git worktree（基于 fzf）
 ```
 
 `z` 和 `cd` 混用没问题，zoxide 也会记录 `cd` 过的目录。
@@ -163,12 +166,14 @@ ls -R              # 递归列出子目录
 ls -d */           # 只列目录
 ```
 
-`eza`-only but commonly used:
+`eza`-only aliases and common options:
 
 ```bash
-eza -T --level=2   # 两层树状视图
-eza -lh --git      # 看每个文件的 Git 状态
-eza --sort=size -l # 按大小排
+lt                 # Full recursive tree view (eza --tree)
+lt1 / lt2 / lt3    # Level-restricted tree views (--level=1/2/3)
+lsd                # Concise relative-time view without permissions/owner
+eza -lh --git      # See each file's Git status
+eza --sort=size -l # Sort by size
 ```
 
 ## cd and jumping between directories
@@ -188,6 +193,7 @@ z dotfiles        # 跳到 ~/dotfiles（匹配路径任意一段）
 z dev cindy       # 多关键词，匹配 ~/development/cindy
 zi                # 交互式选择（fzf 列表）
 zr                 # zoxide 数据库里删掉已不存在的目录
+wt                 # 交互式选择并切换 Git worktree（基于 fzf）
 ```
 
 Mixing `z` and `cd` is fine — zoxide also records directories reached via `cd`.
@@ -305,12 +311,14 @@ ls -R              # 递归列出子目录
 ls -d */           # 只列目录
 ```
 
-`eza` 固有だがよく使うもの：
+`eza` 固有の別名とよく使うオプション：
 
 ```bash
-eza -T --level=2   # 两层树状视图
-eza -lh --git      # 看每个文件的 Git 状态
-eza --sort=size -l # 按大小排
+lt                 # ツリービュー全体（eza --tree）
+lt1 / lt2 / lt3    # 階層を制限したツリービュー（--level=1/2/3）
+lsd                # 簡潔表示（権限・所有者を省き、相対時間を表示）
+eza -lh --git      # 各ファイルの Git ステータスを確認
+eza --sort=size -l # サイズ順にソート
 ```
 
 ## cd とディレクトリ移動
@@ -330,6 +338,7 @@ z dotfiles        # 跳到 ~/dotfiles（匹配路径任意一段）
 z dev cindy       # 多关键词，匹配 ~/development/cindy
 zi                # 交互式选择（fzf 列表）
 zr                 # zoxide 数据库里删掉已不存在的目录
+wt                 # 交互式选择并切换 Git worktree（基于 fzf）
 ```
 
 `z` と `cd` の混用は問題ありません。zoxide は `cd` で移動したディレクトリも記録します。

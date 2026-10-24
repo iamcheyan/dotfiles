@@ -134,6 +134,7 @@ SECTIONS = [
             ("harlequin", "harlequin", "终端 SQL IDE：多连接、结果分栏、100+ 键位，附带 hsql agent 客户端。"),
             ("dekit", "dekit", "进程管理器：用一个配置文件在开发与生产环境编排任务、依赖与重启。"),
             ("topgrade", "topgrade", "一条命令升级所有东西：apt、npm、pipx、cargo、rustup 等。"),
+            ("mise", "mise", "多语言开发工具与运行时版本管理器。"),
         ],
     ),
     (

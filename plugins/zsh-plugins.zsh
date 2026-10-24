@@ -76,7 +76,7 @@ zsh_plugins_load_main() {
   # zsh-autosuggestions：根据历史和补全结果显示命令建议。
   zinit light zsh-users/zsh-autosuggestions
   ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=10'
+  ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
   ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=100
   ZSH_AUTOSUGGEST_USE_ASYNC=1
 

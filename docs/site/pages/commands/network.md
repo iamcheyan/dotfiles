@@ -23,11 +23,14 @@ ss -s                    # 汇总统计
 ss -tn state established dst:1.1.1.1   # 到某目标的已建立连接
 ```
 
-**端口被占的排查**（启动服务报 `address already in use` 时）：
+**端口被占的排查与清理**（启动服务报 `address already in use` 时）：
 
 ```bash
 ss -ltnp | rg ':端口号'
 # 找到 PID，再 ps -p PID 看是什么程序，决定杀掉还是换端口
+
+# 本仓库在 aliases.conf 中提供了快速释放函数：
+killport 3000           # 基于 lsof 自动定位并杀掉监听 3000 端口的进程
 ```
 
 本机服务多（面板、Web 项目、代理），起新服务前先查端口。防火墙侧还有 `sudo nft list ruleset`（nftables）可看规则，但本机主要靠 PVE 宿主和 Tailscale 做边界，系统内规则很薄。
@@ -185,11 +188,14 @@ ss -s                    # 汇总统计
 ss -tn state established dst:1.1.1.1   # 到某目标的已建立连接
 ```
 
-**Troubleshooting an occupied port** (when starting a service reports `address already in use`):
+**Troubleshooting and clearing an occupied port** (when starting a service reports `address already in use`):
 
 ```bash
-ss -ltnp | rg ':端口号'
-# 找到 PID，再 ps -p PID 看是什么程序，决定杀掉还是换端口
+ss -ltnp | rg ':port_number'
+# Find the PID, run ps -p PID to inspect it, then kill it or change ports
+
+# This repository provides a quick cleanup helper in aliases.conf:
+killport 3000           # Locate and kill listeners on TCP port 3000 via lsof
 ```
 
 This machine runs many services (the dashboard, web projects, proxies), so check ports before starting a new service. On the firewall side you can also inspect rules with `sudo nft list ruleset` (nftables), but this machine mainly relies on the PVE host and Tailscale as its boundary, so in-system rules are minimal.
@@ -347,11 +353,14 @@ ss -s                    # 汇总统计
 ss -tn state established dst:1.1.1.1   # 到某目标的已建立连接
 ```
 
-**ポートが占有されているときの調査**（サービス起動時に `address already in use` が出たとき）：
+**ポートが占有されているときの調査と解放**（サービス起動時に `address already in use` が出たとき）：
 
 ```bash
-ss -ltnp | rg ':端口号'
-# 找到 PID，再 ps -p PID 看是什么程序，决定杀掉还是换端口
+ss -ltnp | rg ':ポート番号'
+# PID を特定し、ps -p PID で何のプロセスか確認して kill するかポートを変更
+
+# 本リポジトリの aliases.conf には解放ヘルパーがあります：
+killport 3000           # lsof を使って TCP 3000 番ポートをリッスン中のプロセスを特定して終了
 ```
 
 本機ではサービスが多い（ダッシュボード、Web プロジェクト、プロキシ）ため、新しいサービスを起動する前にポートを確認します。ファイアウォール側は `sudo nft list ruleset`（nftables）でルールを確認できますが、本機は主に PVE ホストと Tailscale を境界としており、システム内のルールはごく薄いものです。

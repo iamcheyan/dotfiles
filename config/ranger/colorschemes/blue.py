@@ -22,9 +22,6 @@ class Scheme(Default):
         fg, bg, attr = super().use(context)
 
         if context.in_browser:
-            # Give ordinary files an explicit theme color instead of inheriting
-            # Ranger's default white/gray foreground.
-            fg = green + BRIGHT
             if context.selected:
                 # Cyan is the theme's selection accent; use dark text on it.
                 fg, bg = black, cyan
@@ -49,7 +46,7 @@ class Scheme(Default):
                 elif context.vcsstaged or context.vcssync:
                     fg = green + BRIGHT
                 elif context.vcsignored:
-                    fg = green + BRIGHT
+                    fg = white
                     attr |= dim
 
         elif context.in_titlebar:

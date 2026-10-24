@@ -9,7 +9,7 @@
 ```zsh
 zinit light zsh-users/zsh-autosuggestions
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=10'
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=100
 ZSH_AUTOSUGGEST_USE_ASYNC=1
 ```
@@ -17,7 +17,7 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 | 设置 | 效果 |
 |---|---|
 | `STRATEGY=(history completion)` | 先查历史，再查补全 |
-| `HIGHLIGHT_STYLE='fg=10'` | 建议文字用亮绿显示，与输入内容区分 |
+| `HIGHLIGHT_STYLE='fg=8'` | 建议文字用灰色，不干扰视线 |
 | `BUFFER_MAX_SIZE=100` | 超过 100 字符不再建议 |
 | `USE_ASYNC=1` | 异步计算，避免卡顿 |
 
@@ -129,7 +129,7 @@ All plugins are declared in one place, inside `zsh_plugins_load_main` in `plugin
 ```zsh
 zinit light zsh-users/zsh-autosuggestions
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=10'
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=100
 ZSH_AUTOSUGGEST_USE_ASYNC=1
 ```
@@ -137,7 +137,7 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 | Setting | Effect |
 |---|---|
 | `STRATEGY=(history completion)` | Check history first, then completions |
-| `HIGHLIGHT_STYLE='fg=10'` | Suggestions use bright green to distinguish them from typed text |
+| `HIGHLIGHT_STYLE='fg=8'` | Suggestion text in gray, so it doesn't distract |
 | `BUFFER_MAX_SIZE=100` | No suggestions past 100 characters |
 | `USE_ASYNC=1` | Async computation to avoid stalling |
 
@@ -249,7 +249,7 @@ TERM=xterm-256color zsh -lic 'source ./zshrc >/dev/null 2>&1; true'
 ```zsh
 zinit light zsh-users/zsh-autosuggestions
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=10'
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=100
 ZSH_AUTOSUGGEST_USE_ASYNC=1
 ```
@@ -257,7 +257,7 @@ ZSH_AUTOSUGGEST_USE_ASYNC=1
 | 設定 | 効果 |
 |---|---|
 | `STRATEGY=(history completion)` | まず履歴を調べ、次に補完 |
-| `HIGHLIGHT_STYLE='fg=10'` | 候補を明るい緑にして入力済みの文字と区別する |
+| `HIGHLIGHT_STYLE='fg=8'` | 候補表示は灰色で視線の妨げにしない |
 | `BUFFER_MAX_SIZE=100` | 100 文字を超えると候補を出さない |
 | `USE_ASYNC=1` | 非同期計算で固まりを防ぐ |
 

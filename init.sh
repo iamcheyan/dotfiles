@@ -282,12 +282,12 @@ repair_zinit_plugins() {
 install_essentials() {
     print_info "Checking essential tools..."
 
-    local common_packages="git curl wget unzip git-extras ffmpeg tmux"
-    local debian_packages="build-essential ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local arch_packages="base-devel ripgrep fd eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local void_packages="base-devel ripgrep fd-find eza zoxide translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local brew_packages="ripgrep fd eza zoxide translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm"
+    local common_packages="git curl wget unzip git-extras ffmpeg tmux lsof"
+    local debian_packages="build-essential ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local arch_packages="base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local void_packages="base-devel ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
+    local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm"
 
     if [[ "$MINIMAL" == "true" ]]; then
         print_info "Minimal mode: skipping translate-shell, yt-dlp, jq, viu"
@@ -378,6 +378,12 @@ install_essentials() {
     else
          print_warning "Could not install essential tools automatically. Please install these manually: git, curl, wget, build-essential, ripgrep, fd, eza, zoxide, ranger"
          return 1
+    fi
+
+    # Debian/Ubuntu installs bat as batcat; provide bat symlink in ~/.local/bin if needed
+    if command_exists batcat && ! command_exists bat; then
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
     fi
     
     print_success "Essential tools installation/check completed"
@@ -1058,6 +1064,18 @@ install_extra_tools() {
         [[ -f "$install_dir/install_topgrade.sh" ]] && bash "$install_dir/install_topgrade.sh"
     else
         print_success "topgrade is already installed"
+    fi
+
+    # mise — dev tool and runtime manager
+    if ! command_exists mise; then
+        print_info "Installing mise..."
+        if curl -fsSL https://mise.run | sh; then
+            print_success "mise installed successfully"
+        else
+            print_warning "Failed to install mise via install script"
+        fi
+    else
+        print_success "mise is already installed"
     fi
 }
 

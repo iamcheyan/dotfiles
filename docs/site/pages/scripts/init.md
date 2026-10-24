@@ -138,6 +138,7 @@ install_ranger_archives
 | Zellij | 检查/安装 |
 | gh-dash | gh 扩展 |
 | Herdr | 本地 AI 助手 |
+| mise | 多语言开发环境与运行时版本管理（curl -fsSL https://mise.run \| sh） |
 
 ## 平台分支
 
@@ -336,6 +337,7 @@ The script then handles:
 | Zellij | Check/install |
 | gh-dash | gh extension |
 | Herdr | Local AI assistant |
+| mise | Polyglot runtime version manager (curl -fsSL https://mise.run \| sh) |
 
 ## Platform Branches
 
@@ -534,6 +536,7 @@ ranger の 2 つのプラグインをクローンします。どちらも git �
 | Zellij | 確認・インストール |
 | gh-dash | gh 拡張 |
 | Herdr | ローカル AI アシスタント |
+| mise | 多言語・ランタイムバージョン管理（curl -fsSL https://mise.run \| sh） |
 
 ## プラットフォームの分岐
 

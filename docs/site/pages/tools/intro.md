@@ -81,6 +81,7 @@
 | harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
 | dekit | 上游 install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | 上游 Release | `topgrade` | [topgrade](topgrade.html) |
+| mise | 上游 install.sh | `mise use` | [mise](mise.html) |
 
 ## Diff 与评审
 
@@ -187,6 +188,7 @@
 | harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
 | dekit | upstream install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | upstream Release | `topgrade` | [topgrade](topgrade.html) |
+| mise | upstream install.sh | `mise use` | [mise](mise.html) |
 
 ## Diff & review
 
@@ -293,6 +295,7 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
 | dekit | 上流 install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | 上流 Release | `topgrade` | [topgrade](topgrade.html) |
+| mise | 上流 install.sh | `mise use` | [mise](mise.html) |
 
 ## Diff とレビュー
 

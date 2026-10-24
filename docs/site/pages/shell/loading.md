@@ -27,9 +27,16 @@ setopt HIST_REDUCE_BLANKS
 setopt HIST_VERIFY
 setopt INC_APPEND_HISTORY
 setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_MINUS
+setopt INTERACTIVE_COMMENTS
+
+typeset -U path fpath
+export GPG_TTY=$TTY
 ```
 
-| 选项 | 效果 |
+| 选项 / 设置 | 效果 |
 |---|---|
 | `SHARE_HISTORY` | 多个终端共享同一份历史，立即互相可见 |
 | `HIST_IGNORE_ALL_DUPS` | 重复命令只保留一条 |
@@ -37,6 +44,12 @@ setopt AUTO_CD
 | `HIST_VERIFY` | 历史扩展（`!!`）先显示再执行 |
 | `INC_APPEND_HISTORY` | 每条命令立即写盘，不等到退出 |
 | `AUTO_CD` | 直接输入目录名即切换 |
+| `AUTO_PUSHD` | 自动将 cd 访问过的路径记录进目录栈 |
+| `PUSHD_IGNORE_DUPS` | 目录栈不保存重复路径 |
+| `PUSHD_MINUS` | 交换 `cd -N` 中 `+` 与 `-` 的索引方向 |
+| `INTERACTIVE_COMMENTS` | 允许在交互式终端中粘贴或输入带 `#` 的注释 |
+| `typeset -U path fpath` | 路径数组去重，防止反复 source 累加重复 PATH |
+| `export GPG_TTY=$TTY` | 将 GPG pinentry 提示绑定至当前有效终端 |
 
 ## 第三段：推导仓库路径
 
@@ -81,9 +94,12 @@ if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
   alias zi='z -i'
 fi
+if command -v mise > /dev/null; then
+  _evalcache mise activate zsh
+fi
 ```
 
-`_evalcache` 来自 `mroth/evalcache` 插件，把 `init` 的输出缓存成文件，避免每次启动都执行子进程。这是启动速度的主要优化点之一。
+`_evalcache` 来自 `mroth/evalcache` 插件，把 `init` / `activate` 的输出缓存成文件，避免每次启动都执行子进程。这是启动速度的主要优化点之一。支持 Atuin 历史检索、zoxide 目录跳转与 mise 多语言环境。
 
 ## 第六段：编辑器与别名
 
@@ -147,9 +163,16 @@ setopt HIST_REDUCE_BLANKS
 setopt HIST_VERIFY
 setopt INC_APPEND_HISTORY
 setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_MINUS
+setopt INTERACTIVE_COMMENTS
+
+typeset -U path fpath
+export GPG_TTY=$TTY
 ```
 
-| Option | Effect |
+| Option / Setting | Effect |
 |---|---|
 | `SHARE_HISTORY` | Multiple terminals share one history and see each other's entries immediately |
 | `HIST_IGNORE_ALL_DUPS` | Only one copy of a duplicated command is kept |
@@ -157,6 +180,12 @@ setopt AUTO_CD
 | `HIST_VERIFY` | History expansion (`!!`) is shown before it executes |
 | `INC_APPEND_HISTORY` | Each command is written to disk immediately, not on exit |
 | `AUTO_CD` | Typing a directory name directly changes into it |
+| `AUTO_PUSHD` | Automatically records visited directories onto the directory stack |
+| `PUSHD_IGNORE_DUPS` | Avoids duplicate entries in the directory stack |
+| `PUSHD_MINUS` | Inverts `+` and `-` meanings when navigating with `cd -N` |
+| `INTERACTIVE_COMMENTS` | Allows pasting or executing commands containing `#` comments in interactive shells |
+| `typeset -U path fpath` | Keeps array entries unique to prevent duplicate PATH accumulation across re-sourcing |
+| `export GPG_TTY=$TTY` | Binds GPG pinentry prompts to the current interactive terminal |
 
 ## Section 3: deriving the repo path
 
@@ -201,9 +230,12 @@ if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
   alias zi='z -i'
 fi
+if command -v mise > /dev/null; then
+  _evalcache mise activate zsh
+fi
 ```
 
-`_evalcache` comes from the `mroth/evalcache` plugin; it caches the output of `init` into a file, avoiding a subprocess on every startup. This is one of the main startup-speed optimizations.
+`_evalcache` comes from the `mroth/evalcache` plugin; it caches the output of `init` and `activate` into a file, avoiding subprocess spawns on every shell startup. This accelerates shell startup across Atuin history, zoxide directory navigation, and mise environment switching.
 
 ## Section 6: editor and aliases
 
@@ -267,9 +299,16 @@ setopt HIST_REDUCE_BLANKS
 setopt HIST_VERIFY
 setopt INC_APPEND_HISTORY
 setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_MINUS
+setopt INTERACTIVE_COMMENTS
+
+typeset -U path fpath
+export GPG_TTY=$TTY
 ```
 
-| オプション | 効果 |
+| オプション / 設定 | 効果 |
 |---|---|
 | `SHARE_HISTORY` | 複数ターミナルが同じ履歴を共有し、すぐに互いに見える |
 | `HIST_IGNORE_ALL_DUPS` | 重複コマンドは 1 件だけ残す |
@@ -277,6 +316,12 @@ setopt AUTO_CD
 | `HIST_VERIFY` | 履歴展開（`!!`）は実行前に表示 |
 | `INC_APPEND_HISTORY` | 各コマンドを終了時ではなく即座にディスクに書き込む |
 | `AUTO_CD` | ディレクトリ名の直接入力で移動 |
+| `AUTO_PUSHD` | cd で移動したパスを自動的にディレクトリスタックへ記録 |
+| `PUSHD_IGNORE_DUPS` | ディレクトリスタックに重複を保存しない |
+| `PUSHD_MINUS` | `cd -N` での `+` と `-` のインデックス方向を反転 |
+| `INTERACTIVE_COMMENTS` | 対話型ターミナルで `#` を含むコメントの貼り付け・入力を許可 |
+| `typeset -U path fpath` | パス配列の重複を除去し、再 source による PATH 重複蓄積を防止 |
+| `export GPG_TTY=$TTY` | GPG pinentry プロンプトを現在の対話ターミナルにバインド |
 
 ## 第 3 段：リポジトリパスの導出
 
@@ -321,9 +366,12 @@ if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
   alias zi='z -i'
 fi
+if command -v mise > /dev/null; then
+  _evalcache mise activate zsh
+fi
 ```
 
-`_evalcache` は `mroth/evalcache` プラグイン由来で、`init` の出力をファイルにキャッシュし、起動のたびにサブプロセスを実行するのを避けます。起動速度の主要な最適化ポイントの一つです。
+`_evalcache` は `mroth/evalcache` プラグイン由来で、`init` や `activate` の出力をファイルにキャッシュし、起動のたびにサブプロセスを実行するのを避けます。起動速度の主要な最適化ポイントの一つで、Atuin 履歴・zoxide ディレクトリ移動・mise ツールチェーン管理を高速化します。
 
 ## 第 6 段：エディタとエイリアス
 
