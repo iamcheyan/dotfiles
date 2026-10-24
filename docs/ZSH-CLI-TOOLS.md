@@ -10,17 +10,19 @@
 bash init.sh
 ```
 
-navi 和 Pet 作为 CLI 工具由 `plugins/tools/tools.zsh` 中的 Zinit 配置管理；forgit 由 `plugins/zsh-plugins.zsh` 加载。首次启动 Zsh 时，Zinit 会下载尚未安装的工具和插件。随后重新启动 shell：
+navi 由 `init.sh` 按平台安装：macOS 使用 Homebrew，Linux 根据 CPU 架构下载对应的上游 release。Zinit 配置也保留相同平台的 navi 下载；Pet 由 Zinit 管理，forgit 由 `plugins/zsh-plugins.zsh` 加载。
 
 ```bash
 exec zsh
 ```
 
-工具都是可选的。shell 配置仅在检测到对应命令时执行集成，因此某个工具安装失败不会影响 Zsh 启动。手动检查：
+Zinit 管理的工具都是可选的；shell 配置仅在检测到对应命令时执行集成。手动检查：
 
 ```bash
 command -v fzf navi pet
 ```
+
+macOS 上如果尚未安装 navi，运行 `brew install navi`。`init.sh` 也会通过 Homebrew 安装 navi。
 
 forgit 需要 Git、fzf 0.60.0 或更新版本。`init.sh` 会安装 fzf；如果系统仓库提供的版本过旧，请按 [fzf 官方安装说明](https://github.com/junegunn/fzf#installation)升级。
 
@@ -35,7 +37,7 @@ zinit update
 | 工具 | 主要用途 | 入口 |
 | --- | --- | --- |
 | [forgit](https://github.com/wfxr/forgit) | 用 fzf 交互选择 Git 对象并执行 Git 操作 | `ga`、`glo`、`gcb` 等 |
-| [navi](https://github.com/denisidoro/navi) | 搜索、填充并运行 cheatsheet 命令 | `navi` 和其 Zsh widget |
+| [navi](https://github.com/denisidoro/navi) | 搜索、填充并运行 cheatsheet 命令 | `navi` 和其 Zsh widget（Linux 由 Zinit 下载，macOS 由 Homebrew 安装） |
 | [Pet](https://github.com/knqyf263/pet) | 保存、搜索和复用命令片段 | `pet`、`Ctrl+X` 后 `Ctrl+R` |
 
 ## 长命令编辑
@@ -135,4 +137,4 @@ zinit list
 command -v navi pet
 ```
 
-如果 shell 启动报错，可临时注释 `plugins/zsh-plugins.zsh` 中对应工具 hook，或确认该可执行文件能运行其初始化子命令（例如 `navi widget zsh`）。所有 hook 都有 `command -v` 检查；工具尚未安装时会被跳过。
+如果 shell 启动报错，可确认对应工具能运行其初始化子命令（例如 `navi widget zsh`）。工具存在但无法运行或初始化失败时，hook 会跳过该集成，不影响 Zsh 启动。

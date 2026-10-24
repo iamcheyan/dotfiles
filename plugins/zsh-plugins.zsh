@@ -92,7 +92,10 @@ zsh_plugins_load_main() {
 # 可选 CLI 工具的 shell 集成。工具缺失时跳过，保持最小环境可启动。
 zsh_plugins_load_shell_tools() {
   if command -v navi >/dev/null 2>&1; then
-    eval "$(navi widget zsh)"
+    local navi_widget
+    if navi_widget="$(navi widget zsh 2>/dev/null)"; then
+      eval "$navi_widget"
+    fi
   fi
 
 

@@ -19,8 +19,23 @@ zi_cmd muesli/duf duf
 
 # Git / 开发
 zi_cmd jesseduffield/lazygit lazygit
-# Navi and Pet CLI binaries.
-zi_cmd denisidoro/navi navi
+# Navi's upstream release currently ships Linux/Windows binaries only. Use Homebrew on macOS.
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  if ! command -v navi >/dev/null 2>&1 && command -v brew >/dev/null 2>&1; then
+    brew install navi >/dev/null 2>&1
+  fi
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  case "$(uname -m)" in
+    x86_64)
+      zinit ice as"command" from"gh-r" bpick"*x86_64-unknown-linux-musl.tar.gz" pick"navi"
+      zinit light denisidoro/navi
+      ;;
+    aarch64|arm64)
+      zinit ice as"command" from"gh-r" bpick"*aarch64-unknown-linux-gnu.tar.gz" pick"navi"
+      zinit light denisidoro/navi
+      ;;
+  esac
+fi
 zi_cmd knqyf263/pet pet
 zi_cmd cli/cli gh
 if [[ "$OSTYPE" == "darwin"* ]]; then
