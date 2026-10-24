@@ -45,7 +45,7 @@ map ec compress
 |---|---|
 | `preview_images true` | 预览区显示图片（需终端支持） |
 | `draw_borders both` | 三栏都画边框 |
-| `colorscheme blue` | 蓝底下使用黄字、青色目录和青色选区 |
+| `colorscheme blue` | 普通文件和可执行文件使用绿色，目录和选区使用青色 |
 | `default_linemode devicons` | 用 devicons 图标模式 |
 | `show_hidden true` | 默认显示隐藏文件 |
 | `preview_files true` | 预览区显示文件内容 |
@@ -218,7 +218,7 @@ map ec compress
 |---|---|
 | `preview_images true` | Show images in the preview pane (requires terminal support) |
 | `draw_borders both` | Draw borders around all three columns |
-| `colorscheme blue` | Use yellow text on a blue background, with cyan directories and selections |
+| `colorscheme blue` | Use green for regular and executable files, with cyan directories and selections |
 | `default_linemode devicons` | Use devicons icon mode |
 | `show_hidden true` | Show hidden files by default |
 | `preview_files true` | Show file contents in the preview pane |
@@ -391,7 +391,7 @@ map ec compress
 |---|---|
 | `preview_images true` | プレビュー欄に画像を表示します（端末の対応が必要です） |
 | `draw_borders both` | 3 列すべてに境界線を表示します |
-| `colorscheme blue` | 青い背景に黄色の文字を使い、ディレクトリと選択項目をシアンで表示します |
+| `colorscheme blue` | 通常ファイルと実行ファイルを緑、ディレクトリと選択項目をシアンで表示します |
 | `default_linemode devicons` | devicons アイコンモードを使います |
 | `show_hidden true` | 既定で隠しファイルを表示します |
 | `preview_files true` | プレビュー欄にファイル内容を表示します |

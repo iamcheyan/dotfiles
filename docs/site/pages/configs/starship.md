@@ -40,7 +40,7 @@ right_format = """$status$cmd_duration$jobs"""
 [hostname]
 ssh_only = true
 format = "[$hostname@ssh]($style) "
-style = "bold red"
+style = "bold #ff5555"
 disabled = false
 ```
 
@@ -52,7 +52,7 @@ disabled = false
 [directory]
 truncation_length = 3
 truncate_to_repo = true
-style = "bold #ffff55"
+style = "bold #50fa7b"
 ```
 
 | 键 | 效果 |
@@ -76,24 +76,24 @@ style = "bold #55ffff"
 
 ```toml
 [git_status]
-style = "bold #ffff55"
+style = "bold #50fa7b"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-staged = "[+${count}](bold #00ff00)"
-modified = "[~${count}](bold #ffff00)"
+staged = "[+${count}](bold #50fa7b)"
+modified = "[~${count}](bold #50fa7b)"
 untracked = "[?${count}](bold #ff5555)"
 deleted = "[-${count}](bold #ff5555)"
-stashed = "[*${count}](bold #55ffff)"
+stashed = "[*${count}](bold #7aa2f7)"
 ```
 
 | 符号 | 含义 | 颜色 |
 |---|---|---|
 | `+N` | 已暂存 N 个文件 | 绿 |
-| `~N` | 已修改 N 个文件 | 黄 |
+| `~N` | 已修改 N 个文件 | 绿 |
 | `?N` | 未跟踪 N 个文件 | 红 |
 | `-N` | 已删除 N 个文件 | 红 |
-| `*N` | N 个 stash | 青 |
+| `*N` | N 个 stash | 蓝 |
 | `⇡N` | 领先远端 N 个提交 | — |
 | `⇣N` | 落后远端 N 个提交 | — |
 
@@ -102,14 +102,14 @@ stashed = "[*${count}](bold #55ffff)"
 ```toml
 [python]
 symbol = " "
-format = '[$symbol(${version} )(\($virtualenv\) )](bold yellow)'
+format = '[$symbol(${version} )(\($virtualenv\) )](bold #ffff55)'
 detect_files = ["requirements.txt", "pyproject.toml", "setup.py", ".python-version", "Pipfile"]
 detect_folders = [".venv", "venv"]
 
 [nodejs]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold #00ff00"
+style = "bold #50fa7b"
 
 [rust]
 symbol = " "
@@ -124,7 +124,7 @@ style = "bold #55ffff"
 [java]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold #5555ff"
+style = "bold #7aa2f7"
 ```
 
 Python 的 `format` 里 `\($virtualenv\)` 会在激活虚拟环境时显示环境名。
@@ -135,7 +135,7 @@ Python 的 `format` 里 `\($virtualenv\)` 会在激活虚拟环境时显示环�
 [docker_context]
 symbol = " "
 format = "[$symbol$context]($style) "
-style = "bold #55ffff"
+style = "bold #7aa2f7"
 
 [kubernetes]
 symbol = "󱃾 "
@@ -146,13 +146,13 @@ disabled = false
 [aws]
 symbol = " "
 format = '[$symbol($profile )(\\($region\\) )]($style)'
-style = "bold yellow"
+style = "bold #ffff55"
 disabled = false
 
 [terraform]
 symbol = "󱁢 "
 format = "[$symbol$workspace]($style) "
-style = "bold #ff00ff"
+style = "bold #bd93f9"
 ```
 
 四个都显式 `disabled = false`，只要检测到对应配置就显示。不用这些工具时可以改成 `true` 减少提示符宽度。
@@ -163,7 +163,7 @@ style = "bold #ff00ff"
 [package]
 symbol = "󰏗 "
 format = "[$symbol$version]($style) "
-style = "bold #ffff00"
+style = "bold #ffb86c"
 
 [time]
 disabled = false
@@ -180,15 +180,15 @@ style = "#ffffff"
 [status]
 disabled = false
 symbol = " "
-style = "bold red"
+style = "bold #ff5555"
 
 [cmd_duration]
 min_time = 2_000
-format = "[$duration](bold yellow) "
+format = "[$duration](bold #ffff55) "
 
 [jobs]
 symbol = "󰒋 "
-style = "bold #55ffff"
+style = "bold #7aa2f7"
 ```
 
 | 模块 | 触发 |
@@ -201,9 +201,9 @@ style = "bold #55ffff"
 
 ```toml
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❯](bold yellow)"
+success_symbol = "[❯](bold #50fa7b)"
+error_symbol = "[❯](bold #ff5555)"
+vimcmd_symbol = "[❯](bold #ffff55)"
 ```
 
 `vimcmd_symbol` 在 vi 模式下的命令行模式显示黄色 `❯`。
@@ -226,7 +226,7 @@ disabled = true
 
 **时间不需要**：`[time] disabled = true`。
 
-**想改配色**：所有 `style` 都接受颜色名（`bold red`）或十六进制（例如主题黄 `bold #ffff55`）。
+**想改配色**：所有 `style` 都接受颜色名（如 `bold red`）或十六进制（例如主题黄 `bold #ffff55`）。
 
 ## 验证
 
@@ -291,7 +291,7 @@ Path, branch, and Git status colors follow the yellow, cyan, green, and red pale
 [hostname]
 ssh_only = true
 format = "[$hostname@ssh]($style) "
-style = "bold red"
+style = "bold #ff5555"
 disabled = false
 ```
 
@@ -303,7 +303,7 @@ Shown only in SSH sessions; red indicates “you are on a remote host.”
 [directory]
 truncation_length = 3
 truncate_to_repo = true
-style = "bold #ffff55"
+style = "bold #50fa7b"
 ```
 
 | Key | Effect |
@@ -327,24 +327,24 @@ style = "bold #55ffff"
 
 ```toml
 [git_status]
-style = "bold #ffff55"
+style = "bold #50fa7b"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-staged = "[+${count}](bold #00ff00)"
-modified = "[~${count}](bold #ffff00)"
+staged = "[+${count}](bold #50fa7b)"
+modified = "[~${count}](bold #50fa7b)"
 untracked = "[?${count}](bold #ff5555)"
 deleted = "[-${count}](bold #ff5555)"
-stashed = "[*${count}](bold #55ffff)"
+stashed = "[*${count}](bold #7aa2f7)"
 ```
 
 | Symbol | Meaning | Color |
 |---|---|---|
 | `+N` | N files staged | Green |
-| `~N` | N files modified | Yellow |
+| `~N` | N files modified | Green |
 | `?N` | N untracked files | Red |
 | `-N` | N files deleted | Red |
-| `*N` | N stashes | Cyan |
+| `*N` | N stashes | Blue |
 | `⇡N` | N commits ahead of the remote | — |
 | `⇣N` | N commits behind the remote | — |
 
@@ -353,14 +353,14 @@ stashed = "[*${count}](bold #55ffff)"
 ```toml
 [python]
 symbol = " "
-format = '[$symbol(${version} )(\($virtualenv\) )](bold yellow)'
+format = '[$symbol(${version} )(\($virtualenv\) )](bold #ffff55)'
 detect_files = ["requirements.txt", "pyproject.toml", "setup.py", ".python-version", "Pipfile"]
 detect_folders = [".venv", "venv"]
 
 [nodejs]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold #00ff00"
+style = "bold #50fa7b"
 
 [rust]
 symbol = " "
@@ -375,7 +375,7 @@ style = "bold #55ffff"
 [java]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold #5555ff"
+style = "bold #7aa2f7"
 ```
 
 In Python's `format`, `\($virtualenv\)` displays the environment name when a virtual environment is active.
@@ -386,7 +386,7 @@ In Python's `format`, `\($virtualenv\)` displays the environment name when a vir
 [docker_context]
 symbol = " "
 format = "[$symbol$context]($style) "
-style = "bold #55ffff"
+style = "bold #7aa2f7"
 
 [kubernetes]
 symbol = "󱃾 "
@@ -397,13 +397,13 @@ disabled = false
 [aws]
 symbol = " "
 format = '[$symbol($profile )(\\($region\\) )]($style)'
-style = "bold yellow"
+style = "bold #ffff55"
 disabled = false
 
 [terraform]
 symbol = "󱁢 "
 format = "[$symbol$workspace]($style) "
-style = "bold #ff00ff"
+style = "bold #bd93f9"
 ```
 
 All four explicitly set `disabled = false`, so they appear when their corresponding configuration is detected. Set this to `true` for tools you do not use to reduce prompt width.
@@ -414,7 +414,7 @@ All four explicitly set `disabled = false`, so they appear when their correspond
 [package]
 symbol = "󰏗 "
 format = "[$symbol$version]($style) "
-style = "bold #ffff00"
+style = "bold #ffb86c"
 
 [time]
 disabled = false
@@ -431,15 +431,15 @@ style = "#ffffff"
 [status]
 disabled = false
 symbol = " "
-style = "bold red"
+style = "bold #ff5555"
 
 [cmd_duration]
 min_time = 2_000
-format = "[$duration](bold yellow) "
+format = "[$duration](bold #ffff55) "
 
 [jobs]
 symbol = "󰒋 "
-style = "bold #55ffff"
+style = "bold #7aa2f7"
 ```
 
 | Module | Trigger |
@@ -452,9 +452,9 @@ style = "bold #55ffff"
 
 ```toml
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❯](bold yellow)"
+success_symbol = "[❯](bold #50fa7b)"
+error_symbol = "[❯](bold #ff5555)"
+vimcmd_symbol = "[❯](bold #ffff55)"
 ```
 
 `vimcmd_symbol` displays a yellow `❯` for command-line mode in vi mode.
@@ -477,7 +477,7 @@ disabled = true
 
 **Do not need the time**: Set `[time] disabled = true`.
 
-**Want to change the colors**: Every `style` accepts color names (`bold red`) or hex values (for example, theme yellow `bold #ffff55`).
+**Want to change the colors**: Every `style` accepts color names (such as `bold red`) or hex values (for example, theme yellow `bold #ffff55`).
 
 ## Verification
 
@@ -542,7 +542,7 @@ right_format = """$status$cmd_duration$jobs"""
 [hostname]
 ssh_only = true
 format = "[$hostname@ssh]($style) "
-style = "bold red"
+style = "bold #ff5555"
 disabled = false
 ```
 
@@ -554,7 +554,7 @@ SSH セッションでのみ表示し、赤色で「リモートに接続中」�
 [directory]
 truncation_length = 3
 truncate_to_repo = true
-style = "bold #ffff55"
+style = "bold #50fa7b"
 ```
 
 | キー | 効果 |
@@ -578,24 +578,24 @@ style = "bold #55ffff"
 
 ```toml
 [git_status]
-style = "bold #ffff55"
+style = "bold #50fa7b"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-staged = "[+${count}](bold #00ff00)"
-modified = "[~${count}](bold #ffff00)"
+staged = "[+${count}](bold #50fa7b)"
+modified = "[~${count}](bold #50fa7b)"
 untracked = "[?${count}](bold #ff5555)"
 deleted = "[-${count}](bold #ff5555)"
-stashed = "[*${count}](bold #55ffff)"
+stashed = "[*${count}](bold #7aa2f7)"
 ```
 
 | 記号 | 意味 | 色 |
 |---|---|---|
 | `+N` | N 個のファイルをステージ済み | 緑 |
-| `~N` | N 個のファイルを変更済み | 黄 |
+| `~N` | N 個のファイルを変更済み | 緑 |
 | `?N` | N 個の未追跡ファイル | 赤 |
 | `-N` | N 個の削除済みファイル | 赤 |
-| `*N` | N 個の stash | シアン |
+| `*N` | N 個の stash | 青 |
 | `⇡N` | リモートより N コミット先行 | — |
 | `⇣N` | リモートより N コミット遅れ | — |
 
@@ -604,14 +604,14 @@ stashed = "[*${count}](bold #55ffff)"
 ```toml
 [python]
 symbol = " "
-format = '[$symbol(${version} )(\($virtualenv\) )](bold yellow)'
+format = '[$symbol(${version} )(\($virtualenv\) )](bold #ffff55)'
 detect_files = ["requirements.txt", "pyproject.toml", "setup.py", ".python-version", "Pipfile"]
 detect_folders = [".venv", "venv"]
 
 [nodejs]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold #00ff00"
+style = "bold #50fa7b"
 
 [rust]
 symbol = " "
@@ -626,7 +626,7 @@ style = "bold #55ffff"
 [java]
 symbol = " "
 format = "[$symbol($version )]($style)"
-style = "bold #5555ff"
+style = "bold #7aa2f7"
 ```
 
 Python の `format` にある `\($virtualenv\)` は、仮想環境が有効なときに環境名を表示します。
@@ -637,7 +637,7 @@ Python の `format` にある `\($virtualenv\)` は、仮想環境が有効な�
 [docker_context]
 symbol = " "
 format = "[$symbol$context]($style) "
-style = "bold #55ffff"
+style = "bold #7aa2f7"
 
 [kubernetes]
 symbol = "󱃾 "
@@ -648,13 +648,13 @@ disabled = false
 [aws]
 symbol = " "
 format = '[$symbol($profile )(\\($region\\) )]($style)'
-style = "bold yellow"
+style = "bold #ffff55"
 disabled = false
 
 [terraform]
 symbol = "󱁢 "
 format = "[$symbol$workspace]($style) "
-style = "bold #ff00ff"
+style = "bold #bd93f9"
 ```
 
 4 つとも `disabled = false` を明示しているため、対応する設定が検出されると表示します。使わないツールは `true` にすると、プロンプトの幅を抑えられます。
@@ -665,7 +665,7 @@ style = "bold #ff00ff"
 [package]
 symbol = "󰏗 "
 format = "[$symbol$version]($style) "
-style = "bold #ffff00"
+style = "bold #ffb86c"
 
 [time]
 disabled = false
@@ -682,15 +682,15 @@ style = "#ffffff"
 [status]
 disabled = false
 symbol = " "
-style = "bold red"
+style = "bold #ff5555"
 
 [cmd_duration]
 min_time = 2_000
-format = "[$duration](bold yellow) "
+format = "[$duration](bold #ffff55) "
 
 [jobs]
 symbol = "󰒋 "
-style = "bold #55ffff"
+style = "bold #7aa2f7"
 ```
 
 | モジュール | 表示条件 |
@@ -703,9 +703,9 @@ style = "bold #55ffff"
 
 ```toml
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❯](bold yellow)"
+success_symbol = "[❯](bold #50fa7b)"
+error_symbol = "[❯](bold #ff5555)"
+vimcmd_symbol = "[❯](bold #ffff55)"
 ```
 
 vi モードのコマンドラインモードでは、`vimcmd_symbol` が黄色の `❯` を表示します。
@@ -728,7 +728,7 @@ disabled = true
 
 **時刻表示が不要です**：`[time] disabled = true` にします。
 
-**配色を変更したい場合**：各 `style` には色名（`bold red`）または 16 進数（例：テーマの黄色 `bold #ffff55`）を指定できます。
+**配色を変更したい場合**：各 `style` には色名（例：`bold red`）または 16 進数（例：テーマの黄色 `bold #ffff55`）を指定できます。
 
 ## 確認
 

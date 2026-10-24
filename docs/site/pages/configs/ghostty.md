@@ -52,8 +52,8 @@ palette = 3=#aaaa00
 palette = 4=#0000aa
 palette = 5=#aa00aa
 palette = 6=#00aaaa
-palette = 7=#aaaaaa
-palette = 8=#555555
+palette = 7=#a3be8c
+palette = 8=#5f7f5f
 palette = 9=#ff5555
 palette = 10=#00ff00
 palette = 11=#ffff55
@@ -72,10 +72,11 @@ palette = 15=#ffffff
 | 4 | 蓝 | `#0000aa` |
 | 5 | 品红 | `#aa00aa` |
 | 6 | 青 | `#00aaaa` |
-| 7 | 灰白 | `#aaaaaa` |
-| 8–15 | 亮色版本 | 红、绿、黄、蓝、品红、青、白的亮色变体 |
+| 7 | 浅绿 | `#a3be8c` |
+| 8 | 暗绿 | `#5f7f5f` |
+| 9–15 | 亮色版本 | 红、绿、黄、蓝、品红、青、白的亮色变体 |
 
-8–15 是 0–7 的明亮版本，程序用它们表示「加粗」或「高亮」。
+8 是柔和绿，用作原本的亮黑／灰色槽；9–15 是红、绿、黄、蓝、品红、青、白的亮色版本。
 
 ## 剪贴板
 
@@ -212,8 +213,8 @@ palette = 3=#aaaa00
 palette = 4=#0000aa
 palette = 5=#aa00aa
 palette = 6=#00aaaa
-palette = 7=#aaaaaa
-palette = 8=#555555
+palette = 7=#a3be8c
+palette = 8=#5f7f5f
 palette = 9=#ff5555
 palette = 10=#00ff00
 palette = 11=#ffff55
@@ -232,10 +233,11 @@ palette = 15=#ffffff
 | 4 | Blue | `#0000aa` |
 | 5 | Magenta | `#aa00aa` |
 | 6 | Cyan | `#00aaaa` |
-| 7 | Grayish white | `#aaaaaa` |
-| 8–15 | Bright variants | Bright variants of red, green, yellow, blue, magenta, cyan, and white |
+| 7 | Light green | `#a3be8c` |
+| 8 | Muted green | `#5f7f5f` |
+| 9–15 | Bright variants | Bright variants of red, green, yellow, blue, magenta, cyan, and white |
 
-8–15 are the bright versions of 0–7; programs use them for "bold" or "highlighted" text.
+8 is muted green in place of the usual bright black/gray slot; 9–15 are the bright red, green, yellow, blue, magenta, cyan, and white colors.
 
 ## Clipboard
 
@@ -372,8 +374,8 @@ palette = 3=#aaaa00
 palette = 4=#0000aa
 palette = 5=#aa00aa
 palette = 6=#00aaaa
-palette = 7=#aaaaaa
-palette = 8=#555555
+palette = 7=#a3be8c
+palette = 8=#5f7f5f
 palette = 9=#ff5555
 palette = 10=#00ff00
 palette = 11=#ffff55
@@ -392,10 +394,11 @@ palette = 15=#ffffff
 | 4 | 青 | `#0000aa` |
 | 5 | マゼンタ | `#aa00aa` |
 | 6 | シアン | `#00aaaa` |
-| 7 | 灰白 | `#aaaaaa` |
-| 8–15 | 明色版 | 赤・緑・黄・青・マゼンタ・シアン・白の明色バリエーション |
+| 7 | 淡い緑 | `#a3be8c` |
+| 8 | 落ち着いた緑 | `#5f7f5f` |
+| 9–15 | 明色版 | 赤・緑・黄・青・マゼンタ・シアン・白の明色バリエーション |
 
-8–15 は 0–7 の明るいバージョンで、プログラムは「太字」や「強調」を表すのに使います。
+8 は通常の明るい黒／グレーの代わりに落ち着いた緑にし、9–15 は赤・緑・黄・青・マゼンタ・シアン・白の明色にしています。
 
 ## クリップボード
 

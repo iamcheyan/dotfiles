@@ -23,7 +23,7 @@ update_check = false
 enter_accept = true
 
 [theme]
-name = "nostalgia-blue"
+name = "nostalgia-green"
 ```
 
 | 设置 | 值 | 原因 |
@@ -36,7 +36,7 @@ name = "nostalgia-blue"
 
 `enter_accept = true` 影响操作习惯：Enter 执行，Tab 才回到命令行编辑。
 
-`nostalgia-blue` 使用 Neovim Blue / Nostalgia 的黄、青、绿、红前景色，保留终端蓝色背景。主题颜色见 `config/atuin/themes/nostalgia-blue.toml`。
+`nostalgia-green` 以 Starship 主绿 `#50fa7b` 为基色，搭配青、黄、红等提示色；主题只改前景，不覆盖终端背景。主题颜色见 `config/atuin/themes/nostalgia-green.toml`。
 
 ## 被注释的选项
 
@@ -186,7 +186,7 @@ update_check = false
 enter_accept = true
 
 [theme]
-name = "nostalgia-blue"
+name = "nostalgia-green"
 ```
 
 | Setting | Value | Reason |
@@ -199,7 +199,7 @@ name = "nostalgia-blue"
 
 `enter_accept = true` affects habits: Enter executes, and only Tab returns to command-line editing.
 
-`nostalgia-blue` uses the yellow, cyan, green, and red foreground colors of Neovim Blue / Nostalgia while keeping the terminal's blue background. The theme colors are in `config/atuin/themes/nostalgia-blue.toml`.
+`nostalgia-green` uses Starship's primary green `#50fa7b`, with cyan, yellow, and red accents. It changes foreground colors only and keeps the terminal background. See `config/atuin/themes/nostalgia-green.toml` for the palette.
 
 ## Commented-Out Options
 
@@ -349,7 +349,7 @@ update_check = false
 enter_accept = true
 
 [theme]
-name = "nostalgia-blue"
+name = "nostalgia-green"
 ```
 
 | 設定 | 値 | 理由 |
@@ -362,7 +362,7 @@ name = "nostalgia-blue"
 
 `enter_accept = true` は操作習慣に影響します。Enter で実行し、Tab を押したときだけコマンドライン編集に戻ります。
 
-`nostalgia-blue` は Neovim Blue / Nostalgia の黄・シアン・緑・赤の前景色を使い、端末の青い背景を保ちます。テーマの色は `config/atuin/themes/nostalgia-blue.toml` を参照してください。
+`nostalgia-green` は Starship の基調色 `#50fa7b` にシアン・黄・赤を合わせたテーマです。前景色のみを変更し、端末の背景は維持します。配色は `config/atuin/themes/nostalgia-green.toml` を参照してください。
 
 ## コメントアウトされているオプション
 

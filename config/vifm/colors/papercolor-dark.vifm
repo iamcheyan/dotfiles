@@ -8,11 +8,11 @@ highlight OtherWin     cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guib
 highlight AuxWin       cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
 highlight Border       cterm=none       ctermfg=14 ctermbg=19 guifg=#55ffff guibg=#0000aa
 
-" Pane headers: muted blue for the other pane, gray for the active pane.
+" Pane headers: muted blue for the other pane, green for the active pane.
 highlight TopLine      cterm=none       ctermfg=11 ctermbg=18 guifg=#ffff55 guibg=#000080
-highlight TopLineSel   cterm=bold       ctermfg=0  ctermbg=249 guifg=#000000 guibg=#aaaaaa
+highlight TopLineSel   cterm=bold       ctermfg=0  ctermbg=2   guifg=#000000 guibg=#00aa00
 highlight TabLine      cterm=none       ctermfg=11 ctermbg=18 guifg=#ffff55 guibg=#000080
-highlight TabLineSel   cterm=bold       ctermfg=0  ctermbg=249 guifg=#000000 guibg=#aaaaaa
+highlight TabLineSel   cterm=bold       ctermfg=0  ctermbg=2   guifg=#000000 guibg=#00aa00
 
 " Status and command areas follow Neovim's teal/green status surfaces.
 highlight CmdLine      cterm=none       ctermfg=11 ctermbg=19 guifg=#ffff55 guibg=#0000aa
@@ -21,7 +21,7 @@ highlight StatusLine   cterm=bold       ctermfg=0  ctermbg=37 guifg=#000000 guib
 highlight JobLine      cterm=bold       ctermfg=15 ctermbg=2  guifg=#ffffff guibg=#00aa00
 highlight SuggestBox   cterm=bold       ctermfg=15 ctermbg=2  guifg=#ffffff guibg=#00aa00
 highlight WildBox      cterm=bold       ctermfg=15 ctermbg=2  guifg=#ffffff guibg=#00aa00
-highlight WildMenu     cterm=bold       ctermfg=0  ctermbg=249 guifg=#000000 guibg=#aaaaaa
+highlight WildMenu     cterm=bold       ctermfg=0  ctermbg=2   guifg=#000000 guibg=#00aa00
 
 " Cursor, selection, and line numbers mirror Neovim's Blue accents.
 highlight CurrLine     cterm=bold       ctermfg=14 ctermbg=18 guifg=#55ffff guibg=#000080

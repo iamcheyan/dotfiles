@@ -1,0 +1,13 @@
+[theme]
+name = "nostalgia-green"
+
+[colors]
+AlertInfo = "#55ffff"
+AlertWarn = "#ffff55"
+AlertError = "#ff5555"
+Annotation = "#a3be8c"
+Base = "#50fa7b"
+Guidance = "#55ffff"
+Important = "#50fa7b"
+Title = "#50fa7b"
+Muted = "#789978"
