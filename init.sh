@@ -830,9 +830,19 @@ detect_dotfiles_dir() {
 
 # Install Neovim
 install_neovim() {
-    local nvim_init="${DOTFILES_DIR:-$HOME/dotfiles}/config/nvim/init.sh"
+    local nvim_source="${DOTFILES_DIR:-$HOME/dotfiles}/config/nvim"
+    if [[ -f "$HOME/nvim/init.sh" && -f "$HOME/nvim/init.lua" ]]; then
+        local nvim_remote
+        nvim_remote=$(git -C "$HOME/nvim" remote get-url origin 2>/dev/null || true)
+        if [[ "$nvim_remote" =~ (^|[:/])iamcheyan/nvim(\.git)?$ ]]; then
+            nvim_source="$HOME/nvim"
+            print_info "Neovim: using maintainer workspace at $nvim_source"
+        fi
+    fi
+
+    local nvim_init="$nvim_source/init.sh"
     if [[ ! -f "$nvim_init" ]]; then
-        print_error "Neovim submodule is missing; initialize submodules first."
+        print_error "Neovim installer is missing ($nvim_init); initialize submodules first."
         return 1
     fi
     # Share the standalone installer's dependency/version checks and linking.

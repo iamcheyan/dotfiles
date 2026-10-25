@@ -96,7 +96,10 @@ def staged_files() -> dict[str, bytes]:
         if not raw:
             continue
         path = raw.decode("utf-8", "surrogateescape")
-        out[path] = git("show", f":{path}")
+        try:
+            out[path] = git("show", f":{path}")
+        except RuntimeError:
+            continue
     return out
 
 
@@ -121,7 +124,10 @@ def tip_files(sha: str) -> dict[str, bytes]:
         if not raw:
             continue
         path = raw.decode("utf-8", "surrogateescape")
-        out[path] = git("show", f"{sha}:{path}")
+        try:
+            out[path] = git("show", f"{sha}:{path}")
+        except RuntimeError:
+            continue
     return out
 
 
