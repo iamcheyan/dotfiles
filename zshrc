@@ -205,3 +205,10 @@ case ":$PATH:" in
   *) export PATH="$PATH:$HOME/.photon/bin" ;;
 esac
 # <<< Photon CLI <<<
+
+# The upstream env script leaves an existing PATH entry in place. Keep the
+# user-managed Atuin ahead of an older distro binary after all PATH setup.
+if [[ -x "$HOME/.atuin/bin/atuin" ]]; then
+    path=(${path:#"$HOME/.atuin/bin"})
+    path=("$HOME/.atuin/bin" $path)
+fi

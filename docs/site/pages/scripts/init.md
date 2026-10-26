@@ -11,7 +11,7 @@
 ```bash
 bash init.sh                # 完整
 bash init.sh --minimal      # 跳过字体、Neovim、大型额外组件
-bash init.sh --repair       # 额外修复 zinit 插件
+bash init.sh --repair       # 修复 zinit 插件和已知的 Atuin migration 错误
 ```
 
 ## 失败策略
@@ -79,7 +79,7 @@ if [[ "$REPAIR" == "true" ]]; then
 fi
 ```
 
-只在 `--repair` 时执行。检查已知易损插件目录（atuin、broot）是否完整，不完整则重新拉取。
+每次运行都会更新 Atuin：dpkg 安装先从配置的 apt 源升级；若版本仍低于 18.13.6，则用官方安装器安装到 `$HOME/.atuin/bin`。已有用户目录安装会运行 `atuin update`，新 shell 会优先使用该版本。其他安装方式尝试 `atuin update`。`--repair` 还会检查已知易损插件目录（atuin、broot），并检测 Atuin migration `20260224000100` 错误。若发现该错误，会把默认 `history.db` 移到带时间戳的备份文件，让 Atuin 下次启动时重建。自定义 `db_path` 不会自动移动。此操作只是恢复 shell 的应急措施；根治方式是升级到 Atuin 18.13.6 或更新版本，并让所有 shell 使用同一版本。
 
 ### Step 5：fnm
 
@@ -210,7 +210,7 @@ bash dotlink/dotlink link
 ```bash
 bash init.sh                # 完整
 bash init.sh --minimal      # 跳过字体、Neovim、大型额外组件
-bash init.sh --repair       # 额外修复 zinit 插件
+bash init.sh --repair       # Repair zinit plugins and the known Atuin migration error
 ```
 
 ## Failure Strategy
@@ -278,7 +278,7 @@ if [[ "$REPAIR" == "true" ]]; then
 fi
 ```
 
-Runs only with `--repair`. Checks whether known-fragile plugin directories (atuin, broot) are intact, and re-pulls them if not.
+Every run updates Atuin: dpkg installations are upgraded from configured apt repositories first; if the resulting version is older than 18.13.6, the official installer places a current build in `$HOME/.atuin/bin`. Existing user installs run `atuin update`, and new shells prefer that copy. Other installation methods attempt `atuin update`. With `--repair`, it also checks known-fragile plugins (atuin, broot) and detects the Atuin migration `20260224000100` error. If found, it moves the default `history.db` to a timestamped backup so Atuin can recreate it on next use. A custom `db_path` is left untouched. This is an emergency recovery; the durable fix is to upgrade to Atuin 18.13.6 or newer and use the same version in every shell.
 
 ### Step 5: fnm
 
@@ -409,7 +409,7 @@ There's no need to re-run `init.sh`.
 ```bash
 bash init.sh                # 完整
 bash init.sh --minimal      # 跳过字体、Neovim、大型额外组件
-bash init.sh --repair       # 额外修复 zinit 插件
+bash init.sh --repair       # zinit プラグインと既知の Atuin migration エラーを修復
 ```
 
 ## 失敗時の方針
@@ -477,7 +477,7 @@ if [[ "$REPAIR" == "true" ]]; then
 fi
 ```
 
-`--repair` を付けたときだけ実行します。壊れやすい既知のプラグインディレクトリ（atuin、broot）が完全か確認し、不完全なら取り直します。
+毎回 `atuin update` による Atuin の更新を試みます。システムのパッケージマネージャーでインストールされ、自動更新できない場合は、そのパッケージマネージャーで更新するよう表示します。`--repair` では既知の壊れやすいプラグイン（atuin、broot）を確認し、Atuin migration `20260224000100` エラーも検出します。エラーがあれば、既定の `history.db` を日時付きバックアップ名に移動し、次回 Atuin 起動時に再作成できるようにします。カスタム `db_path` は自動で移動しません。これは緊急復旧であり、根本修正には Atuin 18.13.6 以降へ更新し、全 shell で同じバージョンを使ってください。
 
 ### Step 5：fnm
 

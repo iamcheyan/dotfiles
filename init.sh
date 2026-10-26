@@ -2,7 +2,7 @@
 # dotfiles initialization script
 # Used for first-time setup after cloning the repository
 # Usage: bash init.sh
-# Usage: bash init.sh --repair   # Repair broken zinit plugins (e.g., atuin)
+# Usage: bash init.sh --repair   # Repair broken zinit plugins and Atuin database migration errors
 # Usage: bash init.sh --minimal  # Skip fonts, neovim and heavy extras (translate-shell, yt-dlp, jq, viu)
 
 set -e
@@ -277,6 +277,109 @@ repair_zinit_plugins() {
     fi
     
     # Add more plugin repairs here as needed
+}
+
+# Recover from the known Atuin migration mismatch after preserving the old database.
+# A newer Atuin release is the durable fix; this fallback lets the shell start again.
+update_atuin() {
+    if ! command_exists atuin; then
+        print_info "Atuin is not installed; skipping update"
+        return 0
+    fi
+
+    local user_atuin="$HOME/.atuin/bin/atuin"
+    local atuin_bin atuin_version version_number
+    atuin_bin=$(command -v atuin)
+
+    # Prefer the upstream-managed user install when present. It can update
+    # independently from an older distro package still installed in /usr/bin.
+    if [[ -x "$user_atuin" ]]; then
+        export PATH="$HOME/.atuin/bin:$PATH"
+        atuin_bin="$user_atuin"
+        if "$atuin_bin" update; then
+            print_success "Atuin update completed: $("$atuin_bin" --version 2>/dev/null || echo version unknown)"
+        else
+            print_warning "Atuin self-update failed; keeping the existing user installation."
+        fi
+        return 0
+    fi
+
+    if command_exists dpkg-query && dpkg-query -S "$atuin_bin" >/dev/null 2>&1; then
+        if command_exists sudo; then
+            print_info "Atuin is installed by dpkg; upgrading from configured apt repositories..."
+            if sudo apt-get install -y --only-upgrade atuin; then
+                print_success "Atuin package update completed: $(atuin --version 2>/dev/null || echo version unknown)"
+            else
+                print_warning "Atuin could not be upgraded from configured apt repositories."
+            fi
+        else
+            print_warning "Atuin is managed by apt; rerun with sudo access to update it."
+        fi
+
+        atuin_version=$(atuin --version 2>/dev/null || true)
+        version_number=$(printf '%s\n' "$atuin_version" | sed -nE 's/^atuin ([0-9]+\.[0-9]+\.[0-9]+).*/\1/p')
+        if [[ -z "$version_number" ]] || [[ "$(printf '%s\n' "$version_number" "18.13.6" | sort -V | head -n 1)" != "18.13.6" ]]; then
+            print_warning "The configured Debian repositories provide Atuin ${version_number:-an unknown version}, which may lack the required 18.13.6 migration support."
+            print_info "Installing the current upstream Atuin build into $HOME/.atuin/bin..."
+            if ! command_exists curl || ! curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --non-interactive; then
+                print_error "Could not install the upstream Atuin build; the old apt binary remains installed."
+                return 1
+            fi
+            if [[ -x "$user_atuin" ]]; then
+                export PATH="$HOME/.atuin/bin:$PATH"
+                print_success "Upstream Atuin installed: $("$user_atuin" --version 2>/dev/null || echo version unknown)"
+            else
+                print_error "Atuin installer completed without creating $user_atuin"
+                return 1
+            fi
+        fi
+        return 0
+    fi
+
+    print_info "Checking for an Atuin update..."
+    if atuin update; then
+        print_success "Atuin update completed: $(atuin --version 2>/dev/null || echo version unknown)"
+    else
+        print_warning "Atuin could not self-update; package-manager installations must be updated with their package manager."
+        print_info "Current binary: $(command -v atuin) ($(atuin --version 2>/dev/null || echo version unknown))"
+    fi
+}
+
+repair_atuin_migration() {
+    if ! command_exists atuin; then
+        print_info "Atuin is not installed; skipping migration check"
+        return 0
+    fi
+
+    local diagnostic atuin_version
+    # `history list` has no limit option in current Atuin releases; `history last`
+    # probes the database without dumping the user's full command history.
+    diagnostic=$(atuin history last 2>&1) || true
+    if [[ "$diagnostic" != *"migration 20260224000100 was previously applied but is missing in the resolved migrations"* ]]; then
+        print_success "Atuin migration check passed ($(atuin --version 2>/dev/null || echo version unknown))"
+        return 0
+    fi
+
+    atuin_version=$(atuin --version 2>/dev/null || echo "version unknown")
+    print_warning "Detected Atuin migration mismatch with $atuin_version"
+    print_info "Upgrade Atuin to 18.13.6 or newer for the durable fix; check 'type -a atuin' if multiple copies are installed."
+
+    local db_path="$HOME/.local/share/atuin/history.db"
+    if [[ ! -f "$db_path" ]]; then
+        print_error "Could not find the default Atuin database at $db_path; no data was changed."
+        print_info "Check 'atuin info' and the db_path setting, then back up and move that database manually."
+        return 1
+    fi
+
+    local backup_path="${db_path}.migration-backup-$(date +%Y%m%d-%H%M%S)"
+    if ! mv "$db_path" "$backup_path"; then
+        print_error "Could not back up the Atuin database; no repair was made."
+        return 1
+    fi
+
+    print_success "Moved the old Atuin database to $backup_path"
+    print_warning "Atuin will create a fresh history database on next use; old history remains in the backup."
+    print_info "Upgrade Atuin before restoring/importing the old database, or the migration error may return."
 }
 
 install_navi_linux() {
@@ -1250,10 +1353,16 @@ EOF
     run_step "zinit install" install_zinit
     echo ""
 
+    # Atuin is self-updated when its installation method supports it.
+    run_step "Atuin update" update_atuin
+    echo ""
+
     # 3.5 Repair broken zinit plugins (if --repair flag is passed)
     if [[ "$REPAIR" == "true" ]]; then
         print_info "Repair mode: Checking for broken zinit plugins..."
         run_step "zinit repair" repair_zinit_plugins
+        print_info "Repair mode: Checking for the known Atuin migration error..."
+        run_step "Atuin migration repair" repair_atuin_migration
         echo ""
     fi
 

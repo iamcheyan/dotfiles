@@ -147,6 +147,15 @@ atuin history list --format '{command}' > history.txt
 
 **`atuin doctor` 报数据库损坏**：备份后重建。`atuin info` 显示数据库路径，改名后重启 shell 会新建。
 
+**`migration 20260224000100 was previously applied but is missing`**：通常是当前运行的 Atuin 版本比曾经打开该数据库的版本旧（例如系统回滚，或 PATH 中选中了旧版）。先检查实际二进制和版本：
+
+```bash
+type -a atuin
+atuin --version
+```
+
+根治方式是升级/切换到包含该 migration 的新版 Atuin，并确保所有 shell 都使用同一个新版本；不要在数据库已被新版升级后回退到旧版。Atuin 18.13.6 及之后版本包含该 migration。若无法升级且需要先恢复 shell，可先备份后移走 `history.db`，再重开 shell让 Atuin 重建。此操作会让原历史暂时不可用，备份保留了恢复机会；不要删除整个 `~/.local/share/atuin` 目录。Atuin 的 shell hook 每条命令都会调用客户端，因此用配置开关自动删除数据库风险较高，本仓库不做无备份的自动重置。
+
 **历史没记录**：precmd hook 没安装。`atuin init zsh` 是否成功执行？`_evalcache` 的缓存文件可能过期，删掉缓存目录重试。
 
 **同步冲突**：多机同时写入时会有冲突。`atuin status` 查看状态，必要时 `atuin sync --force`。
@@ -302,6 +311,15 @@ atuin history list --format '{command}' > history.txt
 **Up-arrow behaves incorrectly**: the `zvm_bindkey viins '^[[A' atuin-up-search` in `zvm_after_init` did not take effect. Check whether zsh-vi-mode is loaded and whether that function is being called.
 
 **`atuin doctor` reports database corruption**: back up and rebuild. `atuin info` shows the database path; rename it and restart the shell to create a new one.
+
+**`migration 20260224000100 was previously applied but is missing`**: this usually means the running Atuin binary is older than the version that previously opened the database (for example, after a system rollback or when PATH selects an older copy). Check the selected binary and version first:
+
+```bash
+type -a atuin
+atuin --version
+```
+
+The durable fix is to upgrade or switch to an Atuin build that includes the migration and make sure every shell uses that same newer version; do not roll back after a newer version has migrated the database. Atuin 18.13.6 and later include this migration. If you cannot upgrade and need to restore the shell, back up and move `history.db`, then open a new shell so Atuin can recreate it. This makes the old history temporarily unavailable; keeping the backup gives you a way to recover it. Do not remove the entire `~/.local/share/atuin` directory. Atuin's shell hook invokes the client for every command, so this repository does not automatically reset the database without a backup.
 
 **History not recorded**: the precmd hook is not installed. Did `atuin init zsh` run successfully? The `_evalcache` cache file may be stale; delete the cache directory and retry.
 
