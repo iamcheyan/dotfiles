@@ -4,7 +4,7 @@
 
 ## 用途
 
-[harlequin](https://harlequin.sh) 是一个跑在终端里的 SQL IDE：左侧目录树（数据库对象、文件、S3 桶），中间 SQL 编辑器，下方结果查看器，全部在一个 TUI 里完成。它通过「适配器」插件连接不同数据库，本机安装了 `duckdb` 和 `sqlite` 两个适配器。
+[harlequin](https://harlequin.sh) 是一个跑在终端里的 SQL IDE：左侧目录树（数据库对象、文件、S3 桶），中间 SQL 编辑器，下方结果查看器，全部在一个 TUI 里完成。它通过「适配器」插件连接不同数据库，本机安装了 `duckdb` 和 `sqlite` 两个适配器。仓库初始化还会注入 PostgreSQL、MySQL 和 ODBC 适配器，分别用于 Aurora PostgreSQL、Aurora MySQL 和 Oracle Database。
 
 同一个 pipx 包还提供 `hsql`：不进 TUI，直接执行 SQL 并退出，输出表格/JSON/CSV 等格式。TUI 适合人来交互探索，`hsql` 适合脚本和 agent 调用。
 
@@ -27,7 +27,21 @@
 
 ```bash
 bash scripts/install/install_pipx_tool.sh harlequin harlequin
-harlequin --version    # harlequin, version 2.16.2，并列出已装适配器
+harlequin --version    # 显示版本与已装适配器
+```
+
+初始化时，仓库会在 Harlequin 的 pipx 环境中安装 `harlequin-postgres`、`harlequin-mysql` 和 `harlequin-odbc`。Oracle 连接需另外安装 unixODBC 与 Oracle ODBC 驱动；Aurora 连接需按引擎选择 PostgreSQL 或 MySQL 驱动。
+
+```bash
+# 如已有 Harlequin，可手动补装数据库适配器
+pipx inject harlequin harlequin-postgres harlequin-mysql harlequin-odbc
+
+# Oracle Database：ODBC 驱动名、服务名等以本机驱动配置为准
+harlequin -a odbc 'DSN=oracle-dsn;UID=user;PWD=***'
+
+# Amazon Aurora PostgreSQL / MySQL
+harlequin -a postgres 'postgres://user:***@cluster.example:5432/dbname'
+harlequin -a mysql 'mysql://user:***@cluster.example:3306/dbname'
 ```
 
 ## 基本用法
@@ -105,7 +119,7 @@ hsql data.duckdb -c "SELECT 1" --timeout 5           # 5 秒后取消并以退�
 
 ## 排错
 
-**`harlequin -a mysql` 之类的适配器报错**：适配器是独立插件，本机只装了 duckdb 和 sqlite（`harlequin --version` 可确认）。要别的数据库需按上游文档 pipx 注入对应插件。
+**`harlequin -a mysql` 之类的适配器报错**：适配器是独立插件，确认对应的 Harlequin 适配器已安装；Oracle 还需系统 unixODBC 与 Oracle ODBC 驱动。
 
 **查询很慢、结果卡住**：默认不限制行数。用 `--limit` 设默认限制，或用 `hsql --timeout` 加超时。
 
@@ -123,7 +137,7 @@ hsql data.duckdb -c "SELECT 1" --timeout 5           # 5 秒后取消并以退�
 
 ## Purpose
 
-[harlequin](https://harlequin.sh) is a SQL IDE that runs in the terminal: a data catalog sidebar (database objects, files, S3 buckets), a SQL editor in the middle, and a results viewer below, all inside one TUI. It connects to different databases through adapter plug-ins; this machine has the `duckdb` and `sqlite` adapters installed.
+[harlequin](https://harlequin.sh) is a SQL IDE that runs in the terminal: a data catalog sidebar (database objects, files, S3 buckets), a SQL editor in the middle, and a results viewer below, all inside one TUI. It connects to different databases through adapter plug-ins; the setup installs `duckdb`, `sqlite`, PostgreSQL, MySQL, and ODBC adapters.
 
 The same pipx package also provides `hsql`: no TUI, just execute SQL and exit, printing table/JSON/CSV output. The TUI is for interactive exploration; `hsql` is for scripts and agents.
 
@@ -224,7 +238,7 @@ hsql data.duckdb -c "SELECT 1" --timeout 5           # cancel after 5s, exit cod
 
 ## Troubleshooting
 
-**`harlequin -a mysql` and similar adapter errors**: adapters are separate plug-ins; only duckdb and sqlite are installed here (check `harlequin --version`). Other databases require pipx-injecting the matching adapter per upstream docs.
+**`harlequin -a mysql` and similar adapter errors**: adapters are separate plug-ins; check that the matching adapter is installed. Oracle also requires unixODBC and an Oracle ODBC driver.
 
 **Slow queries / stuck results**: there is no row limit by default. Set a default with `--limit`, or use `hsql --timeout`.
 
@@ -242,7 +256,7 @@ hsql data.duckdb -c "SELECT 1" --timeout 5           # cancel after 5s, exit cod
 
 ## 役割
 
-[harlequin](https://harlequin.sh) はターミナルで動く SQL IDE です。左にデータカタログ（データベースオブジェクト、ファイル、S3 バケット）、中央に SQL エディタ、下に結果ビューアが並び、すべて 1 つの TUI に収まっています。データベースへの接続は「アダプタ」プラグインで行い、このマシンには `duckdb` と `sqlite` のアダプタが入っています。
+[harlequin](https://harlequin.sh) はターミナルで動く SQL IDE です。左にデータカタログ（データベースオブジェクト、ファイル、S3 バケット）、中央に SQL エディタ、下に結果ビューアが並び、すべて 1 つの TUI に収まっています。データベースへの接続は「アダプタ」プラグインで行い、セットアップでは `duckdb`、`sqlite`、PostgreSQL、MySQL、ODBC のアダプタを入れます。
 
 同じ pipx パッケージは `hsql` も提供します。TUI に入らず SQL を実行して終了し、表・JSON・CSV などの形式で出力します。TUI は人間の対話的な探索に、`hsql` はスクリプトやエージェント向けです。
 
@@ -266,6 +280,15 @@ hsql data.duckdb -c "SELECT 1" --timeout 5           # cancel after 5s, exit cod
 ```bash
 bash scripts/install/install_pipx_tool.sh harlequin harlequin
 harlequin --version    # harlequin, version 2.16.2 と、インストール済みアダプタ一覧
+```
+
+セットアップで `harlequin-postgres`、`harlequin-mysql`、`harlequin-odbc` を pipx 環境へ追加します。Oracle には unixODBC と Oracle ODBC ドライバも必要です。Aurora はエンジンに合わせて PostgreSQL または MySQL アダプタを選びます。
+
+```bash
+pipx inject harlequin harlequin-postgres harlequin-mysql harlequin-odbc
+harlequin -a odbc 'DSN=oracle-dsn;UID=user;PWD=***'
+harlequin -a postgres 'postgres://user:***@cluster.example:5432/dbname'
+harlequin -a mysql 'mysql://user:***@cluster.example:3306/dbname'
 ```
 
 ## 基本的な使い方
@@ -343,7 +366,7 @@ hsql data.duckdb -c "SELECT 1" --timeout 5           # 5 秒でキャンセル�
 
 ## トラブルシュート
 
-**`harlequin -a mysql` などでアダプタエラー**：アダプタは別プラグインです。このマシンには duckdb と sqlite しか入っていません（`harlequin --version` で確認）。他の DB は上流ドキュメントに従い pipx で該当アダプタを注入します。
+**`harlequin -a mysql` などでアダプタエラー**：アダプタは別プラグインです。該当アダプタが入っているか確認してください。Oracle には unixODBC と Oracle ODBC ドライバも必要です。
 
 **クエリが遅い・結果で固まる**：既定では行数制限がありません。`--limit` で既定値を設定するか、`hsql --timeout` を使います。
 

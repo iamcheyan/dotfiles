@@ -1209,6 +1209,14 @@ install_extra_tools() {
     else
         print_success "harlequin is already installed"
     fi
+    if command_exists harlequin && command_exists pipx; then
+        if command_exists apt-get && ! ldconfig -p 2>/dev/null | grep -q 'libodbc\.so'; then
+            print_info "Installing unixODBC for the Harlequin ODBC adapter..."
+            sudo apt-get install -y unixodbc || print_warning "Could not install unixODBC; Oracle ODBC connections will be unavailable"
+        fi
+        print_info "Installing Harlequin PostgreSQL, MySQL, and ODBC adapters..."
+        pipx inject harlequin harlequin-postgres harlequin-mysql harlequin-odbc || print_warning "Could not install all Harlequin database adapters"
+    fi
 
     # lazysql — cross-platform database management TUI
     if ! command_exists lazysql; then
