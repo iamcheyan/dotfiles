@@ -47,6 +47,7 @@
 | lazygit | Zinit | `lazygit` | [lazygit](lazygit.html) |
 | gitui | Zinit | `gitui` | [gitui](gitui.html) |
 | gh | Zinit | `gh` | [GitHub CLI](gh.html) |
+| gh-dash | init.sh (gh extension) | `gh dash` | [GitHub CLI](gh.html) |
 
 ## 系统与网络
 
@@ -78,10 +79,18 @@
 | tabiew | 上游 install.sh | `tw file.csv` | [tabiew](tabiew.html) |
 | qsv | 上游 Release | `qsv stats data.csv` | [qsv](qsv.html) |
 | toolong | pipx | `tl app.log` | [toolong](toolong.html) |
-| harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
 | dekit | 上游 install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | 上游 Release | `topgrade` | [topgrade](topgrade.html) |
 | mise | 上游 install.sh | `mise use` | [mise](mise.html) |
+
+## 数据库
+
+| 工具 | 来源 | 入口 | 文档 |
+|---|---|---|---|
+| Harlequin | pipx | `harlequin` | [Harlequin](harlequin.html) |
+| LazySQL | init.sh（官方 release） | `lazysql` | [LazySQL](lazysql.html) |
+| sqlmux | init.sh（校验 SHA-256 的官方 release） | `sqlmux` | [sqlmux](sqlmux.html) |
+| Rainfrog | init.sh（系统包 / 官方 release） | `rainfrog` | [Rainfrog](rainfrog.html) |
 
 ## Diff 与评审
 
@@ -154,6 +163,7 @@
 | lazygit | Zinit | `lazygit` | [lazygit](lazygit.html) |
 | gitui | Zinit | `gitui` | [gitui](gitui.html) |
 | gh | Zinit | `gh` | [GitHub CLI](gh.html) |
+| gh-dash | init.sh (gh extension) | `gh dash` | [GitHub CLI](gh.html) |
 
 ## System & network
 
@@ -185,10 +195,18 @@
 | tabiew | upstream install.sh | `tw file.csv` | [tabiew](tabiew.html) |
 | qsv | upstream Release | `qsv stats data.csv` | [qsv](qsv.html) |
 | toolong | pipx | `tl app.log` | [toolong](toolong.html) |
-| harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
 | dekit | upstream install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | upstream Release | `topgrade` | [topgrade](topgrade.html) |
 | mise | upstream install.sh | `mise use` | [mise](mise.html) |
+
+## Databases
+
+| Tool | Source | Entry | Doc |
+|---|---|---|---|
+| Harlequin | pipx | `harlequin` | [Harlequin](harlequin.html) |
+| LazySQL | init.sh (official release) | `lazysql` | [LazySQL](lazysql.html) |
+| sqlmux | init.sh (SHA-256-verified official release) | `sqlmux` | [sqlmux](sqlmux.html) |
+| Rainfrog | init.sh (system package / official release) | `rainfrog` | [Rainfrog](rainfrog.html) |
 
 ## Diff & review
 
@@ -261,6 +279,7 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | lazygit | Zinit | `lazygit` | [lazygit](lazygit.html) |
 | gitui | Zinit | `gitui` | [gitui](gitui.html) |
 | gh | Zinit | `gh` | [GitHub CLI](gh.html) |
+| gh-dash | init.sh (gh extension) | `gh dash` | [GitHub CLI](gh.html) |
 
 ## システムとネットワーク
 
@@ -292,10 +311,18 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | tabiew | 上流 install.sh | `tw file.csv` | [tabiew](tabiew.html) |
 | qsv | 上流 Release | `qsv stats data.csv` | [qsv](qsv.html) |
 | toolong | pipx | `tl app.log` | [toolong](toolong.html) |
-| harlequin | pipx | `harlequin db.sqlite` | [harlequin](harlequin.html) |
 | dekit | 上流 install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | 上流 Release | `topgrade` | [topgrade](topgrade.html) |
 | mise | 上流 install.sh | `mise use` | [mise](mise.html) |
+
+## データベース
+
+| ツール | 入手元 | コマンド | ドキュメント |
+|---|---|---|---|
+| Harlequin | pipx | `harlequin` | [Harlequin](harlequin.html) |
+| LazySQL | init.sh（公式 release） | `lazysql` | [LazySQL](lazysql.html) |
+| sqlmux | init.sh（SHA-256 検証済み公式 release） | `sqlmux` | [sqlmux](sqlmux.html) |
+| Rainfrog | init.sh（システムパッケージ / 公式 release） | `rainfrog` | [Rainfrog](rainfrog.html) |
 
 ## Diff とレビュー
 
