@@ -164,7 +164,7 @@ SECTIONS = [
         "Zsh 插件",
         "每个插件的加载方式、配置与用法",
         [
-            ("intro", "本章导读", "11 个插件各自的职责与加载阶段。"),
+            ("intro", "本章导读", "9 个插件的职责、加载阶段与顺序约束。"),
             ("zinit", "Zinit", "插件管理器本体：ice、light、snippet、update。"),
             ("zsh-completions", "zsh-completions", "额外命令补全定义，compinit 前加载。"),
             ("fzf-tab", "fzf-tab", "用 fzf 替代补全菜单，含预览与分组切换。"),

@@ -1,10 +1,10 @@
-> 摘要：Zsh 环境的 13 个插件各自负责什么，按哪个阶段加载，读哪一篇。
+> 摘要：Zsh 插件的加载阶段、顺序约束和逐项说明入口。
 
 # 本章导读
 
 ## 插件全景
 
-`plugins/zsh-plugins.zsh` 和 `plugins/tools/tools.zsh` 一共加载 11 项。它们不是平铺的，而是按 Zsh 的初始化约束分三段加载。
+`plugins/zsh-plugins.zsh` 加载 9 个 Zsh 插件仓库；CLI 二进制在 `plugins/tools/tools.zsh` 中单独管理，不计入插件数。插件按 Zsh 初始化约束分阶段加载。
 
 | 阶段 | 插件 | 为什么在这个位置 |
 |---|---|---|
@@ -12,6 +12,7 @@
 | compinit 后 | fzf-tab | 需要 `compinit` 建立的补全系统 |
 | main 阶段 | evalcache | 缓存后续 hook 的输出 |
 | main 阶段 | zsh-vi-mode | 必须在 autosuggestions 之前，避免键位冲突 |
+| main 阶段 | zsh-abbr | 提供命令行缩写；键位在 `zvm_after_init` 里统一绑定 |
 | main 阶段 | zsh-autosuggestions | 依赖 vi-mode 的键位已就位 |
 | main 阶段 | zsh-autopair | 无顺序依赖 |
 | main 阶段 | forgit | 依赖 fzf |
@@ -38,6 +39,7 @@
 | Tab 补全不好用 | [zsh-completions](zsh-completions.html)、[fzf-tab](fzf-tab.html) |
 | 启动太慢 | [evalcache](evalcache.html) |
 | 命令行 Vim 键位 | [zsh-vi-mode](vi-mode.html) |
+| 命令行缩写 | [zsh-abbr](zsh-abbr.html) |
 | 建议文字颜色/行为 | [zsh-autosuggestions](autosuggestions.html) |
 | 括号自动补全 | [zsh-autopair](autopair.html) |
 | Git 交互命令 | [forgit](forgit.html) |
@@ -75,13 +77,13 @@ fi
 
 <!-- lang:en -->
 
-> Summary: What each of the 13 plugins in the Zsh environment is responsible for, at which stage they load, and which page to read.
+> Summary: Zsh plugin load stages, ordering constraints, and links to each plugin guide.
 
 ## Chapter Guide
 
 ## Plugin Overview
 
-`plugins/zsh-plugins.zsh` and `plugins/tools/tools.zsh` load 11 items in total. They are not loaded flat; instead they load in three segments according to Zsh's initialization constraints.
+`plugins/zsh-plugins.zsh` loads 9 Zsh plugin repositories; CLI binaries are managed separately in `plugins/tools/tools.zsh` and are not included in that count. Plugins load in stages to respect Zsh initialization constraints.
 
 | Stage | Plugin | Why it is at this position |
 |---|---|---|
@@ -89,6 +91,7 @@ fi
 | After compinit | fzf-tab | Requires the completion system built by `compinit` |
 | main stage | evalcache | Caches the output of later hooks |
 | main stage | zsh-vi-mode | Must come before autosuggestions to avoid keybinding conflicts |
+| main stage | zsh-abbr | Provides command-line abbreviations; keybindings are centralized in `zvm_after_init` |
 | main stage | zsh-autosuggestions | Depends on vi-mode's keybindings being in place |
 | main stage | zsh-autopair | No ordering dependency |
 | main stage | forgit | Depends on fzf |
@@ -115,6 +118,7 @@ If any of these is violated, the symptoms are subtle: no error is raised, featur
 | Tab completion not working well | [zsh-completions](zsh-completions.html), [fzf-tab](fzf-tab.html) |
 | Startup is too slow | [evalcache](evalcache.html) |
 | Vim keybindings on the command line | [zsh-vi-mode](vi-mode.html) |
+| Command-line abbreviations | [zsh-abbr](zsh-abbr.html) |
 | Suggestion text color/behavior | [zsh-autosuggestions](autosuggestions.html) |
 | Automatic bracket closing | [zsh-autopair](autopair.html) |
 | Interactive Git commands | [forgit](forgit.html) |
@@ -152,13 +156,13 @@ When a tool is not installed, nothing happens and the shell starts as usual. Thi
 
 <!-- lang:ja -->
 
-> 要約：Zsh 環境の 13 個のプラグインがそれぞれ何を担当し、どの段階で読み込まれ、どのページを読むべきか。
+> 要約：Zsh プラグインの読み込み段階、順序の制約、各ガイドへのリンク。
 
 ## 本章のガイド
 
 ## プラグイン全体像
 
-`plugins/zsh-plugins.zsh` と `plugins/tools/tools.zsh` は合計 11 項目を読み込みます。それらは平面的に並んでいるのではなく、Zsh の初期化制約に従って三つの区間に分けて読み込まれます。
+`plugins/zsh-plugins.zsh` は 9 個の Zsh プラグインリポジトリを読み込みます。CLI バイナリは `plugins/tools/tools.zsh` で別に管理し、この数には含めません。プラグインは Zsh の初期化順序に合わせて段階的に読み込みます。
 
 | 段階 | プラグイン | この位置にある理由 |
 |---|---|---|
@@ -166,6 +170,7 @@ When a tool is not installed, nothing happens and the shell starts as usual. Thi
 | compinit の後 | fzf-tab | `compinit` が構築した補完システムが必要 |
 | main 段階 | evalcache | 後続の hook の出力をキャッシュ |
 | main 段階 | zsh-vi-mode | キーバインドの衝突を避けるため autosuggestions より前であること |
+| main 段階 | zsh-abbr | コマンドライン略語を提供し、キー設定は `zvm_after_init` に集約 |
 | main 段階 | zsh-autosuggestions | vi-mode のキーバインドが整っていることに依存 |
 | main 段階 | zsh-autopair | 順序の依存なし |
 | main 段階 | forgit | fzf に依存 |
@@ -192,6 +197,7 @@ When a tool is not installed, nothing happens and the shell starts as usual. Thi
 | Tab 補全が使いにくい | [zsh-completions](zsh-completions.html)、[fzf-tab](fzf-tab.html) |
 | 起動が遅い | [evalcache](evalcache.html) |
 | コマンドラインの Vim キーバインド | [zsh-vi-mode](vi-mode.html) |
+| コマンドライン略語 | [zsh-abbr](zsh-abbr.html) |
 | 補完候補の文字色/挙動 | [zsh-autosuggestions](autosuggestions.html) |
 | 括弧の自動補完 | [zsh-autopair](autopair.html) |
 | Git の対話コマンド | [forgit](forgit.html) |
