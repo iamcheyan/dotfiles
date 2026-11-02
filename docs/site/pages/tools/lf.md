@@ -23,7 +23,7 @@ bash ~/dotfiles/dotlink/dotlink link
 
 ## 配置
 
-`config/lf/lfrc` 启用面板边框与圆角外框、Nerd Font 图标、文件预览、隐藏文件、大小写不敏感搜索，以及 Ranger 风格的移动、选择、剪切、复制、粘贴、删除、重命名、搜索和 shell 操作。`ex` 解压、`ec` 压缩。
+`config/lf/lfrc` 启用面板边框与圆角外框、Nerd Font 图标、文件预览、隐藏文件、大小写不敏感搜索，以及 Ranger 风格的移动、选择、剪切、复制、粘贴、删除、重命名、搜索和 shell 操作。显式绑定 `Enter` 到 `open`，用于进入目录或调用系统文件打开器打开文件。`ex` 解压、`ec` 压缩。
 
 `config/lf/icons` 基于 lf 官方图标示例，映射常见文件类型和扩展名。图标需要 Nerd Font 或兼容字体；若看到问号或方框，检查终端字体及 UTF-8 locale。
 
@@ -102,7 +102,7 @@ For standalone installation, use a distribution package or follow the [official 
 
 ## Configuration
 
-`config/lf/lfrc` enables pane borders with rounded outer corners, Nerd Font icons, file previews, hidden files, case-insensitive search, and Ranger-style movement, selection, cut/copy/paste, delete, rename, search, and shell bindings. `ex` extracts archives; `ec` creates them.
+The config explicitly maps `Enter` to `open`, so pressing Enter enters directories and invokes the system opener for files.
 
 `config/lf/icons` is based on the official lf icon example and maps common file types and extensions. Icons require a Nerd Font or compatible terminal font. If glyphs appear as question marks or boxes, check the terminal font and UTF-8 locale.
 
@@ -181,7 +181,7 @@ bash ~/dotfiles/dotlink/dotlink link
 
 ## 設定
 
-`config/lf/lfrc` では、角丸の枠線、Nerd Font アイコン、ファイルプレビュー、隠しファイル、大文字小文字を区別しない検索、Ranger 風の移動・選択・切り取り・コピー・貼り付け・削除・名前変更・検索・シェル操作を有効にします。`ex` は展開、`ec` は圧縮です。
+`config/lf/lfrc` は角丸の枠線、Nerd Font アイコン、プレビュー、隠しファイル、大文字小文字を区別しない検索、Ranger 風の移動・選択・切り取り・コピー・貼り付け・削除・名前変更・検索・シェル操作を有効にします。さらに `Enter` を `open` に明示的に割り当て、ディレクトリへの移動とファイルのシステム既定アプリでの起動を行います。`ex` は展開、`ec` は圧縮です。
 
 `config/lf/icons` は lf 公式アイコン例をもとに、一般的なファイル種別と拡張子を設定しています。表示には Nerd Font または互換フォントが必要です。文字が疑問符や四角形になる場合は、端末フォントと UTF-8 locale を確認してください。
 

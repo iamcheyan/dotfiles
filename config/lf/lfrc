@@ -9,6 +9,7 @@ set ignorecase
 set period 1
 
 # Keep the familiar h/j/k/l navigation and Ranger-style selection.
+map <enter> open
 map <space> :toggle; down
 map v invert
 map zh set hidden!
