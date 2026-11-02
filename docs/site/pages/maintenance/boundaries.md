@@ -36,7 +36,7 @@
 | 内容 | 例子 |
 |---|---|
 | Zsh 通用配置 | `zshrc`、`aliases.conf` |
-| CLI 工具配置 | Starship、Atuin、Ranger、Vifm |
+| CLI 工具配置 | Starship、Atuin、Ranger、lf、Vifm |
 | 编辑器 | Vim、GVim、Neovim 子模块 |
 | 脚本 | `dotlink`、`init.sh`、安装器 |
 | 文档 | `docs/`、本站源文件 |
@@ -183,7 +183,7 @@ This repository:
 | Content | Examples |
 |---|---|
 | Common Zsh configuration | `zshrc`, `aliases.conf` |
-| CLI tool configuration | Starship, Atuin, Ranger, Vifm |
+| CLI tool configuration | Starship, Atuin, Ranger, lf, Vifm |
 | Editors | Vim, GVim, Neovim submodule |
 | Scripts | `dotlink`, `init.sh`, installers |
 | Documentation | `docs/`, source files of this site |
@@ -330,7 +330,7 @@ Chezmoi が管理します（`~/chezmoi`）：
 | 内容 | 例 |
 |---|---|
 | Zsh 共通設定 | `zshrc`、`aliases.conf` |
-| CLI ツール設定 | Starship、Atuin、Ranger、Vifm |
+| CLI ツール設定 | Starship、Atuin、Ranger、lf、Vifm |
 | エディタ | Vim、GVim、Neovim サブモジュール |
 | スクリプト | `dotlink`、`init.sh`、インストーラー |
 | ドキュメント | `docs/`、本サイトのソースファイル |

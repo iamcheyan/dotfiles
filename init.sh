@@ -429,11 +429,11 @@ install_essentials() {
     print_info "Checking essential tools..."
 
     local common_packages="git curl wget unzip git-extras ffmpeg tmux lsof"
-    local debian_packages="build-essential ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local arch_packages="base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local void_packages="base-devel ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm"
-    local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm navi"
+    local debian_packages="build-essential ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
+    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
+    local arch_packages="base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
+    local void_packages="base-devel ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
+    local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm navi lf"
 
     if [[ "$MINIMAL" == "true" ]]; then
         print_info "Minimal mode: skipping translate-shell, yt-dlp, jq, viu"
@@ -524,6 +524,10 @@ install_essentials() {
     else
          print_warning "Could not install essential tools automatically. Please install these manually: git, curl, wget, build-essential, ripgrep, fd, eza, zoxide, ranger"
          return 1
+    fi
+
+    if [[ "$OS" == "debian" || "$OS" == "rhel" || "$OS" == "fedora" ]] && ! command_exists lf; then
+        install_lf_release_linux || print_warning "Install lf manually from https://github.com/gokcehan/lf/releases"
     fi
 
     if [[ "$OS" == "debian" || "$OS" == "rhel" || "$OS" == "fedora" || "$OS" == "arch" || "$OS" == "void" ]]; then

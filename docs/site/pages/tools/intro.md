@@ -65,6 +65,7 @@
 | 工具 | 来源 | 入口 | 文档 |
 |---|---|---|---|
 | Ranger | 系统包 | `ra` | [Ranger](ranger.html) |
+| `lf` | `lfm` | 面板边框、图标、Ranger 风格键位与归档 | [lf](lf.html) |
 | Vifm | 系统包 | `v` | [Vifm](vifm.html) |
 | tmux | 系统包 | `tmux` | [tmux](tmux.html) |
 | zellij | Zinit / 安装器 | `zellij` | [zellij](zellij.html) |
@@ -180,8 +181,9 @@
 
 | Tool | Source | Entry | Doc |
 |---|---|---|---|
-| Ranger | system package | `ra` | [Ranger](ranger.html) |
-| Vifm | system package | `v` | [Vifm](vifm.html) |
+| Ranger | System package | `ra` | [Ranger](ranger.html) |
+| `lf` | `lfm` | Pane borders, icons, Ranger-style bindings and archive commands | [lf](lf.html) |
+| Vifm | System package | `v` | [Vifm](vifm.html) |
 | tmux | system package | `tmux` | [tmux](tmux.html) |
 | zellij | Zinit / installer | `zellij` | [zellij](zellij.html) |
 | Fresh | init.sh | `fr` | [Fresh](fresh.html) |
@@ -297,6 +299,7 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | ツール | 出所 | 入口 | ドキュメント |
 |---|---|---|---|
 | Ranger | システムパッケージ | `ra` | [Ranger](ranger.html) |
+| `lf` | `lfm` | 枠線、アイコン、Ranger 風キー操作とアーカイブ | [lf](lf.html) |
 | Vifm | システムパッケージ | `v` | [Vifm](vifm.html) |
 | tmux | システムパッケージ | `tmux` | [tmux](tmux.html) |
 | zellij | Zinit / インストーラ | `zellij` | [zellij](zellij.html) |

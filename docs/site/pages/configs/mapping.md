@@ -14,6 +14,7 @@
 | `config/atuin` | `~/.config/atuin` | Atuin 配置目录 |
 | `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr 配置 |
 | `config/ranger` | `~/.config/ranger` | Ranger 配置目录 |
+| `config/lf` | `~/.config/lf` | lf 配置目录 |
 | `config/gvim/gvimrc` | `~/.gvimrc` | GVim 外观 |
 | `config/vim/vimrc` | `~/.vimrc` | Vim 通用配置 |
 | `config/nvim` | `~/.config/nvim` | Neovim（子模块） |
@@ -119,6 +120,7 @@ The `[link]` section of `dotlink/dotlinkrc`:
 | `config/atuin` | `~/.config/atuin` | Atuin configuration directory |
 | `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr configuration |
 | `config/ranger` | `~/.config/ranger` | Ranger configuration directory |
+| `config/lf` | `~/.config/lf` | lf configuration directory |
 | `config/gvim/gvimrc` | `~/.gvimrc` | GVim appearance |
 | `config/vim/vimrc` | `~/.vimrc` | Common Vim configuration |
 | `config/nvim` | `~/.config/nvim` | Neovim (submodule) |
@@ -224,6 +226,7 @@ bash ~/dotfiles/dotlink/dotlink link    # 再执行
 | `config/atuin` | `~/.config/atuin` | Atuin の設定ディレクトリ |
 | `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr の設定 |
 | `config/ranger` | `~/.config/ranger` | Ranger の設定ディレクトリ |
+| `config/lf` | `~/.config/lf` | lf の設定ディレクトリ |
 | `config/gvim/gvimrc` | `~/.gvimrc` | GVim の外観 |
 | `config/vim/vimrc` | `~/.vimrc` | Vim の共通設定 |
 | `config/nvim` | `~/.config/nvim` | Neovim（サブモジュール） |

@@ -1,0 +1,66 @@
+# lf config, inspired by the Ranger setup in this repository.
+
+set preview
+set drawbox
+set borderstyle roundbox
+set icons
+set hidden
+set ignorecase
+set period 1
+
+# Keep the familiar h/j/k/l navigation and Ranger-style selection.
+map <space> :toggle; down
+map v invert
+map zh set hidden!
+map zp set preview!
+map dd cut
+map yy copy
+map pp paste
+map dD delete
+map cw rename
+map S :shell
+map / :search
+map n search-next
+map N search-prev
+map e $$EDITOR "$f"
+map q quit
+
+# Open files with the user's configured editor and directories with lf's default.
+cmd open ${{
+    set -f
+    if [ -d "$f" ]; then
+        lf -remote "send $id open"
+    else
+        $EDITOR "$f"
+    fi
+}}
+
+# Handy archive operations, available when the matching system tools exist.
+cmd extract ${{
+    set -f
+    case "$f" in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjf "$f" ;;
+        *.tar.gz|*.tgz) tar xzf "$f" ;;
+        *.tar.xz|*.txz) tar xJf "$f" ;;
+        *.tar.zst|*.tzst) tar --zstd -xf "$f" ;;
+        *.zip) unzip "$f" ;;
+        *.rar) unrar x "$f" ;;
+        *.7z) 7z x "$f" ;;
+        *) printf 'Unsupported archive: %s\n' "$f" >&2; exit 1 ;;
+    esac
+}}
+map ex extract
+
+cmd compress ${{
+    set -f
+    printf 'Archive format (zip/tar.gz/tar.xz/tar.zst): '
+    read format
+    case "$format" in
+        zip) zip -r "$f.zip" $fx ;;
+        tar.gz) tar czf "$f.tar.gz" $fx ;;
+        tar.xz) tar cJf "$f.tar.xz" $fx ;;
+        tar.zst) tar --zstd -cf "$f.tar.zst" $fx ;;
+        *) printf 'Unsupported format: %s\n' "$format" >&2; exit 1 ;;
+    esac
+}}
+map ec compress

@@ -73,7 +73,7 @@ Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓�
 * **内置热门本地 AI 助手 Herdr**：
   * `init.sh` 脚本自动安装并配置当前热门的终端本地 AI 编程助手 [Herdr](https://herdr.dev/)。
   * 预置优雅的主题配置文件（`~/.config/herdr/config.toml`），开箱即用。
-* **轻量文件管理器**：内置配置好的 `Ranger`（按 `ra` 快速调用）与 `Vifm`（按 `v` 快速调用）。
+* **轻量文件管理器**：Ranger（`ra`）、lf（`lfm`）与 Vifm（`v`）；lf 提供 Ranger 风格键位、Nerd Font 图标、面板边框和归档操作。
 * **自研零依赖软链工具 `dotlink`**：纯 Shell 编写的极简配置软链管理器，不依赖 Chezmoi 或任何外部工具即可独立运转。
 
 ---
@@ -155,6 +155,7 @@ export PROJECTS_DIR="$HOME/projects"
 | `~/dotfiles/config/gvim/gvimrc` | `~/.gvimrc` | GVim 图形配置 |
 | `~/dotfiles/config/nvim` | `~/.config/nvim` | Neovim 完整 IDE 配置 |
 | `~/dotfiles/config/ranger` | `~/.config/ranger` | Ranger 终端文件管理器 |
+| `~/dotfiles/config/lf` | `~/.config/lf` | lf 终端文件管理器 |
 | `~/dotfiles/config/vifm/*` | `~/.config/vifm/*` | Vifm 终端文件管理器 |
 | `~/dotfiles/config/atuin` | `~/.config/atuin` | Atuin 命令历史搜索配置 |
 | `~/dotfiles/config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr 本地 AI 助手配置 |
