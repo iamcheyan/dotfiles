@@ -1,0 +1,49 @@
+#!/bin/sh
+# lf previewer: colored text and metadata listings; image output is terminal-specific.
+set -u
+file=$1
+width=${2:-80}
+height=${3:-24}
+
+if [ -d "$file" ]; then
+    if command -v eza >/dev/null 2>&1; then
+        eza --color=always --icons=always --group-directories-first --oneline -- "$file" 2>/dev/null | head -n "$height"
+    else
+        ls -la --color=always -- "$file" 2>/dev/null | head -n "$height"
+    fi
+    exit 0
+fi
+
+case "$file" in
+    *.tar|*.tar.gz|*.tgz|*.tar.xz|*.txz|*.tar.zst|*.tzst)
+        tar -tf "$file" 2>/dev/null | head -n "$height"; exit 0 ;;
+    *.zip)
+        unzip -l "$file" 2>/dev/null | head -n "$height"; exit 0 ;;
+    *.7z)
+        7z l "$file" 2>/dev/null | head -n "$height"; exit 0 ;;
+esac
+
+case "$file" in
+    *.png|*.jpg|*.jpeg|*.gif|*.webp|*.bmp|*.tif|*.tiff|*.avif)
+        if [ "${TERM:-}" = xterm-kitty ] && command -v kitten >/dev/null 2>&1; then
+            kitten icat --clear --transfer-mode=stream --place="${width}x${height}@0x0" "$file" 2>/dev/null || true
+            exit 0
+        fi
+        if command -v chafa >/dev/null 2>&1; then
+            chafa --format symbols --colors full --size "${width}x${height}" "$file" 2>/dev/null || true
+            exit 0
+        fi
+        if command -v viu >/dev/null 2>&1; then
+            viu -w "$width" -h "$height" "$file" 2>/dev/null || true
+            exit 0
+        fi
+        printf 'Image preview needs Kitty graphics protocol, chafa, or viu.\n'
+        exit 0 ;;
+esac
+
+if command -v bat >/dev/null 2>&1; then
+    bat --color=always --style=plain --paging=never --line-range ":$height" -- "$file" 2>/dev/null || true
+else
+    sed -n "1,${height}p" -- "$file" 2>/dev/null || true
+fi
+exit 0

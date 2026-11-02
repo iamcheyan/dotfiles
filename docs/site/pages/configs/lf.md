@@ -2,7 +2,7 @@
 
 # lf 配置
 
-配置源目录为 `config/lf/`，由 dotlink 部署到 `~/.config/lf/`。`lfrc` 设置界面、Ranger 风格键位、文件打开与归档命令；`icons` 提供上游 Nerd Font 图标映射。
+配置源目录为 `config/lf/`，由 dotlink 部署到 `~/.config/lf/`。`lfrc` 设置 Ranger 风格导航、文件信息、搜索与排序；`preview` 提供彩色文本、归档列表和终端图片预览；`icons` 使用 Ranger devicons 对应的 Nerd Font 图标。
 
 完整使用方法与按键表见[lf 工具指南](../tools/lf.html)。
 
@@ -11,7 +11,7 @@
 
 # lf Configuration
 
-The source directory is `config/lf/`, deployed by dotlink to `~/.config/lf/`. `lfrc` configures the interface, Ranger-style bindings, file opening, and archive commands; `icons` provides the upstream Nerd Font icon mapping.
+The source directory is `config/lf/`, deployed by dotlink to `~/.config/lf/`. `lfrc` configures Ranger-style navigation, file information, search, and sorting. `preview` provides colored text, archive listings, and terminal image previews. `icons` uses Nerd Font mappings aligned with Ranger devicons.
 
 See the [lf guide](../tools/lf.html) for usage and key bindings.
 
@@ -20,6 +20,6 @@ See the [lf guide](../tools/lf.html) for usage and key bindings.
 
 # lf の設定
 
-ソースディレクトリ `config/lf/` を dotlink で `~/.config/lf/` に配置します。`lfrc` は画面、Ranger 風キーバインド、ファイル起動、アーカイブ操作を設定し、`icons` は上流の Nerd Font アイコン対応表を提供します。
+ソースディレクトリ `config/lf/` を dotlink で `~/.config/lf/` に配置します。`lfrc` は Ranger 風の移動、ファイル情報、検索、並べ替えを設定します。`preview` は色付きテキスト、アーカイブ一覧、端末での画像プレビューを提供します。`icons` は Ranger devicons と対応した Nerd Font マッピングを使用します。
 
 使い方とキー一覧は[lf ガイド](../tools/lf.html)を参照してください。

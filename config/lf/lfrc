@@ -7,6 +7,8 @@ set icons
 set hidden
 set ignorecase
 set period 1
+set info perm:size:time:ctime
+set previewer ~/.config/lf/preview
 
 # Keep the familiar h/j/k/l navigation and Ranger-style selection.
 map <enter> open
@@ -14,6 +16,13 @@ map <space> :toggle; down
 map v invert
 map zh set hidden!
 map zp set preview!
+map i ${{
+    if command -v bat >/dev/null 2>&1; then
+        bat --style=plain --color=always --paging=always -- "$f"
+    else
+        file "$f" | less
+    fi
+}}
 map dd cut
 map yy copy
 map pp paste
@@ -23,6 +32,49 @@ map S :shell
 map / :search
 map n search-next
 map N search-prev
+map ff ${{
+    set -f
+    if ! command -v fzf >/dev/null 2>&1; then
+        printf 'ff requires fzf\\n' >&2
+        exit 1
+    fi
+    if command -v fd >/dev/null 2>&1; then
+        fd --hidden --follow --exclude .git | fzf --height 90% --layout=reverse --border --preview '([[ -d {} ]] && ls -la --color=always {}) || ([[ -f {} ]] && bat --color=always --style=numbers --line-range :300 -- {})'
+    elif command -v fdfind >/dev/null 2>&1; then
+        fdfind --hidden --follow --exclude .git | fzf --height 90% --layout=reverse --border --preview '([[ -d {} ]] && ls -la --color=always {}) || ([[ -f {} ]] && bat --color=always --style=numbers --line-range :300 -- {})'
+    else
+        find . -type f -not -path '*/.git/*' | fzf --height 90% --layout=reverse --border --preview '([[ -d {} ]] && ls -la --color=always {}) || ([[ -f {} ]] && bat --color=always --style=numbers --line-range :300 -- {})'
+    fi
+}}
+map fr ${{
+    set -f
+    if ! command -v rg >/dev/null 2>&1 || ! command -v fzf >/dev/null 2>&1; then
+        printf 'fr requires ripgrep and fzf\\n' >&2
+        exit 1
+    fi
+    selected=$(rg --line-number --color=never --hidden --glob '!.git/**' . | fzf --delimiter : --nth 3.. --preview 'bat --color=always --style=numbers --highlight-line {2} -- {1}' --preview-window 'right:60%:wrap') || exit 0
+    [ -n "$selected" ] && lf -remote "send $id select \"${selected%%:*}\""
+}}
+map z ${{
+    set -f
+    if ! command -v zoxide >/dev/null 2>&1 || ! command -v fzf >/dev/null 2>&1; then
+        printf 'z jump requires zoxide and fzf\\n' >&2
+        exit 1
+    fi
+    target=$(zoxide query --list --score | fzf --height 60% --layout=reverse --border --with-nth 2.. | sed 's/^[^ ]* //') || exit 0
+    [ -d "$target" ] && lf -remote "send $id cd \"$target\""
+}}
+map tw ${{
+    set -f
+    if [ -n "${TMUX:-}" ]; then
+        tmux new-window -c "$PWD"
+    else
+        printf 'Not inside tmux\\n' >&2
+        exit 1
+    fi
+}}
+map st set sortby time
+map sn set sortby natural
 map e $$EDITOR "$f"
 map q quit
 
