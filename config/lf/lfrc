@@ -7,7 +7,8 @@ set icons
 set hidden
 set ignorecase
 set period 1
-set info perm:size:time:ctime
+set info perm:size:time
+set sortby time
 set previewer ~/.config/lf/preview
 
 # Keep the familiar h/j/k/l navigation and Ranger-style selection.
