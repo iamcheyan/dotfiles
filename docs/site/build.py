@@ -361,8 +361,12 @@ def split_langs(text: str) -> dict[str, str]:
     out: dict[str, list[str]] = {}
     cur = "zh"  # content before the first marker is the zh block
     out.setdefault(cur, [])
+    in_fence = False
     for line in text.splitlines(keepends=True):
-        m = LANG_MARK.match(line.strip("\n"))
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_fence = not in_fence
+        m = LANG_MARK.match(line.strip("\n")) if not in_fence else None
         if m:
             cur = m.group(1)
             out.setdefault(cur, [])
@@ -394,22 +398,29 @@ APP_JS = r"""
   function applyThemeLabel() {
     var dark = root.getAttribute('data-theme') === 'dark';
     var btn = document.getElementById('theme-toggle');
-    if (btn) {
-      btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
-      btn.title = dark ? '切换到浅色' : '切换到深色';
-    }
+    if (!btn) return;
+    btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    btn.setAttribute('aria-label', dark ? '切换到浅色主题' : '切换到深色主题');
+    btn.title = dark ? '切换到浅色主题' : '切换到深色主题';
+    var mark = btn.querySelector('.theme-mark');
+    if (mark) mark.textContent = dark ? '☀️' : '🌙';
   }
 
   /* ---- language -------------------------------------------------------- */
   var LANG_KEY = 'dotfiles-lang';
   var LANGS = ['zh', 'en', 'ja'];
   var LANG_LABEL = { zh: '中', en: 'EN', ja: '日' };
+  var LANG_NAME = { zh: '中文', en: 'English', ja: '日本語' };
 
   function applyLang(lang) {
     if (LANGS.indexOf(lang) < 0) lang = 'zh';
     root.setAttribute('data-lang', lang);
     var btn = document.getElementById('lang-toggle');
-    if (btn) btn.textContent = LANG_LABEL[lang];
+    if (btn) {
+      btn.textContent = LANG_LABEL[lang];
+      btn.setAttribute('aria-label', '切换语言，当前 ' + LANG_NAME[lang]);
+      btn.title = '切换语言，当前 ' + LANG_NAME[lang];
+    }
     var q = document.getElementById('q');
     if (q) q.placeholder = q.getAttribute('data-' + lang) || q.placeholder;
     try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
@@ -445,21 +456,25 @@ APP_JS = r"""
       return;
     }
 
-    var side = event.target.closest('#sidebar-toggle');
-    if (side) {
-      var hidden = document.body.classList.toggle('no-sidebar');
-      try { localStorage.setItem('dotfiles-sidebar', hidden ? 'off' : 'on'); } catch (e) {}
-      side.setAttribute('aria-pressed', hidden ? 'true' : 'false');
-      side.title = hidden ? '展开侧栏' : '收起侧栏';
+    var navToggle = event.target.closest('#nav-toggle');
+    if (navToggle) {
+      var open = document.body.classList.toggle('nav-open');
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       return;
     }
   });
 
-  try {
-    if (localStorage.getItem('dotfiles-sidebar') === 'off') {
-      document.body.classList.add('no-sidebar');
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+    var navToggle = document.getElementById('nav-toggle');
+    if (document.body.classList.contains('nav-open')) {
+      document.body.classList.remove('nav-open');
+      if (navToggle) {
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.focus();
+      }
     }
-  } catch (e) {}
+  });
 
   applyThemeLabel();
 
@@ -662,24 +677,61 @@ def side_nav(section: str, doc: str, prefix: str) -> str:
 
 
 def header(section: str, doc: str, prefix: str) -> str:
-    return f'''<header>
-  <p class="site-title"><a href="{prefix}index.html">dotfiles</a></p>
-  <p class="site-tagline"><em>{TAGLINE}</em></p>
-
-  <div class="toolbar">
-    <div class="search-box">
-      <input id="q" type="search" data-zh="搜索 {sum(len(s[3]) for s in SECTIONS)} 篇文档" data-en="Search {sum(len(s[3]) for s in SECTIONS)} documents" data-ja="{sum(len(s[3]) for s in SECTIONS)} 件のドキュメントを検索" autocomplete="off" spellcheck="false" aria-label="Search documents">
-      <div class="results" id="results" hidden></div>
+    nav_items = {
+        "start": {"zh": "安装", "en": "Install", "ja": "導入"},
+        "tools": {"zh": "工具", "en": "Tools", "ja": "ツール"},
+    }
+    return f'''<header class="site-header">
+  <div class="topbar">
+    <nav class="topbar-links" aria-label="Project links">
+      <a href="https://iamcheyan.com/">Iam cheyan .com</a>
+      <a href="https://github.com/{SITE["repo"]}">GitHub</a>
+      <a href="https://nvim.iamcheyan.com">Neovim</a>
+      <a href="{prefix}changes.html">{lang_span({"zh": "最近改动", "en": "Recent changes", "ja": "最近の変更"}, LANGS)}</a>
+    </nav>
+    <div class="header-tools">
+      <button id="lang-toggle" type="button" class="lang-toggle" aria-label="切换语言" title="切换语言">中</button>
+      <button id="theme-toggle" type="button" class="theme-toggle" aria-label="切换到深色主题" title="切换到深色主题" aria-pressed="false">
+        <span class="theme-mark" aria-hidden="true">🌙</span>
+      </button>
     </div>
   </div>
+  <div class="brandbar">
+    <a class="brand" href="{prefix}index.html">dotfiles<span class="brand-dot">.</span><span class="brand-sub">iamcheyan.com</span></a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="{prefix}start/index.html">{lang_span(nav_items["start"], LANGS)}</a>
+      <a href="{prefix}tools/index.html">{lang_span(nav_items["tools"], LANGS)}</a>
+      <a href="https://github.com/{SITE["repo"]}">GitHub</a>
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-controls="site-navigation" aria-expanded="false">{lang_span({"zh": "目录", "en": "Menu", "ja": "目次"}, LANGS)}</button>
+    </nav>
+  </div>
+</header>'''
 
-  <nav>
+
+def sidebar(section: str, doc: str, prefix: str) -> str:
+    count = sum(len(s[3]) for s in SECTIONS)
+    return f'''<aside class="site-sidebar" id="site-navigation">
+  <div class="search-box">
+    <label class="search-label" for="q">搜索文档</label>
+    <input id="q" type="search" data-zh="搜索 {count} 篇文档" data-en="Search {count} documents" data-ja="{count} 件のドキュメントを検索" placeholder="搜索 {count} 篇文档" autocomplete="off" spellcheck="false" aria-label="搜索文档">
+    <div class="results" id="results" hidden></div>
+  </div>
+  <nav class="side-nav" aria-label="Documentation">
     {side_nav(section, doc, prefix)}
   </nav>
-  <p class="site-meta"><a href="https://github.com/{SITE["repo"]}">GitHub repository</a><br>
+  <p class="side-meta"><a href="https://github.com/{SITE["repo"]}">GitHub repository</a><br>
   <a href="https://nvim.iamcheyan.com">Neovim configuration</a><br>
-  <a href="{prefix}changes.html">Recent changes</a></p>
-</header>'''
+  <a href="{prefix}changes.html">{lang_span({"zh": "最近改动", "en": "Recent changes", "ja": "最近の変更"}, LANGS)}</a></p>
+</aside>'''
+
+
+def footer(prefix: str) -> str:
+    return f'''<footer class="site-footer">
+  <div class="footer-inner">
+    <span>{lang_span({"zh": "公开 dotfiles 与终端环境文档", "en": "Public dotfiles and terminal environment guide", "ja": "公開 dotfiles とターミナル環境のドキュメント"}, LANGS)}</span>
+    <span>© {SITE["repo"].split("/")[0]} · <a href="https://iamcheyan.com/">A project by Cheyan</a></span>
+  </div>
+</footer>'''
 
 
 def _doc_titles(section: str, doc: str) -> dict[str, str]:
@@ -705,36 +757,8 @@ def pager(section: str, doc: str, prefix: str) -> str:
     return f'<p class="pager">{left}<span class="pager-sep"> · </span>{right}</p>'
 
 
-def dock_html() -> str:
-    """Fixed top-right icon dock: theme and sidebar toggles.
-
-    Lives outside the left header so it stays reachable when the sidebar is
-    hidden; inline SVG line icons keep the page self-contained (no icon font).
-    """
-    return '''<div class="dock" role="group" aria-label="页面设置">
-  <button id="theme-toggle" type="button" class="dock-btn" aria-label="切换深浅主题" title="切换主题">
-    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-      <circle cx="12" cy="12" r="4.4"/>
-      <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/>
-    </svg>
-    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20.2 14.5A8.4 8.4 0 0 1 9.5 3.8a8.4 8.4 0 1 0 10.7 10.7z"/>
-    </svg>
-  </button>
-  <button id="sidebar-toggle" type="button" class="dock-btn" aria-label="收起或展开侧栏" title="收起侧栏">
-    <svg class="icon-sidebar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3.2" y="4.2" width="17.6" height="15.6" rx="2"/>
-      <path d="M9.4 4.2v15.6"/>
-      <path class="icon-panel" d="M5.6 8.2h1.6M5.6 12h1.6M5.6 15.8h1.6"/>
-    </svg>
-  </button>
-  <button id="lang-toggle" type="button" class="dock-btn lang-btn" aria-label="切换语言" title="中文">中</button>
-</div>'''
-
-
 def tail_block(prefix: str) -> str:
-    return f'''{dock_html()}
-<script id="search-index" type="application/json">{search_index(prefix)}</script>
+    return f'''<script id="search-index" type="application/json">{search_index(prefix)}</script>
 <script>
 {APP_JS}
 </script>
@@ -763,19 +787,29 @@ def page(section: str, doc: str) -> tuple[dict, str]:
         t = re.sub(r"^# .+\n+", "", t, count=1)
         blocks[lang] = t
     body = render_md_langs(blocks, langs_on_page)
-    h1 = "".join(
-        f'<h1 id="{esc(doc)}" class="lb" data-lang="{l}">{esc(lang_meta[l][0])}</h1>'
-        for l in langs_on_page
-    )
+    title_spans = lang_span({l: lang_meta[l][0] for l in langs_on_page}, langs_on_page)
+    lead_spans = lang_span({l: lang_meta[l][1] for l in langs_on_page}, langs_on_page)
+    section_num = next(num for slug, _label, num in NAV if slug == section)
     html = f'''{head_block(title, desc, "../")}
 <body>
-<div class="wrapper">
+<a class="skip-link" href="#main">{lang_span({"zh": "跳到正文", "en": "Skip to content", "ja": "本文へ"}, LANGS)}</a>
+<div class="site-shell">
 {header(section, doc, "../")}
-<section>
-{h1}
+<div class="site-layout">
+{sidebar(section, doc, "../")}
+<main class="site-content" id="main">
+  <header class="page-head">
+    <p class="eyebrow">CHAPTER {section_num} / {esc(section.upper())}</p>
+    <h1 class="page-title" id="{esc(doc)}">{title_spans}</h1>
+    <p class="page-lead">{lead_spans}</p>
+  </header>
+  <div class="article-body">
 {body}
-{pager(section, doc, "../")}
-</section>
+  </div>
+  {pager(section, doc, "../")}
+</main>
+</div>
+{footer("../")}
 </div>
 {tail_block("../")}'''
     meta = {"title": title, "description": desc, "section": section, "doc": doc}
@@ -787,38 +821,40 @@ def section_index(section: str) -> tuple[dict, str]:
     i18n = SECTIONS_I18N.get(slug, {})
     label_of = {l: i18n.get(l, (label, ""))[0] for l in LANGS}
     scope_of = {l: i18n.get(l, (scope, ""))[1] for l in LANGS}
-    items = "\n".join(
-        "<li>"
-        + lang_span({l: f'{esc(d[1])} - {esc(d[2])}' for l in LANGS}, LANGS)
-        .replace("<span", f'<a href="{d[0]}.html" class="lb-link"', 1)
-        + "</li>"
-        for d in docs
-    )
-    # simpler: rebuild without the fragile replace
-    items = "\n".join(
-        "<li><a href=\"" + d[0] + ".html\" class=\"lb-link\">"
-        + "".join(
-            f'<span class="lb" data-lang="{l}">{esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[0])} - {esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[1])}</span>'
-            for l in LANGS
+    section_num = next(num for s, _label, num in NAV if s == slug)
+    items = []
+    for i, d in enumerate(docs, start=1):
+        meta = LANG_TITLES.get((slug, d[0]), {})
+        title_spans = lang_span({l: meta.get(l, (d[1], d[2]))[0] for l in LANGS}, LANGS)
+        desc_spans = lang_span({l: meta.get(l, (d[1], d[2]))[1] for l in LANGS}, LANGS)
+        items.append(
+            f'<li><a class="doc-link" href="{d[0]}.html">'
+            f'<span class="doc-num">{i:02d}</span>'
+            f'<span class="doc-copy"><span class="doc-title">{title_spans}</span>'
+            f'<span class="doc-desc">{desc_spans}</span></span>'
+            f'<span class="doc-arrow" aria-hidden="true">&rarr;</span></a></li>'
         )
-        + "</a></li>"
-        for d in docs
-    )
-    h1 = "".join(f'<h1 id="{esc(slug)}" class="lb" data-lang="{l}">{esc(label_of[l])}</h1>' for l in LANGS)
-    scope_line = "".join(
-        f'<p class="lb" data-lang="{l}">{esc(scope_of[l])} - {len(docs)} documents.</p>' for l in LANGS
-    )
+    title_spans = lang_span(label_of, LANGS)
+    scope_spans = lang_span(scope_of, LANGS)
     html = f'''{head_block(label, scope, "../")}
 <body>
-<div class="wrapper">
+<a class="skip-link" href="#main">{lang_span({"zh": "跳到正文", "en": "Skip to content", "ja": "本文へ"}, LANGS)}</a>
+<div class="site-shell">
 {header(section, "index", "../")}
-<section>
-{h1}
-{scope_line}
-<ul>
-{items}
-</ul>
-</section>
+<div class="site-layout">
+{sidebar(section, "index", "../")}
+<main class="site-content" id="main">
+  <header class="page-head">
+    <p class="eyebrow">SECTION {section_num} / {esc(slug.upper())}</p>
+    <h1 class="page-title" id="{esc(slug)}">{title_spans}</h1>
+    <p class="page-lead">{scope_spans}</p>
+  </header>
+  <ul class="section-index">
+{chr(10).join(items)}
+  </ul>
+</main>
+</div>
+{footer("../")}
 </div>
 {tail_block("../")}'''
     return {"title": label, "description": scope, "section": section, "doc": "index"}, html
@@ -837,20 +873,27 @@ def changes_page() -> str:
     else:
         listing = '<ul class="changes"><li class="c-empty">Git history is unavailable in this build.</li></ul>'
 
+    count = len(rows) if rows else 0
     html = f'''{head_block("Recent changes", "最近提交记录，来自本仓库的 git 历史。", "")}
 <body>
-<div class="wrapper">
+<a class="skip-link" href="#main">{lang_span({"zh": "跳到正文", "en": "Skip to content", "ja": "本文へ"}, LANGS)}</a>
+<div class="site-shell">
 {header("changes", "", "")}
-<section>
-<h1 id="changes" class="lb" data-lang="zh">最近改动</h1>
-<h1 id="changes-en" class="lb" data-lang="en">Recent changes</h1>
-<h1 id="changes-ja" class="lb" data-lang="ja">最近の変更</h1>
-<p class="lb" data-lang="zh">最近 {len(rows) if rows else 0} 次提交，直接读取本仓库的 git 历史。每次推送站点文件时，这个列表会随构建一起更新。</p>
-<p class="lb" data-lang="en">The latest {len(rows) if rows else 0} commits, read straight from this repository's git history. The list updates on every push that touches the site.</p>
-<p class="lb" data-lang="ja">直近 {len(rows) if rows else 0} 件のコミット。リポジトリの git 履歴から直接読み込み、サイトファイルを含むプッシュのたびに更新されます。</p>
-{listing}
-<p><a href="index.html">Back to the index &rarr;</a></p>
-</section>
+<div class="site-layout">
+{sidebar("changes", "", "")}
+<main class="site-content" id="main">
+  <header class="page-head">
+    <p class="eyebrow">HISTORY / GIT LOG</p>
+    <h1 class="page-title" id="changes">{lang_span({"zh": "最近改动", "en": "Recent changes", "ja": "最近の変更"}, LANGS)}</h1>
+    <p class="page-lead lb" data-lang="zh">最近 {count} 次提交，直接读取本仓库的 git 历史。每次推送站点文件时，这个列表会随构建一起更新。</p>
+    <p class="page-lead lb" data-lang="en">The latest {count} commits, read straight from this repository's git history. The list updates on every push that touches the site.</p>
+    <p class="page-lead lb" data-lang="ja">直近 {count} 件のコミット。リポジトリの git 履歴から直接読み込み、サイトファイルを含むプッシュのたびに更新されます。</p>
+  </header>
+  {listing}
+  <p><a class="button" href="index.html">{lang_span({"zh": "返回目录", "en": "Back to the index", "ja": "目次へ戻る"}, LANGS)} &rarr;</a></p>
+</main>
+</div>
+{footer("")}
 </div>
 {tail_block("")}'''
     return html
@@ -863,42 +906,56 @@ def home() -> str:
         i18n = SECTIONS_I18N.get(slug, {})
         label_of = {l: i18n.get(l, (label, ""))[0] for l in LANGS}
         scope_of = {l: i18n.get(l, (scope, ""))[1] for l in LANGS}
-        items = "\n".join(
-            '<li><a href="' + slug + '/' + d[0] + '.html" class="lb-link">'
-            + "".join(
-                f'<span class="lb" data-lang="{l}">{esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[0])} - {esc(LANG_TITLES.get((slug, d[0]), {}).get(l, (d[1], d[2]))[1])}</span>'
-                for l in LANGS
+        items = []
+        for di, d in enumerate(docs, start=1):
+            meta = LANG_TITLES.get((slug, d[0]), {})
+            title_spans = lang_span({l: meta.get(l, (d[1], d[2]))[0] for l in LANGS}, LANGS)
+            desc_spans = lang_span({l: meta.get(l, (d[1], d[2]))[1] for l in LANGS}, LANGS)
+            items.append(
+                f'<li><a class="doc-link" href="{slug}/{d[0]}.html">'
+                f'<span class="doc-num">{di:02d}</span>'
+                f'<span class="doc-copy"><span class="doc-title">{title_spans}</span>'
+                f'<span class="doc-desc">{desc_spans}</span></span></a></li>'
             )
-            + "</a></li>"
-            for d in docs
-        )
-        h2 = '<a href="' + slug + '/index.html" class="lb-link">' + "".join(
-            f'<span class="lb" data-lang="{l}">{esc(label_of[l])}</span>' for l in LANGS
-        ) + "</a>"
-        scope_line = "".join(
-            f'<p class="lb" data-lang="{l}">{esc(scope_of[l])} - {len(docs)} documents.</p>' for l in LANGS
-        )
+        label_spans = lang_span(label_of, LANGS)
+        scope_spans = lang_span(scope_of, LANGS)
+        english_label = esc(i18n.get("en", (label, ""))[0]).upper()
         sections_html.append(
-            f'''<h2>{h2}</h2>
-{scope_line}
-<ul>
-{items}
-</ul>'''
+            f'''<section class="chapter-index" id="{slug}">
+  <h2 class="section-heading"><a class="section-title" href="{slug}/index.html">{label_spans}</a><span class="section-label">{num} / {english_label}</span></h2>
+  <p class="chapter-scope">{scope_spans}</p>
+  <ul class="doc-list">
+{chr(10).join(items)}
+  </ul>
+</section>'''
         )
     total = sum(len(s[3]) for s in SECTIONS)
+    lead_zh = f'{esc(SITE["tagline"])}。{total} 篇文档，分 {len(SECTIONS)} 章。每个工具一页：做什么、怎么调、哪些选项要紧、本仓库实际配置了什么。'
+    lead_en = f'{esc(SITE["tagline"])}. {total} documents in {len(SECTIONS)} sections. Each tool has its own page: what it does, how to invoke it, which flags matter, and what this repository actually configures.'
+    lead_ja = f'{esc(SITE["tagline"])}。{total} 件のドキュメントを {len(SECTIONS)} 章に分けています。ツールごとに 1 ページ：役割・呼び出し方・重要なフラグ・このリポジトリでの実際の設定。'
     html = f'''{head_block("dotfiles.iamcheyan.com", SITE["tagline"], "")}
 <body>
-<div class="wrapper">
+<a class="skip-link" href="#main">{lang_span({"zh": "跳到正文", "en": "Skip to content", "ja": "本文へ"}, LANGS)}</a>
+<div class="site-shell">
 {header("home", "", "")}
-<section>
-<h1 id="dotfiles">dotfiles.iamcheyan.com</h1>
-<p class="lb" data-lang="zh">{esc(SITE["tagline"])}。{total} 篇文档，分 {len(SECTIONS)} 章。每个工具一页：做什么、怎么调、哪些选项要紧、本仓库实际配置了什么。</p>
-<p class="lb" data-lang="en">{esc(SITE["tagline"])}. {total} documents in {len(SECTIONS)} sections. Each tool has its own page: what it does, how to invoke it, which flags matter, and what this repository actually configures.</p>
-<p class="lb" data-lang="ja">{esc(SITE["tagline"])}。{total} 件のドキュメントを {len(SECTIONS)} 章に分けています。ツールごとに 1 ページ：役割・呼び出し方・重要なフラグ・このリポジトリでの実際の設定。</p>
-<p><a href="start/index.html">Start with installation &rarr;</a> &nbsp;
-<a href="changes.html">Recent changes &rarr;</a></p>
-{"".join(sections_html)}
-</section>
+<div class="site-layout">
+{sidebar("home", "", "")}
+<main class="site-content" id="main">
+  <section class="home-intro">
+    <p class="eyebrow">PUBLIC DOTFILES / FIELD MANUAL</p>
+    <h1 class="page-title" id="dotfiles">dotfiles<span class="brand-dot">.</span>iamcheyan.com</h1>
+    <p class="page-lead lb" data-lang="zh">{lead_zh}</p>
+    <p class="page-lead lb" data-lang="en">{lead_en}</p>
+    <p class="page-lead lb" data-lang="ja">{lead_ja}</p>
+    <div class="home-actions">
+      <a class="button button-primary" href="start/index.html">{lang_span({"zh": "从安装开始", "en": "Start with installation", "ja": "導入から始める"}, LANGS)}</a>
+      <a class="button" href="changes.html">{lang_span({"zh": "最近改动", "en": "Recent changes", "ja": "最近の変更"}, LANGS)}</a>
+    </div>
+  </section>
+{chr(10).join(sections_html)}
+</main>
+</div>
+{footer("")}
 </div>
 {tail_block("")}'''
     return html
