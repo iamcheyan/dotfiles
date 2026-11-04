@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Permanently destroy one tmux session and its tmux-persist snapshots.
+set -euo pipefail
+
+session=${1:?usage: tmux-destroy-session SESSION}
+plugin_dir="$HOME/.config/tmux/plugins/tmux-persist/scripts"
+if [[ ! -r "$plugin_dir/variables.sh" || ! -r "$plugin_dir/helpers.sh" ]]; then
+  printf 'tmux-destroy-session: tmux-persist helpers are unavailable; refusing to kill %s\n' "$session" >&2
+  exit 1
+fi
+
+# Use tmux-persist's own path and filename encoding so custom @persist-dir values
+# and names containing slash/percent are handled exactly as the plugin handles them.
+source "$plugin_dir/variables.sh"
+source "$plugin_dir/helpers.sh"
+dir=$(persist_dir)
+safe_session=$(_sanitize_session_for_path "$session")
+[[ -d "$dir" ]] || { printf 'tmux-destroy-session: snapshot directory is absent; refusing to kill %s\n' "$session" >&2; exit 1; }
+
+shopt -s nullglob
+snapshots=("$dir/${safe_session}_"????????T??????.*)
+companions=("$dir/${safe_session}_"????????T??????_pane_contents.tgz)
+rm -f -- "${snapshots[@]}" "${companions[@]}" \
+  "$dir/${safe_session}_last" "$dir/${safe_session}_last.hash"
+tmux kill-session -t "$session"
