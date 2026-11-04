@@ -1,10 +1,10 @@
-> 摘要：tmux 的 7 个插件各自负责什么，怎么安装，读哪一篇。
+> 摘要：tmux 的 10 个插件各自负责什么，怎么安装，读哪一篇。
 
 # 本章导读
 
 ## 插件全景
 
-`config/tmux/tmux.conf` 声明 7 项：1 个管理器 + 6 个功能插件。
+`config/tmux/tmux.conf` 声明 10 项：1 个管理器 + 9 个功能插件。
 
 | 插件 | 一句话 | 文档 |
 |---|---|---|
@@ -15,6 +15,9 @@
 | tmux-yank | 复制到系统剪贴板 | [yank](yank.html) |
 | vim-tmux-navigator | `Ctrl+h/j/k/l` 跨 Neovim 与 pane | [vim-navigator](vim-navigator.html) |
 | tmux-fzf | fzf 查找 session / window / pane | [tmux-fzf](tmux-fzf.html) |
+| tmux-thumbs | 屏幕路径 / Hash 双字母标签无鼠标复制（`Prefix + T`） | [tmux-thumbs](tmux-thumbs.html) |
+| extrakto | fzf 模糊搜索当前屏幕词条并插入或复制（`Prefix + Tab`） | [extrakto](extrakto.html) |
+| tmux-notify | 后台分屏长耗时命令完成通知（`Prefix + N`） | [tmux-notify](tmux-notify.html) |
 
 ## 安装路径
 
@@ -87,13 +90,13 @@ echo $TMUX_PLUGIN_MANAGER_PATH      # 路径对不对（在 tmux 里执行）
 
 <!-- lang:en -->
 
-> Summary: what each of tmux's 7 plugins is responsible for, how to install them, and which page to read.
+> Summary: what each of tmux's 10 plugins is responsible for, how to install them, and which page to read.
 
 # Chapter Guide
 
 ## Plugin overview
 
-`config/tmux/tmux.conf` declares 7 entries: 1 manager + 6 feature plugins.
+`config/tmux/tmux.conf` declares 10 entries: 1 manager + 9 feature plugins.
 
 | Plugin | In one line | Docs |
 |---|---|---|
@@ -104,6 +107,9 @@ echo $TMUX_PLUGIN_MANAGER_PATH      # 路径对不对（在 tmux 里执行）
 | tmux-yank | Copy to the system clipboard | [yank](yank.html) |
 | vim-tmux-navigator | `Ctrl+h/j/k/l` across Neovim and panes | [vim-navigator](vim-navigator.html) |
 | tmux-fzf | fzf for finding session / window / pane | [tmux-fzf](tmux-fzf.html) |
+| tmux-thumbs | Two-letter hint labels for mouseless copying (`Prefix + T`) | [tmux-thumbs](tmux-thumbs.html) |
+| extrakto | Fuzzy-extract words/paths/URLs from the pane with fzf (`Prefix + Tab`) | [extrakto](extrakto.html) |
+| tmux-notify | Notify when a background pane command finishes (`Prefix + N`) | [tmux-notify](tmux-notify.html) |
 
 ## Installation path
 
@@ -176,13 +182,13 @@ echo $TMUX_PLUGIN_MANAGER_PATH      # 路径对不对（在 tmux 里执行）
 
 <!-- lang:ja -->
 
-> 要約：tmux の 7 つのプラグインがそれぞれ何を担い、どうインストールし、どのページを読むべきかの説明です。
+> 要約：tmux の 10 個のプラグインがそれぞれ何を担い、どうインストールし、どのページを読むべきかの説明です。
 
 # 本章のガイド
 
 ## プラグイン一覧
 
-`config/tmux/tmux.conf` には 7 項目を宣言しています：マネージャ 1 つ + 機能プラグイン 6 つ。
+`config/tmux/tmux.conf` には 10 項目を宣言しています：マネージャ 1 つ + 機能プラグイン 9 つ。
 
 | プラグイン | 一言でいうと | ドキュメント |
 |---|---|---|
@@ -193,6 +199,9 @@ echo $TMUX_PLUGIN_MANAGER_PATH      # 路径对不对（在 tmux 里执行）
 | tmux-yank | システムクリップボードへのコピー | [yank](yank.html) |
 | vim-tmux-navigator | `Ctrl+h/j/k/l` を Neovim と pane の間で共有 | [vim-navigator](vim-navigator.html) |
 | tmux-fzf | fzf で session / window / pane を探す | [tmux-fzf](tmux-fzf.html) |
+| tmux-thumbs | 画面上のパスやハッシュを 2 文字ヒントでコピー（`Prefix + T`） | [tmux-thumbs](tmux-thumbs.html) |
+| extrakto | 画面内の単語・パス・URL を fzf で抽出（`Prefix + Tab`） | [extrakto](extrakto.html) |
+| tmux-notify | バックグラウンド pane の処理完了通知（`Prefix + N`） | [tmux-notify](tmux-notify.html) |
 
 ## インストール先
 

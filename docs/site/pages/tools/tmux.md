@@ -109,12 +109,21 @@ set -g extended-keys off
 | 键 | 作用 |
 |---|---|
 | `Prefix + c` | 新窗口（继承当前路径） |
-| `Prefix + H` | pane 向左扩 5 格 |
-| `Prefix + J` | pane 向下扩 5 格 |
-| `Prefix + K` | pane 向上扩 5 格 |
-| `Prefix + L` | pane 向右扩 5 格 |
-| `Prefix + X` | 确认后结束 session |
+| `Prefix + %` / `"` | 左右 / 上下分屏（继承当前路径） |
+| `Prefix + e` | 在 Neovim 中打开当前分屏全部滚屏内容（末尾定位，按 `q` 退出） |
+| `Prefix + B` | 在最近使用的两个 session 之间来回切换 |
+| `Prefix + g` | 弹出居中浮动 `lazygit` |
+| `Prefix + Alt+t` | 弹出居中临时浮动 Shell |
+| `Prefix + Ctrl+y` | 切换当前窗口所有分屏同步输入 |
+| `Prefix + T` | 启动 `tmux-thumbs` 屏幕双字母提示标签复制 |
+| `Prefix + Tab` | 启动 `extrakto` 用 fzf 模糊提取当前屏幕词条/路径/URL |
+| `Prefix + N` / `Alt+N` | 开启 / 取消 `tmux-notify` 后台分屏任务完成提醒 |
+| `Prefix + H/J/K/L` | 连续调整当前 pane 大小（每次 5 格） |
+| `Prefix + h/j/k/l` | 移动当前 pane 到窗口边缘 |
+| `Prefix + m` / `S` | 标记当前 pane / 与已标记的 pane 互换位置 |
+| `Prefix + X` | 确认后销毁当前 session 及其持久化快照 |
 | `Prefix + x` | 结束当前 pane |
+| 右键 / `Alt + 右键` | 打开统一的分屏操作菜单（程序占用鼠标时用 `Alt + 右键`） |
 
 `H/J/K/L` 用 `-r` 声明可重复，按住连续调整。
 
@@ -128,6 +137,9 @@ set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @plugin 'tmux-plugins/tmux-yank'
 set -g @plugin 'christoomey/vim-tmux-navigator'
 set -g @plugin 'sainnhe/tmux-fzf'
+set -g @plugin 'fcsonline/tmux-thumbs'
+set -g @plugin 'laktak/extrakto'
+set -g @plugin 'rickstaa/tmux-notify'
 ```
 
 | 插件 | 作用 |
@@ -139,6 +151,9 @@ set -g @plugin 'sainnhe/tmux-fzf'
 | tmux-yank | 复制到系统剪贴板 |
 | vim-tmux-navigator | `Ctrl+h/j/k/l` 跨 Neovim/tmux 切换 |
 | tmux-fzf | fzf 选择 session/window/pane |
+| tmux-thumbs | 屏幕文本/路径双字母提示标签无鼠标复制（`Prefix + T`） |
+| extrakto | fzf 模糊提取当前屏幕词条并插入或复制（`Prefix + Tab`） |
+| tmux-notify | 后台分屏命令完成提醒（`Prefix + N`） |
 
 **安装插件**：`Prefix + I`。**更新**：`Prefix + U`。
 
@@ -261,12 +276,21 @@ Reason: Kitty's CSI-u protocol encodes `Ctrl+J` as `ESC [ 106 ; 5 u`. If the rem
 | Key | Effect |
 |---|---|
 | `Prefix + c` | New window (inherits current path) |
-| `Prefix + H` | Expand pane left by 5 cells |
-| `Prefix + J` | Expand pane down by 5 cells |
-| `Prefix + K` | Expand pane up by 5 cells |
-| `Prefix + L` | Expand pane right by 5 cells |
-| `Prefix + X` | End session after confirmation |
+| `Prefix + %` / `"` | Horizontal / vertical split (inherits current path) |
+| `Prefix + e` | Open full pane scrollback in Neovim at the bottom (`q` to close) |
+| `Prefix + B` | Toggle between the two most recently used sessions |
+| `Prefix + g` | Open centered floating `lazygit` popup |
+| `Prefix + Alt+t` | Open centered floating shell popup |
+| `Prefix + Ctrl+y` | Toggle synchronized input across all panes in the window |
+| `Prefix + T` | Launch `tmux-thumbs` two-letter hint labels |
+| `Prefix + Tab` | Launch `extrakto` fzf text/path/URL extractor |
+| `Prefix + N` / `Alt+N` | Start / cancel `tmux-notify` background command monitoring |
+| `Prefix + H/J/K/L` | Continuously resize pane by 5 cells |
+| `Prefix + h/j/k/l` | Move pane to the window edge |
+| `Prefix + m` / `S` | Mark pane / swap with marked pane |
+| `Prefix + X` | Destroy session and its saved snapshots after confirmation |
 | `Prefix + x` | End current pane |
+| Right-click / `Alt + Right-click` | Open unified pane menu (`Alt + Right-click` bypasses app mouse capture) |
 
 `H/J/K/L` are declared repeatable with `-r`, so you can hold them to resize continuously.
 
@@ -281,6 +305,9 @@ Reason: Kitty's CSI-u protocol encodes `Ctrl+J` as `ESC [ 106 ; 5 u`. If the rem
 | tmux-yank | Copy to the system clipboard |
 | vim-tmux-navigator | Switch between Neovim/tmux with `Ctrl+h/j/k/l` |
 | tmux-fzf | Use fzf to select a session/window/pane |
+| tmux-thumbs | Two-letter hint labels for mouseless copying (`Prefix + T`) |
+| extrakto | Fuzzy-extract words/paths/URLs from the pane with fzf (`Prefix + Tab`) |
+| tmux-notify | Alert when a background pane command finishes (`Prefix + N`) |
 
 **Install plugins**: `Prefix + I`. **Update**: `Prefix + U`.
 
@@ -457,12 +484,21 @@ copy mode では `hjkl` で移動し、`v` で選択し、`y` でコピーしま
 | キー | 効果 |
 |---|---|
 | `Prefix + c` | 新しい window（現在のパスを継承） |
-| `Prefix + H` | pane を左へ5セル広げます |
-| `Prefix + J` | pane を下へ5セル広げます |
-| `Prefix + K` | pane を上へ5セル広げます |
-| `Prefix + L` | pane を右へ5セル広げます |
-| `Prefix + X` | 確認後に session を終了します |
+| `Prefix + %` / `"` | 左右 / 上下分割（現在のパスを継承） |
+| `Prefix + e` | 現在の pane の全スクロールバックを Neovim で開きます（`q` で終了） |
+| `Prefix + B` | 直前に使用した 2 つの session 間を切り替えます |
+| `Prefix + g` | `lazygit` のフローティングポップアップを開きます |
+| `Prefix + Alt+t` | 一時シェルのフローティングポップアップを開きます |
+| `Prefix + Ctrl+y` | ウィンドウ内の全 pane への同時入力を切り替えます |
+| `Prefix + T` | `tmux-thumbs` の 2 文字ヒントラベルを起動します |
+| `Prefix + Tab` | `extrakto` で画面内の単語・パス・URL を fzf 抽出します |
+| `Prefix + N` / `Alt+N` | `tmux-notify` によるバックグラウンド処理完了通知を開始 / 解除します |
+| `Prefix + H/J/K/L` | pane を 5 セルずつ連続リサイズします |
+| `Prefix + h/j/k/l` | pane をウィンドウ端へ移動します |
+| `Prefix + m` / `S` | pane をマーク / マーク済み pane と入れ替えます |
+| `Prefix + X` | 確認後に session と保存スナップショットを削除します |
 | `Prefix + x` | 現在の pane を終了します |
+| 右クリック / `Alt + 右クリック` | 共通の pane メニューを開きます |
 
 `H/J/K/L` は `-r` で連続入力可能にしているため、押し続けてサイズを調整できます。
 
@@ -477,6 +513,9 @@ copy mode では `hjkl` で移動し、`v` で選択し、`y` でコピーしま
 | tmux-yank | システムのクリップボードへコピー |
 | vim-tmux-navigator | `Ctrl+h/j/k/l` で Neovim/tmux 間を移動 |
 | tmux-fzf | fzf で session/window/pane を選択 |
+| tmux-thumbs | 2 文字ヒントラベルでパスやハッシュをコピー（`Prefix + T`） |
+| extrakto | fzf で画面内の単語・パス・URL を抽出（`Prefix + Tab`） |
+| tmux-notify | バックグラウンド pane のコマンド完了通知（`Prefix + N`） |
 
 **プラグインのインストール**：`Prefix + I`。**更新**：`Prefix + U`。
 

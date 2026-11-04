@@ -183,9 +183,9 @@ SECTIONS = [
     (
         "tmux-plugins",
         "tmux 插件",
-        "TPM 与六个插件的用途、配置项与用法",
+        "TPM 与九个插件的用途、配置项与用法",
         [
-            ("intro", "本章导读", "7 个插件各自的职责与安装方式。"),
+            ("intro", "本章导读", "10 个插件各自的职责与安装方式。"),
             ("tpm", "TPM", "插件管理器本体：安装、更新、清理。"),
             ("sensible", "tmux-sensible", "一组公认合理的默认值。"),
             ("persist", "tmux-persist", "手动保存与恢复会话。"),
@@ -193,6 +193,9 @@ SECTIONS = [
             ("yank", "tmux-yank", "复制到系统剪贴板，含 OSC 52。"),
             ("vim-navigator", "vim-tmux-navigator", "Ctrl+h/j/k/l 跨 Neovim 与 pane 切换。"),
             ("tmux-fzf", "tmux-fzf", "用 fzf 查找 session、window、pane。"),
+            ("tmux-thumbs", "tmux-thumbs", "屏幕文本与路径的双字母快速标签复制。"),
+            ("extrakto", "extrakto", "用 fzf 模糊提取当前屏幕上的单词、路径或 URL。"),
+            ("tmux-notify", "tmux-notify", "后台分屏长耗时命令完成提醒。"),
         ],
     ),
     (

@@ -116,13 +116,34 @@ bind -r L resize-pane -R 5
 
 `-r` 表示可重复：按住不放会连续调整，每次 5 格。
 
-## 结束会话
+## 结束会话与快捷操作
 
 ```tmux
-bind X confirm-before -p "kill-session #S? (y/n)" kill-session
+set -g detach-on-destroy off
+set -g word-separators " ()[]{}<>\"'"
+
+bind e run-shell 'tmp=$(mktemp "${TMPDIR:-/tmp}/tmux-scrollback.XXXXXX.log") || exit 1; tmux capture-pane -p -J -S - -E - -t "#{pane_id}" | awk "{ lines[NR] = \$0; if (\$0 != \"\") last = NR } END { for (i = 1; i <= last; i++) print lines[i] }" > "$tmp"; tmux new-window -c "#{pane_current_path}" -n "scrollback" "nvim +\"normal! G\" -c \"nnoremap <buffer> <silent> q :q!<CR>\" \"$tmp\"; rm -f \"$tmp\""'
+bind B switch-client -l
+bind g display-popup -E -w 90% -h 90% -d "#{pane_current_path}" "lazygit"
+bind M-t display-popup -E -w 85% -h 85% -d "#{pane_current_path}" "$SHELL"
+bind C-y setw synchronize-panes \; display-message "synchronize-panes: #{?pane_synchronized,ON,OFF}"
+bind -T copy-mode-vi [ send-keys -X previous-prompt
+bind -T copy-mode-vi ] send-keys -X next-prompt
+bind X confirm-before -p "Destroy session #S and its saved state? (y/n)" "run-shell '\"$HOME/dotfiles/scripts/tmux-destroy-session\" \"#{session_name}\"'"
 ```
 
-大写 `X` 结束整个 session，带确认。小写 `x` 是 tmux 默认的「结束 pane」。
+| 选项 / 快捷键 | 作用 |
+|---|---|
+| `detach-on-destroy off` | 关闭当前 session 最后一个窗口时不退回外层终端，而是自动切到其余活跃 session |
+| `word-separators` | 去掉 `/`、`.`、`:`、`-`、`_`、`@`，使鼠标双击能一次性选中完整的文件路径或 URL |
+| `Prefix + e` | 抓取当前分屏全部历史滚屏（自动拼接折行）并在 Neovim 中打开，定位到末尾，按 `q` 一键关闭 |
+| `Prefix + B` | 在最近使用的两个 session 之间来回秒切（与 `Prefix + b` 切最近 window 对称） |
+| `Prefix + g` | 在当前分屏目录弹出 90% 大小的居中浮动 `lazygit` |
+| `Prefix + Alt+t` | 在当前分屏目录弹出 85% 大小的居中临时浮动 Shell |
+| `Prefix + Ctrl+y` | 切换当前窗口所有分屏同步输入（`synchronize-panes`），并在状态栏提示开关状态 |
+| `copy-mode-vi` 下 `[` / `]` | 在上一条 / 下一条 Shell 提示符之间快速跳转 |
+| `Prefix + X` | 确认后彻底销毁当前 session 并清理其 `tmux-persist` 保存快照 |
+| 普通右键 / `Alt + 右键` | 弹出完全一致的完整分屏菜单；当分屏内程序接管了鼠标（如 `nvim`、`pi`）时，普通右键交给程序，`Alt + 右键` 强制弹出同一份 tmux 菜单 |
 
 ## TPM 插件
 
@@ -136,19 +157,25 @@ set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @plugin 'tmux-plugins/tmux-yank'
 set -g @plugin 'christoomey/vim-tmux-navigator'
 set -g @plugin 'sainnhe/tmux-fzf'
+set -g @plugin 'fcsonline/tmux-thumbs'
+set -g @plugin 'laktak/extrakto'
+set -g @plugin 'rickstaa/tmux-notify'
 
 run '~/.config/tmux/plugins/tpm/tpm'
 ```
 
-| 插件 | 作用 |
-|---|---|
-| tpm | 插件管理器 |
-| tmux-sensible | 公认合理的默认值 |
-| tmux-persist | 保存/恢复会话 |
-| tmux-continuum | 自动保存与恢复 |
-| tmux-yank | 复制到系统剪贴板 |
-| vim-tmux-navigator | `Ctrl+h/j/k/l` 跨 Neovim/tmux |
-| tmux-fzf | fzf 选择 session/window/pane |
+| 插件 | 快捷键 | 作用 |
+|---|---|---|
+| tpm | `Prefix + I` / `U` | 插件管理器 |
+| tmux-sensible | — | 公认合理的默认值 |
+| tmux-persist | `Prefix + Ctrl+s` / `Ctrl+r` | 保存/恢复会话 |
+| tmux-continuum | 自动 | 自动保存与恢复 |
+| tmux-yank | `y` | 复制到系统剪贴板 |
+| vim-tmux-navigator | `Ctrl+h/j/k/l` | 跨 Neovim/tmux 切换焦点 |
+| tmux-fzf | `Prefix + F` | fzf 选择 session/window/pane |
+| tmux-thumbs | `Prefix + T` | 屏幕路径/Hash/URL 双字母标签无鼠标复制 |
+| extrakto | `Prefix + Tab` | fzf 模糊提取当前屏幕上的词条、路径或整行 |
+| tmux-notify | `Prefix + N` / `Alt+N` | 后台分屏长耗时命令完成提醒（保留 `Prefix + m` 标记分屏） |
 
 首次安装：`Prefix + I`。更新：`Prefix + U`。
 
@@ -332,13 +359,34 @@ bind -r L resize-pane -R 5
 
 `-r` means repeatable: holding the key continuously resizes by 5 cells at a time.
 
-## Ending a Session
+## Ending a Session and Quick Actions
 
 ```tmux
-bind X confirm-before -p "kill-session #S? (y/n)" kill-session
+set -g detach-on-destroy off
+set -g word-separators " ()[]{}<>\"'"
+
+bind e run-shell 'tmp=$(mktemp "${TMPDIR:-/tmp}/tmux-scrollback.XXXXXX.log") || exit 1; tmux capture-pane -p -J -S - -E - -t "#{pane_id}" | awk "{ lines[NR] = \$0; if (\$0 != \"\") last = NR } END { for (i = 1; i <= last; i++) print lines[i] }" > "$tmp"; tmux new-window -c "#{pane_current_path}" -n "scrollback" "nvim +\"normal! G\" -c \"nnoremap <buffer> <silent> q :q!<CR>\" \"$tmp\"; rm -f \"$tmp\""'
+bind B switch-client -l
+bind g display-popup -E -w 90% -h 90% -d "#{pane_current_path}" "lazygit"
+bind M-t display-popup -E -w 85% -h 85% -d "#{pane_current_path}" "$SHELL"
+bind C-y setw synchronize-panes \; display-message "synchronize-panes: #{?pane_synchronized,ON,OFF}"
+bind -T copy-mode-vi [ send-keys -X previous-prompt
+bind -T copy-mode-vi ] send-keys -X next-prompt
+bind X confirm-before -p "Destroy session #S and its saved state? (y/n)" "run-shell '\"$HOME/dotfiles/scripts/tmux-destroy-session\" \"#{session_name}\"'"
 ```
 
-Uppercase `X` ends the entire session after confirmation. Lowercase `x` is tmux's default for ending a pane.
+| Option / Key | Effect |
+|---|---|
+| `detach-on-destroy off` | Switch to another active session instead of detaching when closing the last window |
+| `word-separators` | Omits `/`, `.`, `:`, `-`, `_`, `@` so double-clicking selects full file paths and URLs |
+| `Prefix + e` | Capture full pane scrollback (joining wrapped lines) and open in Neovim at the bottom (`q` to close) |
+| `Prefix + B` | Toggle between the two most recently used sessions |
+| `Prefix + g` | Open a centered 90% floating `lazygit` popup in the current pane directory |
+| `Prefix + Alt+t` | Open a centered 85% floating shell popup in the current pane directory |
+| `Prefix + Ctrl+y` | Toggle `synchronize-panes` across all panes in the current window |
+| `[` / `]` in `copy-mode-vi` | Jump to previous / next shell prompt |
+| `Prefix + X` | Destroy the current session and purge its `tmux-persist` snapshots after confirmation |
+| Right-click / `Alt + Right-click` | Expose the exact same full pane menu; when an app captures the mouse (`nvim`, `pi`), normal right-click goes to the app while `Alt + Right-click` opens the tmux menu |
 
 ## TPM Plugins
 
@@ -352,19 +400,25 @@ set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @plugin 'tmux-plugins/tmux-yank'
 set -g @plugin 'christoomey/vim-tmux-navigator'
 set -g @plugin 'sainnhe/tmux-fzf'
+set -g @plugin 'fcsonline/tmux-thumbs'
+set -g @plugin 'laktak/extrakto'
+set -g @plugin 'rickstaa/tmux-notify'
 
 run '~/.config/tmux/plugins/tpm/tpm'
 ```
 
-| Plugin | Effect |
-|---|---|
-| tpm | Plugin manager |
-| tmux-sensible | Widely accepted sensible defaults |
-| tmux-persist | Save/restore sessions |
-| tmux-continuum | Automatic saving and restoring |
-| tmux-yank | Copy to the system clipboard |
-| vim-tmux-navigator | Navigate between Neovim and tmux with `Ctrl+h/j/k/l` |
-| tmux-fzf | Select sessions/windows/panes with fzf |
+| Plugin | Key | Effect |
+|---|---|---|
+| tpm | `Prefix + I` / `U` | Plugin manager |
+| tmux-sensible | — | Widely accepted sensible defaults |
+| tmux-persist | `Prefix + Ctrl+s` / `Ctrl+r` | Save/restore sessions |
+| tmux-continuum | Auto | Automatic saving and restoring |
+| tmux-yank | `y` | Copy to the system clipboard |
+| vim-tmux-navigator | `Ctrl+h/j/k/l` | Navigate between Neovim and tmux |
+| tmux-fzf | `Prefix + F` | Select sessions/windows/panes with fzf |
+| tmux-thumbs | `Prefix + T` | Two-letter hint labels for mouseless copying |
+| extrakto | `Prefix + Tab` | Fuzzy-extract words, paths, or lines with fzf |
+| tmux-notify | `Prefix + N` / `Alt+N` | Alert when background pane commands finish |
 
 First install: `Prefix + I`. Update: `Prefix + U`.
 
@@ -548,13 +602,34 @@ bind -r L resize-pane -R 5
 
 `-r` は繰り返し可能という意味です。キーを押し続けると、5 セルずつ連続して調整します。
 
-## セッションの終了
+## セッション終了とショートカット操作
 
 ```tmux
-bind X confirm-before -p "kill-session #S? (y/n)" kill-session
+set -g detach-on-destroy off
+set -g word-separators " ()[]{}<>\"'"
+
+bind e run-shell 'tmp=$(mktemp "${TMPDIR:-/tmp}/tmux-scrollback.XXXXXX.log") || exit 1; tmux capture-pane -p -J -S - -E - -t "#{pane_id}" | awk "{ lines[NR] = \$0; if (\$0 != \"\") last = NR } END { for (i = 1; i <= last; i++) print lines[i] }" > "$tmp"; tmux new-window -c "#{pane_current_path}" -n "scrollback" "nvim +\"normal! G\" -c \"nnoremap <buffer> <silent> q :q!<CR>\" \"$tmp\"; rm -f \"$tmp\""'
+bind B switch-client -l
+bind g display-popup -E -w 90% -h 90% -d "#{pane_current_path}" "lazygit"
+bind M-t display-popup -E -w 85% -h 85% -d "#{pane_current_path}" "$SHELL"
+bind C-y setw synchronize-panes \; display-message "synchronize-panes: #{?pane_synchronized,ON,OFF}"
+bind -T copy-mode-vi [ send-keys -X previous-prompt
+bind -T copy-mode-vi ] send-keys -X next-prompt
+bind X confirm-before -p "Destroy session #S and its saved state? (y/n)" "run-shell '\"$HOME/dotfiles/scripts/tmux-destroy-session\" \"#{session_name}\"'"
 ```
 
-大文字の `X` は確認後、セッション全体を終了します。小文字の `x` は tmux の既定動作で pane を終了します。
+| オプション / キー | 効果 |
+|---|---|
+| `detach-on-destroy off` | 最後のウィンドウを閉じたとき tmux を終了せず、他のアクティブな session に切り替えます |
+| `word-separators` | `/`、`.`、`:`、`-`、`_`、`@` を除外し、ダブルクリックでパスや URL 全体を選択できるようにします |
+| `Prefix + e` | 現在の pane の全スクロールバックを Neovim で開き、末尾へ移動します（`q` で終了） |
+| `Prefix + B` | 直前に使っていた session と交互に切り替えます |
+| `Prefix + g` | 現在のディレクトリで `lazygit` のフローティングポップアップを開きます |
+| `Prefix + Alt+t` | 現在のディレクトリで一時シェルのフローティングポップアップを開きます |
+| `Prefix + Ctrl+y` | 現在のウィンドウの全 pane への同時入力（`synchronize-panes`）を切り替えます |
+| `copy-mode-vi` の `[` / `]` | 前後のシェルプロンプトへジャンプします |
+| `Prefix + X` | 確認後、現在の session と `tmux-persist` の保存スナップショットを完全に削除します |
+| 右クリック / `Alt + 右クリック` | 同一のフルメニューを表示します（アプリがマウスを使用中は `Alt + 右クリック` で強制表示） |
 
 ## TPM プラグイン
 
@@ -568,19 +643,25 @@ set -g @plugin 'tmux-plugins/tmux-continuum'
 set -g @plugin 'tmux-plugins/tmux-yank'
 set -g @plugin 'christoomey/vim-tmux-navigator'
 set -g @plugin 'sainnhe/tmux-fzf'
+set -g @plugin 'fcsonline/tmux-thumbs'
+set -g @plugin 'laktak/extrakto'
+set -g @plugin 'rickstaa/tmux-notify'
 
 run '~/.config/tmux/plugins/tpm/tpm'
 ```
 
-| プラグイン | 効果 |
-|---|---|
-| tpm | プラグイン管理ツール |
-| tmux-sensible | 広く妥当とされる既定値 |
-| tmux-persist | セッションの保存／復元 |
-| tmux-continuum | 自動保存と復元 |
-| tmux-yank | システムクリップボードへコピー |
-| vim-tmux-navigator | `Ctrl+h/j/k/l` で Neovim と tmux の間を移動します |
-| tmux-fzf | fzf で session/window/pane を選択します |
+| プラグイン | キー | 効果 |
+|---|---|---|
+| tpm | `Prefix + I` / `U` | プラグイン管理ツール |
+| tmux-sensible | — | 広く妥当とされる既定値 |
+| tmux-persist | `Prefix + Ctrl+s` / `Ctrl+r` | セッションの保存／復元 |
+| tmux-continuum | 自動 | 自動保存と復元 |
+| tmux-yank | `y` | システムクリップボードへコピー |
+| vim-tmux-navigator | `Ctrl+h/j/k/l` | Neovim と tmux の間を移動します |
+| tmux-fzf | `Prefix + F` | fzf で session/window/pane を選択します |
+| tmux-thumbs | `Prefix + T` | 2 文字ヒントラベルでパスやハッシュをコピーします |
+| extrakto | `Prefix + Tab` | fzf で画面内の単語・パス・URL を抽出します |
+| tmux-notify | `Prefix + N` / `Alt+N` | バックグラウンド pane のコマンド完了を通知します |
 
 初回インストール：`Prefix + I`。更新：`Prefix + U`。
 
