@@ -1,4 +1,4 @@
-> 摘要：Ctrl+X Ctrl+E 把当前命令行交给 Neovim，Ctrl+O 在命令行中插入换行。
+> 摘要：Ctrl+X Ctrl+E 和 Alt+E 把当前命令行交给 Neovim，Ctrl+O 在命令行中插入换行。
 
 # 长命令编辑
 
@@ -7,9 +7,10 @@
 | 按键 | 模式 | 行为 |
 |---|---|---|
 | `Ctrl+X`、`Ctrl+E` | Insert / Emacs | 把当前命令行放进 `$VISUAL` / `$EDITOR`（本仓库是 Neovim） |
+| `Alt+E` | Insert / Emacs | 使用 `$VISUAL` / `$EDITOR` 编辑当前命令行 |
 | `Ctrl+O` | Insert / Emacs | 在光标处插入真正的换行，不立即执行命令 |
 
-适合 Docker、`kubectl`、`aws`、`curl`、多行 `for` / `if` 或函数定义。短命令直接在命令行改；长命令按 `Ctrl+X Ctrl+E` 进入 Neovim，保存退出后命令回到 ZLE 输入行，按 Enter 才执行。
+适合 Docker、`kubectl`、`aws`、`curl`、多行 `for` / `if` 或函数定义。短命令直接在命令行改；长命令按 `Ctrl+X Ctrl+E` 或 `Alt+E` 进入 Neovim，保存退出后命令回到 ZLE 输入行，按 Enter 才执行。
 
 ## 实现位置
 
@@ -25,8 +26,10 @@ function insert-newline() {
 zle -N insert-newline
 
 bindkey -M emacs '^X^E' edit-command-line
+bindkey -M emacs '^[e' edit-command-line
 bindkey -M emacs '^O' insert-newline
 bindkey -M viins '^X^E' edit-command-line
+bindkey -M viins '^[e' edit-command-line
 bindkey -M viins '^O' insert-newline
 ```
 
@@ -35,6 +38,7 @@ bindkey -M viins '^O' insert-newline
 ```zsh
 function zvm_after_init() {
   zvm_bindkey viins '^X^E' edit-command-line
+  zvm_bindkey viins '^[e' edit-command-line
   zvm_bindkey viins '^O' insert-newline
 }
 ```
@@ -65,8 +69,10 @@ done
 
 ```zsh
 bindkey -M emacs '^X^E'
+bindkey -M emacs '^[e'
 bindkey -M emacs '^O'
 bindkey -M viins '^X^E'
+bindkey -M viins '^[e'
 bindkey -M viins '^O'
 ```
 
@@ -81,7 +87,7 @@ bindkey -M viins '^O'
 **`fc` 的区别**：`fc` 会把编辑后的命令直接执行；`Ctrl+X Ctrl+E` 只是把命令放回输入行，仍可检查再执行。
 
 <!-- lang:en -->
-> Summary: Ctrl+X Ctrl+E sends the current command line to Neovim; Ctrl+O inserts a newline.
+> Summary: Ctrl+X Ctrl+E and Alt+E send the current command line to Neovim; Ctrl+O inserts a newline.
 
 # Editing Long Commands
 
@@ -90,9 +96,10 @@ Two shortcuts cover most long-command editing:
 | Key | Mode | Action |
 |---|---|---|
 | `Ctrl+X`, `Ctrl+E` | Insert / Emacs | Open the current command line in `$VISUAL` / `$EDITOR` (Neovim here) |
+| `Alt+E` | Insert / Emacs | Open the current command line in `$VISUAL` / `$EDITOR` |
 | `Ctrl+O` | Insert / Emacs | Insert a real newline at the cursor without running the command |
 
-This is useful for Docker, `kubectl`, `aws`, `curl`, multi-line `for` / `if` blocks, and function definitions. For short commands, edit inline; for long commands press `Ctrl+X Ctrl+E`, edit in Neovim, save and quit, then press Enter to run.
+This is useful for Docker, `kubectl`, `aws`, `curl`, multi-line `for` / `if` blocks, and function definitions. For short commands, edit inline; for long commands press `Ctrl+X Ctrl+E` or `Alt+E`, edit in Neovim, save and quit, then press Enter to run.
 
 ## Where it lives
 
@@ -108,8 +115,10 @@ function insert-newline() {
 zle -N insert-newline
 
 bindkey -M emacs '^X^E' edit-command-line
+bindkey -M emacs '^[e' edit-command-line
 bindkey -M emacs '^O' insert-newline
 bindkey -M viins '^X^E' edit-command-line
+bindkey -M viins '^[e' edit-command-line
 bindkey -M viins '^O' insert-newline
 ```
 
@@ -118,6 +127,7 @@ bindkey -M viins '^O' insert-newline
 ```zsh
 function zvm_after_init() {
   zvm_bindkey viins '^X^E' edit-command-line
+  zvm_bindkey viins '^[e' edit-command-line
   zvm_bindkey viins '^O' insert-newline
 }
 ```
@@ -148,8 +158,10 @@ Check the bindings:
 
 ```zsh
 bindkey -M emacs '^X^E'
+bindkey -M emacs '^[e'
 bindkey -M emacs '^O'
 bindkey -M viins '^X^E'
+bindkey -M viins '^[e'
 bindkey -M viins '^O'
 ```
 
@@ -164,7 +176,7 @@ They should show `edit-command-line` and `insert-newline`.
 **Difference from `fc`**: `fc` executes the edited command directly; `Ctrl+X Ctrl+E` only returns it to the prompt for review.
 
 <!-- lang:ja -->
-> 要約：Ctrl+X Ctrl+E で現在のコマンドラインを Neovim に渡し、Ctrl+O で改行を挿入します。
+> 要約：Ctrl+X Ctrl+E と Alt+E で現在のコマンドラインを Neovim に渡し、Ctrl+O で改行を挿入します。
 
 # 長いコマンドの編集
 
@@ -173,9 +185,10 @@ They should show `edit-command-line` and `insert-newline`.
 | キー | モード | 動作 |
 |---|---|---|
 | `Ctrl+X`、`Ctrl+E` | Insert / Emacs | 現在のコマンドラインを `$VISUAL` / `$EDITOR`（本リポジトリでは Neovim）で開く |
+| `Alt+E` | Insert / Emacs | 現在のコマンドラインを `$VISUAL` / `$EDITOR` で開く |
 | `Ctrl+O` | Insert / Emacs | コマンドを実行せず、カーソル位置に実際の改行を挿入する |
 
-Docker、`kubectl`、`aws`、`curl`、複数行の `for` / `if`、関数定義などに向いています。短いコマンドはそのまま編集し、長い場合は `Ctrl+X Ctrl+E` で Neovim に移り、保存して終了した後に Enter で実行します。
+Docker、`kubectl`、`aws`、`curl`、複数行の `for` / `if`、関数定義などに向いています。短いコマンドはそのまま編集し、長い場合は `Ctrl+X Ctrl+E` または `Alt+E` で Neovim に移り、保存して終了した後に Enter で実行します。
 
 ## 実装場所
 
@@ -191,8 +204,10 @@ function insert-newline() {
 zle -N insert-newline
 
 bindkey -M emacs '^X^E' edit-command-line
+bindkey -M emacs '^[e' edit-command-line
 bindkey -M emacs '^O' insert-newline
 bindkey -M viins '^X^E' edit-command-line
+bindkey -M viins '^[e' edit-command-line
 bindkey -M viins '^O' insert-newline
 ```
 
@@ -201,6 +216,7 @@ bindkey -M viins '^O' insert-newline
 ```zsh
 function zvm_after_init() {
   zvm_bindkey viins '^X^E' edit-command-line
+  zvm_bindkey viins '^[e' edit-command-line
   zvm_bindkey viins '^O' insert-newline
 }
 ```
@@ -231,8 +247,10 @@ done
 
 ```zsh
 bindkey -M emacs '^X^E'
+bindkey -M emacs '^[e'
 bindkey -M emacs '^O'
 bindkey -M viins '^X^E'
+bindkey -M viins '^[e'
 bindkey -M viins '^O'
 ```
 

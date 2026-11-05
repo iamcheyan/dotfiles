@@ -57,6 +57,7 @@ zsh_plugins_load_main() {
     zvm_bindkey viins '^[[A' atuin-up-search
     zvm_bindkey viins '^[OA' atuin-up-search
     zvm_bindkey viins '^X^E' edit-command-line
+    zvm_bindkey viins '^[e' edit-command-line
     zvm_bindkey viins '^O' insert-newline
     if (( $+widgets[abbr-expand-and-insert] )); then
       zvm_bindkey viins ' ' abbr-expand-and-insert

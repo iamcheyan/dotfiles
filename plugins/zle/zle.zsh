@@ -1,6 +1,6 @@
 # Long-command editing for ZLE.
 #
-# Ctrl+X Ctrl+E opens the current command line in $VISUAL/$EDITOR (Neovim).
+# Ctrl+X Ctrl+E and Alt+E open the current command line in $VISUAL/$EDITOR (Neovim).
 # Ctrl+O inserts a real newline without executing the command.
 #
 # zsh-vi-mode resets the vi keymaps during initialisation, so its bindings are
@@ -16,6 +16,8 @@ function insert-newline() {
 zle -N insert-newline
 
 bindkey -M emacs '^X^E' edit-command-line
+bindkey -M emacs '^[e' edit-command-line
 bindkey -M emacs '^O' insert-newline
 bindkey -M viins '^X^E' edit-command-line 2>/dev/null
+bindkey -M viins '^[e' edit-command-line 2>/dev/null
 bindkey -M viins '^O' insert-newline 2>/dev/null
