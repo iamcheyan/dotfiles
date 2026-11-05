@@ -10,14 +10,14 @@
 
 ```tmux
 set -g @plugin 'laktak/extrakto'
-set -g @extrakto_clip_tool "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux-copy"
+set -g @extrakto_clip_tool "$HOME/dotfiles/scripts/tmux-copy"
 set -g @extrakto_clip_tool_run "fg"
 ```
 
 | 选项 | 值 | 说明 |
 |---|---|---|
 | 默认触发键 | `Prefix + Tab` | 打开 extrakto 的 fzf 提取面板 |
-| `@extrakto_clip_tool` | `${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux-copy` | 复用本仓库统一的剪贴板脚本（同时支持本地剪贴板与 SSH OSC 52） |
+| `@extrakto_clip_tool` | `$HOME/dotfiles/scripts/tmux-copy` | 复用本仓库统一的剪贴板脚本（同时支持本地剪贴板与 SSH OSC 52） |
 | `@extrakto_clip_tool_run` | `fg` | 在前台执行剪贴板脚本，确保 OSC 52 序列能发送到当前客户端终端 |
 
 ## 界面按键
@@ -47,14 +47,14 @@ When a command outputs a long branch name, container ID, file path, or URL that 
 
 ```tmux
 set -g @plugin 'laktak/extrakto'
-set -g @extrakto_clip_tool "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux-copy"
+set -g @extrakto_clip_tool "$HOME/dotfiles/scripts/tmux-copy"
 set -g @extrakto_clip_tool_run "fg"
 ```
 
 | Option | Value | Description |
 |---|---|---|
 | Trigger key | `Prefix + Tab` | Opens the extrakto fzf popup |
-| `@extrakto_clip_tool` | `${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux-copy` | Routes copying through the repository's unified local + OSC 52 clipboard helper |
+| `@extrakto_clip_tool` | `$HOME/dotfiles/scripts/tmux-copy` | Routes copying through the repository's unified local + OSC 52 clipboard helper |
 | `@extrakto_clip_tool_run` | `fg` | Runs the clipboard helper in the foreground so OSC 52 reaches the active client |
 
 ## Keys inside extrakto
@@ -82,7 +82,7 @@ set -g @extrakto_clip_tool_run "fg"
 
 ```tmux
 set -g @plugin 'laktak/extrakto'
-set -g @extrakto_clip_tool "${DOTFILES_DIR:-$HOME/dotfiles}/scripts/tmux-copy"
+set -g @extrakto_clip_tool "$HOME/dotfiles/scripts/tmux-copy"
 set -g @extrakto_clip_tool_run "fg"
 ```
 
