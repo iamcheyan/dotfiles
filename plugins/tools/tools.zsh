@@ -144,3 +144,32 @@ if ! command -v atuin >/dev/null 2>&1; then
   fi
   zinit light atuinsh/atuin
 fi
+
+# 双文件对比：无 tabline、无侧栏。带两个参数比较已有文件；不带参数在 /tmp 建立带时间戳的空文件。
+vidiff() {
+  local editor
+  if (( $+commands[nvim] )); then
+    editor=nvim
+  elif (( $+commands[vim] )); then
+    editor=vim
+  else
+    print -u2 "vidiff: 找不到 nvim 或 vim"
+    return 127
+  fi
+
+  local -a files
+  if (( $# >= 2 )); then
+    files=("$1" "$2")
+  else
+    local stamp="$(date +%Y%m%d-%H%M%S)-$$"
+    files=("/tmp/f1-$stamp" "/tmp/f2-$stamp")
+    : > "${files[1]}"
+    : > "${files[2]}"
+    print -r -- "vidiff: ${files[1]} vs ${files[2]}"
+  fi
+
+  "$editor" -d "${files[@]}" \
+    -c 'set showtabline=0' \
+    -c 'set diffopt+=horizontal' \
+    -c 'lua vim.g.vidiff = true'
+}
