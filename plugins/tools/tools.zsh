@@ -169,7 +169,7 @@ vidiff() {
   fi
 
   "$editor" -d "${files[@]}" \
+    --cmd 'let g:vidiff=1' \
     -c 'set showtabline=0' \
-    -c 'set diffopt+=horizontal' \
-    -c 'lua vim.g.vidiff = true'
+    -c 'set diffopt+=horizontal'
 }
