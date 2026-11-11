@@ -82,7 +82,6 @@
 | toolong | pipx | `tl app.log` | [toolong](toolong.html) |
 | dekit | 上游 install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | 上游 Release | `topgrade` | [topgrade](topgrade.html) |
-| mise | 上游 install.sh | `mise use` | [mise](mise.html) |
 
 ## 数据库
 
@@ -105,7 +104,6 @@
 
 | 工具 | 来源 | 入口 | 文档 |
 |---|---|---|---|
-| navi | Zinit | `navi` | [navi](navi.html) |
 | Pet | Zinit | `pet`、`Ctrl+X Ctrl+R` | [Pet](pet.html) |
 | pay-respects | init.sh | `F` | [pay-respects](pay-respects.html) |
 
@@ -199,7 +197,6 @@
 | toolong | pipx | `tl app.log` | [toolong](toolong.html) |
 | dekit | upstream install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | upstream Release | `topgrade` | [topgrade](topgrade.html) |
-| mise | upstream install.sh | `mise use` | [mise](mise.html) |
 
 ## Databases
 
@@ -222,7 +219,6 @@
 
 | Tool | Source | Entry | Doc |
 |---|---|---|---|
-| navi | Zinit | `navi` | [navi](navi.html) |
 | Pet | Zinit | `pet`, `Ctrl+X Ctrl+R` | [Pet](pet.html) |
 | pay-respects | init.sh | `F` | [pay-respects](pay-respects.html) |
 
@@ -316,7 +312,6 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | toolong | pipx | `tl app.log` | [toolong](toolong.html) |
 | dekit | 上流 install.sh | `dekit up` | [dekit](dekit.html) |
 | topgrade | 上流 Release | `topgrade` | [topgrade](topgrade.html) |
-| mise | 上流 install.sh | `mise use` | [mise](mise.html) |
 
 ## データベース
 
@@ -339,7 +334,6 @@ Find the tool in a table, then open its page. Every page follows the same struct
 
 | ツール | 出所 | 入口 | ドキュメント |
 |---|---|---|---|
-| navi | Zinit | `navi` | [navi](navi.html) |
 | Pet | Zinit | `pet`、`Ctrl+X Ctrl+R` | [Pet](pet.html) |
 | pay-respects | init.sh | `F` | [pay-respects](pay-respects.html) |
 

@@ -205,11 +205,6 @@ agents/claude-code/projects/
 # direnv
 .direnv/
 .envrc.local
-
-# mise / asdf
-.tool-versions.local
-.mise/local.toml
-
 # lazygit
 config/lazygit/state.yml
 

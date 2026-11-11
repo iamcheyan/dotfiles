@@ -95,11 +95,6 @@ if command -v zoxide > /dev/null; then
   alias zr='z -r'      # 移除目录
 fi
 
-# mise: 多语言开发环境与工具版本管理
-if command -v mise > /dev/null; then
-  _evalcache mise activate zsh
-fi
-
 
 # vi 别名：优先使用 nvim，其次 vim，最后 vi
 unalias vi 2>/dev/null

@@ -105,15 +105,15 @@ Tag> git
 
 ## 与其他工具的对比
 
-| | Pet | navi | 别名 |
-|---|---|---|---|
-| 存储 | TOML 文件 | .cheat 文件 | shell 配置 |
-| 占位符 | `{{name}}` | `<name>` | 无 |
-| 交互 | fzf | 自己的界面 | 无 |
-| 同步 | 支持 Gist/GitLab | repo 机制 | 靠 dotfiles |
-| 适合 | 短命令 | 带参数的命令 | 固定命令 |
+| | Pet | 别名 |
+|---|---|---|
+| 存储 | TOML 文件 | shell 配置 |
+| 占位符 | `{{name}}` | 无 |
+| 交互 | fzf | 无 |
+| 同步 | 支持 Gist/GitLab | 靠 dotfiles |
+| 适合 | 带参数的命令 | 固定命令 |
 
-Pet 比别名灵活（有占位符），比 navi 轻量（不需要 cheatsheet 语法）。
+Pet 比普通别名灵活，因为它支持占位符。
 
 ## 同步
 
@@ -259,15 +259,15 @@ This repository only binds `Ctrl+X` `Ctrl+R`, leaving Atuin's up-arrow untouched
 
 ## Comparison with other tools
 
-| | Pet | navi | aliases |
-|---|---|---|---|
-| Storage | TOML file | .cheat files | shell config |
-| Placeholders | `{{name}}` | `<name>` | none |
-| Interaction | fzf | its own UI | none |
-| Sync | Gist/GitLab supported | repo mechanism | via dotfiles |
-| Good for | short commands | commands with parameters | fixed commands |
+| | Pet | aliases |
+|---|---|---|
+| Storage | TOML file | shell config |
+| Placeholders | `{{name}}` | none |
+| Interaction | fzf | none |
+| Sync | Gist/GitLab supported | via dotfiles |
+| Good for | commands with parameters | fixed commands |
 
-Pet is more flexible than aliases (it has placeholders) and lighter than navi (no cheat sheet syntax needed).
+Pet is more flexible than plain aliases because it supports placeholders.
 
 ## Sync
 
@@ -413,15 +413,15 @@ Tag> git
 
 ## 他のツールとの比較
 
-| | Pet | navi | エイリアス |
-|---|---|---|---|
-| 保存 | TOML ファイル | .cheat ファイル | シェル設定 |
-| プレースホルダ | `{{name}}` | `<name>` | なし |
-| インタラクション | fzf | 独自の画面 | なし |
-| 同期 | Gist/GitLab 対応 | repo 仕組み | dotfiles に依存 |
-| 向いているもの | 短いコマンド | パラメータ付きコマンド | 固定コマンド |
+| | Pet | エイリアス |
+|---|---|---|
+| 保存 | TOML ファイル | シェル設定 |
+| プレースホルダ | `{{name}}` | なし |
+| インタラクション | fzf | なし |
+| 同期 | Gist/GitLab 対応 | dotfiles に依存 |
+| 向いているもの | パラメータ付きコマンド | 固定コマンド |
 
-Pet はエイリアスより柔軟（プレースホルダがある）で、navi より軽量（チートシート構文が不要）です。
+Pet はプレースホルダを使えるため、通常のエイリアスより柔軟です。
 
 ## 同期
 

@@ -19,7 +19,7 @@
 | main 阶段 | zsh-syntax-highlighting | **必须最后**，否则 hook 被覆盖 |
 | 任意 | Zinit 本体 | 一切的前提 |
 | 任意 | fzf 补全/键绑定 snippet | 上游脚本，非插件 |
-| 运行时 | navi / Pet hook | 工具装了才接入 |
+| 运行时 | Pet hook | 工具装了才接入 |
 
 ## 为什么顺序不能乱
 
@@ -45,7 +45,7 @@
 | Git 交互命令 | [forgit](forgit.html) |
 | 语法高亮失效 | [zsh-syntax-highlighting](syntax-highlighting.html) |
 | `Ctrl+T` / `Ctrl+R` | [fzf 补全与键绑定](fzf-snippets.html) |
-| `f`、`Ctrl+X Ctrl+R` 从哪来 | [可选工具集成](tool-hooks.html) |
+| `f`、`Ctrl+X Ctrl+R` 从哪来 | [Pet shell 集成](../shell/plugins.html) |
 
 ## 加一个插件的流程
 
@@ -65,15 +65,7 @@ TERM=xterm-256color zsh -lic 'source ~/dotfiles/zshrc >/dev/null 2>&1; true'
 
 ## 一条设计原则
 
-所有可选集成都是「先探测、再加载」：
-
-```zsh
-if command -v navi >/dev/null 2>&1; then
-  eval "$(navi widget zsh)"
-fi
-```
-
-工具没装时什么也不做，shell 照常启动。这条规则让整个配置在没有 Zinit 缓存、没有额外工具的新机器上也能启动。
+所有可选集成都遵循「先探测，再加载」。Pet 的接入方式见 shell 集成章节。
 
 <!-- lang:en -->
 
@@ -98,7 +90,7 @@ fi
 | main stage | zsh-syntax-highlighting | **Must be last**, otherwise hooks get overwritten |
 | Any | Zinit itself | The prerequisite for everything |
 | Any | fzf completion/keybinding snippet | Upstream script, not a plugin |
-| Runtime | navi / Pet hook | Wired in only when the tool is installed |
+| Runtime | Pet hook | Wired in only when the tool is installed |
 
 ## Why the Order Cannot Change
 
@@ -124,7 +116,7 @@ If any of these is violated, the symptoms are subtle: no error is raised, featur
 | Interactive Git commands | [forgit](forgit.html) |
 | Syntax highlighting broken | [zsh-syntax-highlighting](syntax-highlighting.html) |
 | `Ctrl+T` / `Ctrl+R` | [fzf completion and keybindings](fzf-snippets.html) |
-| Where `f`, `Ctrl+X Ctrl+R` come from | [Optional tool integration](tool-hooks.html) |
+| Where `f`, `Ctrl+X Ctrl+R` come from | [Pet shell integration](../shell/plugins.html) |
 
 ## How to Add a Plugin
 
@@ -144,15 +136,7 @@ TERM=xterm-256color zsh -lic 'source ~/dotfiles/zshrc >/dev/null 2>&1; true'
 
 ## One Design Principle
 
-All optional integrations follow "probe first, then load":
-
-```zsh
-if command -v navi >/dev/null 2>&1; then
-  eval "$(navi widget zsh)"
-fi
-```
-
-When a tool is not installed, nothing happens and the shell starts as usual. This rule lets the whole configuration start even on a new machine without the Zinit cache or extra tools.
+All optional integrations follow "probe first, then load." Pet's implementation is documented under shell integration.
 
 <!-- lang:ja -->
 
@@ -177,7 +161,7 @@ When a tool is not installed, nothing happens and the shell starts as usual. Thi
 | main 段階 | zsh-syntax-highlighting | **必ず最後**。そうでないと hook が上書きされる |
 | 任意 | Zinit 本体 | すべての前提 |
 | 任意 | fzf 補完/キーバインド snippet | 上流スクリプトでありプラグインではない |
-| 実行時 | navi / Pet hook | ツールが入っていれば接続 |
+| 実行時 | Pet hook | ツールが入っていれば接続 |
 
 ## なぜ順序を変えてはいけないのか
 
@@ -203,7 +187,7 @@ When a tool is not installed, nothing happens and the shell starts as usual. Thi
 | Git の対話コマンド | [forgit](forgit.html) |
 | シンタックスハイライトが効かない | [zsh-syntax-highlighting](syntax-highlighting.html) |
 | `Ctrl+T` / `Ctrl+R` | [fzf 補完とキーバインド](fzf-snippets.html) |
-| `f`、`Ctrl+X Ctrl+R` の由来 | [オプションツール統合](tool-hooks.html) |
+| `f`、`Ctrl+X Ctrl+R` の由来 | [Pet の shell 統合](../shell/plugins.html) |
 
 ## プラグイン追加の手順
 
@@ -223,12 +207,4 @@ TERM=xterm-256color zsh -lic 'source ~/dotfiles/zshrc >/dev/null 2>&1; true'
 
 ## 一つの設計原則
 
-オプションの統合はすべて「先に検出してから読み込む」方式です：
-
-```zsh
-if command -v navi >/dev/null 2>&1; then
-  eval "$(navi widget zsh)"
-fi
-```
-
-ツールが入っていなければ何もせず、シェルは通常どおり起動します。このルールのおかげで、Zinit のキャッシュも追加ツールもない新しいマシンでも設定全体を起動できます。
+オプションの統合はすべて「先に検出してから読み込む」方式です。Pet の実装は shell 統合の項を参照してください。

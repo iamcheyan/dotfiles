@@ -1,6 +1,6 @@
 # Zsh 交互式命令行工具
 
-本文说明本仓库接入的三个工具：forgit、navi 和 Pet。它们分别覆盖 Git 交互操作、命令速查和命令片段管理。
+本文说明本仓库接入的 forgit 和 Pet：Git 交互操作与命令片段管理。
 
 ## 安装与初始化
 
@@ -10,7 +10,7 @@
 bash init.sh
 ```
 
-navi 由 `init.sh` 按平台安装：macOS 使用 Homebrew，Linux 根据 CPU 架构下载对应的上游 release。Zinit 配置也保留相同平台的 navi 下载；Pet 由 Zinit 管理，forgit 由 `plugins/zsh-plugins.zsh` 加载。
+Pet 由 Zinit 管理，forgit 由 `plugins/zsh-plugins.zsh` 加载。
 
 ```bash
 exec zsh
@@ -19,10 +19,9 @@ exec zsh
 Zinit 管理的工具都是可选的；shell 配置仅在检测到对应命令时执行集成。手动检查：
 
 ```bash
-command -v fzf navi pet
+command -v fzf pet
 ```
 
-macOS 上如果尚未安装 navi，运行 `brew install navi`。`init.sh` 也会通过 Homebrew 安装 navi。
 
 forgit 需要 Git、fzf 0.60.0 或更新版本。`init.sh` 会安装 fzf；如果系统仓库提供的版本过旧，请按 [fzf 官方安装说明](https://github.com/junegunn/fzf#installation)升级。
 
@@ -37,7 +36,6 @@ zinit update
 | 工具 | 主要用途 | 入口 |
 | --- | --- | --- |
 | [forgit](https://github.com/wfxr/forgit) | 用 fzf 交互选择 Git 对象并执行 Git 操作 | `ga`、`glo`、`gcb` 等 |
-| [navi](https://github.com/denisidoro/navi) | 搜索、填充并运行 cheatsheet 命令 | `navi` 和其 Zsh widget（Linux 由 Zinit 下载，macOS 由 Homebrew 安装） |
 | [Pet](https://github.com/knqyf263/pet) | 保存、搜索和复用命令片段 | `pet`、`Ctrl+X` 后 `Ctrl+R` |
 
 ## 长命令编辑
@@ -78,27 +76,6 @@ export FORGIT_ADD_GIT_OPTS='--others --cached --modified'
 
 默认快捷命令较短，可能与个人别名冲突。forgit 支持在加载插件前通过 `forgit_add`、`forgit_log` 等变量改名；也可以设置 `FORGIT_NO_ALIASES=1` 禁用这些别名，仅使用 `forgit::...` 函数。
 
-## navi：交互式命令速查
-
-运行 `navi` 搜索 cheatsheet，选择条目后按提示填写参数。命令先写入当前命令行，确认后再执行。首次使用时可按提示浏览或导入 cheatsheet 仓库。个人 cheatsheet 默认存放于 `~/.local/share/navi/cheats/`，配置可放在 `~/.config/navi/`。
-
-示例 cheatsheet（`.cheat` 文件）：
-
-```text
-% git, branch
-
-# 创建并切换到分支
- git switch -c <branch>
-
-$ branch: git branch --format='%(refname:short)'
-```
-
-`<branch>` 是需要填写的参数，`$ branch:` 行给出候选值。直接运行 `navi --help` 查看筛选标签、仓库管理和导入命令。Zsh widget 由 `navi widget zsh` 注册；如要单独使用此功能，在没有本仓库配置的 shell 中执行：
-
-```zsh
-eval "$(navi widget zsh)"
-```
-
 ## Pet：保存命令片段
 
 新增片段：
@@ -134,7 +111,7 @@ exec zsh
 
 ```zsh
 zinit list
-command -v navi pet
+command -v pet
 ```
 
-如果 shell 启动报错，可确认对应工具能运行其初始化子命令（例如 `navi widget zsh`）。工具存在但无法运行或初始化失败时，hook 会跳过该集成，不影响 Zsh 启动。
+如果 shell 启动报错，可确认对应工具能运行其初始化子命令（例如 `pet search`）。工具存在但无法运行或初始化失败时，hook 会跳过该集成，不影响 Zsh 启动。

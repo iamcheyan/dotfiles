@@ -382,48 +382,6 @@ repair_atuin_migration() {
     print_info "Upgrade Atuin before restoring/importing the old database, or the migration error may return."
 }
 
-install_navi_linux() {
-    command_exists navi && return 0
-    command_exists curl && command_exists jq || {
-        print_warning "Installing navi on Linux requires curl and jq"
-        return 1
-    }
-
-    local asset_suffix
-    case "$(uname -m)" in
-        x86_64) asset_suffix="x86_64-unknown-linux-musl.tar.gz" ;;
-        aarch64|arm64) asset_suffix="aarch64-unknown-linux-gnu.tar.gz" ;;
-        *)
-            print_warning "No navi release binary is available for Linux $(uname -m)"
-            return 0
-            ;;
-    esac
-
-    local asset_url
-    asset_url=$(curl -fsSL https://api.github.com/repos/denisidoro/navi/releases/latest \
-        | jq -r --arg suffix "$asset_suffix" '.assets[] | select(.name | endswith($suffix)) | .browser_download_url' | head -n 1)
-    if [[ -z "$asset_url" || "$asset_url" == "null" ]]; then
-        print_warning "Could not find a navi release for Linux $(uname -m)"
-        return 1
-    fi
-
-    local temp_dir
-    temp_dir=$(mktemp -d)
-    if ! curl -fsSL "$asset_url" | tar -xz -C "$temp_dir"; then
-        rm -rf "$temp_dir"
-        return 1
-    fi
-    mkdir -p "$HOME/.local/bin"
-    if [[ -x "$temp_dir/navi" ]]; then
-        install -m 755 "$temp_dir/navi" "$HOME/.local/bin/navi"
-    else
-        rm -rf "$temp_dir"
-        print_warning "Downloaded navi archive did not contain the expected binary"
-        return 1
-    fi
-    rm -rf "$temp_dir"
-}
-
 # Install essential tools
 install_essentials() {
     print_info "Checking essential tools..."
@@ -433,7 +391,7 @@ install_essentials() {
     local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
     local arch_packages="base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
     local void_packages="base-devel ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
-    local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm navi lf"
+    local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm lf"
 
     if [[ "$MINIMAL" == "true" ]]; then
         print_info "Minimal mode: skipping translate-shell, yt-dlp, jq, viu"
@@ -528,10 +486,6 @@ install_essentials() {
 
     if [[ "$OS" == "debian" || "$OS" == "rhel" || "$OS" == "fedora" ]] && ! command_exists lf; then
         install_lf_release_linux || print_warning "Install lf manually from https://github.com/gokcehan/lf/releases"
-    fi
-
-    if [[ "$OS" == "debian" || "$OS" == "rhel" || "$OS" == "fedora" || "$OS" == "arch" || "$OS" == "void" ]]; then
-        install_navi_linux
     fi
 
     # Debian/Ubuntu installs bat as batcat; provide bat symlink in ~/.local/bin if needed
@@ -1262,17 +1216,6 @@ install_extra_tools() {
         print_success "topgrade is already installed"
     fi
 
-    # mise — dev tool and runtime manager
-    if ! command_exists mise; then
-        print_info "Installing mise..."
-        if curl -fsSL https://mise.run | sh; then
-            print_success "mise installed successfully"
-        else
-            print_warning "Failed to install mise via install script"
-        fi
-    else
-        print_success "mise is already installed"
-    fi
 }
 
 

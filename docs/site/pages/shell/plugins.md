@@ -82,12 +82,9 @@ zinit light zsh-users/zsh-syntax-highlighting
 
 ## 可选工具的 shell 集成
 
-`zsh_plugins_load_shell_tools` 处理两个「装了才启用」的工具：
+`zsh_plugins_load_shell_tools` 处理装了才启用的 Pet 工具：
 
 ```zsh
-if command -v navi >/dev/null 2>&1; then
-  eval "$(navi widget zsh)"
-fi
 if command -v pet >/dev/null 2>&1; then
   function pet-select() {
     BUFFER="$(pet search --query "$LBUFFER")"
@@ -101,10 +98,9 @@ fi
 
 | 工具 | 集成效果 |
 |---|---|
-| navi | 注册 widget，可在命令行呼出 cheatsheet |
 | Pet | `Ctrl+X` 再 `Ctrl+R` 把片段填进命令行 |
 
-两个工具都缺失时，这段代码什么也不做，shell 照常启动。
+Pet 缺失时，这段代码什么也不做，shell 照常启动。
 
 ## 加一个新插件
 
@@ -202,12 +198,9 @@ If colors stop working after it loads, some plugin usually set its own hook afte
 
 ## Shell integration for optional tools
 
-`zsh_plugins_load_shell_tools` handles two "enable only if installed" tools:
+`zsh_plugins_load_shell_tools` handles Pet only when it is installed:
 
 ```zsh
-if command -v navi >/dev/null 2>&1; then
-  eval "$(navi widget zsh)"
-fi
 if command -v pet >/dev/null 2>&1; then
   function pet-select() {
     BUFFER="$(pet search --query "$LBUFFER")"
@@ -221,10 +214,9 @@ fi
 
 | Tool | Integration effect |
 |---|---|
-| navi | Registers a widget to summon a cheatsheet from the command line |
 | Pet | `Ctrl+X` then `Ctrl+R` fills a snippet into the command line |
 
-When both tools are missing, this code does nothing and the shell starts as usual.
+When Pet is missing, this code does nothing and the shell starts as usual.
 
 ## Adding a new plugin
 
@@ -322,12 +314,9 @@ zinit light zsh-users/zsh-syntax-highlighting
 
 ## 任意ツールの shell 統合
 
-`zsh_plugins_load_shell_tools` は「入っていれば有効化」する 2 つのツールを処理します：
+`zsh_plugins_load_shell_tools` は Pet がインストールされている場合に有効化します：
 
 ```zsh
-if command -v navi >/dev/null 2>&1; then
-  eval "$(navi widget zsh)"
-fi
 if command -v pet >/dev/null 2>&1; then
   function pet-select() {
     BUFFER="$(pet search --query "$LBUFFER")"
@@ -341,10 +330,9 @@ fi
 
 | ツール | 統合効果 |
 |---|---|
-| navi | widget を登録し、コマンドラインから cheatsheet を呼び出せる |
 | Pet | `Ctrl+X`、`Ctrl+R` でスニペットをコマンドラインに入力 |
 
-両ツールとも無い場合、このコードは何もせず、shell は通常どおり起動します。
+Pet が無い場合、このコードは何もせず、shell は通常どおり起動します。
 
 ## 新しいプラグインの追加
 

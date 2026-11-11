@@ -81,7 +81,7 @@ config/
 
 ## 文档位置
 
-- `docs/ZSH-CLI-TOOLS.md`：forgit、navi、Pet 的详细说明。
+- `docs/ZSH-CLI-TOOLS.md`：forgit、Pet 的详细说明。
 - `docs/site/`：本站的源文件（Markdown + 构建脚本 + CSS/JS）。
 - `config/nvim/docs/`：Neovim 自己的文档，子模块内。
 
@@ -170,7 +170,7 @@ Changes in these places are not tracked here. To change the Neovim config, work 
 
 ## Where the docs live
 
-- `docs/ZSH-CLI-TOOLS.md`: detailed notes on forgit, navi and Pet.
+- `docs/ZSH-CLI-TOOLS.md`: detailed notes on forgit and Pet.
 - `docs/site/`: this site's sources (Markdown + build script + CSS/JS).
 - `config/nvim/docs/`: Neovim's own docs, inside the submodule.
 
@@ -259,6 +259,6 @@ config/
 
 ## ドキュメントの場所
 
-- `docs/ZSH-CLI-TOOLS.md`：forgit、navi、Pet の詳細。
+- `docs/ZSH-CLI-TOOLS.md`：forgit、Pet の詳細。
 - `docs/site/`：本サイトのソース（Markdown + ビルドスクリプト + CSS/JS）。
 - `config/nvim/docs/`：Neovim 自身のドキュメント。サブモジュール内。

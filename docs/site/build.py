@@ -121,7 +121,6 @@ SECTIONS = [
             ("fresh", "Fresh", "终端文本编辑器。"),
             ("neovim", "Neovim", "编辑器入口与独立文档站。"),
             ("httpie", "HTTPie", "http 命令与安装器。"),
-            ("navi", "navi", "cheatsheet 搜索与填参。"),
             ("pet", "Pet", "命令片段库。"),
             ("miru", "miru", "终端文件查看器：Markdown 走 glamour，源码与配置走 chroma，按 b 在浏览器预览。"),
             ("pay-respects", "pay-respects", "按 F 为错误命令提供修正建议。"),
@@ -138,7 +137,6 @@ SECTIONS = [
             ("rainfrog", "Rainfrog", "轻量终端数据库客户端：查询编辑、历史、收藏与表格浏览。"),
             ("dekit", "dekit", "进程管理器：用一个配置文件在开发与生产环境编排任务、依赖与重启。"),
             ("topgrade", "topgrade", "一条命令升级所有东西：apt、npm、pipx、cargo、rustup 等。"),
-            ("mise", "mise", "多语言开发工具与运行时版本管理器。"),
         ],
     ),
     (
@@ -177,7 +175,6 @@ SECTIONS = [
             ("forgit", "forgit", "fzf 驱动的 Git 交互命令。"),
             ("syntax-highlighting", "zsh-syntax-highlighting", "实时命令语法高亮，必须最后加载。"),
             ("fzf-snippets", "fzf 补全与键绑定", "通过 Zinit snippet 加载的两个上游脚本。"),
-            ("tool-hooks", "可选工具集成", "navi 与 Pet 的 hook 接入。"),
         ],
     ),
     (

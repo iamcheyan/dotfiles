@@ -94,12 +94,9 @@ if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
   alias zi='z -i'
 fi
-if command -v mise > /dev/null; then
-  _evalcache mise activate zsh
-fi
 ```
 
-`_evalcache` 来自 `mroth/evalcache` 插件，把 `init` / `activate` 的输出缓存成文件，避免每次启动都执行子进程。这是启动速度的主要优化点之一。支持 Atuin 历史检索、zoxide 目录跳转与 mise 多语言环境。
+`_evalcache` 来自 `mroth/evalcache` 插件，把 `init` 输出缓存成文件，避免每次启动都执行子进程。Atuin 和 zoxide 的初始化因此更快。
 
 ## 第六段：编辑器与别名
 
@@ -230,12 +227,9 @@ if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
   alias zi='z -i'
 fi
-if command -v mise > /dev/null; then
-  _evalcache mise activate zsh
-fi
 ```
 
-`_evalcache` comes from the `mroth/evalcache` plugin; it caches the output of `init` and `activate` into a file, avoiding subprocess spawns on every shell startup. This accelerates shell startup across Atuin history, zoxide directory navigation, and mise environment switching.
+`_evalcache` comes from the `mroth/evalcache` plugin; it caches the output of `init`, avoiding subprocess spawns on every shell startup. This speeds up Atuin and zoxide initialization.
 
 ## Section 6: editor and aliases
 
@@ -366,12 +360,9 @@ if command -v zoxide > /dev/null; then
   _evalcache zoxide init zsh
   alias zi='z -i'
 fi
-if command -v mise > /dev/null; then
-  _evalcache mise activate zsh
-fi
 ```
 
-`_evalcache` は `mroth/evalcache` プラグイン由来で、`init` や `activate` の出力をファイルにキャッシュし、起動のたびにサブプロセスを実行するのを避けます。起動速度の主要な最適化ポイントの一つで、Atuin 履歴・zoxide ディレクトリ移動・mise ツールチェーン管理を高速化します。
+`_evalcache` は `mroth/evalcache` プラグイン由来で、`init` の出力をキャッシュし、起動時のサブプロセス実行を避けます。Atuin と zoxide の初期化を高速化します。
 
 ## 第 6 段：エディタとエイリアス
 
