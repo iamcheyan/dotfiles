@@ -1040,12 +1040,16 @@ install_extra_tools() {
         print_success "pay-respects is already installed"
     fi
 
-    # diffnav — GitHub-style diff pager with a file tree
-    if ! command_exists diffnav; then
-        print_info "Installing diffnav..."
-        [[ -f "$install_dir/install_diffnav.sh" ]] && bash "$install_dir/install_diffnav.sh"
+    # diffnav requires delta, which is no longer installed by this bootstrap.
+    if command_exists delta; then
+        if ! command_exists diffnav; then
+            print_info "Installing diffnav..."
+            [[ -f "$install_dir/install_diffnav.sh" ]] && bash "$install_dir/install_diffnav.sh"
+        else
+            print_success "diffnav is already installed"
+        fi
     else
-        print_success "diffnav is already installed"
+        print_info "Skipping diffnav because its delta dependency is not installed."
     fi
 
     # hunk — terminal diff viewer for agent-authored changesets
