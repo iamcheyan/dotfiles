@@ -2,7 +2,6 @@
 
 # 终端统一配色标准
 
-本页是 dotfiles 中终端工具配色的**唯一基准**。新增或修改终端界面时，先按这里的颜色角色选色；Neovim Blue / Nostalgia 是标准来源，Ghostty、tmux、Ranger、Vifm、Atuin、fzf、Starship、Nano 和 Herdr 等配置都应与它保持协调。
 
 ## 核心颜色
 
@@ -64,7 +63,6 @@ Ghostty 的 ANSI 色板影响 `ls`、Ranger、编辑器和其它读取终端色�
 | Starship | `config/starship/starship.toml` |
 | Nano | `config/nano/nanorc` |
 | eza | 继承终端 ANSI 16 色与默认高亮 |
-| Herdr | `config/herdr/config.toml` |
 | Vim | `config/vim/vimrc`；使用 Vim 内置 `blue` |
 | Neovim | 主题由独立的 `iamcheyan/nvim` 仓库维护；以其 Blue / Nostalgia 调色板为来源 |
 
@@ -75,7 +73,6 @@ Ghostty 的 ANSI 色板影响 `ls`、Ranger、编辑器和其它读取终端色�
 
 # Unified Terminal Color Standard
 
-This page is the **single source of truth** for terminal tool colors in dotfiles. When adding or changing a terminal interface, choose colors according to the roles here. Neovim Blue / Nostalgia is the standard source; Ghostty, tmux, Ranger, Vifm, Atuin, fzf, Starship, Nano, and Herdr configurations should coordinate with it.
 
 ## Core Colors
 
@@ -137,7 +134,6 @@ For programs without RGB support, prefer this 16-color mapping. Programs with RG
 | Starship | `config/starship/starship.toml` |
 | Nano | `config/nano/nanorc` |
 | eza | Inherits terminal ANSI 16 colors and default highlights |
-| Herdr | `config/herdr/config.toml` |
 | Vim | `config/vim/vimrc`; uses Vim's built-in `blue` |
 | Neovim | Theme maintained in the separate `iamcheyan/nvim` repository; its Blue / Nostalgia palette is the source |
 
@@ -148,7 +144,6 @@ When changing an existing configuration, update its documentation as well. When 
 
 # 端末共通配色規格
 
-このページは dotfiles における端末ツール配色の**唯一の基準**です。端末インターフェースを追加・変更するときは、ここに示す色の役割に沿って選んでください。基準となるのは Neovim Blue / Nostalgia です。Ghostty、tmux、Ranger、Vifm、Atuin、fzf、Starship、Nano、Herdr の設定も調和させてください。
 
 ## 基本色
 
@@ -210,7 +205,6 @@ RGB 非対応のプログラムでは、この 16 色の割り当てを優先し
 | Starship | `config/starship/starship.toml` |
 | Nano | `config/nano/nanorc` |
 | eza | 端末の ANSI 16 色とデフォルトのハイライトを継承 |
-| Herdr | `config/herdr/config.toml` |
 | Vim | `config/vim/vimrc`。Vim 内蔵の `blue` を使います |
 | Neovim | テーマは独立した `iamcheyan/nvim` リポジトリで管理し、Blue / Nostalgia パレットを基準にします |
 

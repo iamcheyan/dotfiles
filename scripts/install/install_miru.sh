@@ -17,10 +17,10 @@
 
 set -euo pipefail
 
-print_info() { echo -e "\033[0;34mℹ\033[0m $1"; }
-print_success() { echo -e "\033[0;32m✓\033[0m $1"; }
-print_warning() { echo -e "\033[1;33m⚠\033[0m $1"; }
-print_error() { echo -e "\033[0;31m✗\033[0m $1"; }
+print_info() { echo -e "\033[0;34m\033[0m $1"; }
+print_success() { echo -e "\033[0;32m\033[0m $1"; }
+print_warning() { echo -e "\033[1;33m\033[0m $1"; }
+print_error() { echo -e "\033[0;31m\033[0m $1"; }
 
 if command -v miru >/dev/null 2>&1; then
     print_success "miru is already installed: $(miru version 2>/dev/null || echo unknown)"

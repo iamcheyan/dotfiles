@@ -84,7 +84,7 @@ check_meslo_installed() {
 }
 ```
 
-已装且未加 `--force` 时跳过，打印「✓ Meslo font is installed; skipping installation」。
+已装且未加 `--force` 时跳过，打印「 Meslo font is installed; skipping installation」。
 
 ## 验证
 
@@ -115,7 +115,7 @@ echo "   󰈙 󰊢 󰉋 󰡨 󰅩"
 
 | 位置 | 字符 |
 |---|---|
-| Starship 提示符 | `❯`、``、`` |
+| Starship 提示符 | ``、``、`` |
 | Vifm 文件图标 | ``、``、`` |
 | Neovim 状态栏 | ``、`` |
 | fzf 提示 | 无（纯文本） |
@@ -226,7 +226,7 @@ check_meslo_installed() {
 }
 ```
 
-If already installed and `--force` wasn't given, it skips and prints "✓ Meslo font is installed; skipping installation".
+If already installed and `--force` wasn't given, it skips and prints " Meslo font is installed; skipping installation".
 
 ## Verify
 
@@ -257,7 +257,7 @@ This repository uses Nerd Font private-use-area characters in several places:
 
 | Where | Characters |
 |---|---|
-| Starship prompt | `❯`、``、`` |
+| Starship prompt | ``、``、`` |
 | Vifm file icons | ``、``、`` |
 | Neovim statusline | ``、`` |
 | fzf prompt | none (plain text) |
@@ -368,7 +368,7 @@ check_meslo_installed() {
 }
 ```
 
-インストール済みで `--force` がなければスキップし、「✓ Meslo font is installed; skipping installation」と表示します。
+インストール済みで `--force` がなければスキップし、「 Meslo font is installed; skipping installation」と表示します。
 
 ## 確認
 
@@ -399,7 +399,7 @@ echo "   󰈙 󰊢 󰉋 󰡨 󰅩"
 
 | 場所 | 文字 |
 |---|---|
-| Starship プロンプト | `❯`、``、`` |
+| Starship プロンプト | ``、``、`` |
 | Vifm のファイルアイコン | ``、``、`` |
 | Neovim のステータスライン | ``、`` |
 | fzf のプロンプト | なし（プレーンテキスト） |

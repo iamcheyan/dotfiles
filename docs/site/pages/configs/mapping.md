@@ -12,7 +12,6 @@
 | `config/starship/starship.toml` | `~/.config/starship.toml` | 提示符主题 |
 | `config/nano/nanorc` | `~/.nanorc` | Nano 设置 |
 | `config/atuin` | `~/.config/atuin` | Atuin 配置目录 |
-| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr 配置 |
 | `config/ranger` | `~/.config/ranger` | Ranger 配置目录 |
 | `config/lf` | `~/.config/lf` | lf 配置目录 |
 | `config/gvim/gvimrc` | `~/.gvimrc` | GVim 外观 |
@@ -118,7 +117,6 @@ The `[link]` section of `dotlink/dotlinkrc`:
 | `config/starship/starship.toml` | `~/.config/starship.toml` | Prompt theme |
 | `config/nano/nanorc` | `~/.nanorc` | Nano settings |
 | `config/atuin` | `~/.config/atuin` | Atuin configuration directory |
-| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr configuration |
 | `config/ranger` | `~/.config/ranger` | Ranger configuration directory |
 | `config/lf` | `~/.config/lf` | lf configuration directory |
 | `config/gvim/gvimrc` | `~/.gvimrc` | GVim appearance |
@@ -224,7 +222,6 @@ bash ~/dotfiles/dotlink/dotlink link    # 再执行
 | `config/starship/starship.toml` | `~/.config/starship.toml` | プロンプトテーマ |
 | `config/nano/nanorc` | `~/.nanorc` | Nano の設定 |
 | `config/atuin` | `~/.config/atuin` | Atuin の設定ディレクトリ |
-| `config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr の設定 |
 | `config/ranger` | `~/.config/ranger` | Ranger の設定ディレクトリ |
 | `config/lf` | `~/.config/lf` | lf の設定ディレクトリ |
 | `config/gvim/gvimrc` | `~/.gvimrc` | GVim の外観 |

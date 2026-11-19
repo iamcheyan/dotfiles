@@ -1,9 +1,9 @@
-# 🚀 Dotfiles — 现代化终端开发环境一键配置
+#  Dotfiles — 现代化终端开发环境一键配置
 
-> 基于 **Zsh + Vim/GVim + 自管 Neovim (lazy.nvim) + 本地 AI 工具 (Herdr)** 的全套极速、开箱即用终端配置方案。
+> 基于 **Zsh + Vim/GVim + 自管 Neovim (lazy.nvim)** 的全套极速、开箱即用终端配置方案。
 > 纯公开、可独立使用；非 NixOS 平台支持一行命令跨平台初始化，NixOS 系统包由 `~/nixos-config` 管理。
 
-## 🗺️ 配置仓库边界
+##  配置仓库边界
 
 本仓库是三层配置中的 **公开基础层**：只保存可公开复用的 Zsh、Vim/GVim、Neovim 和 CLI
 配置。NixOS 系统包、服务、硬件及 Nixarchy 接线位于 `~/nixos-config`；个人
@@ -16,20 +16,20 @@ Neovim 配置源码由独立公开仓库 [`iamcheyan/nvim`](https://github.com/i
 Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓库，单独运行它自己的 `init.sh`。
 本机维护时只编辑 `~/nvim`；dotlink 会识别它并让 `~/.config/nvim` 直接指向该工作树。其他用户没有这份工作树时，自动使用 dotfiles 内的子模块。
 
-## 🎨 终端配色标准
+##  终端配色标准
 
 本仓库的终端工具统一遵循 **Neovim Blue / Nostalgia** 色板。新增或调整配色前，请先看醒目的[终端统一配色标准](docs/site/pages/configs/theme-standard.md)，并按颜色角色保持界面一致、语义清楚。
 
 ---
 
-## 🌟 核心卖点
+##  核心卖点
 
-### 1. ⚡ 一键初始化（One-Click Setup）
+### 1.  一键初始化（One-Click Setup）
 * **跨平台全自动适配**：原生支持 **Debian / Ubuntu / Arch Linux / Fedora / Void / NixOS / macOS**。
 * **NixOS 软件包边界**：检测到 NixOS 时，`init.sh` 不执行任何 Nix 软件包安装，只提示用户通过 `~/nixos-config` 的包模块声明并重建系统；用户目录配置和插件仍由本仓库部署。
 * **一行命令完成初始化**：在支持的非 NixOS 平台自动安装所需工具链（`eza`、`bat`、`fd`、`ripgrep`、`zoxide`、`fzf`、`jq`、`btop` 等）、Nerd Font 字体、Zsh 插件与软链接；NixOS 的系统软件包和字体由 `~/nixos-config` 管理。
 
-### 2. 🐚 极速现代化 Zsh 终端体验
+### 2.  极速现代化 Zsh 终端体验
 * **Zinit 异步加载**：零延迟秒开，告别臃肿缓慢的 oh-my-zsh。
 * **Starship 智能 Prompt**：优雅、信息丰富、极速渲染的终端提示符。
 * **zsh-vi-mode 深度整合**：原生 Vim 命令行编辑模式，在终端直接享受 `hjkl`。
@@ -45,7 +45,7 @@ Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓�
   * `cat` $\rightarrow$ `bat`（带语法高亮与行号的文件查看器）
   * `find` $\rightarrow$ `fd` / `grep` $\rightarrow$ `ripgrep`（千百倍极速文本与文件检索）
 
-### 3. 📝 开箱即用的专业自管 Neovim（基于 lazy.nvim）
+### 3.  开箱即用的专业自管 Neovim（基于 lazy.nvim）
 * **纯自管轻量架构**：直接基于 `lazy.nvim` 精心构建，**非** 臃肿黑盒发行版（非 AstroNvim/LazyVim），代码结构透明清晰，启动时间 < 50ms。
 * **完整的现代 IDE 能力**：
   * **LSP 自动管理**：Mason + Mason-LSPconfig 一键安装并管理各语言 Language Server。
@@ -69,16 +69,13 @@ Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓�
   * `VimQuest`、`contextline.nvim`、`cobol.nvim`、`batch.nvim` 和 `bookmark.nvim`：由 lazy.nvim 安装的独立公开自研扩展，提供词汇练习、代码上下文、COBOL/Batch 工具和书签管理。
   * Neovim 插件使用书按类别列出公开、私有插件和依赖，并为每项提供独立操作章节与练习，见 [`config/nvim/docs/plugins/PLUGINS.md`](config/nvim/docs/plugins/PLUGINS.md)。
 
-### 4. 🤖 本地 AI 工具与终端复用生态
-* **内置热门本地 AI 助手 Herdr**：
-  * `init.sh` 脚本自动安装并配置当前热门的终端本地 AI 编程助手 [Herdr](https://herdr.dev/)。
-  * 预置优雅的主题配置文件（`~/.config/herdr/config.toml`），开箱即用。
+### 4.  本地 AI 工具与终端复用生态
 * **轻量文件管理器**：Ranger（`ra`）、lf（`lfm`）与 Vifm（`v`）；lf 提供 Ranger 风格键位、Nerd Font 图标、面板边框和归档操作。
 * **自研零依赖软链工具 `dotlink`**：纯 Shell 编写的极简配置软链管理器，不依赖 Chezmoi 或任何外部工具即可独立运转。
 
 ---
 
-## 📦 快速安装与使用
+##  快速安装与使用
 
 ### 第一步：克隆本仓库
 
@@ -100,14 +97,11 @@ bash init.sh --repair     # 修复损坏的插件缓存
 > 2. 在非 NixOS 平台安装必备现代工具链（`git`、`curl`、`ripgrep`、`fd`、`bat`、`eza`、`zoxide`、`fzf`、`jq`、`btop` 等）；NixOS 由 `~/nixos-config` 管理。
 > 3. 安装配置 `zinit`、`Starship`、`Atuin`；非 NixOS 平台额外配置 `fnm`。
 > 4. 初始化 `config/nvim` 子模块，并运行其中的 `init.sh` 检查或安装 Neovim 0.12+、准备依赖、把 `~/.config/nvim` 链接到子模块源码；插件由首次启动时的 lazy.nvim 安装。NixOS 软件包由 `~/nixos-config` 管理。
-> 5. 在支持的非 NixOS Linux 发行版安装 Docker 与 Herdr 本地 AI 助手。
-> 6. 通过 `dotlink` 自动建立全部配置文件的符号链接。
-> 7. 在支持的非 NixOS 平台安装 pay-respects 并配置 Zsh 的 `F` 快捷键；NixOS 系统包由 `~/nixos-config` 管理。
-> 8. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
+> 5. 通过 `dotlink` 自动建立全部配置文件的符号链接。
+> 6. 在支持的非 NixOS 平台安装 pay-respects 并配置 Zsh 的 `F` 快捷键；NixOS 系统包由 `~/nixos-config` 管理。
+> 7. 初始化后可运行 `nvim-update` 安全升级至官方最新稳定版；脚本校验 GitHub release SHA-256，不替换系统包。
 
-### Fresh Terminal IDE
 
-`init.sh` 会按平台安装 [Fresh](https://github.com/sinelaw/fresh)：Linux/WSL 使用官方 universal installer，macOS 使用 Homebrew，Windows（Git Bash/MSYS/Cygwin）使用 winget。NixOS 不执行独立安装，由 `~/nixos-config` 的 `fresh-editor` 包管理；安装后可用 `fr` 启动。
 
 ### 第三步：应用软链接并进入环境
 
@@ -144,7 +138,7 @@ export PROJECTS_DIR="$HOME/projects"
 
 ---
 
-## 📂 部署目标软链接清单
+##  部署目标软链接清单
 
 通过 `dotlink` 会在系统中建立以下干净的符号链接：
 
@@ -158,12 +152,11 @@ export PROJECTS_DIR="$HOME/projects"
 | `~/dotfiles/config/lf` | `~/.config/lf` | lf 终端文件管理器 |
 | `~/dotfiles/config/vifm/*` | `~/.config/vifm/*` | Vifm 终端文件管理器 |
 | `~/dotfiles/config/atuin` | `~/.config/atuin` | Atuin 命令历史搜索配置 |
-| `~/dotfiles/config/herdr/config.toml` | `~/.config/herdr/config.toml` | Herdr 本地 AI 助手配置 |
 | `~/dotfiles/config/starship/starship.toml` | `~/.config/starship.toml` | Starship 终端提示符主题 |
 
 ---
 
-## ⌨️ 常用快捷键速查
+## ⌨ 常用快捷键速查
 
 ### 1. 终端命令行（Zsh Vim 模式）
 * **`Ctrl + R`**：呼出 Atuin 增强版历史命令搜索
@@ -186,7 +179,7 @@ export PROJECTS_DIR="$HOME/projects"
 
 ---
 
-## 🛠️ 项目目录结构
+##  项目目录结构
 
 ```text
 dotfiles/
@@ -198,7 +191,6 @@ dotfiles/
 │   ├── vim/               # Vim 终端配置与 Blue 主题
 │   ├── gvim/              # GVim 图形配置
 │   ├── nvim/              # iamcheyan/nvim 子模块；由 dotfiles init 一起安装
-│   ├── herdr/             # Herdr 本地 AI 助手配置
 │   ├── ranger/            # Ranger 文件管理器配置
 │   ├── vifm/              # Vifm 文件管理器配置
 │   ├── atuin/             # Atuin 命令历史配置
@@ -214,16 +206,16 @@ dotfiles/
 
 ---
 
-## 🔒 纯净与安全承诺
+##  纯净与安全承诺
 
 * **100% 通用开源**：本仓库**绝不包含**任何个人 API Key、密码、Token、私有服务器 IP 或硬编码绝对路径。
 * **独立运行**：不强绑 Chezmoi 或任何私有系统，任何人均可放心 Fork 与二次定制。
 
 ---
 
-## 📄 开源许可证
+##  开源许可证
 
-本项目基于 [MIT 许可证](LICENSE) 开源。欢迎 Star 🌟 与 Fork！
+本项目基于 [MIT 许可证](LICENSE) 开源。欢迎 Star  与 Fork！
 
 ## Neovim 独立仓库与随 dotfiles 安装
 

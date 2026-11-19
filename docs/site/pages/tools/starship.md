@@ -52,7 +52,7 @@ $character"""
 right_format = """$status$cmd_duration$jobs"""
 ```
 
-第一行是一串信息模块，第二行只有 `$character`（`❯` 符号）。右侧单独一行显示退出状态、耗时、后台任务数。
+第一行是一串信息模块，第二行只有 `$character`（`` 符号）。右侧单独一行显示退出状态、耗时、后台任务数。
 
 ## 各模块的配置
 
@@ -167,7 +167,7 @@ starship timings
 
 ## Nerd Font 依赖
 
-配置里大量使用 Nerd Font 私有区字符（`❯`、``、``、`󰏗`）。终端字体必须是 Nerd Font，否则显示成方框。
+配置里大量使用 Nerd Font 私有区字符（``、``、``、`󰏗`）。终端字体必须是 Nerd Font，否则显示成方框。
 
 本仓库用 Meslo Nerd Font，由 `scripts/install/install_font.sh` 安装。装完后在终端设置里选择 `MesloLGS Nerd Font`。
 
@@ -210,7 +210,7 @@ Linux uses the musl version, which is statically linked and does not depend on t
 
 ## Prompt structure
 
-The first line is a sequence of information modules, and the second line contains only `$character` (the `❯` symbol). The right side displays the exit status, duration, and number of background jobs on a separate line.
+The first line is a sequence of information modules, and the second line contains only `$character` (the `` symbol). The right side displays the exit status, duration, and number of background jobs on a separate line.
 
 ## Module configuration
 
@@ -269,7 +269,7 @@ If the prompt has noticeable latency, first disable cloud modules you do not use
 
 ## Nerd Font dependency
 
-The configuration uses many Nerd Font private-use characters (`❯`, ``, ``, `󰏗`). The terminal font must be a Nerd Font; otherwise these appear as boxes.
+The configuration uses many Nerd Font private-use characters (``, ``, ``, `󰏗`). The terminal font must be a Nerd Font; otherwise these appear as boxes.
 
 This repository uses Meslo Nerd Font, installed by `scripts/install/install_font.sh`. After installation, select `MesloLGS Nerd Font` in the terminal settings.
 
@@ -398,7 +398,7 @@ Linux では musl 版を使います。静的リンクされているため、�
 
 ## プロンプトの構成
 
-1行目には情報モジュールが並び、2行目には `$character`（`❯` 記号）だけが表示されます。右側には終了状態、実行時間、バックグラウンドジョブ数が独立した行に表示されます。
+1行目には情報モジュールが並び、2行目には `$character`（`` 記号）だけが表示されます。右側には終了状態、実行時間、バックグラウンドジョブ数が独立した行に表示されます。
 
 ## 各モジュールの設定
 
@@ -457,7 +457,7 @@ Starship はプロンプトを描画するたびに実行されるため、モ�
 
 ## Nerd Font の依存
 
-設定では Nerd Font の私用領域文字（`❯`、``、``、`󰏗`）を多数使います。端末フォントが Nerd Font でない場合、文字が四角で表示されます。
+設定では Nerd Font の私用領域文字（``、``、``、`󰏗`）を多数使います。端末フォントが Nerd Font でない場合、文字が四角で表示されます。
 
 このリポジトリでは `scripts/install/install_font.sh` で Meslo Nerd Font をインストールします。インストール後、端末設定で `MesloLGS Nerd Font` を選びます。
 

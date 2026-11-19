@@ -40,7 +40,7 @@ plugins/
 
 ```text
 scripts/
-├── install/              # install_font / install_nvim / install_httpie / install_zellij
+├── install/              # install_font / install_nvim / install_httpie
 ├── setup/setup_fnm.sh    # fnm 惰性加载包装器
 ├── tests/                # nvim_update_test.sh
 └── update_nvim.sh        # nvim-update 的实现
@@ -59,7 +59,6 @@ config/
 ├── starship/      # starship.toml
 ├── atuin/         # config.toml
 ├── ghostty/       # config（未纳入 dotlink）
-├── herdr/         # config.toml
 └── nano/          # nanorc
 ```
 
@@ -129,7 +128,7 @@ plugins/
 
 ```text
 scripts/
-├── install/              # install_font / install_nvim / install_httpie / install_zellij
+├── install/              # install_font / install_nvim / install_httpie
 ├── setup/setup_fnm.sh    # fnm lazy-load wrapper
 ├── tests/                # nvim_update_test.sh
 └── update_nvim.sh        # the nvim-update implementation
@@ -148,7 +147,6 @@ config/
 ├── starship/      # starship.toml
 ├── atuin/         # config.toml
 ├── ghostty/       # config (not in dotlink)
-├── herdr/         # config.toml
 └── nano/          # nanorc
 ```
 
@@ -218,7 +216,7 @@ Zsh プラグインを変更する場所は `zsh-plugins.zsh` だけです。`to
 
 ```text
 scripts/
-├── install/              # install_font / install_nvim / install_httpie / install_zellij
+├── install/              # install_font / install_nvim / install_httpie
 ├── setup/setup_fnm.sh    # fnm 遅延ロードラッパー
 ├── tests/                # nvim_update_test.sh
 └── update_nvim.sh        # nvim-update の実装
@@ -237,7 +235,6 @@ config/
 ├── starship/      # starship.toml
 ├── atuin/         # config.toml
 ├── ghostty/       # config（dotlink 対象外）
-├── herdr/         # config.toml
 └── nano/          # nanorc
 ```
 

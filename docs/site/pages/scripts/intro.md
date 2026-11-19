@@ -30,7 +30,6 @@
 | `scripts/install/install_font.sh` | Meslo + Noto Serif CJK |
 | `scripts/install/install_nvim.sh` | Neovim 本体 |
 | `scripts/install/install_httpie.sh` | HTTPie |
-| `scripts/install/install_zellij.sh` | Zellij |
 
 ## 阅读顺序
 
@@ -97,7 +96,6 @@ Content under `scripts/` and `tools/` falls into two groups:
 | `scripts/install/install_font.sh` | Meslo + Noto Serif CJK |
 | `scripts/install/install_nvim.sh` | Neovim itself |
 | `scripts/install/install_httpie.sh` | HTTPie |
-| `scripts/install/install_zellij.sh` | Zellij |
 
 ## Reading Order
 
@@ -159,7 +157,6 @@ For scripts involving `sudo`, `rm -rf`, or `kill`, test in a container or tempor
 | `scripts/install/install_font.sh` | Meslo + Noto Serif CJK |
 | `scripts/install/install_nvim.sh` | Neovim 本体 |
 | `scripts/install/install_httpie.sh` | HTTPie |
-| `scripts/install/install_zellij.sh` | Zellij |
 
 ## 読む順序
 

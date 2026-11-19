@@ -67,7 +67,7 @@ starship preset nerd-font-symbols  # 换预设
 
 ### 符号与 Nerd Font
 
-配置里大量使用 Nerd Font 图标（`❯`、``、``、`󰏗`）。终端字体必须是 Nerd Font，否则显示成方框或问号。本仓库用 Meslo Nerd Font，由 `install_font.sh` 安装。
+配置里大量使用 Nerd Font 图标（``、``、``、`󰏗`）。终端字体必须是 Nerd Font，否则显示成方框或问号。本仓库用 Meslo Nerd Font，由 `install_font.sh` 安装。
 
 ## Ghostty
 
@@ -271,7 +271,7 @@ starship preset nerd-font-symbols  # 换预设
 
 ### Symbols and Nerd Fonts
 
-The configuration uses many Nerd Font glyphs (`❯`, ``, ``, `󰏗`). The terminal font must be a Nerd Font, otherwise they render as boxes or question marks. This repo uses Meslo Nerd Font, installed by `install_font.sh`.
+The configuration uses many Nerd Font glyphs (``, ``, ``, `󰏗`). The terminal font must be a Nerd Font, otherwise they render as boxes or question marks. This repo uses Meslo Nerd Font, installed by `install_font.sh`.
 
 ## Ghostty
 
@@ -475,7 +475,7 @@ starship preset nerd-font-symbols  # 换预设
 
 ### 記号と Nerd Font
 
-設定では Nerd Font のアイコン（`❯`、``、``、`󰏗`）を多く使います。ターミナルのフォントが Nerd Font でないと、四角や疑問符で表示されます。本リポジトリは Meslo Nerd Font を使い、`install_font.sh` がインストールします。
+設定では Nerd Font のアイコン（``、``、``、`󰏗`）を多く使います。ターミナルのフォントが Nerd Font でないと、四角や疑問符で表示されます。本リポジトリは Meslo Nerd Font を使い、`install_font.sh` がインストールします。
 
 ## Ghostty
 

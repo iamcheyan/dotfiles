@@ -13,19 +13,19 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 print_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+    echo -e "${BLUE}${NC} $1"
 }
 
 print_success() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
+    echo -e "${YELLOW}${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}✗${NC} $1"
+    echo -e "${RED}${NC} $1"
 }
 
 detect_arch() {
@@ -150,7 +150,7 @@ check_delta() {
 
     print_warning "delta is not installed; diffnav needs it to render diffs"
     print_info "Install delta from https://github.com/dandavison/delta#installation"
-    print_info "or run scripts/install/install_delta.sh"
+    print_info "or install delta from your package manager or its upstream release"
     return 1
 }
 
@@ -190,7 +190,7 @@ main() {
     fi
 
     echo ""
-    echo -e "${YELLOW}📋 Usage:${NC}"
+    echo -e "${YELLOW} Usage:${NC}"
     echo ""
     echo "Pipe a diff into it:"
     echo "  git diff | diffnav"

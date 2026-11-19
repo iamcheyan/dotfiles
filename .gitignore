@@ -199,7 +199,6 @@ Cargo.lock
 .antigravitycli/
 .claude/projects/
 agents/claude-code/projects/
-# Fresh Terminal IDE window state (contains machine-specific absolute paths).
 /.fresh/windows.json
 
 # direnv

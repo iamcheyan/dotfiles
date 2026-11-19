@@ -117,22 +117,17 @@ SECTIONS = [
             ("lf", "lf", "Ranger-style bindings, Nerd Font icons, pane borders, and archive commands."),
             ("vifm", "Vifm", "Vim 风格双栏文件管理器。"),
             ("tmux", "tmux", "终端复用、会话恢复、pane 导航。"),
-            ("zellij", "zellij", "另一套终端复用器。"),
-            ("fresh", "Fresh", "终端文本编辑器。"),
             ("neovim", "Neovim", "编辑器入口与独立文档站。"),
             ("httpie", "HTTPie", "http 命令与安装器。"),
             ("pet", "Pet", "命令片段库。"),
             ("miru", "miru", "终端文件查看器：Markdown 走 glamour，源码与配置走 chroma，按 b 在浏览器预览。"),
             ("pay-respects", "pay-respects", "按 F 为错误命令提供修正建议。"),
-            ("delta", "delta", "git diff 的语法高亮分页器，diffnav 的渲染引擎。"),
             ("diffnav", "diffnav", "基于 delta 的 git diff 分页器，带 GitHub 风格文件树与 watch 模式。"),
             ("hunk", "hunk", "面向代码评审的终端 diff 查看器：多文件侧栏、agent 行内批注、GitHub PR 直连。"),
             ("visidata", "VisiData", "终端电子表格：浏览、排序、筛选、统计 CSV/TSV/JSON 等表格数据。"),
             ("tabiew", "tabiew", "CSV/TSV/parquet 的 TUI 查看器，支持 SQL 查询。"),
             ("qsv", "qsv", "极速 CSV 数据整理工具箱：70+ 子命令，统计、验证、转换、join。"),
             ("toolong", "toolong", "查看、tail、合并和搜索日志文件与 JSONL，自动识别时间戳。"),
-            ("harlequin", "harlequin", "终端 SQL IDE：多连接、结果分栏、100+ 键位，附带 hsql agent 客户端。"),
-            ("lazysql", "LazySQL", "Vim 键位终端数据库管理器：多连接、表浏览、SQL 编辑器。"),
             ("sqlmux", "sqlmux", "tmux 式窗格与 Vim 风格 SQL 编辑器的终端数据库客户端。"),
             ("rainfrog", "Rainfrog", "轻量终端数据库客户端：查询编辑、历史、收藏与表格浏览。"),
             ("dekit", "dekit", "进程管理器：用一个配置文件在开发与生产环境编排任务、依赖与重启。"),
@@ -151,7 +146,6 @@ SECTIONS = [
             ("nvim-update", "nvim-update", "稳定版升级、SHA-256 校验、原子切换。"),
             ("fonts", "字体安装器", "Meslo 与 Noto Serif CJK 的安装路径。"),
             ("httpie-installer", "HTTPie 安装器", "包管理器、pipx、pip 三级回退。"),
-            ("zellij-installer", "Zellij 安装器", "cargo 与 binary 两种方式。"),
             ("ssh", "SSH 与 SSHFS", "vssh 与 vifm-sshfs 的参数和挂载位置。"),
             ("archives", "归档工具", "packtar 与三个解压脚本的差异。"),
             ("cleanup", "清理与系统脚本", "clear.sh 与 winetricks.sh 的影响范围。"),
@@ -211,7 +205,7 @@ SECTIONS = [
             ("vifm", "Vifm 配置", "键位表、剪贴板脚本与双栏布局。"),
             ("vim", "Vim 与 GVim", "共享默认值、主题与 GUI 差异。"),
             ("ghostty", "Ghostty 配置", "字体、配色、选中复制。"),
-            ("misc", "nano 与 Herdr", "其余小配置的边界。"),
+            ("misc", "nano", "nano 配置的路径、用途与排错。"),
             ("nvim", "Neovim 子模块", "版本固定方式与独立文档站。"),
         ],
     ),
@@ -403,7 +397,7 @@ APP_JS = r"""
     btn.setAttribute('aria-label', dark ? '切换到浅色主题' : '切换到深色主题');
     btn.title = dark ? '切换到浅色主题' : '切换到深色主题';
     var mark = btn.querySelector('.theme-mark');
-    if (mark) mark.textContent = dark ? '☀️' : '🌙';
+    if (mark) mark.textContent = dark ? '' : '';
   }
 
   /* ---- language -------------------------------------------------------- */
@@ -692,7 +686,7 @@ def header(section: str, doc: str, prefix: str) -> str:
     <div class="header-tools">
       <button id="lang-toggle" type="button" class="lang-toggle" aria-label="切换语言" title="切换语言">中</button>
       <button id="theme-toggle" type="button" class="theme-toggle" aria-label="切换到深色主题" title="切换到深色主题" aria-pressed="false">
-        <span class="theme-mark" aria-hidden="true">🌙</span>
+        <span class="theme-mark" aria-hidden="true"></span>
       </button>
     </div>
   </div>

@@ -83,7 +83,7 @@ topgrade -t
 - 配置文件位于 `~/.config/topgrade/topgrade.toml`（上游默认路径），用 `topgrade --edit-config` 编辑，`topgrade --config-reference` 查看全部可配置项。
 - 安装脚本只放二进制，不写配置；配置按需自己维护。
 - 与 maintenance 章节配合：把 `topgrade` 放进定期维护流程，机器上所有包管理器一次跑完。
-- ⚠️ 默认行为包含 `sudo apt upgrade`：全量 `topgrade` 会真的升级系统包。第一次跑、或在不方便重启服务的时段，先 `topgrade --dry-run` 看清单，或用 `--only`/`--disable` 圈定范围。
+-  默认行为包含 `sudo apt upgrade`：全量 `topgrade` 会真的升级系统包。第一次跑、或在不方便重启服务的时段，先 `topgrade --dry-run` 看清单，或用 `--only`/`--disable` 圈定范围。
 
 ## 排错
 
@@ -184,7 +184,7 @@ The full step list is in `topgrade --help` (the possible values of `--only`/`--d
 - The config file lives at `~/.config/topgrade/topgrade.toml` (the upstream default); edit it with `topgrade --edit-config` and consult `topgrade --config-reference` for every option.
 - The install script only places the binary and writes no config; maintain the config yourself as needed.
 - Pairs with the maintenance chapter: put `topgrade` into the periodic maintenance routine so every package manager on the machine is covered in one pass.
-- ⚠️ `sudo apt upgrade` runs by default: a full `topgrade` really upgrades system packages. On a first run, or at a time when service restarts are inconvenient, preview with `topgrade --dry-run` first, or scope the run with `--only`/`--disable`.
+-  `sudo apt upgrade` runs by default: a full `topgrade` really upgrades system packages. On a first run, or at a time when service restarts are inconvenient, preview with `topgrade --dry-run` first, or scope the run with `--only`/`--disable`.
 
 ## Troubleshooting
 
@@ -285,7 +285,7 @@ topgrade -t
 - 設定ファイルは `~/.config/topgrade/topgrade.toml`（上流の既定パス）。編集は `topgrade --edit-config`、全設定項目は `topgrade --config-reference` で確認できます。
 - インストーラはバイナリを置くだけで設定は書きません。設定は必要に応じて自分で管理します。
 - メンテナンス章と組み合わせ、定期メンテナンスの手順に `topgrade` を組み込み、マシン上の全パッケージマネージャを 1 回でカバーします。
-- ⚠️ 既定で `sudo apt upgrade` が走ります。フル実行の `topgrade` はシステムパッケージを実際にアップグレードします。初回や、サービス再起動が都合の悪い時間帯は、まず `topgrade --dry-run` で一覧を確認するか、`--only`／`--disable` で範囲を絞ってください。
+-  既定で `sudo apt upgrade` が走ります。フル実行の `topgrade` はシステムパッケージを実際にアップグレードします。初回や、サービス再起動が都合の悪い時間帯は、まず `topgrade --dry-run` で一覧を確認するか、`--only`／`--disable` で範囲を絞ってください。
 
 ## トラブルシュート
 

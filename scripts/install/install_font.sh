@@ -26,7 +26,7 @@ download_meslo_font() {
   # Use wget or curl to download
   if command -v wget >/dev/null 2>&1; then
     if wget -q --show-progress -O "$MESLO_TAR" "$MESLO_URL"; then
-      echo "✓ Meslo font downloaded"
+      echo " Meslo font downloaded"
       return 0
     else
       echo "Error: failed to download Meslo font" >&2
@@ -34,7 +34,7 @@ download_meslo_font() {
     fi
   elif command -v curl >/dev/null 2>&1; then
     if curl -L -o "$MESLO_TAR" "$MESLO_URL"; then
-      echo "✓ Meslo font downloaded"
+      echo " Meslo font downloaded"
       return 0
     else
       echo "Error: failed to download Meslo font" >&2
@@ -69,9 +69,9 @@ install_meslo_font() {
       if command -v fc-cache >/dev/null 2>&1; then
         echo "Refreshing font cache..."
         fc-cache -fv "$FONTS_DIR" >/dev/null 2>&1
-        echo "✓ Meslo font installed in $FONTS_DIR and font cache refreshed"
+        echo " Meslo font installed in $FONTS_DIR and font cache refreshed"
       else
-        echo "✓ Meslo font installed in $FONTS_DIR"
+        echo " Meslo font installed in $FONTS_DIR"
         echo "Warning: fc-cache not found; refresh the font cache manually"
       fi
       return 0
@@ -86,7 +86,7 @@ install_meslo_font() {
 
     echo "Extracting Meslo font..."
     if tar -xJf "$MESLO_TAR" -C "$FONTS_DIR" 2>/dev/null; then
-      echo "✓ Meslo font installed in $FONTS_DIR"
+      echo " Meslo font installed in $FONTS_DIR"
       echo "On macOS, fonts load automatically; no manual cache refresh is needed."
       return 0
     else
@@ -271,7 +271,7 @@ main() {
         echo "Meslo font is installed, but will be reinstalled in force mode..."
         install_meslo_font
       else
-        echo "✓ Meslo font is installed; skipping installation"
+        echo " Meslo font is installed; skipping installation"
       fi
     else
       # If it is not installed

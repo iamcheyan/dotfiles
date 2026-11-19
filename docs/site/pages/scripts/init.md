@@ -89,14 +89,6 @@ install_fnm
 
 安装 Node 版本管理器。NixOS 上跳过，提示由系统配置管理。
 
-### Step 6：Fresh
-
-```bash
-install_fresh
-```
-
-按平台选择安装方式：Linux/WSL 用官方 installer，macOS 用 Homebrew，Windows 用 winget。NixOS 跳过。
-
 ### Step 7：fzf
 
 ```bash
@@ -137,7 +129,6 @@ install_ranger_archives
 | Docker | 仅 Linux |
 | Zellij | 检查/安装 |
 | gh-dash | gh 扩展 |
-| Herdr | 本地 AI 助手 |
 
 ## 平台分支
 
@@ -287,14 +278,6 @@ install_fnm
 
 Installs the Node version manager. Skipped on NixOS, where the system config manages it.
 
-### Step 6: Fresh
-
-```bash
-install_fresh
-```
-
-Chooses the install method per platform: the official installer on Linux/WSL, Homebrew on macOS, winget on Windows. Skipped on NixOS.
-
 ### Step 7: fzf
 
 ```bash
@@ -335,7 +318,6 @@ The script then handles:
 | Docker | Linux only |
 | Zellij | Check/install |
 | gh-dash | gh extension |
-| Herdr | Local AI assistant |
 
 
 ## Platform Branches
@@ -486,14 +468,6 @@ install_fnm
 
 Node のバージョンマネージャーをインストールします。NixOS ではスキップし、システム設定で管理するよう促します。
 
-### Step 6：Fresh
-
-```bash
-install_fresh
-```
-
-プラットフォームに応じてインストール方法を選びます：Linux/WSL は公式 installer、macOS は Homebrew、Windows は winget。NixOS ではスキップ。
-
 ### Step 7：fzf
 
 ```bash
@@ -534,7 +508,6 @@ ranger の 2 つのプラグインをクローンします。どちらも git �
 | Docker | Linux のみ |
 | Zellij | 確認・インストール |
 | gh-dash | gh 拡張 |
-| Herdr | ローカル AI アシスタント |
 
 
 ## プラットフォームの分岐

@@ -36,13 +36,12 @@ bash init.sh
 | 3.5 | 初始化 git 子模块 |
 | 4 | 检查/安装 zinit |
 | 5 | 检查/安装 fnm |
-| 6 | 检查/安装 Fresh |
 | 7 | 检查/安装 fzf |
 | 8 | 调用 dotlink 建立软链接 |
 | 8.5 | 检查 ranger 插件 |
 | 9 | 创建 `~/.zshrc` 软链接 |
 
-后面还有字体、Neovim、Docker、Zellij、gh-dash、Herdr 等额外组件。**注意顺序：软链接在字体和 Neovim 之前建立**，所以中途失败时链接可能已经生效，而依赖还没装好。
+
 
 ## 覆盖提示
 
@@ -120,13 +119,12 @@ The script runs 11 steps in a fixed order; each failed step prints a warning and
 | 3.5 | Initialize git submodules |
 | 4 | Check/install zinit |
 | 5 | Check/install fnm |
-| 6 | Check/install Fresh |
 | 7 | Check/install fzf |
 | 8 | Run dotlink to create symlinks |
 | 8.5 | Check ranger plugins |
 | 9 | Create the `~/.zshrc` symlink |
 
-Font, Neovim, Docker, Zellij, gh-dash, Herdr and other extras come after. **Mind the order: symlinks are created before fonts and Neovim**, so a mid-run failure can leave links live while dependencies are still missing.
+
 
 ## The overwrite prompt
 
@@ -204,13 +202,12 @@ bash init.sh
 | 3.5 | git サブモジュールの初期化 |
 | 4 | zinit の確認／インストール |
 | 5 | fnm の確認／インストール |
-| 6 | Fresh の確認／インストール |
 | 7 | fzf の確認／インストール |
 | 8 | dotlink によるシンボリックリンク作成 |
 | 8.5 | ranger プラグインの確認 |
 | 9 | `~/.zshrc` のシンボリックリンク作成 |
 
-この後ろにフォント、Neovim、Docker、Zellij、gh-dash、Herdr などの追加コンポーネントが続きます。**順序に注意：シンボリックリンクはフォントや Neovim より先に作られます**。途中で失敗すると、リンクだけが生きたまま依存が揃っていない状態になり得ます。
+
 
 ## 上書きの警告
 

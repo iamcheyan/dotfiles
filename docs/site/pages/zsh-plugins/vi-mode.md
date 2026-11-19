@@ -116,7 +116,7 @@ zvm_bindkey viins '^[OA' atuin-up-search
 
 ```toml
 [character]
-vimcmd_symbol = "[❯](bold yellow)"
+vimcmd_symbol = "[](bold yellow)"
 ```
 
 普通模式下提示符变黄，是一个轻量的模式提示。
@@ -277,7 +277,7 @@ The plugin can show the current mode in the prompt. This repository does not ena
 
 ```toml
 [character]
-vimcmd_symbol = "[❯](bold yellow)"
+vimcmd_symbol = "[](bold yellow)"
 ```
 
 In normal mode the prompt turns yellow, which is a lightweight mode hint.
@@ -438,7 +438,7 @@ zvm_bindkey viins '^[OA' atuin-up-search
 
 ```toml
 [character]
-vimcmd_symbol = "[❯](bold yellow)"
+vimcmd_symbol = "[](bold yellow)"
 ```
 
 ノーマルモードではプロンプトが黄色になり、軽量なモードのヒントになります。

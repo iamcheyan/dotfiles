@@ -29,7 +29,7 @@ fix_docker_repo() {
 
     if [[ "$current_line" != "$expected_line" ]]; then
         echo "$expected_line" | sudo tee "$list_file" >/dev/null
-        echo -e "${GREEN}✓${NC} Fixed Docker repo: ${distro_id} ${codename}"
+        echo -e "${GREEN}${NC} Fixed Docker repo: ${distro_id} ${codename}"
     fi
 }
 fix_docker_repo
@@ -45,19 +45,19 @@ NC='\033[0m' # Reset color
 
 # Print colored messages
 print_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+    echo -e "${BLUE}$1${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}$1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
+    echo -e "${YELLOW}$1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}✗${NC} $1"
+    echo -e "${RED}$1${NC}"
 }
 
 # Check whether a command exists
@@ -386,10 +386,10 @@ repair_atuin_migration() {
 install_essentials() {
     print_info "Checking essential tools..."
 
-    local common_packages="git curl wget unzip git-extras ffmpeg tmux lsof"
-    local debian_packages="build-essential ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
+    local common_packages="git curl wget unzip git-extras ffmpeg tmux lsof chezmoi"
+    local debian_packages="python3 build-essential ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
     local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
-    local arch_packages="base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
+    local arch_packages="python base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
     local void_packages="base-devel ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
     local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm lf"
 
@@ -427,6 +427,12 @@ install_essentials() {
                 sudo apt-get install -y $install_list
             else
                 print_warning "No installable packages were found"
+            fi
+            if ! command_exists chezmoi; then
+                print_info "Installing chezmoi from its official installer..."
+                sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+                export PATH="$HOME/.local/bin:$PATH"
+                command_exists chezmoi || { print_error "chezmoi installation failed"; return 1; }
             fi
         else
             print_error "sudo privileges are required to install essential tools"
@@ -569,56 +575,6 @@ install_fnm() {
 
     curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
     ensure_fnm_node
-}
-
-# Install Fresh Terminal IDE
-install_fresh() {
-    if command_exists fresh; then
-        print_success "Fresh is already installed: $(fresh --version 2>/dev/null | head -n 1)"
-        return 0
-    fi
-
-    print_info "Installing Fresh Terminal IDE..."
-    case "$OSTYPE" in
-        msys*|cygwin*|win32*)
-            if command_exists winget; then
-                winget install --id sinelaw.fresh-editor --exact --accept-package-agreements --accept-source-agreements
-            else
-                print_warning "Windows winget is required to install Fresh Terminal IDE"
-                return 1
-            fi
-            ;;
-        darwin*)
-            if command_exists brew; then
-                brew install fresh-editor
-            else
-                print_warning "On macOS, install Homebrew first or install Fresh manually"
-                return 1
-            fi
-            ;;
-        linux-gnu*)
-            if [[ "$(detect_os)" == "nixos" ]]; then
-                print_info "NixOS detected; Fresh is managed by nixos-config. Rebuild the system to install it."
-                return 0
-            elif command_exists curl; then
-                curl -fsSL https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh
-            else
-                print_error "curl is required to install Fresh Terminal IDE on Linux"
-                return 1
-            fi
-            ;;
-        *)
-            print_warning "Unsupported platform for automatic Fresh installation; install it manually"
-            return 1
-            ;;
-    esac
-
-    if command_exists fresh || [[ -x "$HOME/.local/bin/fresh" ]]; then
-        print_success "Fresh Terminal IDE installed"
-    else
-        print_error "Fresh Terminal IDE installation failed"
-        return 1
-    fi
 }
 
 # Install fzf
@@ -1056,14 +1012,14 @@ install_gh_dash() {
     fi
 }
 
-# Install additional tools (Docker, Zellij)
+## Install additional tools
 install_extra_tools() {
     local install_dir="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install"
     
     print_info "Checking and installing additional tools..."
 
     if [[ "$(detect_os)" == "nixos" ]]; then
-        print_info "NixOS detected; Docker, Zellij, Herdr, and database/data TUI tools are managed by nixos-config. Skipping bootstrap installs."
+        print_info "NixOS detected; Docker is managed by nixos-config. Skipping bootstrap install."
         return 0
     fi
 
@@ -1074,38 +1030,14 @@ install_extra_tools() {
         print_info "Skipping Docker install on non-Linux system"
     fi
 
-    # Zellij
-    if ! command_exists zellij; then
-        print_info "Installing Zellij..."
-        [[ -f "$install_dir/install_zellij.sh" ]] && bash "$install_dir/install_zellij.sh"
-    else
-        print_success "Zellij is already installed"
-    fi
     # gh-dash (requires GitHub CLI)
     install_gh_dash
-    # Herdr — local AI coding assistant
-    if ! command_exists herdr; then
-        print_info "Installing Herdr..."
-        curl -fsSL https://herdr.dev/install.sh | sh
-        print_success "Herdr installed successfully"
-    else
-        print_success "Herdr is already installed"
-    fi
-
     # pay-respects shell correction tool
     if ! command_exists pay-respects; then
         print_info "Installing pay-respects..."
         curl -fsSL https://raw.githubusercontent.com/iffse/pay-respects/main/install.sh | sh
     else
         print_success "pay-respects is already installed"
-    fi
-
-    # delta — syntax-highlighting diff pager (dependency of diffnav)
-    if ! command_exists delta; then
-        print_info "Installing delta (diff pager used by diffnav)..."
-        [[ -f "$install_dir/install_delta.sh" ]] && bash "$install_dir/install_delta.sh"
-    else
-        print_success "delta is already installed"
     fi
 
     # diffnav — GitHub-style diff pager with a file tree
@@ -1158,30 +1090,6 @@ install_extra_tools() {
         [[ -f "$install_dir/install_pipx_tool.sh" ]] && bash "$install_dir/install_pipx_tool.sh" toolong tl
     else
         print_success "toolong is already installed"
-    fi
-
-    # harlequin — terminal SQL IDE (pipx)
-    if ! command_exists harlequin; then
-        print_info "Installing harlequin..."
-        [[ -f "$install_dir/install_pipx_tool.sh" ]] && bash "$install_dir/install_pipx_tool.sh" harlequin harlequin
-    else
-        print_success "harlequin is already installed"
-    fi
-    if command_exists harlequin && command_exists pipx; then
-        if command_exists apt-get && ! ldconfig -p 2>/dev/null | grep -q 'libodbc\.so'; then
-            print_info "Installing unixODBC for the Harlequin ODBC adapter..."
-            sudo apt-get install -y unixodbc || print_warning "Could not install unixODBC; Oracle ODBC connections will be unavailable"
-        fi
-        print_info "Installing Harlequin PostgreSQL, MySQL, and ODBC adapters..."
-        pipx inject harlequin harlequin-postgres harlequin-mysql harlequin-odbc || print_warning "Could not install all Harlequin database adapters"
-    fi
-
-    # lazysql — cross-platform database management TUI
-    if ! command_exists lazysql; then
-        print_info "Installing lazysql..."
-        [[ -f "$install_dir/install_lazysql.sh" ]] && bash "$install_dir/install_lazysql.sh"
-    else
-        print_success "lazysql is already installed"
     fi
 
     # sqlmux — tmux-style terminal database client
@@ -1240,7 +1148,7 @@ main() {
     done
 
     if [[ "$MINIMAL" == "true" ]]; then
-        echo -e "${YELLOW}⚠  Minimal mode enabled${NC}"
+        echo -e "${YELLOW}Minimal mode enabled${NC}"
         echo "Skipping: fonts, neovim, and heavy extras (translate-shell, yt-dlp, jq, viu)"
         echo ""
     fi
@@ -1256,7 +1164,7 @@ EOF
     echo -e "${NC}"
 
     # Important notice
-    echo -e "${YELLOW}⚠  Important Notice:${NC}"
+    echo -e "${YELLOW}Important Notice:${NC}"
     echo ""
     echo "This script will:"
     echo "  1. Create symlinks for config files (replacing existing files)"
@@ -1326,52 +1234,47 @@ EOF
     run_step "fnm install" install_fnm
     echo ""
 
-    # 6. Install Fresh Terminal IDE
-    print_info "Step 6/12: Checking and installing Fresh Terminal IDE"
-    run_step "Fresh install" install_fresh
-    echo ""
-
     # 7. Install fzf
-    print_info "Step 7/12: Checking and installing fzf"
+    print_info "Step 6/11: Checking and installing fzf"
     run_step "fzf install" install_fzf
     echo ""
 
     # 8. Create config file symlinks with dotlink
-    print_info "Step 8/12: Creating config file symlinks with dotlink"
+    print_info "Step 7/11: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
     echo ""
 
     # 8.5 Install ranger plugins if missing
-    print_info "Step 8.5/12: Checking ranger plugins"
+    print_info "Step 7.5/11: Checking ranger plugins"
     run_step "ranger_devicons install" install_ranger_devicons
     run_step "ranger_archives install" install_ranger_archives
     echo ""
 
     # 9. Create the .zshrc symlink
-    print_info "Step 9/12: Creating the .zshrc symlink"
+    print_info "Step 8/11: Creating the .zshrc symlink"
     run_step "zshrc link" create_zshrc_link
     echo ""
 
     # 10. Install Neovim
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 10/12: Installing Neovim"
+        print_info "Step 9/11: Installing Neovim"
         run_step "neovim install" install_neovim
     else
-        print_info "Step 10/12: Skipping Neovim (minimal mode)"
+        print_info "Step 9/11: Skipping Neovim (minimal mode)"
     fi
     echo ""
 
     # 11. Install fonts
     if [[ "$MINIMAL" != "true" ]]; then
-        print_info "Step 11/12: Installing fonts"
+        print_info "Step 10/11: Installing fonts"
         run_step "fonts install" install_fonts
     else
-        print_info "Step 11/12: Skipping fonts (minimal mode)"
+        print_info "Step 10/11: Skipping fonts (minimal mode)"
     fi
     echo ""
 
     # 12. Install additional tools
-    print_info "Step 12/12: Installing additional tools (Docker, Zellij)"
+    print_info "Step 11/11: Installing additional tools"
     run_step "extra tools install" install_extra_tools
     echo ""
 
@@ -1395,7 +1298,7 @@ EOF
 
     # Show backup information
     if [[ -d "$DOTLINK_BACKUP_DIR" ]]; then
-        echo -e "${YELLOW}📦 Backup Information:${NC}"
+        echo -e "${YELLOW}Backup Information:${NC}"
         echo "  Backup location: $DOTLINK_BACKUP_DIR"
         echo "  To restore, copy the files from the backup directory back to their original locations"
         echo ""

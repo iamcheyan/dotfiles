@@ -103,7 +103,7 @@ Wayland 用 `wl-copy`，X11 用 `xclip`/`xsel`，macOS 用 `pbcopy`。
 ```text
 中文
 日本語
-😀
+
 𠮷野家
 第一行
 第二行
@@ -285,7 +285,7 @@ For each scenario, copy the full text below and paste it into a local editor to 
 ```text
 中文
 日本語
-😀
+
 𠮷野家
 第一行
 第二行
@@ -467,7 +467,7 @@ Wayland は `wl-copy`、X11 は `xclip`/`xsel`、macOS は `pbcopy` を使いま
 ```text
 中文
 日本語
-😀
+
 𠮷野家
 第一行
 第二行

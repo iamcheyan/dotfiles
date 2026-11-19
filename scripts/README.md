@@ -18,7 +18,6 @@ scripts/
 - `install_font.sh` - 安装字体（init.sh `install_fonts` 调用）
 - `install_httpie.sh` - 安装 HTTPie（plugins/tools/tools.zsh 调用）
 - `install_nvim.sh` - 安装 Neovim（init.sh `install_neovim` 调用）
-- `install_zellij.sh` - 安装 Zellij（init.sh `install_extra_tools` 调用）
 
 ### `scripts/setup/` - 环境配置脚本
 

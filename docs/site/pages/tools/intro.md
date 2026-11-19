@@ -68,8 +68,6 @@
 | `lf` | `lfm` | 面板边框、图标、Ranger 风格键位与归档 | [lf](lf.html) |
 | Vifm | 系统包 | `v` | [Vifm](vifm.html) |
 | tmux | 系统包 | `tmux` | [tmux](tmux.html) |
-| zellij | Zinit / 安装器 | `zellij` | [zellij](zellij.html) |
-| Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | 独立仓库 | `nvim` | [Neovim](neovim.html) |
 
 ## 数据与日志
@@ -87,8 +85,6 @@
 
 | 工具 | 来源 | 入口 | 文档 |
 |---|---|---|---|
-| Harlequin | pipx | `harlequin` | [Harlequin](harlequin.html) |
-| LazySQL | init.sh（官方 release） | `lazysql` | [LazySQL](lazysql.html) |
 | sqlmux | init.sh（校验 SHA-256 的官方 release） | `sqlmux` | [sqlmux](sqlmux.html) |
 | Rainfrog | init.sh（系统包 / 官方 release） | `rainfrog` | [Rainfrog](rainfrog.html) |
 
@@ -96,7 +92,6 @@
 
 | 工具 | 来源 | 入口 | 文档 |
 |---|---|---|---|
-| delta | 上游 Release | `delta`（diffnav 依赖） | [delta](delta.html) |
 | diffnav | 上游 Release | `git diff \| diffnav` | [diffnav](diffnav.html) |
 | hunk | 上游 Release | `hunk diff` | [hunk](hunk.html) |
 
@@ -183,8 +178,6 @@
 | `lf` | `lfm` | Pane borders, icons, Ranger-style bindings and archive commands | [lf](lf.html) |
 | Vifm | System package | `v` | [Vifm](vifm.html) |
 | tmux | system package | `tmux` | [tmux](tmux.html) |
-| zellij | Zinit / installer | `zellij` | [zellij](zellij.html) |
-| Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | separate repository | `nvim` | [Neovim](neovim.html) |
 
 ## Data & logs
@@ -202,8 +195,6 @@
 
 | Tool | Source | Entry | Doc |
 |---|---|---|---|
-| Harlequin | pipx | `harlequin` | [Harlequin](harlequin.html) |
-| LazySQL | init.sh (official release) | `lazysql` | [LazySQL](lazysql.html) |
 | sqlmux | init.sh (SHA-256-verified official release) | `sqlmux` | [sqlmux](sqlmux.html) |
 | Rainfrog | init.sh (system package / official release) | `rainfrog` | [Rainfrog](rainfrog.html) |
 
@@ -211,7 +202,6 @@
 
 | Tool | Source | Entry | Doc |
 |---|---|---|---|
-| delta | upstream Release | `delta` (diffnav dependency) | [delta](delta.html) |
 | diffnav | upstream Release | `git diff \| diffnav` | [diffnav](diffnav.html) |
 | hunk | upstream Release | `hunk diff` | [hunk](hunk.html) |
 
@@ -298,8 +288,6 @@ Find the tool in a table, then open its page. Every page follows the same struct
 | `lf` | `lfm` | 枠線、アイコン、Ranger 風キー操作とアーカイブ | [lf](lf.html) |
 | Vifm | システムパッケージ | `v` | [Vifm](vifm.html) |
 | tmux | システムパッケージ | `tmux` | [tmux](tmux.html) |
-| zellij | Zinit / インストーラ | `zellij` | [zellij](zellij.html) |
-| Fresh | init.sh | `fr` | [Fresh](fresh.html) |
 | Neovim | 独立リポジトリ | `nvim` | [Neovim](neovim.html) |
 
 ## データとログ
@@ -317,8 +305,6 @@ Find the tool in a table, then open its page. Every page follows the same struct
 
 | ツール | 入手元 | コマンド | ドキュメント |
 |---|---|---|---|
-| Harlequin | pipx | `harlequin` | [Harlequin](harlequin.html) |
-| LazySQL | init.sh（公式 release） | `lazysql` | [LazySQL](lazysql.html) |
 | sqlmux | init.sh（SHA-256 検証済み公式 release） | `sqlmux` | [sqlmux](sqlmux.html) |
 | Rainfrog | init.sh（システムパッケージ / 公式 release） | `rainfrog` | [Rainfrog](rainfrog.html) |
 
@@ -326,7 +312,6 @@ Find the tool in a table, then open its page. Every page follows the same struct
 
 | ツール | 出所 | 入口 | ドキュメント |
 |---|---|---|---|
-| delta | 上流 Release | `delta`（diffnav の依存） | [delta](delta.html) |
 | diffnav | 上流 Release | `git diff \| diffnav` | [diffnav](diffnav.html) |
 | hunk | 上流 Release | `hunk diff` | [hunk](hunk.html) |
 

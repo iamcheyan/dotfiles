@@ -19,7 +19,7 @@
 |---|---|
 | 仓库 | `dlvhdr/diffnav`（Go，MIT） |
 | 安装器 | `scripts/install/install_diffnav.sh` |
-| 依赖 | `delta`（渲染引擎，由 `install_delta.sh` 安装） |
+| 依赖 | `delta`（渲染引擎，需单独从系统包管理器或上游 release 安装） |
 | 字体 | 图标需要 Nerd Font（init.sh 已装 Meslo Nerd Font） |
 | 二进制 | `~/.local/bin/diffnav`，安装时校验 SHA-256 |
 
@@ -97,7 +97,7 @@ ui:
 
 **图标显示为方块**：终端字体不是 Nerd Font。切到 Meslo Nerd Font（init.sh 已装）。
 
-**启动即报 FATA / 闪退**：`delta` 缺失。运行 `bash scripts/install/install_delta.sh`。
+**启动即报 FATA / 闪退**：`delta` 缺失。从系统包管理器或上游 release 安装 delta。
 
 **`git diff` 没进 diffnav**：`pager.diff` 没设。`git config --global pager.diff diffnav`。
 
@@ -126,7 +126,7 @@ This repo treats it as the graphical layer over `delta`: use `diffnav` when you 
 |---|---|
 | Repository | `dlvhdr/diffnav` (Go, MIT) |
 | Installer | `scripts/install/install_diffnav.sh` |
-| Dependency | `delta` (render engine, installed by `install_delta.sh`) |
+| Dependency | `delta` (render engine, installed separately from an upstream package or release) |
 | Font | icons need a Nerd Font (init.sh installs Meslo Nerd Font) |
 | Binary | `~/.local/bin/diffnav`, SHA-256 verified on install |
 
@@ -204,7 +204,7 @@ ui:
 
 **Icons show as boxes**: the terminal font is not a Nerd Font. Switch to Meslo Nerd Font (installed by init.sh).
 
-**FATA on launch / instant exit**: `delta` is missing. Run `bash scripts/install/install_delta.sh`.
+**FATA on launch / instant exit**: `delta` is missing. Install delta from your system package manager or the upstream release.
 
 **`git diff` does not go through diffnav**: `pager.diff` is not set. `git config --global pager.diff diffnav`.
 
@@ -233,7 +233,7 @@ ui:
 |---|---|
 | リポジトリ | `dlvhdr/diffnav`（Go、MIT） |
 | インストーラ | `scripts/install/install_diffnav.sh` |
-| 依存 | `delta`（描画エンジン。`install_delta.sh` で導入） |
+| 依存 | `delta`（描画エンジン。個別に導入） |
 | フォント | アイコンには Nerd Font が必要（init.sh が Meslo Nerd Font を導入） |
 | バイナリ | `~/.local/bin/diffnav`。導入時に SHA-256 検証 |
 
@@ -311,7 +311,7 @@ ui:
 
 **アイコンが四角になる**：ターミナルのフォントが Nerd Font ではない。Meslo Nerd Font（init.sh が導入済み）に切り替えてください。
 
-**起動時に FATA / 即終了**：`delta` が無い。`bash scripts/install/install_delta.sh` を実行してください。
+**起動時に FATA / 即終了**：`delta` が無い。`Install delta from your system package manager or the upstream release.` を実行してください。
 
 **`git diff` が diffnav を通らない**：`pager.diff` 未設定。`git config --global pager.diff diffnav` を実行してください。
 

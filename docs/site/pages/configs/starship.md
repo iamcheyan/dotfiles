@@ -201,12 +201,12 @@ style = "bold #7aa2f7"
 
 ```toml
 [character]
-success_symbol = "[❯](bold #50fa7b)"
-error_symbol = "[❯](bold #ff5555)"
-vimcmd_symbol = "[❯](bold #ffff55)"
+success_symbol = "[](bold #50fa7b)"
+error_symbol = "[](bold #ff5555)"
+vimcmd_symbol = "[](bold #ffff55)"
 ```
 
-`vimcmd_symbol` 在 vi 模式下的命令行模式显示黄色 `❯`。
+`vimcmd_symbol` 在 vi 模式下的命令行模式显示黄色 ``。
 
 ## 调优建议
 
@@ -452,12 +452,12 @@ style = "bold #7aa2f7"
 
 ```toml
 [character]
-success_symbol = "[❯](bold #50fa7b)"
-error_symbol = "[❯](bold #ff5555)"
-vimcmd_symbol = "[❯](bold #ffff55)"
+success_symbol = "[](bold #50fa7b)"
+error_symbol = "[](bold #ff5555)"
+vimcmd_symbol = "[](bold #ffff55)"
 ```
 
-`vimcmd_symbol` displays a yellow `❯` for command-line mode in vi mode.
+`vimcmd_symbol` displays a yellow `` for command-line mode in vi mode.
 
 ## Tuning Tips
 
@@ -703,12 +703,12 @@ style = "bold #7aa2f7"
 
 ```toml
 [character]
-success_symbol = "[❯](bold #50fa7b)"
-error_symbol = "[❯](bold #ff5555)"
-vimcmd_symbol = "[❯](bold #ffff55)"
+success_symbol = "[](bold #50fa7b)"
+error_symbol = "[](bold #ff5555)"
+vimcmd_symbol = "[](bold #ffff55)"
 ```
 
-vi モードのコマンドラインモードでは、`vimcmd_symbol` が黄色の `❯` を表示します。
+vi モードのコマンドラインモードでは、`vimcmd_symbol` が黄色の `` を表示します。
 
 ## 調整のヒント
 

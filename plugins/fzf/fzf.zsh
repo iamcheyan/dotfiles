@@ -35,7 +35,7 @@ if command -v fd >/dev/null 2>&1; then
 elif command -v fdfind >/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='fdfind --hidden --follow --exclude .git'
 else
-    echo "提示: 建议安装 fd（https://github.com/sharkdp/fd），以加快 fzf 文件搜索速度。" >&2
+    echo "Install fd (https://github.com/sharkdp/fd) for faster fzf file searches." >&2
     export FZF_DEFAULT_COMMAND='find . -type f -not -path "*/\.git/*" 2>/dev/null'
 fi
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
