@@ -10,9 +10,9 @@ $character"""
 right_format = """$status$cmd_duration$jobs"""
 
 [character]
-success_symbol = "[](bold #50fa7b)"
-error_symbol = "[](bold #ff5555)"
-vimcmd_symbol = "[](bold #ffff55)"
+success_symbol = "[>](bold #50fa7b)"
+error_symbol = "[!](bold #ff5555)"
+vimcmd_symbol = "[<](bold #ffff55)"
 
 [directory]
 truncation_length = 3
