@@ -70,7 +70,7 @@ Neovim 配置仓库。只想安装 Neovim 的用户也可以直接克隆该仓�
   * Neovim 插件使用书按类别列出公开、私有插件和依赖，并为每项提供独立操作章节与练习，见 [`config/nvim/docs/plugins/PLUGINS.md`](config/nvim/docs/plugins/PLUGINS.md)。
 
 ### 4.  本地 AI 工具与终端复用生态
-* **轻量文件管理器**：Ranger（`ra`）、lf（`lfm`）与 Vifm（`v`）；lf 提供 Ranger 风格键位、Nerd Font 图标、面板边框和归档操作。
+* **轻量文件管理器**：lf（`lfm`）与 Vifm（`v`）；Ranger（`ra`）保留配置但不再自动安装；lf 提供 Ranger 风格键位、Nerd Font 图标、面板边框和归档操作。
 * **自研零依赖软链工具 `dotlink`**：纯 Shell 编写的极简配置软链管理器，不依赖 Chezmoi 或任何外部工具即可独立运转。
 
 ---

@@ -105,15 +105,6 @@ run_dotlink
 
 调用 `dotlink` 建立所有软链接。**这一步之后配置就生效了**，即使后面失败。
 
-### Step 8.5：Ranger 插件
-
-```bash
-install_ranger_devicons
-install_ranger_archives
-```
-
-克隆两个 ranger 插件。它们也是 git 子模块，这里做兜底检查。
-
 ### Step 9：`.zshrc` 链接
 
 创建 `~/.zshrc` → `~/dotfiles/zshrc` 的链接。
@@ -293,15 +284,6 @@ run_dotlink
 ```
 
 Calls `dotlink` to create all symlinks. **After this step the configuration is live**, even if later steps fail.
-
-### Step 8.5: Ranger Plugins
-
-```bash
-install_ranger_devicons
-install_ranger_archives
-```
-
-Clones the two ranger plugins. They are also git submodules; this is a fallback check.
 
 ### Step 9: The `.zshrc` Link
 
@@ -484,15 +466,6 @@ run_dotlink
 
 `dotlink` を呼んですべてのシンボリックリンクを作ります。**このステップの後には設定が有効になっています。**その後で失敗してもです。
 
-### Step 8.5：Ranger プラグイン
-
-```bash
-install_ranger_devicons
-install_ranger_archives
-```
-
-ranger の 2 つのプラグインをクローンします。どちらも git サブモジュールなので、ここでは念押しのチェックになります。
-
 ### Step 9：`.zshrc` のリンク
 
 `~/.zshrc` → `~/dotfiles/zshrc` のリンクを作ります。
@@ -572,3 +545,5 @@ bash dotlink/dotlink link
 After dotlink, initialization installs TPM and installs/updates declared plugins automatically, including minimal mode. Missing tmux/git skips setup. Existing directories are preserved.
 
 初期化は dotlink の後に TPM と宣言済みプラグインをインストール・更新します。minimal モードにも対応し、tmux/git がない場合はスキップします。既存ディレクトリを保持します。
+
+初始化不再安装 Ranger 或下载其插件；保留已有 Ranger 配置供手动使用。子模块初始化跳过 `config/ranger/`，其他子模块照常初始化。

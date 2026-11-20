@@ -387,11 +387,11 @@ install_essentials() {
     print_info "Checking essential tools..."
 
     local common_packages="git curl wget unzip git-extras ffmpeg tmux lsof chezmoi"
-    local debian_packages="python3 build-essential ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
-    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
-    local arch_packages="python base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
-    local void_packages="base-devel ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop ranger vifm lf"
-    local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop ranger vifm lf"
+    local debian_packages="python3 build-essential ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop vifm lf"
+    local rhel_packages="make automake gcc gcc-c++ ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop vifm lf"
+    local arch_packages="python base-devel ripgrep fd eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop vifm lf"
+    local void_packages="base-devel ripgrep fd-find eza zoxide bat translate-shell glow mdcat yt-dlp gping jq httpie broot htop vifm lf"
+    local brew_packages="ripgrep fd eza zoxide bat translate-shell glow mdcat viu yt-dlp jq httpie broot htop vifm lf"
 
     if [[ "$MINIMAL" == "true" ]]; then
         print_info "Minimal mode: skipping translate-shell, yt-dlp, jq, viu"
@@ -486,7 +486,7 @@ install_essentials() {
             return 1
         fi
     else
-         print_warning "Could not install essential tools automatically. Please install these manually: git, curl, wget, build-essential, ripgrep, fd, eza, zoxide, ranger"
+         print_warning "Could not install essential tools automatically. Please install these manually: git, curl, wget, build-essential, ripgrep, fd, eza, zoxide, vifm"
          return 1
     fi
 
@@ -667,7 +667,15 @@ init_git_submodules() {
         print_info "Initializing git submodules..."
         git -C "$dotfiles_dir" config submodule.recurse true
         git -C "$dotfiles_dir" config fetch.recurseSubmodules on-demand
-        git -C "$dotfiles_dir" submodule update --init --recursive
+        local key path
+        local paths=()
+        while read -r key path; do
+            case "$path" in config/ranger/*) continue ;; esac
+            paths+=("$path")
+        done < <(git -C "$dotfiles_dir" config -f .gitmodules --get-regexp '^submodule\..*\.path$')
+        if [[ ${#paths[@]} -gt 0 ]]; then
+            git -C "$dotfiles_dir" submodule update --init --recursive -- "${paths[@]}"
+        fi
         print_success "Git submodules initialized"
     else
         print_info "No .gitmodules found, skipping"
@@ -705,68 +713,6 @@ run_dotlink() {
         print_success "dotlink completed successfully"
     else
         print_warning "dotlink may have encountered issues. Please review the output"
-    fi
-}
-
-# Install ranger devicons plugin into the dotfiles source tree.
-install_ranger_devicons() {
-    local plugin_dir="${DOTFILES_DIR:-$HOME/dotfiles}/config/ranger/plugins/ranger_devicons"
-    local plugin_parent
-    plugin_parent="$(dirname "$plugin_dir")"
-
-    if [[ -d "$plugin_dir" ]]; then
-        if [[ -z "$(ls -A "$plugin_dir" 2>/dev/null)" ]]; then
-            print_info "ranger_devicons directory exists but is empty, removing and reinstalling..."
-            rm -rf "$plugin_dir"
-        else
-            print_success "ranger_devicons is already installed: $plugin_dir"
-            return 0
-        fi
-    fi
-
-    if ! command_exists git; then
-        print_error "git is required to install ranger_devicons"
-        return 1
-    fi
-
-    mkdir -p "$plugin_parent"
-    print_info "Installing ranger_devicons..."
-    if git clone --depth 1 https://github.com/alexanderjeurissen/ranger_devicons.git "$plugin_dir"; then
-        print_success "ranger_devicons installed successfully: $plugin_dir"
-    else
-        print_error "Failed to install ranger_devicons"
-        return 1
-    fi
-}
-
-# Install ranger archives plugin for extracting/creating archives
-install_ranger_archives() {
-    local plugin_dir="${DOTFILES_DIR:-$HOME/dotfiles}/config/ranger/plugins/archives"
-    local plugin_parent
-    plugin_parent="$(dirname "$plugin_dir")"
-
-    if [[ -d "$plugin_dir" ]]; then
-        if [[ -z "$(ls -A "$plugin_dir" 2>/dev/null)" ]]; then
-            print_info "ranger-archives directory exists but is empty, removing and reinstalling..."
-            rm -rf "$plugin_dir"
-        else
-            print_success "ranger-archives is already installed: $plugin_dir"
-            return 0
-        fi
-    fi
-
-    if ! command_exists git; then
-        print_error "git is required to install ranger-archives"
-        return 1
-    fi
-
-    mkdir -p "$plugin_parent"
-    print_info "Installing ranger-archives..."
-    if git clone --depth 1 https://github.com/maximtrp/ranger-archives.git "$plugin_dir"; then
-        print_success "ranger-archives installed successfully: $plugin_dir"
-    else
-        print_error "Failed to install ranger-archives"
-        return 1
     fi
 }
 
@@ -1258,12 +1204,6 @@ EOF
     print_info "Step 7/11: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
     run_step "tmux plugins" install_tmux_plugins
-    echo ""
-
-    # 8.5 Install ranger plugins if missing
-    print_info "Step 7.5/11: Checking ranger plugins"
-    run_step "ranger_devicons install" install_ranger_devicons
-    run_step "ranger_archives install" install_ranger_archives
     echo ""
 
     # 9. Create the .zshrc symlink

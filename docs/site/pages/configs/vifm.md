@@ -13,7 +13,7 @@
 | 脚本 | `config/vifm/scripts/`（剪贴板与目录预览） |
 | 是否自动链接 | 是（三条独立映射） |
 
-当前 `papercolor-dark` 配色文件已改为与 Neovim 内置 Blue 主题使用的 Nostalgia 蓝色调一致：主面板为蓝底黄字，光标行用深蓝与青色强调，活动面板标题为绿底黑字，状态行使用青绿色。Vifm 支持真彩色终端时使用精确色值；256 色终端使用近似色。
+当前配色使用 [vifm-colors 上游原版 PaperColor Dark](https://raw.githubusercontent.com/vifm/vifm-colors/master/papercolor-dark.vifm)，不再包含自定义 Blue/Nostalgia 配色。
 
 ## 选项
 
@@ -256,7 +256,7 @@ ls -l ~/.config/vifm/
 | Scripts | `config/vifm/scripts/` (clipboard and directory preview) |
 | Automatically linked | Yes (three separate mappings) |
 
-The current `papercolor-dark` colorscheme has been aligned with the Nostalgia blue tones used by Neovim's built-in Blue theme: the main panes use yellow text on a blue background, the cursor line is emphasized with dark blue and cyan, the active pane title uses black text on green, and the status line is cyan-green. Vifm uses exact color values in true-color terminals and approximations in 256-color terminals.
+The colorscheme is the unmodified [upstream PaperColor Dark](https://raw.githubusercontent.com/vifm/vifm-colors/master/papercolor-dark.vifm).
 
 ## Options
 
@@ -499,7 +499,7 @@ The last command should copy "test" to the clipboard.
 | スクリプト | `config/vifm/scripts/`（クリップボードとディレクトリプレビュー） |
 | 自動リンク | はい（個別に 3 つマッピング） |
 
-現在の `papercolor-dark` 配色は、Neovim 内蔵 Blue テーマの Nostalgia ブルー系に揃えています。メイン pane は青背景に黄色文字、カーソル行はダークブルーとシアンで強調し、アクティブ pane のタイトルは緑背景に黒文字、ステータス行はシアングリーンです。Vifm は True color 端末では正確な色値を使い、256 色端末では近似色を使います。
+配色には改変していない [上流 PaperColor Dark](https://raw.githubusercontent.com/vifm/vifm-colors/master/papercolor-dark.vifm) を使用します。
 
 ## オプション
 

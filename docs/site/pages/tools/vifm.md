@@ -107,7 +107,7 @@ colorscheme papercolor-dark
 | `x` | 剪切（dd） |
 | `p` / `P` | 粘贴 |
 | `.` | 切换 dotfiles 显示 |
-| `s` | 打开 shell |
+| `s` | 输入 `:shell`，回车后打开 shell |
 | `f` / `F` | 搜索 / 按类型筛选 |
 
 ### 书签
@@ -203,9 +203,46 @@ Vim 用户通常更习惯 Vifm。
 
 **`v` 退出后目录没变**：Vifm 非正常退出。
 
-**trash 目录在哪**：`~/.local/share/vifm/Trash/`。想清空直接删。
+**回收站位置**：用 `:set trashdir?` 查看；删除和恢复见下方说明。
 
 **颜色不对**：`colorscheme papercolor-dark` 依赖 `config/vifm/colors/papercolor-dark.vifm` 已部署。
+
+## 从零开始：浏览、复制和返回 Shell
+
+1. 运行 `v ~/dotfiles`。左栏浏览，右栏默认显示 quick view 预览。需要把右栏当作目标目录时，先执行 `:set quickview!`，用 `Ctrl+w w` 在两栏切换；再次执行同一命令恢复预览。
+2. 用 `j/k` 移动，`h` 返回上级，`l` 或 `o` 进入目录。`gg/G` 跳到首尾，`Ctrl+f/Ctrl+b` 翻页。`.` 切换隐藏文件。
+3. 用 `f`（映射到 `/`）输入搜索词并回车，`n/N` 查找下一处/上一处。`F` 进入 `=` 过滤输入，输入模式后回车缩小列表，清空过滤输入恢复列表。
+4. 用 `v` 进入可视选择并移动光标选中多项，`Esc` 取消选择。`y`/`yy` 复制到 Vifm 寄存器，`x`/`dd` 移走文件并准备移动粘贴；切到目标栏后按 `p`。这是文件操作，与系统剪贴板的 `cc/cf/cd/cn` 不同。
+5. `r` 进入重命名，`a` 打开 `:touch ` 输入新文件名后回车；新目录用 `:mkdir 目录名`。`O` 用配置的 Neovim 编辑选中文件。
+6. `q` 退出。通过 `v` 包装函数启动时，外层 Shell 会切到退出时所在目录；直接运行 `vifm` 不会改变外层 Shell 的目录。
+
+先在新建的练习目录里复制两个测试文件，练习跨栏复制、重命名，再尝试删除，避免拿真实资料练习。
+
+### 按键会等待输入的情况
+
+| 按键 | 实际执行 | 后续操作 |
+|---|---|---|
+| `a` | `:touch ` | 输入文件名，回车创建 |
+| `m` | `:bmark ` | 输入书签名称或标签，回车保存 |
+| `b` | `:delbmarks ` | 输入要删除的书签，回车确认 |
+| `s` | `:shell` | **再按回车**才启动 shell；最终一条映射覆盖了前面的自动回车版本 |
+| `f` / `F` | `/` / `=` | 输入搜索词或过滤模式，回车应用 |
+
+`Tab` 在本配置中已改成下一个标签页，不能照搬 Vifm 默认的切栏操作；切栏用 `Ctrl+w w`。`T` 新建标签页，`X` 关闭当前标签页，`Shift+Tab` 切到上一标签页。`Space p` 切换单栏/双栏，和 quick view 的开关是两件事。
+
+### 删除、回收站与恢复
+
+`d` 调用 `:delete`，在当前 `set trash` 下使用 Vifm 回收站；`x` 映射到 `dd`，同样先移走文件并保存到寄存器以便 `p` 移动。`D` 调用 `:delete!`，绕过回收站，不能靠回收站找回。不要把 `D` 当成“选择更多文件”。
+
+误操作后先停止后续操作，检查 `:undolist`，对支持撤销的文件操作使用 `u`。回收站位置与文件所在文件系统和 `trashdir` 设置有关，用 `:set trashdir?` 查看，不要假定所有文件都进入一个固定路径，更不要直接清空目录尝试修复。
+
+### 颜色和剪贴板排错
+
+配色直接来自 [vifm-colors 的 PaperColor Dark 原文件](https://raw.githubusercontent.com/vifm/vifm-colors/master/papercolor-dark.vifm)，使用终端 256 色索引。终端需支持 256 色，可检查 `tput colors`；它不会显示之前定制的蓝底黄字主题。运行 `:colorscheme papercolor-dark` 可重新载入。
+
+`cc` 复制完整路径，`cf` 复制文件名，`cd` 复制父目录，`cn` 复制无扩展名的文件名。它们针对当前光标文件而非整批选区。缺少剪贴板工具时，在 shell 直接运行 `vifm-copy test` 查看错误；按环境安装 `wl-copy`、`xclip`、`pbcopy` 或 WSL 的 `clip.exe`。
+
+完整默认命令参考 [Vifm 官方手册](https://vifm.info/vimdoc.shtml)。本页的仓库映射优先于上游默认键位。
 
 <!-- lang:en -->
 > Summary: Vifm is a Vim-style two-pane file manager; this repository includes complete key bindings and a clipboard script.
