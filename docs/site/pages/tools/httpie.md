@@ -1,4 +1,4 @@
-> 摘要：HTTPie 提供 http 命令，本仓库有 install:httpie 安装器做三级回退。
+> 摘要：HTTPie 提供 http 命令，本仓库有 install:httpie 安装器做安全安装。
 
 # HTTPie
 
@@ -13,7 +13,7 @@ HTTPie 是人性化的 HTTP 客户端。相比 `curl -X POST -H ... -d ...`，�
 | 项目 | 说明 |
 |---|---|
 | 来源 | `scripts/install/install_httpie.sh`，通过 `install:httpie` 函数调用 |
-| 安装策略 | 包管理器 → pipx → pip 三级回退 |
+| 安装策略 | 包管理器 → pipx；pip 只允许显式虚拟环境 安全安装 |
 
 ```zsh
 install:httpie
@@ -34,13 +34,13 @@ fi
 
 已经装了 `http` 就跳过，除非 `--force`。
 
-三级回退：
+安全安装：
 
 | 方法 | 命令 | 适用 |
 |---|---|---|
 | `package` | apt/dnf/pacman/brew | 有 root 权限 |
-| `pipx` | `pipx install --force httpie` | 无 root，但装了 pipx |
-| `pip` | `python3 -m pip install (venv only)` | 仅显式虚拟环境 |
+| `pipx` | `pipx install httpie (`--force` optional)` | 无 root，但装了 pipx |
+| `pip` | `python3 -m pip install --upgrade httpie (venv only)` | 仅显式虚拟环境 |
 
 `auto` 模式按上面顺序依次尝试，任一成功即停止。
 
@@ -122,7 +122,7 @@ http :/api/users        # http://localhost/api/users
 
 ## 排错
 
-**`http: command not found`**：安装器失败，或 pip 的 user bin 不在 PATH。`python3 -m site --user-base` 查看路径。
+**`http: command not found`**：安装器失败，或 pipx 的命令目录 不在 PATH。`python3 -m site --user-base` 查看路径。
 
 **JSON 被解析成字符串**：用了 `key=value` 而不是 `key:=value`。前者总是字符串。
 
@@ -136,7 +136,7 @@ http :/api/users        # http://localhost/api/users
 
 <!-- lang:en -->
 
-> Summary: HTTPie provides the http command; this repo ships an install:httpie installer with three-level fallback.
+> Summary: HTTPie provides the http command; this repo ships an install:httpie installer with safe installation.
 
 # HTTPie
 
@@ -151,7 +151,7 @@ This repo provides `http` (HTTPie) through an installer.
 | Item | Description |
 |---|---|
 | Source | `scripts/install/install_httpie.sh`, invoked via the `install:httpie` function |
-| Install strategy | Package manager → pipx → pip, a three-level fallback |
+| Install strategy | Package manager → pipx; explicit pip requires a virtual environment |
 
 ```zsh
 install:httpie
@@ -172,13 +172,13 @@ fi
 
 If `http` is already installed, it skips — unless `--force` is given.
 
-The three-level fallback:
+The safe installation:
 
 | Method | Command | Applies when |
 |---|---|---|
 | `package` | apt/dnf/pacman/brew | You have root privileges |
-| `pipx` | `pipx install --force httpie` | No root, but pipx is installed |
-| `pip` | `python3 -m pip install (venv only)` | Explicit virtual environment only |
+| `pipx` | `pipx install httpie (`--force` optional)` | No root, but pipx is installed |
+| `pip` | `python3 -m pip install --upgrade httpie (venv only)` | Explicit virtual environment only |
 
 In `auto` mode the methods are tried in the order above, stopping at the first success.
 
@@ -260,7 +260,7 @@ A leading colon auto-fills `localhost`, saving you from writing the full address
 
 ## Troubleshooting
 
-**`http: command not found`**: the installer failed, or pip's user bin is not in PATH. Check the path with `python3 -m site --user-base`.
+**`http: command not found`**: the installer failed, or the pipx application directory is not in PATH. Check the path with `python3 -m site --user-base`.
 
 **JSON parsed as a string**: you used `key=value` instead of `key:=value`. The former is always a string.
 
@@ -289,7 +289,7 @@ HTTPie は人間に優しい HTTP クライアントです。`curl -X POST -H ..
 | 項目 | 説明 |
 |---|---|
 | ソース | `scripts/install/install_httpie.sh`。`install:httpie` 関数から呼び出し |
-| インストール戦略 | パッケージマネージャー → pipx → pip の 3 段階フォールバック |
+| インストール戦略 | パッケージ管理 → pipx（pip は明示的な仮想環境のみ） |
 
 ```zsh
 install:httpie
@@ -315,8 +315,8 @@ fi
 | 方法 | コマンド | 使える状況 |
 |---|---|---|
 | `package` | apt/dnf/pacman/brew | root 権限がある |
-| `pipx` | `pipx install --force httpie` | root はないが pipx が入っている |
-| `pip` | `python3 -m pip install (venv only)` | 明示的な仮想環境のみ |
+| `pipx` | `pipx install httpie (`--force` optional)` | root はないが pipx が入っている |
+| `pip` | `python3 -m pip install --upgrade httpie (venv only)` | 明示的な仮想環境のみ |
 
 `auto` モードでは上の順序で順に試し、どれかが成功した時点で止まります。
 
@@ -398,7 +398,7 @@ http :/api/users        # http://localhost/api/users
 
 ## トラブルシューティング
 
-**`http: command not found`**：インストーラーが失敗したか、pip の user bin が PATH にありません。`python3 -m site --user-base` でパスを確認します。
+**`http: command not found`**：インストーラーが失敗したか、pipx のコマンドディレクトリ が PATH にありません。`python3 -m site --user-base` でパスを確認します。
 
 **JSON が文字列として解釈される**：`key:=value` ではなく `key=value` を使っています。前者は常に文字列になります。
 
