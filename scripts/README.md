@@ -29,3 +29,7 @@ scripts/
 - 回归测试：`bash scripts/tests/nvim_update_test.sh`（使用本地 fixture，不下载或修改真实 Neovim 安装）。
 
 > fnm/fzf 的安装逻辑在 init.sh 内联（`install_fnm`/`install_fzf` 函数），不依赖独立脚本。
+
+## Tmux 插件初始化
+
+`bash scripts/install/install_tmux_plugins.sh` 自动安装 TPM、安装声明的插件并执行 `update_plugins all`。`init.sh` 在 dotlink 之后自动调用（含 minimal 与 NixOS）；缺少 tmux/git 时提示并跳过，已有目录不会被覆盖。首次启动使用临时会话，结束后只清理该会话。

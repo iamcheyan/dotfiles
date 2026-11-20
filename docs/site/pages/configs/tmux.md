@@ -725,3 +725,11 @@ tmux show -g default-terminal                 # 查单个
 **中国語文字の幅が崩れます**：`tmux-256color` の terminfo が不完全な可能性があります。`infocmp tmux-256color` で確認してください。
 
 **貼り付けた内容が崩れます**：`extended-keys off` で大部分の問題に対処しています。解決しない場合は、端末の bracketed paste 設定を確認してください。
+
+## TPM 自动初始化 / Automatic setup / 自動セットアップ
+
+`init.sh` 在 dotlink 后自动安装 TPM、安装并更新所有声明插件，无需首次手动按 `Prefix + I`。单独重试：`bash scripts/install/install_tmux_plugins.sh`。缺少 tmux/git 时提示并跳过；已有目录保留。
+
+After dotlink, initialization installs TPM and installs/updates declared plugins automatically, including minimal mode. Missing tmux/git skips setup. Existing directories are preserved.
+
+初期化は dotlink の後に TPM と宣言済みプラグインをインストール・更新します。minimal モードにも対応し、tmux/git がない場合はスキップします。既存ディレクトリを保持します。

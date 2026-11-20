@@ -1012,6 +1012,17 @@ install_gh_dash() {
     fi
 }
 
+install_tmux_plugins() {
+    local installer="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install/install_tmux_plugins.sh"
+
+    if [[ ! -f "$installer" ]]; then
+        print_warning "tmux plugin installer not found; skipping TPM setup"
+        return 0
+    fi
+
+    bash "$installer"
+}
+
 ## Install additional tools
 install_extra_tools() {
     local install_dir="${DOTFILES_DIR:-$HOME/dotfiles}/scripts/install"
@@ -1246,6 +1257,7 @@ EOF
     # 8. Create config file symlinks with dotlink
     print_info "Step 7/11: Creating config file symlinks with dotlink"
     run_step "dotlink" run_dotlink
+    run_step "tmux plugins" install_tmux_plugins
     echo ""
 
     # 8.5 Install ranger plugins if missing

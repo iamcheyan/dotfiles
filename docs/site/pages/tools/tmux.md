@@ -625,3 +625,11 @@ tmux list-windows -a                        # 所有窗口
 tmux show -g default-terminal               # 查选项
 tmux capture-pane -p > scrollback.txt       # 导出当前 pane 内容
 ```
+
+## TPM 自动初始化 / Automatic setup / 自動セットアップ
+
+`init.sh` 在 dotlink 后自动安装 TPM、安装并更新所有声明插件，无需首次手动按 `Prefix + I`。单独重试：`bash scripts/install/install_tmux_plugins.sh`。缺少 tmux/git 时提示并跳过；已有目录保留。
+
+After dotlink, initialization installs TPM and installs/updates declared plugins automatically, including minimal mode. Missing tmux/git skips setup. Existing directories are preserved.
+
+初期化は dotlink の後に TPM と宣言済みプラグインをインストール・更新します。minimal モードにも対応し、tmux/git がない場合はスキップします。既存ディレクトリを保持します。

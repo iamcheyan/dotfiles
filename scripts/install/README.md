@@ -153,3 +153,7 @@ bash ~/dotfiles/scripts/install/install_httpie.sh
 
 
 **最后更新**: 2026-08-18
+
+## Tmux 插件初始化
+
+`bash scripts/install/install_tmux_plugins.sh` 自动安装 TPM、安装声明的插件并执行 `update_plugins all`。`init.sh` 在 dotlink 之后自动调用（含 minimal 与 NixOS）；缺少 tmux/git 时提示并跳过，已有目录不会被覆盖。首次启动使用临时会话，结束后只清理该会话。
