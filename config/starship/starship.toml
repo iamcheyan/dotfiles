@@ -10,9 +10,9 @@ $character"""
 right_format = """$status$cmd_duration$jobs"""
 
 [character]
-success_symbol = "[>](bold #50fa7b)"
-error_symbol = "[!](bold #ff5555)"
-vimcmd_symbol = "[<](bold #ffff55)"
+success_symbol = "[❯](bold #50fa7b)"
+error_symbol = "[❯](bold #ff5555)"
+vimcmd_symbol = "[❮](bold #ffff55)"
 
 [directory]
 truncation_length = 3
@@ -20,7 +20,7 @@ truncate_to_repo = true
 style = "bold #50fa7b"
 
 [git_branch]
-symbol = " "
+symbol = ""
 style = "bold #55ffff"
 
 [git_status]
@@ -35,55 +35,55 @@ deleted = "[-${count}](bold #ff5555)"
 stashed = "[*${count}](bold #7aa2f7)"
 
 [python]
-symbol = " "
+symbol = ""
 format = '[$symbol(${version} )(\($virtualenv\) )](bold #ffff55)'
 detect_files = ["requirements.txt", "pyproject.toml", "setup.py", ".python-version", "Pipfile"]
 detect_folders = [".venv", "venv"]
 
 [nodejs]
-symbol = " "
+symbol = ""
 format = "[$symbol($version )]($style)"
 style = "bold #50fa7b"
 
 [rust]
-symbol = " "
+symbol = ""
 format = "[$symbol($version )]($style)"
 style = "bold #ff5555"
 
 [golang]
-symbol = " "
+symbol = ""
 format = "[$symbol($version )]($style)"
 style = "bold #55ffff"
 
 [java]
-symbol = " "
+symbol = ""
 format = "[$symbol($version )]($style)"
 style = "bold #7aa2f7"
 
 [package]
-symbol = "󰏗 "
+symbol = ""
 format = "[$symbol$version]($style) "
 style = "bold #ffb86c"
 
 [docker_context]
-symbol = " "
+symbol = ""
 format = "[$symbol$context]($style) "
 style = "bold #7aa2f7"
 
 [kubernetes]
-symbol = "󱃾 "
+symbol = ""
 format = '[$symbol$context( \($namespace\))]($style) '
 style = "bold #55ffff"
 disabled = false
 
 [aws]
-symbol = " "
-format = '[$symbol($profile )(\\($region\\) )]($style)'
+symbol = ""
+format = '[$symbol($profile )]($style)'
 style = "bold #ffff55"
 disabled = false
 
 [terraform]
-symbol = "󱁢 "
+symbol = ""
 format = "[$symbol$workspace]($style) "
 style = "bold #bd93f9"
 
@@ -97,7 +97,7 @@ min_time = 2_000
 format = "[$duration](bold #ffff55) "
 
 [jobs]
-symbol = "󰒋 "
+symbol = ""
 style = "bold #7aa2f7"
 
 [time]
