@@ -23,7 +23,7 @@
 
 - Kitty、Yazi、Zellij、Fcitx5、Karabiner、Sumika Shell
 - AI Agent wrappers、Agent quota、OpenCode 私人 provider 配置
-- Tmux 主配置及私有 Agent 恢复规则
+- API 与个人 Agent 的私有配置（Tmux 通用保存/恢复由本公开仓库提供）
 - API Key、Token、`.env`、私有服务器地址、机器专属脚本
 
 公开仓库中不得提交密码、Token、API Key、SSH 私钥、真实凭据或个人机器的绝对路径。

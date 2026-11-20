@@ -249,3 +249,7 @@ Neovim 需要 **0.12+**，Treesitter 还需要 Tree-sitter CLI 0.26.1+。运行�
 clone 会启用递归 Git 更新，普通 `git pull` 会跟随 dotfiles 记录的配置版本。维护者在
 `~/nvim` 内编辑和提交，再回 dotfiles 更新 `config/nvim` 子模块指针。Treesitter 详情见
 [`config/nvim/docs/reference/TREESITTER.md`](config/nvim/docs/reference/TREESITTER.md)。
+
+## 完整 Tmux 与查找工具
+
+Tmux 主配置、自动保存、恢复保护和脚本均在 [`config/tmux/`](config/tmux/README.md)，`init.sh` + dotlink 可以独立部署，不依赖 chezmoi。个人覆盖文件仍可选用。find/grep 兼容 wrapper 与原生命令别名见 [`tools/README-find-grep.md`](tools/README-find-grep.md)。

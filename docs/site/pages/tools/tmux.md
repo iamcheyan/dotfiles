@@ -210,6 +210,12 @@ tmux capture-pane -p > scrollback.txt       # 导出当前 pane 内容
 
 **中文显示宽度错乱**：`tmux-256color` 需要正确编译的 terminfo。检查 `infocmp tmux-256color` 是否可用。
 
+## 完整会话持久化（无需 chezmoi）
+
+`dotlink` 除主配置外，还部署 `restore.conf`、`restore-hooks.conf` 和 `scripts/`。这些文件提供 15 分钟保存、无 attached client 时的全会话保存、退出时的空快照保护、创建会话时的有效快照恢复和可选 Agent 继续会话处理。插件由 `init.sh` 自动安装；使用公开仓库即可获得完整配置。已有插件和快照不会随配置迁移删除。
+
+`private.conf`、`private-after.conf` 只是可选覆盖，不再承载必须由 chezmoi 安装的功能。完整文件说明见仓库 [config/tmux/README.md](https://github.com/iamcheyan/dotfiles/blob/main/config/tmux/README.md)。
+
 <!-- lang:en -->
 > Summary: tmux is a terminal multiplexer; this repository's configuration handles true color, session restoration, pane navigation, and plugins.
 

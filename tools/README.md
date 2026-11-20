@@ -64,3 +64,7 @@ winetricks corefonts              # 安装核心字体
 ## 相关文档
 
 - [Scripts README](../scripts/README.md) - Scripts 目录详细说明
+
+## find / grep 兼容命令
+
+`find.sh`、`grep.sh` 和 [完整说明](README-find-grep.md) 已归本仓库维护。公开 `aliases.conf` 提供 `find`、`grep`、`native-find` 和 `native-grep`；可选 fd/rg 不存在或参数不支持时回退系统命令。

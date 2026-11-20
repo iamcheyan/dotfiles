@@ -1,6 +1,6 @@
 # Scripts 目录说明
 
-本目录只保留**被引用**的脚本。未被引用的脚本已迁至 chezmoi 管理：`~/.config/scripts/dotfiles-migrated/`（源：`~/chezmoi/dot_config/scripts/dotfiles-migrated/`）。
+本目录保留初始化和运行时引用的脚本。旧的 chezmoi `dot_config/scripts/` 源目录已清理；查找工具现在位于本仓库 `tools/find.sh`、`tools/grep.sh`，不依赖该目录。
 
 ## 目录结构
 

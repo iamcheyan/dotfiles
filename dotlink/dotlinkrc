@@ -37,3 +37,8 @@ $HOME/dotfiles/scripts/sync-webapps.py:$HOME/.local/bin/sync-webapps
 #[link:macos]
 #MacOS 配置可以单独写在这里
 #$HOME/dotfiles/config/karabiner:$HOME/.config/karabiner    # Karabiner 配置文件
+
+# Complete tmux persistence configuration (plugins remain user-owned).
+$HOME/dotfiles/config/tmux/restore.conf:$HOME/.config/tmux/restore.conf
+$HOME/dotfiles/config/tmux/restore-hooks.conf:$HOME/.config/tmux/restore-hooks.conf
+$HOME/dotfiles/config/tmux/scripts:$HOME/.config/tmux/scripts
