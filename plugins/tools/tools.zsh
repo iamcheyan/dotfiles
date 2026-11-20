@@ -14,7 +14,7 @@ zi_cmd aristocratos/btop btop
 zi_cmd ClementTsang/bottom btm
 zi_cmd muesli/duf duf
 # ncdu: 使用系统包管理器安装: sudo apt install ncdu
-# glances: 使用 pip 安装: pip install glances
+# glances: 使用 pip 安装: pipx install glances
 # htop: 使用系统包管理器安装: sudo apt install htop
 
 # Git / 开发
@@ -42,7 +42,7 @@ zi_cmd chmln/sd sd
 zi_cmd charmbracelet/glow glow
 # dog: 没有 arm64 版本，使用系统包管理器安装: sudo apt install dog
 # zi_cmd ogham/dog dog
-# httpie: 使用 pip 安装: pip install httpie
+# httpie: 使用 pip 安装: install:httpie
 
 # 文件工具
 # bat is installed by init.sh on supported platforms; do not download a second copy here.

@@ -45,20 +45,7 @@ if [[ -z "$PACKAGE" ]]; then
 fi
 [[ ${#APPS[@]} -eq 0 ]] && APPS=("$PACKAGE")
 
-# pipx must see the real user XDG paths; callers (agents, CI) may override
-# XDG_DATA_HOME, which would place venvs outside ~/.local/share.
-unset XDG_DATA_HOME
-
-if ! command_exists pipx; then
-    print_info "Installing pipx..."
-    if command_exists apt-get; then
-        sudo apt-get update -qq && sudo apt-get install -y pipx
-    elif command_exists brew; then
-        brew install pipx
-    else
-        python3 -m pip install --user pipx || { print_error "Could not install pipx"; exit 1; }
-    fi
-fi
+export PATH="$HOME/.local/bin:$PATH"
 
 for app in "${APPS[@]}"; do
     if command_exists "$app" && [ "$FORCE" != "true" ]; then
@@ -67,8 +54,33 @@ for app in "${APPS[@]}"; do
     fi
 done
 
+install_pipx() {
+    if command_exists pacman; then
+        sudo pacman -S --needed --noconfirm python-pipx
+    elif command_exists apt-get; then
+        sudo apt-get update -qq && sudo apt-get install -y pipx
+    elif command_exists dnf; then
+        sudo dnf install -y pipx
+    elif command_exists brew; then
+        brew install pipx
+    else
+        print_error "No supported pipx package manager found; install pipx with your system package manager."
+        return 1
+    fi
+}
+
+if ! command_exists pipx; then
+    print_info "Installing pipx with the system package manager..."
+    install_pipx || exit 1
+fi
+command_exists pipx || { print_error "pipx is not available after package installation"; exit 1; }
+pipx ensurepath || exit 1
+
+install_args=(install)
+[[ "$FORCE" == true ]] && install_args+=(--force)
+
 print_info "Installing $PACKAGE via pipx..."
-if pipx install "$PACKAGE"; then
+if pipx "${install_args[@]}" "$PACKAGE"; then
     print_success "$PACKAGE installed successfully"
     exit 0
 fi

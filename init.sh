@@ -1022,7 +1022,7 @@ install_extra_tools() {
     fi
 
     # visidata — terminal spreadsheet for exploring CSV/TSV/JSON (pipx)
-    if ! command_exists visidata; then
+    if ! command_exists vd && ! command_exists visidata; then
         print_info "Installing visidata..."
         [[ -f "$install_dir/install_pipx_tool.sh" ]] && bash "$install_dir/install_pipx_tool.sh" visidata visidata vd
     else

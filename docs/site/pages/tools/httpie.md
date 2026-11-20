@@ -40,7 +40,7 @@ fi
 |---|---|---|
 | `package` | apt/dnf/pacman/brew | 有 root 权限 |
 | `pipx` | `pipx install --force httpie` | 无 root，但装了 pipx |
-| `pip` | `python3 -m pip install --user` | 无 root、无 pipx |
+| `pip` | `python3 -m pip install (venv only)` | 仅显式虚拟环境 |
 
 `auto` 模式按上面顺序依次尝试，任一成功即停止。
 
@@ -178,7 +178,7 @@ The three-level fallback:
 |---|---|---|
 | `package` | apt/dnf/pacman/brew | You have root privileges |
 | `pipx` | `pipx install --force httpie` | No root, but pipx is installed |
-| `pip` | `python3 -m pip install --user` | No root and no pipx |
+| `pip` | `python3 -m pip install (venv only)` | Explicit virtual environment only |
 
 In `auto` mode the methods are tried in the order above, stopping at the first success.
 
@@ -316,7 +316,7 @@ fi
 |---|---|---|
 | `package` | apt/dnf/pacman/brew | root 権限がある |
 | `pipx` | `pipx install --force httpie` | root はないが pipx が入っている |
-| `pip` | `python3 -m pip install --user` | root も pipx もない |
+| `pip` | `python3 -m pip install (venv only)` | 明示的な仮想環境のみ |
 
 `auto` モードでは上の順序で順に試し、どれかが成功した時点で止まります。
 

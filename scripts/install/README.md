@@ -81,7 +81,7 @@ bash scripts/install/install_rainfrog.sh
 
 **功能：**
 - 安装 `HTTPie` 命令行客户端（`http`）
-- 优先使用系统包管理器，失败时回退到 `pipx` / `pip --user`
+- 优先使用系统包管理器，失败时回退到 `pipx`；显式 `--method pip` 仅允许活动虚拟环境
 
 **用法：**
 ```bash
@@ -157,3 +157,7 @@ bash ~/dotfiles/scripts/install/install_httpie.sh
 ## Tmux 插件初始化
 
 `bash scripts/install/install_tmux_plugins.sh` 自动安装 TPM、安装声明的插件并执行 `update_plugins all`。`init.sh` 在 dotlink 之后自动调用（含 minimal 与 NixOS）；缺少 tmux/git 时提示并跳过，已有目录不会被覆盖。首次启动使用临时会话，结束后只清理该会话。
+
+## Python CLI 与 PEP 668
+
+通用 `install_pipx_tool.sh <package> [app...] [--force]` 在已有命令存在时直接跳过。缺少 pipx 时使用系统包管理器：Arch 系 `pacman -S --needed --noconfirm python-pipx`，Debian/Ubuntu `apt-get install -y pipx`，Fedora `dnf install -y pipx`，macOS `brew install pipx`。然后执行 `pipx ensurepath` 和 `pipx install <package>`。不使用系统 pip 的 `--user` 或 `--break-system-packages`。不支持的系统提示手动安装 pipx，不修改系统 Python。

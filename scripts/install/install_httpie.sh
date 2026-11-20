@@ -109,19 +109,22 @@ install_with_package_manager() {
 }
 
 install_with_pipx() {
-  command_exists pipx || return 1
-  pipx install --force httpie
+  local installer="${BASH_SOURCE[0]%/*}/install_pipx_tool.sh"
+  local args=(httpie http)
+  [[ "$FORCE" -eq 1 ]] && args+=(--force)
+  bash "$installer" "${args[@]}"
 }
 
 install_with_pip() {
-  if command_exists python3; then
-    python3 -m pip install --user --upgrade httpie
-    return
-  fi
-  if command_exists python; then
-    python -m pip install --user --upgrade httpie
-    return
-  fi
+  local python_bin
+  for python_bin in python3 python; do
+    command_exists "$python_bin" || continue
+    if "$python_bin" -c 'import sys; sys.exit(sys.prefix == sys.base_prefix)'; then
+      "$python_bin" -m pip install --upgrade httpie
+      return
+    fi
+  done
+  print_error "The pip method requires an active Python virtual environment; use package or pipx."
   return 1
 }
 
@@ -129,7 +132,7 @@ print_info "Installing HTTPie..."
 
 case "$METHOD" in
   auto)
-    install_with_package_manager || install_with_pipx || install_with_pip || {
+    install_with_package_manager || install_with_pipx || {
       print_error "Failed to install HTTPie"
       exit 1
     }
