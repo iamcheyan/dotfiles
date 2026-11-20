@@ -19,8 +19,12 @@ setopt PUSHD_IGNORE_DUPS    # 目录栈不记录重复项
 setopt PUSHD_MINUS          # 交换 + 和 - 在目录栈切换时的含义
 setopt INTERACTIVE_COMMENTS # 允许在交互式命令行中使用 # 注释
 
-# 保持 PATH 和 fpath 元素唯一，避免反复 source 时路径重复累积
+# Keep PATH and fpath unique across inherited, public, and private additions.
 typeset -U path fpath
+
+# Add optional Grok CLI command and completions before the single compinit pass.
+[[ -d "$HOME/.grok/bin" ]] && path=("$HOME/.grok/bin" $path)
+[[ -d "$HOME/.grok/completions/zsh" ]] && fpath=("$HOME/.grok/completions/zsh" $fpath)
 
 # 配置 GPG tty，确保签名与 pinentry 正常绑定当前终端
 export GPG_TTY=$TTY
@@ -155,11 +159,6 @@ v() {
 
 # fnm lazy loader 已在 setup_fnm.sh (line 51) 中设置，这里不再重复初始化。
 
-# >>> grok installer >>>
-export PATH="$HOME/.grok/bin:$PATH"
-fpath=(~/.grok/completions/zsh $fpath)
-autoload -Uz compinit && compinit -C
-# <<< grok installer <<<
 # Let ssh resolve through PATH. NixOS provides it through the system profile;
 # macOS already puts its system client in PATH, so no alias is needed.
 unalias ssh 2>/dev/null
@@ -169,9 +168,6 @@ unalias ssh 2>/dev/null
 if command -v broot >/dev/null 2>&1; then
     eval "$(broot --print-shell-function zsh)"
 fi
-
-# Added by Antigravity CLI installer
-export PATH="$HOME/.local/bin:$PATH"
 
 # hunk (installed by scripts/install/install_hunk.sh into ~/.hunk/bin)
 [ -d "$HOME/.hunk/bin" ] && export PATH="$HOME/.hunk/bin:$PATH"
