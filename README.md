@@ -110,6 +110,12 @@ bash dotlink/dotlink link
 exec zsh
 ```
 
+### 完整回滚 `init.sh`（需要安装前检查点）
+
+`uninstall.py` 是局部配置清理，不会逆转系统包、服务、登录 shell、系统配置和第三方安装器的改动。需要完整回滚时，先在隔离虚拟机中建立覆盖所有受影响磁盘的安装前检查点，再运行 `init.sh`。
+
+在 Proxmox VE 宿主机上，可用 `bash scripts/init-checkpoint.sh save VMID LABEL --apply` 为已关机的 VM 建立检查点。要回滚，先保存之后新增的工作并关闭 VM，再运行 `bash scripts/init-checkpoint.sh restore VMID LABEL --apply`。省略 `--apply` 只预览。请核对 VMID、快照和磁盘覆盖范围；回滚会丢弃快照之后的**所有** VM 本地改动，不只 init 的结果，不覆盖外部挂载或远端服务。没有安装前基线的旧安装不能用此方式恢复；不要按安装脚本里的包名批量卸载。
+
 ### 移除配置与清理构建产物
 
 在仓库中运行 `python3 uninstall.py` 预览。加 `--apply` 后，仅移除仍指向本 checkout 的已知 dotlink 链接，并在 HOME 下的 `.dotfiles-uninstall-*` 目录保留链接备份。普通文件、独立 Neovim 链接、软件包及仓库本身不动。需要恢复时，把备份中的链接复制回原位置，不覆盖后来创建的新配置。
