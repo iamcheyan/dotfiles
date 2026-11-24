@@ -110,6 +110,12 @@ bash dotlink/dotlink link
 exec zsh
 ```
 
+### 移除配置与清理构建产物
+
+在仓库中运行 `python3 uninstall.py` 预览。加 `--apply` 后，仅移除仍指向本 checkout 的已知 dotlink 链接，并在 HOME 下的 `.dotfiles-uninstall-*` 目录保留链接备份。普通文件、独立 Neovim 链接、软件包及仓库本身不动。需要恢复时，把备份中的链接复制回原位置，不覆盖后来创建的新配置。
+
+`python3 uninstall.py --clean-only` 预览 Git 忽略的文档站产物和 Python 字节码；确认后加 `--apply`。`--clean` 可与链接移除一起执行。其他被忽略的文件（例如本地配置和运行数据）不会作为垃圾清理。
+
 ### Optional local Zsh configuration
 
 Personal aliases and Zsh overrides can be stored in the repository's local
