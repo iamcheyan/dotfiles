@@ -4,6 +4,7 @@ import argparse
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import tempfile
 
@@ -47,10 +48,21 @@ def main():
     parser.add_argument('--apply', action='store_true', help='perform the previewed operations')
     parser.add_argument('--clean-only', action='store_true', help='only remove ignored generated files')
     parser.add_argument('--clean', action='store_true', help='also remove ignored generated files')
+    parser.add_argument('--restore-dotlink-backup', type=Path,
+                        help='restore originals from a specific init dotlink backup')
     args = parser.parse_args()
+    if args.clean_only and args.restore_dotlink_backup:
+        parser.error('--restore-dotlink-backup cannot be combined with --clean-only')
     home = Path.home().resolve()
     if os.geteuid() == 0 or home == Path('/') or home.is_relative_to(ROOT):
         parser.error('run as the owner of a normal HOME outside the checkout')
+    originals = None
+    if args.restore_dotlink_backup:
+        originals = args.restore_dotlink_backup.expanduser().absolute()
+        if (originals.parent != home or originals.resolve() != originals
+                or not re.fullmatch(r'dotfiles_backup_\d{8}_\d{6}', originals.name)
+                or not originals.is_dir()):
+            parser.error('select an existing init backup directory directly under HOME')
     backup = None
     if not args.clean_only:
         seen = set()
@@ -65,7 +77,20 @@ def main():
             if destination != source or not destination.is_relative_to(ROOT):
                 continue
             seen.add(target)
-            print('Archive link:', target.relative_to(home))
+            relative = target.relative_to(home)
+            original = originals / relative if originals else None
+            if original is not None and os.path.lexists(original):
+                if original.parent.resolve() != original.parent or original.is_symlink() or not (
+                    original.is_file() or original.is_dir()
+                ):
+                    print('Skip unsupported backup entry:', relative)
+                    continue
+                print('Restore original:', relative)
+            else:
+                if originals:
+                    print('No original in selected backup; leaving link unchanged:', relative)
+                    continue
+                print('Archive link:', relative)
             if args.apply:
                 if backup is None:
                     backup = Path(tempfile.mkdtemp(prefix='.dotfiles-uninstall-', dir=home))
@@ -74,7 +99,27 @@ def main():
                 saved.parent.mkdir(parents=True, exist_ok=True)
                 # Keep the same referent even when the original link was relative.
                 saved.symlink_to(destination)
-                target.unlink()
+                if original is not None:
+                    # Finish copying before removing the deployed link. Staging
+                    # beside the target also keeps the final rename on one FS.
+                    with tempfile.TemporaryDirectory(prefix='.dotfiles-restore-', dir=target.parent) as staging:
+                        prepared = Path(staging) / 'original'
+                        if original.is_dir():
+                            shutil.copytree(original, prepared, symlinks=True)
+                        else:
+                            shutil.copy2(original, prepared)
+                        previous = os.readlink(target)
+                        if Path(os.path.normpath(target.parent / previous)) != destination:
+                            raise RuntimeError(f'Deployed link changed during restore: {relative}')
+                        target.unlink()
+                        try:
+                            prepared.rename(target)
+                        except OSError:
+                            if not os.path.lexists(target):
+                                target.symlink_to(previous)
+                            raise
+                else:
+                    target.unlink()
     if args.clean or args.clean_only:
         count = size = 0
         for path in generated():
