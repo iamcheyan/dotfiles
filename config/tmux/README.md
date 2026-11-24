@@ -8,4 +8,6 @@
 - `scripts/persist_save_guard.sh` 与 `persist_restore_guard.sh`：保护有效保存记录。
 - `scripts/pre-restore-agents.sh`：对已有 Agent 命令补充继续会话参数；未安装的工具无需安装，普通 shell 不受影响。
 
+运行 `tt` 可在当前目录打开临时 `tmp` 会话。按 `Ctrl-b d` 分离后会话自动销毁，再运行 `tt` 会创建全新会话。`tt` 使用独立的 tmux 服务器和默认键位，跳过插件与会话恢复。
+
 TPM 插件目录和快照属于用户运行时数据，不入库。可选 `private.conf`、`private-after.conf` 仍可用于个人覆盖，但不是完整功能的前提。迁移时只替换配置与脚本，不移动或删除已有插件、快照。
